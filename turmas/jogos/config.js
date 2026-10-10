@@ -14,6 +14,10 @@
 window.TURMA_CONFIG_JOGOS = {
   id: 'jogos',
   label: 'Jogos Digitais',
+  // Código oficial da turma no SIAP/SENAI. É o valor da coluna `turma` em
+  // professor/data/conteudos.csv (e entra no cálculo da `chave`), então
+  // precisa bater letra por letra com o CSV — ver shared/lancamento.js.
+  codigoTurma: '2º JD',
   // Rótulo da coluna "Nota 3" em Lançar Notas (shared/platform-core.js) —
   // mesmo mecanismo já usado pela turma Sistemas (ver turmas/sistemas/
   // config.js): com os três campos abaixo, a coluna "Prova Final" passa a

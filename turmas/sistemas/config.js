@@ -15,6 +15,10 @@
 window.TURMA_CONFIG_SISTEMAS = {
   id: 'sistemas',
   label: 'Sistemas',
+  // Código oficial da turma no SIAP/SENAI. É o valor da coluna `turma` em
+  // professor/data/conteudos.csv (e entra no cálculo da `chave`), então
+  // precisa bater letra por letra com o CSV — ver shared/lancamento.js.
+  codigoTurma: '2º DS',
   // Rótulo da coluna "Nota 3" em Lançar Notas (shared/platform-core.js) —
   // só a turma Sistemas usa essa coluna exclusivamente pra Prova Final,
   // por isso o rótulo customizado; turma Jogos não define isso e continua

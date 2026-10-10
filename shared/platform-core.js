@@ -4559,7 +4559,20 @@
       desc: 'Suba os 13 andares da torre programando em JavaScript: cada terminal pede um código (do primeiro let até listas, laços, switch e objetos) que vira poder do herói na batalha, até o Rei Bug no topo. Vale ranking da turma, não vale nota.',
       icon: '🗼',
       src: '../../games/torre-do-codigo.html'
-    }
+    },
+    // Só professor: o jogo exige login de professor (é ele quem projeta, os
+    // alunos jogam pelo celular de controle, professor/joystick.html, sem
+    // login). Abre em nova aba em vez do iframe — precisa de tela cheia,
+    // teclado e áudio liberados na própria página.
+    ...(currentUser.role === 'professor' ? {
+      punholendario: {
+        title: 'Punho Lendário — Luta com o Celular de Controle',
+        desc: 'Jogo de luta para projetar na sala: os alunos jogam usando o celular como controle.',
+        icon: '🥋',
+        src: '../../professor/luta.html',
+        novaAba: true
+      }
+    } : {})
     };
   }
 
@@ -4581,6 +4594,7 @@
   function openGame(key) {
     const game = buildGames()[key];
     if (!game) return;
+    if (game.novaAba) { window.open(game.src, '_blank'); return; }
 
     currentGameKey = key;
     document.getElementById('gameSelector').style.display = 'none';

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PixelForge Studios — Criar Material</title>
+<title>Axis — Criar Material</title>
 
 <!-- "Criar Material" (só professor, aberto pelo painel): aulas em slides a
      partir de um arquivo Markdown, pra projetar na sala. Tudo estático —
@@ -13,64 +13,81 @@
      fica "Concluída" quando o professor clica em "Finalizar aula" no último
      slide (guardado neste navegador — localStorage 'sm_aulas_concluidas').
      Motor em shared/slides-md.js; formato em materiais/instrucoes-para-ia.md. -->
+<link rel="stylesheet" href="../shared/professor.css">
 <style>
-  :root{
-    --bg:#0b0d11; --panel:#141821; --panel2:#10131a; --line:#262b36;
-    --green:#4fd1c5; --green-dim:#2f8f86; --blood:#c1121f; --blood-bright:#ff5c5c;
-    --yellow:#ff9466; --ink:#e8ecf1; --ink-dim:#8993a4;
-    --ok:#2fbf71; --warn:#f5b942;
+  /* Tela "Criar Material" no visual do professor (shared/professor.css).
+     A apresentação de slides (.sm-presenter) tem CSS próprio em
+     shared/slides-md.css e não depende deste. */
+  body:has(.sm-presenter:not([hidden])){ overflow:hidden; }
+  body:has(.sm-presenter:not([hidden])) .pr-chuva{ display:none; }
+  .pr-topo-esq{ display:flex; align-items:center; gap:12px; }
+  .pr-topo-esq .pr-marca{ text-decoration:none; }
+  .pr-voltar{ display:inline-flex; align-items:center; gap:6px; color:var(--pr-text-3); text-decoration:none; font-size:14px; font-weight:500; padding:6px 10px; border-radius:var(--pr-radius-sm); }
+  .pr-voltar:hover{ background:var(--pr-surface-2); color:var(--pr-text); }
+
+  .mat-main{ max-width:1100px; margin:0 auto; padding:40px 24px 64px; position:relative; z-index:1; display:flex; flex-direction:column; gap:40px; }
+  .mat-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+  .mat-head h1{ margin:0; font-size:22px; font-weight:700; letter-spacing:-.01em; }
+  .mat-head h2{ margin:0; font-size:17px; font-weight:600; }
+  .mat-resumo{ font-size:14px; color:var(--pr-text-3); }
+  .mat-vazio{ font-size:14px; color:var(--pr-text-3); }
+
+  /* ---------- Cards das aulas (montados por montarCard, abaixo) ---------- */
+  .mat-grid, .mat-ref-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:16px; }
+  .mat-card{
+    --st:var(--pr-border);
+    position:relative; display:flex; flex-direction:column; gap:6px; text-align:left; cursor:pointer;
+    padding:18px 18px 14px; border:1px solid var(--pr-border); border-radius:14px; overflow:hidden;
+    background:var(--pr-surface); color:var(--pr-text); box-shadow:var(--pr-shadow);
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
   }
-  .mat-intro h2{ margin-bottom:4px; }
-  .mat-intro p{ font-size:12px; color:var(--ink-dim); margin:0 0 16px; }
-  .mat-drop{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:24px 16px; border:2px dashed var(--line); border-radius:12px; cursor:pointer; text-align:center; transition:border-color .2s, background .2s; }
-  .mat-drop:hover, .mat-drop.mat-drop-on{ border-color:var(--green); background:rgba(79,209,197,0.06); }
-  .mat-drop .icon{ font-size:32px; }
-  .mat-drop b{ color:var(--green); }
-  .mat-drop small{ color:var(--ink-dim); font-size:11px; }
-  .mat-erro{ color:var(--blood-bright); font-size:12px; margin-top:10px; min-height:1em; }
-
-  /* ---------- Cards das aulas ---------- */
-  .mat-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-  .mat-resumo{ font-size:11px; color:var(--ink-dim); }
-  .mat-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:14px; margin-top:12px; }
-  .mat-card{ position:relative; display:flex; flex-direction:column; gap:8px; text-align:left; cursor:pointer; padding:16px 16px 14px; border:1px solid var(--line); border-radius:14px;
-    background:var(--panel2); color:var(--ink); font:inherit; transition:transform .15s, border-color .15s, box-shadow .15s; overflow:hidden; }
-  .mat-card::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--line); }
-  .mat-card:hover{ transform:translateY(-3px); border-color:var(--green); box-shadow:0 10px 26px rgba(0,0,0,.35); }
+  .mat-card::before{ content:''; position:absolute; left:0; top:0; right:0; height:3px; background:var(--st); }
+  .mat-card:hover{ transform:translateY(-3px); box-shadow:var(--pr-shadow-hover); border-color:color-mix(in srgb, var(--st) 50%, var(--pr-border)); }
   .mat-card-topo{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
-  .mat-num{ font-family:'JetBrains Mono', monospace; font-size:24px; font-weight:800; line-height:1; color:var(--green); }
-  .mat-num small{ font-size:11px; font-weight:700; letter-spacing:1px; color:var(--ink-dim); margin-right:4px; }
-  .mat-data{ font-size:11px; color:var(--ink-dim); }
-  .mat-card h3{ margin:0; font-size:15px; line-height:1.3; color:var(--ink); }
-  .mat-card p{ margin:0; font-size:11px; color:var(--ink-dim); line-height:1.5; }
-  .mat-card-pe{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:auto; padding-top:6px; font-size:10.5px; color:var(--ink-dim); }
-  .mat-selo{ font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; padding:3px 9px; border-radius:999px; border:1px solid var(--line); color:var(--ink-dim); white-space:nowrap; }
-  .mat-card.st-concluida::before{ background:var(--ok); }
-  .mat-card.st-concluida .mat-selo{ color:var(--ok); border-color:var(--ok); background:rgba(47,191,113,.1); }
-  .mat-card.st-concluida{ opacity:.78; }
-  .mat-card.st-concluida:hover{ opacity:1; }
-  .mat-card.st-hoje::before{ background:var(--green); box-shadow:0 0 14px var(--green); }
-  .mat-card.st-hoje{ border-color:var(--green-dim); box-shadow:0 0 0 1px var(--green-dim), 0 0 24px rgba(79,209,197,.15); }
-  .mat-card.st-hoje .mat-selo{ color:#06231c; background:var(--green); border-color:var(--green); }
-  .mat-card.st-proxima::before{ background:#7c9cff; }
-  .mat-card.st-proxima .mat-selo{ color:#7c9cff; border-color:#7c9cff; }
-  .mat-card.st-pendente::before{ background:var(--warn); }
-  .mat-card.st-pendente .mat-selo{ color:var(--warn); border-color:var(--warn); }
-  .mat-desfazer{ font:inherit; font-size:10px; cursor:pointer; background:transparent; border:none; color:var(--ink-dim); text-decoration:underline; padding:0; }
-  .mat-desfazer:hover{ color:var(--blood-bright); }
-  .mat-vazio{ font-size:12px; color:var(--ink-dim); }
-  .mat-ref-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:14px; }
+  .mat-num{ font-size:26px; font-weight:700; line-height:1; letter-spacing:-.02em; color:var(--pr-text); }
+  .mat-num small{ font-size:11px; font-weight:600; letter-spacing:.08em; color:var(--pr-text-3); margin-right:2px; vertical-align:middle; }
+  .mat-data{ font-size:13px; color:var(--pr-text-3); }
+  .mat-card h3{ margin:4px 0 0; font-size:16px; font-weight:600; line-height:1.35; }
+  .mat-card p{ margin:0; font-size:14px; color:var(--pr-text-3); line-height:1.5; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .mat-card-pe{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:auto; padding-top:10px; font-size:12px; color:var(--pr-text-3); }
+  .mat-selo{ font-size:12px; font-weight:600; padding:3px 10px; border-radius:999px; white-space:nowrap; color:var(--pr-text-3); background:var(--pr-surface-2); }
+  .mat-card.st-concluida{ --st:#16a34a; }
+  .mat-card.st-concluida .mat-selo{ color:#15803d; background:color-mix(in srgb, #16a34a 14%, var(--pr-surface)); }
+  .mat-card.st-concluida .mat-num{ color:var(--pr-text-3); }
+  .mat-card.st-hoje{ --st:var(--pr-accent); border-color:color-mix(in srgb, var(--pr-accent) 45%, var(--pr-border)); }
+  .mat-card.st-hoje .mat-selo{ color:#fff; background:var(--pr-accent); }
+  .mat-card.st-hoje .mat-num{ color:var(--pr-accent); }
+  .mat-card.st-proxima{ --st:#7c3aed; }
+  .mat-card.st-proxima .mat-selo{ color:#7c3aed; background:color-mix(in srgb, #7c3aed 12%, var(--pr-surface)); }
+  .mat-card.st-pendente{ --st:#d97706; }
+  .mat-card.st-pendente .mat-selo{ color:#b45309; background:color-mix(in srgb, #d97706 14%, var(--pr-surface)); }
+  @media (prefers-color-scheme: dark){
+    .mat-card.st-concluida .mat-selo{ color:#4ade80; }
+    .mat-card.st-proxima .mat-selo{ color:#a78bfa; }
+    .mat-card.st-pendente .mat-selo{ color:#fbbf24; }
+  }
+  .mat-desfazer{ font:inherit; font-size:12px; cursor:pointer; background:transparent; border:none; color:var(--pr-text-3); text-decoration:underline; padding:0; }
+  .mat-desfazer:hover{ color:var(--pr-danger); }
 
-  /* ---------- Instruções pra IA ---------- */
-  .mat-ia ol{ font-size:12px; color:var(--ink); line-height:1.8; margin:6px 0 14px; padding-left:20px; }
-  .mat-ia ol code, .mat-ia p code{ color:var(--green); }
+  /* ---------- Testar .md e instruções pra IA ---------- */
+  .mat-ferramentas{ display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px; }
+  .mat-painel{ padding:20px; background:var(--pr-surface); border:1px solid var(--pr-border); border-radius:14px; box-shadow:var(--pr-shadow); }
+  .mat-painel h2{ margin:0 0 12px; font-size:16px; font-weight:600; }
+  .mat-drop{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:28px 16px; border:2px dashed var(--pr-border); border-radius:12px; cursor:pointer; text-align:center; font-size:14px; color:var(--pr-text-2); transition:border-color .2s, background .2s; }
+  .mat-drop:hover, .mat-drop.mat-drop-on{ border-color:var(--pr-accent); background:var(--pr-accent-soft); }
+  .mat-drop svg{ width:28px; height:28px; color:var(--pr-accent); }
+  .mat-drop b{ color:var(--pr-accent); font-weight:600; }
+  .mat-erro{ color:var(--pr-danger); font-size:13px; margin-top:10px; min-height:1em; }
   .mat-ia-botoes{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-  .mat-ia details{ margin-top:12px; }
-  .mat-ia summary{ cursor:pointer; font-weight:800; font-size:12px; color:var(--green); }
-  .mat-ia pre{ background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:12px; font-size:11px; line-height:1.55; max-height:420px; overflow:auto; white-space:pre-wrap; }
-  .mat-ia p{ font-size:12px; color:var(--ink-dim); }
+  .mat-ia details{ margin-top:14px; font-size:14px; }
+  .mat-ia summary{ cursor:pointer; font-weight:500; color:var(--pr-text-2); }
+  .mat-ia summary:hover{ color:var(--pr-accent); }
+  .mat-ia ol{ margin:10px 0 0; padding-left:20px; line-height:1.7; color:var(--pr-text-2); }
+  .mat-ia code{ font-family:'JetBrains Mono', ui-monospace, monospace; font-size:.9em; color:var(--pr-accent); }
+  .mat-ia pre{ margin:10px 0 0; background:var(--pr-surface-2); border:1px solid var(--pr-border); border-radius:8px; padding:12px; font-size:12px; line-height:1.55; max-height:420px; overflow:auto; white-space:pre-wrap; }
+  .mat-atalhos{ margin:10px 0 0; font-size:13px; color:var(--pr-text-3); line-height:1.9; }
+  .mat-atalhos kbd{ font-family:inherit; font-size:12px; padding:1px 6px; border:1px solid var(--pr-border); border-bottom-width:2px; border-radius:5px; background:var(--pr-surface); color:var(--pr-text-2); }
 </style>
-<link rel="stylesheet" href="../shared/platform-core.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700;800&display=swap">
 <link rel="stylesheet" id="smHljsTema" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.9.0/styles/github-dark.min.css">
@@ -83,66 +100,81 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script src="../shared/slides-md.js"></script>
 <script src="../materiais/lista.js"></script>
+<script src="../shared/professor-fx.js"></script>
+<script src="../shared/axis-logo.js"></script>
 </head>
 <body>
 
-<div class="a11y-bar">
-  <div class="label">Criar Material</div>
-  <div>
-    <a href="painel.html" class="label" style="color:var(--green); text-decoration:none; margin-right:10px;">⟵ Turmas</a>
-    <span id="sessionUser" class="label" style="color:var(--yellow)"></span>
-    <button id="btnLogout" class="btn-danger" style="padding:4px 8px; font-size:10px; margin-left:8px;">Sair</button>
+<header class="pr-topbar">
+  <div class="pr-topo-esq">
+    <a href="painel.html" class="pr-marca" aria-label="Voltar ao painel"><span data-axis-logo>Axis</span></a>
+    <a href="painel.html" class="pr-voltar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      Painel
+    </a>
   </div>
-</div>
+  <div class="pr-usuario">
+    <span class="pr-usuario-nome" id="sessionUser"></span>
+    <button id="btnLogout" class="btn btn-ghost" type="button">Sair</button>
+  </div>
+</header>
 
-<div class="app-container">
-  <div class="viewport-content">
-    <div class="card">
-      <div class="mat-head">
-        <h2>📚 Minhas aulas</h2>
-        <span class="mat-resumo" id="matResumo"></span>
-      </div>
-      <div class="mat-grid" id="matLista"><p class="mat-vazio">Carregando aulas...</p></div>
+<main class="mat-main">
+  <section>
+    <div class="mat-head">
+      <h1>Minhas aulas</h1>
+      <span class="mat-resumo" id="matResumo"></span>
     </div>
+    <div class="mat-grid" id="matLista"><p class="mat-vazio">Carregando aulas...</p></div>
+  </section>
 
-    <div class="card mat-intro">
-      <h2>📂 Abrir um arquivo .md</h2>
-      <p>Para testar uma aula antes de colocá-la na lista — abre na hora, direto do seu computador.</p>
+  <section class="mat-ferramentas">
+    <div class="mat-painel">
+      <h2>Testar um arquivo .md</h2>
       <label class="mat-drop" id="matDrop">
-        <span class="icon">📂</span>
-        <span><b>Clique para escolher</b> ou arraste um arquivo <b>.md</b> aqui</span>
-        <small>Nada é enviado pra lugar nenhum.</small>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+        <span><b>Escolha</b> ou arraste um arquivo .md</span>
         <input type="file" id="matArquivo" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
       </label>
       <div class="mat-erro" id="matErro"></div>
     </div>
 
-    <div class="card mat-ia">
-      <h2>🤖 Como pedir uma aula para a IA</h2>
-      <ol>
-        <li>Clique em <b>Copiar instruções</b> (ou baixe o arquivo) e cole/anexe na conversa com a IA.</li>
-        <li>Peça a aula, por exemplo: <i>“Gere a <b>aula 4</b>, dia <b>07/10/2026</b>, turma 2º DS, sobre <b>laços de repetição em JavaScript</b>, com 20 min de prática.”</i></li>
-        <li>Salve a resposta como um arquivo <code>.md</code> e teste aqui em cima, em <b>Abrir um arquivo .md</b>.</li>
-        <li>Para a aula entrar em <b>Minhas aulas</b>: coloque o arquivo em <code>materiais/</code> e o nome dele em <code>materiais/lista.js</code> (ou me peça pra fazer isso).</li>
-      </ol>
+    <div class="mat-painel mat-ia">
+      <h2>Pedir uma aula para a IA</h2>
       <div class="mat-ia-botoes">
-        <button type="button" class="btn" id="btnCopiarIA">📋 Copiar instruções</button>
-        <button type="button" class="btn btn-secondary" id="btnBaixarIA">⬇ Baixar .md</button>
+        <button type="button" class="btn" id="btnCopiarIA">Copiar instruções</button>
+        <button type="button" class="btn btn-secondary" id="btnBaixarIA">Baixar .md</button>
         <span class="status-msg" id="iaStatus"></span>
       </div>
+      <details>
+        <summary>Como usar</summary>
+        <ol>
+          <li>Copie as instruções (ou baixe o arquivo) e cole na conversa com a IA.</li>
+          <li>Peça a aula, por exemplo: <i>“Gere a aula 4, dia 07/10/2026, turma 2º DS, sobre laços de repetição em JavaScript, com 20 min de prática.”</i></li>
+          <li>Salve a resposta como <code>.md</code> e teste ao lado.</li>
+          <li>Para entrar em Minhas aulas: coloque o arquivo em <code>materiais/</code> e o nome em <code>materiais/lista.js</code>.</li>
+        </ol>
+      </details>
       <details>
         <summary>Ver as instruções completas</summary>
         <pre id="iaTexto">Carregando...</pre>
       </details>
-      <p>Na apresentação: <b>→ / espaço</b> avança, <b>←</b> volta, <b>O</b> visão geral, <b>T</b> tema claro/escuro, <b>F</b> tela cheia, <b>R</b> revela a resposta, <b>Q</b> amplia o QR Code, <b>Esc</b> sai. No último slide, <b>✅ Finalizar aula</b> marca a aula como concluída.</p>
+      <details>
+        <summary>Atalhos da apresentação</summary>
+        <p class="mat-atalhos">
+          <kbd>→</kbd> <kbd>espaço</kbd> avança · <kbd>←</kbd> volta · <kbd>O</kbd> visão geral · <kbd>T</kbd> tema ·
+          <kbd>F</kbd> tela cheia · <kbd>R</kbd> revela a resposta · <kbd>Q</kbd> amplia o QR Code · <kbd>Esc</kbd> sai.
+          No último slide, <b>Finalizar aula</b> marca a aula como concluída.
+        </p>
+      </details>
     </div>
+  </section>
 
-    <div class="card">
-      <h2>🧭 Referência</h2>
-      <div class="mat-ref-grid" id="matRef"></div>
-    </div>
-  </div>
-</div>
+  <section>
+    <div class="mat-head"><h2>Referência</h2></div>
+    <div class="mat-ref-grid" id="matRef"></div>
+  </section>
+</main>
 
 <div class="sm-presenter" id="smPresenter" hidden></div>
 
@@ -168,7 +200,7 @@
     // Passador de slides no celular (botão 📱): abre professor/controle.html.
     remoto: { client: () => window.PortalSession.client(), url: new URL('controle.html', location.href).href },
     onExit: () => {
-      document.title = 'PixelForge Studios — Criar Material';
+      document.title = 'Axis — Criar Material';
       try { history.replaceState(null, '', location.pathname); } catch (e) {}
     },
   });

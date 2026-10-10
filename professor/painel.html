@@ -3,78 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PixelForge Studios — Painel do Professor</title>
+<title>Axis — Painel do Professor</title>
 
 <!-- Launcher do professor: só escolhe a turma. Chamada, notas, liberação de
      jogos e bloqueio de Ctrl+C/V vivem dentro do portal de cada turma
-     (aba "Gestão", só visível pro professor) — ver shared/platform-core.js. -->
+     (aba "Gestão", só visível pro professor) — ver shared/platform-core.js.
+     Visual: shared/professor.css (moderno, sem tema de jogo). -->
+<link rel="stylesheet" href="../shared/professor.css">
 <style>
-  :root{
-    --bg:#0b0d11; --panel:#141821; --panel2:#10131a; --line:#262b36;
-    --green:#4fd1c5; --green-dim:#2f8f86; --blood:#c1121f; --blood-bright:#ff5c5c;
-    --yellow:#ff9466; --ink:#e8ecf1; --ink-dim:#8993a4;
+  /* Modal do arquivo de lançamento (shared/lancamento.js). */
+  .lanc-titulo{ margin:0 0 4px; font-size:20px; font-weight:700; letter-spacing:-.01em; }
+  .lanc-semana{ display:flex; align-items:center; gap:8px; }
+  .lanc-semana .btn{ width:38px; height:38px; padding:0; font-size:18px; }
+  .lanc-intervalo{ margin-top:8px; font-size:15px; font-weight:600; }
+  .lanc-turmas{ display:flex; flex-direction:column; gap:8px; }
+  .lanc-turma{
+    display:flex; align-items:center; gap:10px; padding:10px 12px; cursor:pointer;
+    border:1px solid var(--pr-border); border-radius:var(--pr-radius-sm); font-size:15px; font-weight:500;
   }
-  .painel-intro{ text-align:center; }
-  .turma-card, .ferramenta-card{ text-align:center; padding:32px 20px; cursor:pointer; }
-  .turma-card:hover, .ferramenta-card:hover{ border-color:var(--green); }
-  .turma-card .icon, .ferramenta-card .icon{ font-size:44px; margin-bottom:10px; }
-  .ferramenta-card{ border-style:dashed; }
-  .turma-card h3, .ferramenta-card h3{ color:var(--ink); font-family:var(--user-font-display, 'VT323', monospace); font-size:20px; letter-spacing:1px; margin:0; }
-  .card-grid.turma-grid{ grid-template-columns:repeat(auto-fit, 220px); justify-content:center; }
+  .lanc-turma:has(input:checked){ border-color:var(--pr-accent); background:var(--pr-accent-soft); }
+  .lanc-acoes{ display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:20px; flex-wrap:wrap; }
+  .lanc-acoes .status-msg{ margin-right:auto; word-break:break-all; }
+  .lanc-erro{ margin-top:12px; padding:12px 14px; border-radius:var(--pr-radius-sm); background:var(--pr-danger-soft); color:var(--pr-danger); font-size:14px; }
+  .lanc-erro-texto{ color:var(--pr-danger); }
+  .lanc-resumo{ margin-top:20px; padding-top:16px; border-top:1px solid var(--pr-border); font-size:14px; }
+  .lanc-resumo > p{ margin:12px 0 4px; }
+  .lanc-lista{ margin:4px 0 8px; padding-left:20px; font-size:13px; max-height:180px; overflow-y:auto; }
 </style>
-<link rel="stylesheet" href="../shared/platform-core.css">
 
 <script src="../shared/supabase-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../shared/session.js"></script>
+<!-- Só pelo campo codigoTurma, usado no arquivo de lançamento. -->
+<script src="../turmas/jogos/config.js"></script>
+<script src="../turmas/sistemas/config.js"></script>
+<script src="../shared/lancamento.js"></script>
+<script src="../shared/professor-fx.js"></script>
+<script src="../shared/axis-logo.js"></script>
+<script src="../shared/frases-estoicas.js"></script>
 </head>
 <body>
 
-<div class="a11y-bar">
-  <div class="label">Corpo Docente</div>
-  <div>
-    <span id="sessionUser" class="label" style="color:var(--yellow)"></span>
-    <button id="btnLogout" class="btn-danger" style="padding:4px 8px; font-size:10px; margin-left:8px;">Sair</button>
+<header class="pr-topbar">
+  <div class="pr-marca"><span data-axis-logo>Axis</span></div>
+  <div class="pr-usuario">
+    <span class="pr-usuario-nome" id="sessionUser"></span>
+    <button id="btnLogout" class="btn btn-ghost" type="button">Sair</button>
   </div>
-</div>
+</header>
 
-<div class="app-container">
-  <div class="viewport-content">
-    <div class="card painel-intro">
-      <h2>Escolha uma turma</h2>
-      <p style="font-size:11px; color:var(--ink-dim); margin:-4px 0 16px;">
-        Chamada, notas, liberação de jogos e bloqueio de Ctrl+C/V ficam dentro do portal de cada turma, na aba "Gestão 🛠️".
-      </p>
-      <!-- IP do jogo do hacker (GitHack OS) é diferente por turma: cada linha de
-           network_nodes pertence a uma turma só, então o professor precisa de
-           um nó próprio em cada subnet (192.168.1.254 em Jogos, 192.168.2.254
-           em Sistemas) pra aparecer no netscan dos alunos da turma que estiver
-           jogando — ver sql/supabase-setup-completo.sql (bloco 6b). -->
-      <div class="card-grid turma-grid">
-        <div class="card turma-card" onclick="window.open('../turmas/jogos/plataforma.html', '_blank')">
-          <div class="icon">🎮</div>
-          <h3>Jogos Digitais</h3>
-        </div>
-        <div class="card turma-card" onclick="window.open('../turmas/sistemas/plataforma.html', '_blank')">
-          <div class="icon">🖥️</div>
-          <h3>Desenvolvimento de Sistemas</h3>
-        </div>
-        <!-- Não é uma turma: aulas em slides a partir de um .md, pra projetar
-             (professor/materiais.html, shared/slides-md.js). -->
-        <div class="card ferramenta-card" onclick="window.open('materiais.html', '_blank')">
-          <div class="icon">📽️</div>
-          <h3>Criar Material</h3>
-        </div>
-        <!-- Jogo de luta do professor, com o celular de joystick
-             (professor/luta.html, luta-jogo.js e joystick.html). -->
-        <div class="card ferramenta-card" onclick="window.open('luta.html', '_blank')">
-          <div class="icon">🥋</div>
-          <h3>Punho Lendário</h3>
-        </div>
-      </div>
+<main class="pr-main app-container">
+  <!-- Saudação, relógio, data e uma frase estoica que troca sozinha
+       (shared/frases-estoicas.js). -->
+  <section class="pr-hero">
+    <div class="pr-relogio" id="relogio" aria-label="Hora atual">--:--</div>
+    <p class="pr-saudacao"><span id="saudacao">Olá</span><span class="pr-hero-sep" aria-hidden="true">·</span><span id="dataHoje"></span></p>
+    <figure class="pr-frase" id="frase" aria-live="polite">
+      <blockquote id="fraseTexto"></blockquote>
+      <figcaption id="fraseAutor"></figcaption>
+    </figure>
+  </section>
+
+  <section class="pr-secao">
+    <!-- IP do jogo do hacker (GitHack OS) é diferente por turma: cada linha de
+         network_nodes pertence a uma turma só, então o professor precisa de
+         um nó próprio em cada subnet (192.168.1.254 em Jogos, 192.168.2.254
+         em Sistemas) pra aparecer no netscan dos alunos da turma que estiver
+         jogando — ver sql/supabase-setup-completo.sql (bloco 6b). -->
+    <div class="pr-grid">
+      <button type="button" class="pr-card turma-card cor-violeta" onclick="window.open('../turmas/jogos/plataforma.html', '_blank')">
+        <span class="pr-card-icone" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect width="20" height="12" x="2" y="6" rx="2"/></svg>
+        </span>
+        <span class="pr-card-nome">Jogos Digitais</span>
+      </button>
+      <button type="button" class="pr-card turma-card cor-azul" onclick="window.open('../turmas/sistemas/plataforma.html', '_blank')">
+        <span class="pr-card-icone" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+        </span>
+        <span class="pr-card-nome">Desenvolvimento de Sistemas</span>
+      </button>
     </div>
-  </div>
-</div>
+  </section>
+
+  <section class="pr-secao">
+    <div class="pr-grid">
+      <!-- Exporta a semana (conteúdo do FO + chamada) num CSV pro lançamento
+           no SIAP/SENAI — shared/lancamento.js, base em data/conteudos.csv. -->
+      <button type="button" class="pr-card pr-card-ferramenta cor-verde" id="btnGerarLancamento" title="Gerar arquivo de lançamento (SIAP/SENAI)">
+        <span class="pr-card-icone" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
+        </span>
+        <span class="pr-card-nome">Lançamento</span>
+      </button>
+      <!-- Aulas em slides a partir de um .md, pra projetar
+           (professor/materiais.html, shared/slides-md.js). -->
+      <button type="button" class="pr-card pr-card-ferramenta cor-laranja" onclick="window.open('materiais.html', '_blank')">
+        <span class="pr-card-icone" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/></svg>
+        </span>
+        <span class="pr-card-nome">Criar Material</span>
+      </button>
+    </div>
+  </section>
+</main>
+
+<script>
+// Relógio, data e frases estoicas: começam já, antes do login terminar;
+// o nome entra na saudação quando a sessão responde (iniciarSaudacao).
+let nomeSaudacao = '';
+function iniciarSaudacao(nome) {
+  nomeSaudacao = (nome || '').split(/[\s/]+/)[0] || '';
+  atualizarRelogio();
+}
+
+function atualizarRelogio() {
+  const agora = new Date();
+  document.getElementById('relogio').textContent =
+    agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const h = agora.getHours();
+  const cumprimento = h < 5 ? 'Boa noite' : h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+  document.getElementById('saudacao').textContent = nomeSaudacao ? `${cumprimento}, ${nomeSaudacao}` : cumprimento;
+  const data = agora.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('dataHoje').textContent = data.charAt(0).toUpperCase() + data.slice(1);
+}
+atualizarRelogio();
+setInterval(atualizarRelogio, 1000);
+
+(function () {
+  const frases = window.FRASES_ESTOICAS || [];
+  const caixa = document.getElementById('frase');
+  if (frases.length === 0) { caixa.hidden = true; return; }
+  const TROCA_MS = 15000;
+  // Ordem embaralhada, sem repetir até passar por todas.
+  let fila = [];
+  function proxima() {
+    if (fila.length === 0) fila = frases.map((_, i) => i).sort(() => Math.random() - 0.5);
+    return frases[fila.pop()];
+  }
+  function mostrar(f) {
+    document.getElementById('fraseTexto').textContent = `“${f.texto}”`;
+    document.getElementById('fraseAutor').textContent = `— ${f.autor}`;
+    caixa.title = f.fonte || '';
+  }
+  mostrar(proxima());
+  // Com o mouse em cima, a frase não troca (dá tempo de ler até o fim).
+  let pausada = false;
+  caixa.addEventListener('pointerenter', () => { pausada = true; });
+  caixa.addEventListener('pointerleave', () => { pausada = false; });
+  setInterval(() => {
+    if (pausada || document.hidden) return;
+    caixa.classList.add('pr-frase-saindo');
+    setTimeout(() => { mostrar(proxima()); caixa.classList.remove('pr-frase-saindo'); }, 400);
+  }, TROCA_MS);
+})();
+</script>
 
 <script>
 (async function () {
@@ -89,6 +172,14 @@
   }
 
   document.getElementById('sessionUser').textContent = currentUser.nome;
+  iniciarSaudacao(currentUser.nome);
+
+  document.getElementById('btnGerarLancamento').addEventListener('click', () => {
+    const turmas = [window.TURMA_CONFIG_JOGOS, window.TURMA_CONFIG_SISTEMAS]
+      .filter(c => c && c.codigoTurma)
+      .map(c => ({ id: c.id, codigo: c.codigoTurma, label: c.label }));
+    window.Lancamento.abrir({ urlBase: 'data/conteudos.csv', turmas });
+  });
 
   document.getElementById('btnLogout').addEventListener('click', async () => {
     await window.PortalSession.signOut();

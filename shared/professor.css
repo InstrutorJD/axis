@@ -1,0 +1,264 @@
+/* Visual das telas do PROFESSOR (painel, e depois as demais): moderno e
+   legível, sem tema de jogo — fonte Inter, fundo claro com modo escuro
+   automático (segue o sistema), cartões com sombra leve e um único tom de
+   destaque. Não é usado pelas telas do aluno (essas seguem com
+   shared/platform-core.css).
+
+   Também estiliza as classes que shared/lancamento.js usa no modal
+   (pf-alert-*, pf-perso-*, btn, status-msg, audit-table), pra o modal
+   funcionar aqui sem carregar o platform-core.css. */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --pr-bg:#f6f7f9;
+  --pr-surface:#ffffff;
+  --pr-surface-2:#f1f3f6;
+  --pr-border:#e3e6eb;
+  --pr-text:#111827;
+  --pr-text-2:#4b5563;
+  --pr-text-3:#6b7280;
+  --pr-accent:#2563eb;
+  --pr-accent-hover:#1d4ed8;
+  --pr-accent-soft:#eaf1ff;
+  --pr-danger:#dc2626;
+  --pr-danger-soft:#fef2f2;
+  --pr-warn:#b45309;
+  --pr-warn-soft:#fffbeb;
+  --pr-ok:#15803d;
+  --pr-shadow:0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.06);
+  --pr-shadow-hover:0 4px 8px rgba(16,24,40,.06), 0 12px 24px rgba(16,24,40,.08);
+  --pr-radius:12px;
+  --pr-radius-sm:8px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --pr-bg:#0f1115;
+    --pr-surface:#171a21;
+    --pr-surface-2:#1e222b;
+    --pr-border:#2a2f3a;
+    --pr-text:#f3f4f6;
+    --pr-text-2:#c4c9d2;
+    --pr-text-3:#9aa1ad;
+    --pr-accent:#5b8def;
+    --pr-accent-hover:#7aa3f3;
+    --pr-accent-soft:#1c2740;
+    --pr-danger:#f87171;
+    --pr-danger-soft:#2a1617;
+    --pr-warn:#fbbf24;
+    --pr-warn-soft:#2a2213;
+    --pr-ok:#4ade80;
+    --pr-shadow:0 1px 2px rgba(0,0,0,.3);
+    --pr-shadow-hover:0 8px 24px rgba(0,0,0,.4);
+    color-scheme:dark;
+  }
+}
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  background:var(--pr-bg);
+  color:var(--pr-text);
+  font-family:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size:16px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button, input, select, textarea{ font:inherit; color:inherit; }
+:focus-visible{ outline:2px solid var(--pr-accent); outline-offset:2px; }
+
+/* ---------- Barra do topo ---------- */
+.pr-topbar{
+  position:sticky; top:0; z-index:10;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:10px 24px;
+  background:color-mix(in srgb, var(--pr-surface) 88%, transparent);
+  backdrop-filter:saturate(1.4) blur(8px);
+  border-bottom:1px solid var(--pr-border);
+}
+.pr-marca{ font-weight:700; font-size:17px; letter-spacing:-.01em; }
+
+/* Marca "Axis" em rabisco (shared/axis-logo.js) — mesmo desenho e mesmo
+   efeito da tela de login (index.html, .login-letter). No tema claro o
+   ciano é mais escuro e o brilho mais fraco, senão some no fundo branco. */
+.axis-logo{
+  --axis-stroke:#0ab3d1;
+  display:block; width:110px; height:44px; overflow:visible; cursor:default;
+  will-change:transform, filter;
+  filter:drop-shadow(0 0 1px rgba(10,179,209,.6)) drop-shadow(0 0 6px rgba(10,179,209,.3));
+  transition:filter .45s ease;
+}
+.axis-logo .risco{ fill:none; stroke:var(--axis-stroke); stroke-linecap:round; stroke-linejoin:round; }
+.axis-logo .risco-fino{ stroke-width:1.6; opacity:.55; }
+.axis-logo .risco-forte{ stroke-width:3.6; }
+.axis-logo .camada-grad{ --axis-stroke:url(#axisLogoGrad); opacity:0; transition:opacity .45s ease; }
+.axis-logo.acesa .camada-grad{ opacity:1; }
+.axis-logo.acesa{
+  filter:drop-shadow(0 0 2px rgba(255,79,216,.6)) drop-shadow(0 0 8px rgba(167,139,250,.5));
+}
+@media (prefers-color-scheme: dark){
+  .axis-logo{
+    --axis-stroke:#5ee7ff;
+    filter:drop-shadow(0 0 2px rgba(94,231,255,.9)) drop-shadow(0 0 7px rgba(94,231,255,.55)) drop-shadow(0 0 16px rgba(94,231,255,.3));
+  }
+  .axis-logo.acesa{
+    filter:drop-shadow(0 0 2px rgba(255,255,255,.9)) drop-shadow(0 0 7px rgba(255,79,216,.85)) drop-shadow(0 0 16px rgba(167,139,250,.7)) drop-shadow(0 0 30px rgba(255,79,216,.45));
+  }
+}
+.pr-usuario{ display:flex; align-items:center; gap:8px; font-size:14px; color:var(--pr-text-3); }
+
+/* ---------- Conteúdo: só cartões, centralizados na tela ---------- */
+.pr-main{
+  display:flex; flex-direction:column; gap:20px;
+  max-width:760px; margin:0 auto; padding:24px 24px 48px;
+}
+.pr-secao + .pr-secao{ padding-top:20px; border-top:1px solid var(--pr-border); }
+.pr-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:16px; }
+
+/* Saudação do painel: relógio grande, saudação + data e uma frase
+   estoica que troca a cada 15 s (professor/painel.html). */
+.pr-hero{ text-align:center; margin-bottom:28px; }
+.pr-relogio{
+  font-size:clamp(64px, 14vw, 112px); font-weight:300; letter-spacing:-.03em; line-height:1;
+  font-variant-numeric:tabular-nums; color:var(--pr-text);
+}
+.pr-saudacao{ margin:10px 0 0; font-size:17px; color:var(--pr-text-2); }
+.pr-saudacao #saudacao{ font-weight:600; color:var(--pr-text); }
+.pr-hero-sep{ margin:0 10px; color:var(--pr-text-3); }
+.pr-frase{
+  max-width:560px; margin:22px auto 0; min-height:4.2em;
+  transition:opacity .4s ease, transform .4s ease;
+}
+.pr-frase blockquote{ margin:0; font-size:15px; font-style:italic; line-height:1.55; color:var(--pr-text-2); }
+.pr-frase figcaption{ margin-top:6px; font-size:13px; color:var(--pr-text-3); }
+.pr-frase.pr-frase-saindo{ opacity:0; transform:translateY(4px); }
+
+/* Cartão clicável: ícone em cima, nome embaixo. Efeitos de mouse
+   (shared/professor-fx.js): leve inclinação 3D seguindo o cursor
+   (--rx/--ry) e um brilho que acompanha o mouse (--mx/--my). */
+.pr-card{
+  --rx:0deg; --ry:0deg; --lift:0px; --mx:50%; --my:50%;
+  --cor:var(--pr-accent); /* cor do cartão: ícone, brilho, borda e nome no hover */
+  position:relative; overflow:hidden; isolation:isolate;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+  width:100%; min-height:150px; padding:24px 16px; text-align:center; cursor:pointer;
+  background:var(--pr-surface); border:1px solid var(--pr-border); border-radius:16px;
+  box-shadow:var(--pr-shadow);
+  transform:perspective(700px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift));
+  transition:box-shadow .2s ease, border-color .2s ease, transform .2s ease;
+}
+.pr-card::before{
+  content:''; position:absolute; inset:0; z-index:-1; opacity:0; transition:opacity .25s ease;
+  background:radial-gradient(220px circle at var(--mx) var(--my), color-mix(in srgb, var(--cor) 16%, transparent), transparent 70%);
+}
+.pr-card:hover{
+  --lift:-4px;
+  box-shadow:var(--pr-shadow-hover);
+  border-color:color-mix(in srgb, var(--cor) 45%, var(--pr-border));
+}
+.pr-card:hover::before{ opacity:1; }
+.pr-card:active{ --lift:-1px; transition-duration:.08s; }
+.pr-card-icone{
+  width:48px; height:48px; border-radius:12px; display:grid; place-items:center;
+  background:color-mix(in srgb, var(--cor) 14%, var(--pr-surface)); color:var(--cor);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.pr-card-icone svg{ width:24px; height:24px; }
+.pr-card:hover .pr-card-icone{
+  transform:scale(1.12) rotate(-6deg);
+  background:var(--cor); color:#fff;
+  box-shadow:0 6px 16px color-mix(in srgb, var(--cor) 40%, transparent);
+}
+.pr-card-nome{ font-size:15px; font-weight:600; color:var(--pr-text); line-height:1.3; transition:color .2s ease; }
+.pr-card:hover .pr-card-nome{ color:var(--cor); }
+.pr-card.pr-card-ferramenta{ min-height:120px; }
+
+/* Paleta dos cartões (classe .cor-* no cartão). */
+.pr-card.cor-violeta{ --cor:#7c3aed; }
+.pr-card.cor-azul{ --cor:#2563eb; }
+.pr-card.cor-verde{ --cor:#059669; }
+.pr-card.cor-laranja{ --cor:#ea580c; }
+.pr-card.cor-rosa{ --cor:#db2777; }
+@media (prefers-color-scheme: dark){
+  .pr-card.cor-violeta{ --cor:#a78bfa; }
+  .pr-card.cor-azul{ --cor:#60a5fa; }
+  .pr-card.cor-verde{ --cor:#34d399; }
+  .pr-card.cor-laranja{ --cor:#fb923c; }
+  .pr-card.cor-rosa{ --cor:#f472b6; }
+}
+
+/* Emojis de tecnologia caindo no fundo, bem transparentes
+   (shared/professor-fx.js cria os elementos). Ficam atrás do conteúdo e
+   não recebem clique. */
+.pr-chuva{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+.pr-chuva span{
+  position:absolute; top:-10vh; left:var(--x);
+  font-size:var(--tam); opacity:var(--op);
+  filter:grayscale(.2);
+  animation:prCair var(--dur) linear var(--atraso) infinite;
+  will-change:transform;
+}
+@keyframes prCair{
+  from{ transform:translate3d(0, 0, 0) rotate(0deg); }
+  to{ transform:translate3d(var(--deriva), 120vh, 0) rotate(var(--giro)); }
+}
+.pr-main{ position:relative; z-index:1; }
+
+@media (prefers-reduced-motion: reduce){
+  .pr-chuva{ display:none; }
+  .pr-card, .pr-card-icone{ transition:none; }
+  .pr-card{ transform:none; }
+  .axis-logo{ transition:none; transform:none !important; }
+  .pr-frase{ transition:none; }
+  .pr-card:hover .pr-card-icone{ transform:none; }
+}
+
+/* ---------- Botões ---------- */
+.btn, button.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:9px 16px; border-radius:var(--pr-radius-sm); border:1px solid transparent;
+  background:var(--pr-accent); color:#fff; font-size:14px; font-weight:600; cursor:pointer;
+  transition:background .15s ease, border-color .15s ease, opacity .15s ease;
+}
+.btn:hover, button.btn:hover{ background:var(--pr-accent-hover); }
+.btn:disabled, button.btn:disabled{ opacity:.45; cursor:not-allowed; }
+.btn-secondary, button.btn-secondary{ background:var(--pr-surface); color:var(--pr-text); border-color:var(--pr-border); }
+.btn-secondary:hover, button.btn-secondary:hover{ background:var(--pr-surface-2); }
+.btn-ghost, button.btn-ghost{ background:transparent; color:var(--pr-text-2); border-color:transparent; padding:7px 12px; }
+.btn-ghost:hover, button.btn-ghost:hover{ background:var(--pr-surface-2); color:var(--pr-text); }
+
+/* ---------- Formulários / textos auxiliares ---------- */
+input[type="date"], input[type="text"], select{
+  padding:8px 10px; border:1px solid var(--pr-border); border-radius:var(--pr-radius-sm);
+  background:var(--pr-surface); color:var(--pr-text); font-size:14px;
+}
+input[type="checkbox"]{ width:18px; height:18px; accent-color:var(--pr-accent); cursor:pointer; }
+.status-msg{ font-size:13px; color:var(--pr-text-3); }
+
+.audit-table{ width:100%; border-collapse:collapse; font-size:13px; margin-top:12px; }
+.audit-table th{ text-align:left; font-weight:600; color:var(--pr-text-3); border-bottom:1px solid var(--pr-border); padding:8px 8px; font-size:12px; }
+.audit-table td{ padding:8px 8px; border-bottom:1px solid var(--pr-border); color:var(--pr-text-2); }
+
+/* ---------- Modal (mesmas classes do platform-core.css) ---------- */
+.pf-alert-overlay{
+  position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; padding:16px;
+  background:rgba(15,17,21,.45); backdrop-filter:blur(2px);
+}
+.pf-alert-box{
+  width:100%; max-width:420px; padding:24px;
+  background:var(--pr-surface); border:1px solid var(--pr-border); border-radius:16px;
+  box-shadow:0 20px 50px rgba(16,24,40,.25);
+}
+.pf-perso-box{ max-width:600px; max-height:min(720px, 92vh); overflow-y:auto; }
+.pf-perso-section{ margin-top:20px; }
+.pf-perso-label{ margin-bottom:8px; font-size:13px; font-weight:600; color:var(--pr-text-2); }
+
+@media (max-width:600px){
+  .pr-topbar{ padding:10px 16px; }
+  .pr-usuario-nome{ display:none; }
+  .pr-main{ padding:24px 16px; }
+  .pr-grid{ grid-template-columns:repeat(2, 1fr); gap:12px; }
+  .pr-hero-sep{ display:none; }
+  #dataHoje{ display:block; margin-top:2px; font-size:15px; }
+}
