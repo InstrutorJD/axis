@@ -68,6 +68,14 @@ body{
 button, input, select, textarea{ font:inherit; color:inherit; }
 :focus-visible{ outline:2px solid var(--pr-accent); outline-offset:2px; }
 
+/* Seta do mouse "premium" das telas do professor: dourada em degradê, com
+   contorno branco e sombra. O cursor de texto dos campos
+   continua o do sistema. */
+html{ cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fde68a'/><stop offset='.55' stop-color='%23d4a017'/><stop offset='1' stop-color='%238a6116'/></linearGradient><filter id='s' x='-30%' y='-30%' width='170%' height='170%'><feDropShadow dx='0' dy='1.2' stdDeviation='1.1' flood-color='%233b2a05' flood-opacity='.45'/></filter></defs><path d='M5 3 L5 21.5 L9.6 17.2 L12.7 24 L15.9 22.6 L12.9 15.9 L19.4 15.7 Z' fill='url(%23g)' stroke='white' stroke-width='1.7' stroke-linejoin='round' filter='url(%23s)'/><path d='M6.6 6.6 L6.6 13' stroke='white' stroke-opacity='.55' stroke-width='1.2' stroke-linecap='round'/></svg>") 5 3, auto; }
+/* Mãozinha dourada (mesmo degradê da seta) em tudo que é clicável. */
+:is(a[href], button, [role=button], summary, select, label, [onclick], input:is([type=checkbox], [type=radio], [type=button], [type=submit], [type=file]), .pr-card, .mat-card, .mat-drop):not(:disabled){ cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fde68a'/><stop offset='.55' stop-color='%23d4a017'/><stop offset='1' stop-color='%238a6116'/></linearGradient><filter id='s' x='-30%' y='-30%' width='170%' height='170%'><feDropShadow dx='0' dy='1.2' stdDeviation='1.1' flood-color='%233b2a05' flood-opacity='.45'/></filter></defs><path d='M9 4.5 A2 2 0 0 1 13 4.5 V11 A1.8 1.8 0 0 1 16.6 11.3 A1.8 1.8 0 0 1 20.2 12.4 V18 C20.2 22 17.8 25 14 25 H12.6 C10.4 25 8.9 24.2 7.7 22.8 L4.4 18.6 A1.7 1.7 0 0 1 6.9 16.4 L9 18.2 Z' fill='url(%23g)' stroke='white' stroke-width='1.6' stroke-linejoin='round' filter='url(%23s)'/><path d='M13 11.2 V15 M16.6 11.6 V15' stroke='white' stroke-opacity='.6' stroke-width='1.1' stroke-linecap='round'/></svg>") 11 3, pointer; }
+:is(input:is(:not([type]), [type=text], [type=number], [type=date], [type=time], [type=email], [type=password], [type=search], [type=url]), textarea, [contenteditable]){ cursor:text; }
+
 /* ---------- Barra do topo ---------- */
 .pr-topbar{
   position:sticky; top:0; z-index:10;

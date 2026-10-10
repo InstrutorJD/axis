@@ -511,10 +511,44 @@ iframe{ width:100%; height:100%; border:none; display:block; }
 /* Modal de personalização (JS: openPersonalizacao em platform-core.js) —
    mesma caixa do pf-alert-*, só mais larga (tem 6 seções de controles) e
    com scroll próprio (o conteúdo pode passar da altura da tela). */
-.pf-perso-box{ max-width:560px; max-height:min(640px, 90vh); overflow-y:auto; }
-.pf-perso-section{ margin-bottom:16px; }
-.pf-perso-label{ font-size:10.5px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
+.pf-perso-box{
+  max-width:560px; max-height:min(680px, 90vh); overflow-y:auto; padding:0 20px;
+  border-color:var(--green-dim);
+}
+/* Cabeçalho e rodapé grudados no topo/fim da caixa enquanto o meio rola. */
+.pf-perso-head{
+  position:sticky; top:0; z-index:1; background:var(--panel);
+  padding:20px 0 14px; margin-bottom:4px; border-bottom:1px solid var(--line);
+}
+.pf-perso-titulo{ margin:0; font-size:16px; }
+.pf-perso-sub{ margin:4px 0 0; font-size:12px; color:var(--ink-dim); line-height:1.5; }
+.pf-perso-section{ padding:14px 0; border-bottom:1px solid var(--line); }
+.pf-perso-section:has(+ .pf-perso-pe){ border-bottom:none; }
+.pf-perso-label{ font-size:10.5px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
+.pf-perso-pe{
+  position:sticky; bottom:0; z-index:1; background:var(--panel);
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+  padding:14px 0 20px; border-top:1px solid var(--line);
+}
 .pf-swatch-row{ display:flex; gap:8px; flex-wrap:wrap; }
+/* Opções em colunas iguais, pra tudo ficar alinhado. */
+.pf-swatch-row.pf-grid-2{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); }
+.pf-grid-2 .pf-swatch-btn{ width:100%; text-align:center; }
+.pf-swatch-row.pf-cores{ gap:10px; }
+.pf-swatch-row.pf-emoji-grid{ display:grid; grid-template-columns:repeat(auto-fill, 38px); gap:6px; justify-content:start; }
+.pf-swatch-row.pf-cursor-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(118px, 1fr)); }
+.pf-cursor-grid .pf-cursor-btn{ width:100%; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+/* Liga/desliga: texto à esquerda, caixa de marcar à direita, todos na mesma linha. */
+.pf-perso-opcoes{ display:flex; flex-direction:column; gap:6px; }
+.pf-perso-opcao{
+  display:flex; align-items:center; justify-content:space-between; gap:12px; cursor:pointer;
+  padding:10px 12px; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--panel2);
+}
+.pf-perso-opcao:hover{ border-color:var(--ink-dim); }
+.pf-perso-opcao span{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+.pf-perso-opcao b{ font-size:12.5px; font-weight:700; color:var(--ink); }
+.pf-perso-opcao small{ font-size:11px; color:var(--ink-dim); }
+.pf-perso-opcao input[type="checkbox"]{ flex-shrink:0; width:18px; height:18px; margin:0; }
 .pf-swatch-btn, .pf-emoji-btn, .pf-cursor-btn{ transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease; }
 .pf-swatch-btn:hover, .pf-emoji-btn:hover, .pf-cursor-btn:hover{ transform:translateY(-2px); border-color:var(--ink-dim); box-shadow:0 4px 10px rgba(0,0,0,0.3); }
 .pf-swatch-btn{
@@ -542,7 +576,8 @@ iframe{ width:100%; height:100%; border:none; display:block; }
 .pf-emoji-grid{ max-width:100%; }
 .pf-emoji-btn{
   font-size:18px; line-height:1; background:var(--panel2); border:1px solid var(--line);
-  padding:6px; cursor:pointer; border-radius:var(--radius-sm); width:34px; height:34px;
+  padding:0; cursor:pointer; border-radius:var(--radius-sm); width:38px; height:38px;
+  display:flex; align-items:center; justify-content:center;
 }
 .pf-emoji-btn.active{ border-color:var(--green); background:var(--panel); box-shadow:0 0 0 1px var(--green); }
 .pf-cursor-btn{

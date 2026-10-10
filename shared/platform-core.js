@@ -5180,22 +5180,24 @@
     }).join('');
 
     return `
-      <h3 style="margin:0 0 4px; font-size:14px;">🎨 Personalizar Portal</h3>
-      <p style="font-size:11px; color:var(--ink-dim); margin:0 0 16px;">Suas escolhas ficam salvas na sua conta — aparecem em qualquer computador que você usar pra entrar.</p>
+      <div class="pf-perso-head">
+        <h3 class="pf-perso-titulo">🎨 Personalizar portal</h3>
+        <p class="pf-perso-sub">Suas escolhas ficam salvas na sua conta e aparecem em qualquer computador.</p>
+      </div>
 
       <div class="pf-perso-section">
         <div class="pf-perso-label">Fonte</div>
-        <div class="pf-swatch-row" id="psFontRow">${fontButtons}</div>
+        <div class="pf-swatch-row pf-grid-2" id="psFontRow">${fontButtons}</div>
       </div>
 
       <div class="pf-perso-section">
         <div class="pf-perso-label">Cor de destaque</div>
-        <div class="pf-swatch-row" id="psAccentRow">${accentButtons}</div>
+        <div class="pf-swatch-row pf-cores" id="psAccentRow">${accentButtons}</div>
       </div>
 
       <div class="pf-perso-section">
         <div class="pf-perso-label">Tema</div>
-        <div class="pf-swatch-row" id="psThemeRow">
+        <div class="pf-swatch-row pf-grid-2" id="psThemeRow">
           <button type="button" class="pf-swatch-btn ${prefs.theme === 'dark' ? 'active' : ''}" data-theme-key="dark">🌙 Escuro</button>
           <button type="button" class="pf-swatch-btn ${prefs.theme === 'light' ? 'active' : ''}" data-theme-key="light">☀️ Claro</button>
         </div>
@@ -5207,30 +5209,29 @@
       </div>
 
       <div class="pf-perso-section">
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12px;">
-          <input type="checkbox" id="psBgPattern" ${prefs.bgPattern ? 'checked' : ''}>
-          ✨ Fundo com emojis flutuantes (discreto, aparece mais nas bordas da tela)
-        </label>
-      </div>
-
-      <div class="pf-perso-section">
         <div class="pf-perso-label">Cursor do mouse</div>
-        <div class="pf-swatch-row" id="psCursorRow">${cursorButtons}</div>
+        <div class="pf-swatch-row pf-cursor-grid" id="psCursorRow">${cursorButtons}</div>
       </div>
 
       <div class="pf-perso-section">
-        <div class="pf-perso-label">Som</div>
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12px; margin-bottom:8px;">
-          <input type="checkbox" id="psAmbientMusic" ${prefs.ambientMusic ? 'checked' : ''}>
-          🎵 Música ambiente (baixinho, sintetizada — sem baixar nada)
-        </label>
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12px;">
-          <input type="checkbox" id="psClickSound" ${prefs.clickSound ? 'checked' : ''}>
-          🔊 Som de clique (o timbre muda de acordo com o cursor escolhido acima)
-        </label>
+        <div class="pf-perso-label">Fundo e som</div>
+        <div class="pf-perso-opcoes">
+          <label class="pf-perso-opcao">
+            <span><b>✨ Fundo com emojis</b><small>Discreto, aparece mais nas bordas da tela.</small></span>
+            <input type="checkbox" id="psBgPattern" ${prefs.bgPattern ? 'checked' : ''}>
+          </label>
+          <label class="pf-perso-opcao">
+            <span><b>🎵 Música ambiente</b><small>Baixinha e sintetizada, sem baixar nada.</small></span>
+            <input type="checkbox" id="psAmbientMusic" ${prefs.ambientMusic ? 'checked' : ''}>
+          </label>
+          <label class="pf-perso-opcao">
+            <span><b>🔊 Som de clique</b><small>O timbre muda de acordo com o cursor escolhido.</small></span>
+            <input type="checkbox" id="psClickSound" ${prefs.clickSound ? 'checked' : ''}>
+          </label>
+        </div>
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+      <div class="pf-perso-pe">
         <span class="status-msg" id="personalizacaoStatus"></span>
         <button class="btn btn-secondary pf-perso-close">Fechar</button>
       </div>
@@ -5321,7 +5322,7 @@
       wireControls();
     }
 
-    overlay.innerHTML = `<div class="pf-alert-box pf-perso-box" style="border-color:var(--green-dim);" role="dialog" aria-modal="true">${renderPersonalizacaoBody()}</div>`;
+    overlay.innerHTML = `<div class="pf-alert-box pf-perso-box" role="dialog" aria-modal="true" aria-label="Personalizar portal">${renderPersonalizacaoBody()}</div>`;
     wireControls();
   }
 
@@ -5447,6 +5448,9 @@
 
     // Marca o documento pro CSS esconder o que o substituto não usa (.so-professor).
     document.documentElement.toggleAttribute('data-substituto', !!currentUser.substituto);
+    // Visual moderno das telas do professor (shared/professor-portal.css);
+    // o aluno continua com o tema da turma.
+    document.documentElement.toggleAttribute('data-visual-professor', currentUser.role === 'professor');
     renderShell();
     renderMaterias();
     renderGameCards();

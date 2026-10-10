@@ -1,0 +1,274 @@
+/* Visual do PROFESSOR dentro do portal da turma (turmas/<turma>/plataforma.html):
+   o mesmo visual moderno do painel (shared/professor.css) — fonte Inter,
+   fundo claro (escuro se o sistema estiver no modo escuro), sem neon,
+   sem listras de monitor, sem texto em maiúsculas.
+
+   Só vale com html[data-visual-professor], que shared/platform-core.js
+   (init) liga quando quem entrou é professor (ou substituto). O aluno
+   continua com o tema da turma e a personalização dele, sem mudança.
+
+   Os tokens usam !important de propósito: a personalização
+   (applyAccentVars/applyThemeVars) grava --green/--bg/... no style do
+   <html>, e uma declaração !important de folha de estilo vence o style
+   inline. Por isso Fonte, Cor de destaque e Tema somem da modal
+   🎨 Personalizar do professor (ver o fim deste arquivo). As atividades
+   abertas em iframe continuam com o visual que o aluno vê. */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+html[data-visual-professor]{
+  --bg:#f6f7f9 !important;
+  --panel:#ffffff !important;
+  --panel2:#f9fafb !important;
+  --line:#e3e6eb !important;
+  --ink:#111827 !important;
+  --ink-dim:#6b7280 !important;
+  --green:#2563eb !important;
+  --green-dim:#9db8f2 !important;
+  --yellow:#111827 !important;
+  --blood:#dc2626 !important;
+  --blood-bright:#dc2626 !important;
+  --user-font:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+  --user-font-display:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+  --pp-accent-soft:#eaf1ff;
+  --pp-warn:#b45309;
+  --pp-shadow:0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.06);
+  --pp-shadow-hover:0 4px 8px rgba(16,24,40,.06), 0 12px 24px rgba(16,24,40,.08);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  html[data-visual-professor]{
+    --bg:#0f1115 !important;
+    --panel:#171a21 !important;
+    --panel2:#1e222b !important;
+    --line:#2a2f3a !important;
+    --ink:#f3f4f6 !important;
+    --ink-dim:#9aa1ad !important;
+    --green:#5b8def !important;
+    --green-dim:#34508a !important;
+    --yellow:#f3f4f6 !important;
+    --blood:#f87171 !important;
+    --blood-bright:#f87171 !important;
+    --pp-accent-soft:#1c2740;
+    --pp-warn:#fbbf24;
+    --pp-shadow:0 1px 2px rgba(0,0,0,.3);
+    --pp-shadow-hover:0 8px 24px rgba(0,0,0,.4);
+    color-scheme:dark;
+  }
+}
+
+/* ---------- Base ---------- */
+html[data-visual-professor] body{
+  background:var(--bg) !important;
+  font-size:calc(15px * var(--user-font-scale));
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Seta do mouse "premium" (a mesma de shared/professor.css). Vale quando o
+   professor deixa o cursor em "Padrão" na personalização; se escolher outro,
+   o <style> que a personalização injeta (*{cursor:...!important}) vence. */
+html[data-visual-professor]{ cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fde68a'/><stop offset='.55' stop-color='%23d4a017'/><stop offset='1' stop-color='%238a6116'/></linearGradient><filter id='s' x='-30%' y='-30%' width='170%' height='170%'><feDropShadow dx='0' dy='1.2' stdDeviation='1.1' flood-color='%233b2a05' flood-opacity='.45'/></filter></defs><path d='M5 3 L5 21.5 L9.6 17.2 L12.7 24 L15.9 22.6 L12.9 15.9 L19.4 15.7 Z' fill='url(%23g)' stroke='white' stroke-width='1.7' stroke-linejoin='round' filter='url(%23s)'/><path d='M6.6 6.6 L6.6 13' stroke='white' stroke-opacity='.55' stroke-width='1.2' stroke-linecap='round'/></svg>") 5 3, auto; }
+/* Mãozinha dourada em tudo que é clicável (mesma regra da seta: se o
+   professor escolher outro cursor na personalização, aquele vence). */
+html[data-visual-professor] :is(a[href], button, [role=button], summary, select, label, [onclick], input:is([type=checkbox], [type=radio], [type=button], [type=submit], [type=file]), .game-card, .collapsible-head, .pendente-item, .falta-pill):not(:disabled):not(.disabled):not(.locked){ cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fde68a'/><stop offset='.55' stop-color='%23d4a017'/><stop offset='1' stop-color='%238a6116'/></linearGradient><filter id='s' x='-30%' y='-30%' width='170%' height='170%'><feDropShadow dx='0' dy='1.2' stdDeviation='1.1' flood-color='%233b2a05' flood-opacity='.45'/></filter></defs><path d='M9 4.5 A2 2 0 0 1 13 4.5 V11 A1.8 1.8 0 0 1 16.6 11.3 A1.8 1.8 0 0 1 20.2 12.4 V18 C20.2 22 17.8 25 14 25 H12.6 C10.4 25 8.9 24.2 7.7 22.8 L4.4 18.6 A1.7 1.7 0 0 1 6.9 16.4 L9 18.2 Z' fill='url(%23g)' stroke='white' stroke-width='1.6' stroke-linejoin='round' filter='url(%23s)'/><path d='M13 11.2 V15 M16.6 11.6 V15' stroke='white' stroke-opacity='.6' stroke-width='1.1' stroke-linecap='round'/></svg>") 11 3, pointer; }
+html[data-visual-professor] :is(input:is(:not([type]), [type=text], [type=number], [type=date], [type=time], [type=email], [type=password], [type=search], [type=url]), textarea, [contenteditable]){ cursor:text; }
+
+/* ---------- Barra do topo ---------- */
+html[data-visual-professor] .a11y-bar{
+  padding:8px 20px; background:var(--panel); border-bottom:1px solid var(--line);
+}
+html[data-visual-professor] .a11y-bar button{
+  font-size:13px; padding:5px 9px; border-radius:8px; border-color:var(--line); color:var(--ink-dim);
+}
+html[data-visual-professor] .a11y-bar button:hover{ background:var(--panel2); color:var(--ink); }
+html[data-visual-professor] .a11y-bar button.on{ background:var(--pp-accent-soft); color:var(--green); border-color:var(--green-dim); }
+html[data-visual-professor] .a11y-bar .label{ text-transform:none; letter-spacing:0; font-size:13px; }
+html[data-visual-professor] .welcome-msg{ font-size:14px; }
+html[data-visual-professor] .welcome-msg b{ color:var(--ink); font-weight:600; }
+html[data-visual-professor] #btnLogout{
+  background:transparent; color:var(--ink-dim); border:1px solid transparent; border-radius:8px;
+  padding:5px 10px !important; font-size:13px !important; font-weight:500;
+}
+html[data-visual-professor] #btnLogout:hover{ background:var(--panel2); color:var(--ink); }
+
+html[data-visual-professor] .app-container{ padding:16px 24px; }
+
+/* ---------- Abas ---------- */
+html[data-visual-professor] .tabs{ gap:4px; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--line); }
+html[data-visual-professor] .tab-btn,
+html[data-visual-professor] .quick-action-btn{
+  text-transform:none; letter-spacing:0; font-weight:500; font-size:14px;
+  padding:8px 14px; border:1px solid transparent; border-radius:8px; color:var(--ink-dim); background:transparent;
+}
+html[data-visual-professor] .tab-btn:hover,
+html[data-visual-professor] .quick-action-btn:hover{ background:var(--panel2); color:var(--ink); border-color:transparent; border-style:solid; }
+html[data-visual-professor] .tab-btn.active{ background:var(--pp-accent-soft); color:var(--green); border-color:transparent; font-weight:600; }
+html[data-visual-professor] .quick-token-btn,
+html[data-visual-professor] .profile-tab-btn{ border:1px solid var(--line); background:var(--panel); }
+html[data-visual-professor] .profile-tab-btn.active{ background:var(--pp-accent-soft); border-color:var(--green-dim); }
+
+/* ---------- Cartões e títulos ---------- */
+html[data-visual-professor] .card{
+  padding:20px; margin-bottom:16px; border-radius:14px; box-shadow:var(--pp-shadow);
+}
+html[data-visual-professor] .card h2{
+  font-size:calc(18px * var(--user-font-scale)); font-weight:700; letter-spacing:-.01em; color:var(--ink); margin-bottom:14px;
+}
+html[data-visual-professor] .collapsible-card{ padding:0; }
+html[data-visual-professor] .collapsible-card .collapsible-head{ padding:16px 20px; }
+html[data-visual-professor] .collapsible-card .collapsible-head h2{ margin:0; }
+html[data-visual-professor] .collapsible-card .collapsible-body{ padding:0 20px 20px; }
+html[data-visual-professor] .collapsible-card.nested .collapsible-head{ padding:10px 2px; }
+html[data-visual-professor] .collapsible-card.nested .collapsible-head h3{ font-size:15px; font-weight:600; letter-spacing:0; }
+html[data-visual-professor] .gestao-subhead{ font-size:15px; font-weight:600; letter-spacing:0; color:var(--ink); }
+
+/* Cartões de matéria, módulo e jogo */
+html[data-visual-professor] .card-grid{ grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:12px; }
+html[data-visual-professor] .game-card{
+  background:var(--panel); padding:16px 10px; border-radius:12px; box-shadow:var(--pp-shadow);
+}
+html[data-visual-professor] .game-card:not(.locked):hover{
+  background:var(--panel); border-color:var(--green-dim); box-shadow:var(--pp-shadow-hover);
+}
+html[data-visual-professor] .game-card .icon{ font-size:26px; margin-bottom:8px; }
+html[data-visual-professor] .game-card h3{ font-size:14px; font-weight:600; color:var(--ink); }
+html[data-visual-professor] .game-card .card-status{ text-transform:none; letter-spacing:0; font-size:12px; }
+html[data-visual-professor] .game-card.recuperacao-card,
+html[data-visual-professor] .game-card.recuperacao-card h3{ border-color:var(--pp-warn); }
+
+/* ---------- Botões ---------- */
+html[data-visual-professor] button.btn{
+  text-transform:none; letter-spacing:0; font-weight:600; font-size:14px;
+  background-image:none; color:#fff; padding:9px 16px; border-radius:8px; box-shadow:none;
+}
+html[data-visual-professor] button.btn:hover{ transform:none; box-shadow:none; filter:brightness(1.08); }
+html[data-visual-professor] button.btn-secondary{
+  background-color:var(--panel); color:var(--ink); border:1px solid var(--line);
+}
+html[data-visual-professor] button.btn-secondary:hover{ background-color:var(--panel2); filter:none; }
+html[data-visual-professor] button.btn-danger{ background-color:var(--blood); color:#fff; }
+
+/* Neon da personalização não vale pro professor. */
+html[data-visual-professor][data-accent-fx] .tab-btn.active,
+html[data-visual-professor][data-accent-fx] button.btn,
+html[data-visual-professor][data-accent-fx] .card h2{ box-shadow:none; text-shadow:none; }
+
+/* ---------- Formulários, tabelas e textos auxiliares ---------- */
+html[data-visual-professor] select,
+html[data-visual-professor] input[type="date"],
+html[data-visual-professor] input[type="number"],
+html[data-visual-professor] input[type="text"],
+html[data-visual-professor] input[type="time"]{
+  background-color:var(--panel); font-size:14px; padding:8px 10px; border-radius:8px;
+}
+html[data-visual-professor] select{ padding-right:28px; }
+html[data-visual-professor] .field-label,
+html[data-visual-professor] .pf-perso-label,
+html[data-visual-professor] .subtabs .subtab-label{
+  text-transform:none; letter-spacing:0; font-size:13px; font-weight:500; color:var(--ink-dim);
+}
+html[data-visual-professor] .status-msg{ font-size:13px; }
+html[data-visual-professor] .empty-state{ font-size:14px; }
+
+html[data-visual-professor] .audit-table{ font-size:14px; }
+html[data-visual-professor] .audit-table th{
+  text-transform:none; font-size:13px; font-weight:600; padding:10px 8px; background:var(--panel2);
+}
+html[data-visual-professor] .audit-table td{ padding:10px 8px; border-bottom-color:var(--line); }
+html[data-visual-professor] .audit-table tbody tr:hover td{ background:var(--panel2); }
+html[data-visual-professor] .aluno-nome-link{ text-decoration:none; font-weight:500; }
+html[data-visual-professor] .aluno-nome-link:hover{ text-decoration:underline; color:var(--green); }
+html[data-visual-professor] .media-cell{ color:var(--ink); }
+html[data-visual-professor] .log-box{ background:var(--panel2); font-size:12px; }
+html[data-visual-professor] .log-entry .time{ color:var(--ink-dim); }
+
+/* Bloqueios e liberações */
+html[data-visual-professor] .toggle-row{ padding:12px 2px; }
+html[data-visual-professor] .toggle-row-label{ font-size:14px; font-weight:600; }
+html[data-visual-professor] .toggle-row-desc{ font-size:13px; margin-top:2px; }
+html[data-visual-professor] .toggle-switch{ width:40px; height:22px; }
+html[data-visual-professor] .toggle-switch .toggle-switch-knob{ width:18px; height:18px; }
+html[data-visual-professor] .toggle-switch.on .toggle-switch-knob{ transform:translateX(18px); }
+html[data-visual-professor] .horario-acesso-campos{ font-size:13px; }
+
+/* Chamada */
+html[data-visual-professor] button.btn-chamada{ font-size:14px; border-radius:8px; }
+html[data-visual-professor] .falta-pill-texto::after{ font-size:12.5px; }
+
+/* Avisos que eram amarelos continuam em destaque (não viram texto comum). */
+html[data-visual-professor] .bimestre-fechado-tag,
+html[data-visual-professor] .rel-aluno-aviso,
+html[data-visual-professor] .entrega-parte,
+html[data-visual-professor] .nota-manual-tag{ color:var(--pp-warn); }
+html[data-visual-professor] .substituto-aviso{ border-left-color:var(--pp-warn); }
+
+/* Perfil / relatório do aluno */
+html[data-visual-professor] .perfil-stat,
+html[data-visual-professor] .perfil-materia-card{ background:var(--panel); box-shadow:var(--pp-shadow); }
+html[data-visual-professor] .perfil-stat-value{ font-weight:700; letter-spacing:-.02em; font-size:calc(30px * var(--user-font-scale)); }
+html[data-visual-professor] .perfil-stat-label,
+html[data-visual-professor] .rel-aluno-resumo span{ text-transform:none; letter-spacing:0; font-size:12.5px; }
+html[data-visual-professor] .perfil-progress-bar{ background:var(--panel2); }
+html[data-visual-professor] .perfil-nota-status{ text-transform:none; letter-spacing:0; }
+html[data-visual-professor] .perfil-nota-status.aprovado{ color:#fff; }
+html[data-visual-professor] .badge-slot .label{ text-transform:none; letter-spacing:0; }
+html[data-visual-professor] .rel-aluno{ font-size:13.5px; }
+
+/* ---------- Modais e avisos ---------- */
+html[data-visual-professor] .pf-alert-overlay{ background:rgba(15,17,21,.45); backdrop-filter:blur(2px); }
+html[data-visual-professor] .pf-alert-box{
+  border:1px solid var(--line) !important; border-radius:16px; padding:24px; box-shadow:0 20px 50px rgba(16,24,40,.25);
+}
+html[data-visual-professor] .pf-alert-msg{ font-size:14px; }
+html[data-visual-professor] .pf-toast{ border-color:var(--line); border-radius:12px; box-shadow:var(--pp-shadow-hover); }
+html[data-visual-professor] .pf-toast-title{ font-size:15px; font-weight:600; letter-spacing:0; }
+html[data-visual-professor] .pf-toast-msg{ font-size:13.5px; }
+html[data-visual-professor] .exam-guard-item{ background:var(--panel); box-shadow:var(--pp-shadow); }
+html[data-visual-professor] .module-frame-modal{ background:rgba(15,17,21,.55); }
+
+/* 🎨 Personalizar do professor: Fonte, Cor de destaque e Tema não têm
+   efeito no visual dele (tokens fixos acima), então somem da modal. */
+html[data-visual-professor] .pf-perso-section:has(#psFontRow),
+html[data-visual-professor] .pf-perso-section:has(#psAccentRow),
+html[data-visual-professor] .pf-perso-section:has(#psThemeRow){ display:none; }
+html[data-visual-professor] #btnFontStyle{ display:none; }
+html[data-visual-professor] .pf-perso-box{ padding:0 24px; max-width:600px; }
+html[data-visual-professor] .pf-perso-head{ padding:22px 0 16px; }
+html[data-visual-professor] .pf-perso-titulo{ font-size:18px; font-weight:700; letter-spacing:-.01em; }
+html[data-visual-professor] .pf-perso-sub{ font-size:13.5px; }
+html[data-visual-professor] .pf-perso-pe{ padding:16px 0 22px; }
+html[data-visual-professor] .pf-perso-section{ padding:18px 0; }
+html[data-visual-professor] .pf-perso-label{ font-size:14px; font-weight:600; color:var(--ink); margin-bottom:12px; }
+html[data-visual-professor] .pf-swatch-btn,
+html[data-visual-professor] .pf-cursor-btn{
+  font-size:13.5px; padding:9px 12px; border-radius:8px; background:var(--panel);
+}
+html[data-visual-professor] .pf-swatch-btn.active,
+html[data-visual-professor] .pf-cursor-btn.active{ background:var(--pp-accent-soft); border-color:var(--green); color:var(--green); font-weight:600; }
+html[data-visual-professor] .pf-emoji-btn{ width:42px; height:42px; font-size:20px; background:var(--panel); border-radius:10px; }
+html[data-visual-professor] .pf-swatch-row.pf-emoji-grid{ grid-template-columns:repeat(auto-fill, 42px); gap:8px; }
+html[data-visual-professor] .pf-emoji-btn.active{ background:var(--pp-accent-soft); border-color:var(--green); box-shadow:0 0 0 1px var(--green); }
+html[data-visual-professor] .pf-swatch-btn:hover,
+html[data-visual-professor] .pf-emoji-btn:hover,
+html[data-visual-professor] .pf-cursor-btn:hover{ transform:none; box-shadow:none; border-color:var(--green-dim); }
+html[data-visual-professor] .pf-perso-opcao{ padding:12px 14px; border-radius:10px; background:var(--panel); }
+html[data-visual-professor] .pf-perso-opcao:hover{ border-color:var(--green-dim); }
+html[data-visual-professor] .pf-perso-opcao b{ font-size:14px; font-weight:600; }
+html[data-visual-professor] .pf-perso-opcao small{ font-size:13px; }
+/* Interruptor no lugar da caixinha de marcar (continua sendo o mesmo checkbox). */
+html[data-visual-professor] .pf-perso-opcao input[type="checkbox"]{
+  appearance:none; -webkit-appearance:none; position:relative; width:40px; height:22px;
+  border-radius:999px; background:var(--line); transition:background .2s ease; cursor:pointer;
+}
+html[data-visual-professor] .pf-perso-opcao input[type="checkbox"]::after{
+  content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%;
+  background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.3); transition:transform .2s ease;
+}
+html[data-visual-professor] .pf-perso-opcao input[type="checkbox"]:checked{ background:var(--green); }
+html[data-visual-professor] .pf-perso-opcao input[type="checkbox"]:checked::after{ transform:translateX(18px); }
+
+@media (max-width:700px){
+  html[data-visual-professor] .a11y-bar{ padding:6px 12px; }
+  html[data-visual-professor] .app-container{ padding:10px 12px; }
+  html[data-visual-professor] .card{ padding:14px; }
+}
