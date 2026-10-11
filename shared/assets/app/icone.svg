@@ -1,42 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Ícone do app Axis: o "A" em rabisco da marca (mesmos traços de
-       shared/axis-logo.js / tela de login), com o degradê ciano → violeta →
-       rosa, num quadrado escuro arredondado. Versão "maskable" (sem cantos,
-       com folga pra o Android recortar): icone-maskable.svg. PNGs gerados a
-       partir destes SVGs ficam na mesma pasta. -->
+  <!-- Ícone do app Axis: o "A" em rabisco da marca (mesmos traços de shared/axis-logo.js), degradê ciano → violeta → rosa. Gerado junto com os PNGs; mudou aqui, gere os PNGs de novo. Versão com cantos arredondados. -->
   <defs>
     <linearGradient id="fundo" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#141b2b"/>
-      <stop offset="1" stop-color="#0b0e12"/>
+      <stop offset="0" stop-color="#151c2e"/>
+      <stop offset="1" stop-color="#0a0d12"/>
     </linearGradient>
     <radialGradient id="halo" cx="0.5" cy="0.55" r="0.5">
-      <stop offset="0" stop-color="#5ee7ff" stop-opacity=".22"/>
-      <stop offset=".55" stop-color="#a78bfa" stop-opacity=".08"/>
+      <stop offset="0" stop-color="#5ee7ff" stop-opacity=".16"/>
+      <stop offset=".6" stop-color="#a78bfa" stop-opacity=".05"/>
       <stop offset="1" stop-color="#a78bfa" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="traco" gradientUnits="userSpaceOnUse" x1="6" y1="4" x2="89" y2="93">
-      <stop offset="0" stop-color="#5ee7ff"/>
-      <stop offset=".5" stop-color="#a78bfa"/>
-      <stop offset="1" stop-color="#ff4fd8"/>
+      <stop offset="0" stop-color="#6eeaff"/>
+      <stop offset=".5" stop-color="#ad8cff"/>
+      <stop offset="1" stop-color="#ff5ad9"/>
     </linearGradient>
-    <filter id="brilho" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="2.2" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <g id="letra" fill="none" stroke="url(#traco)" stroke-linecap="round" stroke-linejoin="round">
-      <path stroke-width="4.4" d="M12 90 C 17 78, 22 67, 28 55"/>
-      <path stroke-width="4.4" d="M33 47 C 37 36, 41 26, 46 15"/>
-      <path stroke-width="4.4" d="M57 4 C 61 16, 65 29, 70 42"/>
-      <path stroke-width="4.4" d="M75 57 C 79 68, 83 79, 89 92"/>
-      <path stroke-width="4.4" d="M6 66 C 20 62, 34 60, 52 59"/>
-      <path stroke-width="2" opacity=".6" d="M62 58 C 66 58, 70 58, 73 59"/>
-      <path stroke-width="2" opacity=".6" d="M44 9 C 47 6, 50 5, 53 7"/>
-      <path stroke-width="2" opacity=".6" d="M64 20 C 68 32, 72 44, 78 60"/>
-      <path stroke-width="2" opacity=".6" d="M18 84 C 21 77, 23 72, 25 68"/>
-    </g>
+    <filter id="desfoque" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter>
   </defs>
   <rect width="512" height="512" rx="112" fill="url(#fundo)"/>
   <rect width="512" height="512" rx="112" fill="url(#halo)"/>
-  <rect x="3" y="3" width="506" height="506" rx="109" fill="none" stroke="#5ee7ff" stroke-opacity=".14" stroke-width="6"/>
-  <use href="#letra" transform="translate(87 84) scale(3.55)" filter="url(#brilho)"/>
+  <rect x="3" y="3" width="506" height="506" rx="109" fill="none" stroke="#5ee7ff" stroke-opacity=".12" stroke-width="6"/>
+  <g transform="translate(89.8 86.3) scale(3.5)" fill="none" stroke="url(#traco)" stroke-linecap="round" stroke-linejoin="round">
+    <g opacity=".55" filter="url(#desfoque)"><path stroke-width="12.32" d="M12 90 C 17 78, 22 67, 28 55"/><path stroke-width="12.32" d="M33 47 C 37 36, 41 26, 46 15"/><path stroke-width="12.32" d="M57 4 C 61 16, 65 29, 70 42"/><path stroke-width="12.32" d="M75 57 C 79 68, 83 79, 89 92"/><path stroke-width="12.32" d="M6 66 C 20 62, 34 60, 52 59"/></g>
+    <path stroke-width="5.6" d="M12 90 C 17 78, 22 67, 28 55"/><path stroke-width="5.6" d="M33 47 C 37 36, 41 26, 46 15"/><path stroke-width="5.6" d="M57 4 C 61 16, 65 29, 70 42"/><path stroke-width="5.6" d="M75 57 C 79 68, 83 79, 89 92"/><path stroke-width="5.6" d="M6 66 C 20 62, 34 60, 52 59"/>
+    <path stroke-width="2.352" opacity=".7" d="M62 58 C 66 58, 70 58, 73 59"/><path stroke-width="2.352" opacity=".7" d="M44 9 C 47 6, 50 5, 53 7"/><path stroke-width="2.352" opacity=".7" d="M64 20 C 68 32, 72 44, 78 60"/><path stroke-width="2.352" opacity=".7" d="M18 84 C 21 77, 23 72, 25 68"/>
+  </g>
 </svg>

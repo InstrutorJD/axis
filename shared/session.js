@@ -143,5 +143,19 @@ window.PortalSession = (function () {
     if (sb) await sb.auth.signOut();
   }
 
-  return { client, getUser, requireUser, signIn, signOut, authEmailFromUsername, lembrarLogin };
+  // App instalado (manifest.json): roda numa janela própria, sem abas. Lá
+  // dentro, "abrir em nova aba" vira uma janela à parte com a barra de
+  // endereço (no Android, o Chrome por cima do app), então as páginas do
+  // próprio Axis abrem na mesma janela. No navegador comum, nova aba.
+  function appInstalado() {
+    return (window.matchMedia && (window.matchMedia('(display-mode: standalone)').matches
+      || window.matchMedia('(display-mode: window-controls-overlay)').matches))
+      || window.navigator.standalone === true;
+  }
+  function abrirPagina(url) {
+    if (appInstalado()) window.location.href = url;
+    else window.open(url, '_blank');
+  }
+
+  return { client, getUser, requireUser, signIn, signOut, authEmailFromUsername, lembrarLogin, appInstalado, abrirPagina };
 })();

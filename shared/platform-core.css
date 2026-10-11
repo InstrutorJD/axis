@@ -639,3 +639,12 @@ html[data-substituto] .aluno-nome-link{ pointer-events:none; text-decoration:non
 .rel-aluno-dim{ color:var(--ink-dim); font-size:10px; }
 .rel-aluno-ruim{ color:var(--blood-bright); font-weight:700; }
 .rel-aluno-meio{ color:var(--yellow); font-weight:700; }
+
+/* "← Painel" no topo do portal da turma: só pro professor, com o Axis
+   instalado como app (lá o portal abre na mesma janela do painel). */
+.btn-voltar-painel {
+  display: inline-flex; align-items: center; padding: 4px 10px; margin-right: 8px;
+  border: 1px solid currentColor; border-radius: 6px; font-size: 11px; font-weight: bold;
+  text-decoration: none; color: inherit; opacity: .85;
+}
+.btn-voltar-painel:hover { opacity: 1; }

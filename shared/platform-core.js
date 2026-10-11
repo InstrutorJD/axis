@@ -277,6 +277,7 @@
           <button id="btnLibras" title="Abrir o tradutor de Libras (VLibras)" aria-label="Abrir o tradutor de Libras">🤟</button>
         </div>
         <div id="sessionControl">
+          ${currentUser.role === 'professor' && window.PortalSession.appInstalado() ? `<a href="../../professor/painel.html" id="btnVoltarPainel" class="btn-voltar-painel" title="Voltar ao painel do professor">← Painel</a>` : ''}
           <span class="welcome-msg" id="txtWelcome">Bem-vindo(a), <b id="txtUserNom">--</b></span>
           <span class="ranking-badge" id="rankingBadge" style="display:none;"></span>
           <button id="btnLogout" class="btn-danger" style="padding:4px 8px; font-size:10px;">Sair</button>
