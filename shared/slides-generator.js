@@ -96,7 +96,7 @@
         fontSize: 12, italic: true, fontFace: 'Calibri', valign: 'top', lineSpacingMultiple: 1.25
       });
     }
-    slide.addText('Gerado pelo Portal de Aulas', {
+    slide.addText('Gerado pelo Axis', {
       x: 0.6, y: 5.15, w: 8.8, h: 0.3, fontSize: 9, color: GRAY, fontFace: 'Calibri'
     });
   }
@@ -161,7 +161,7 @@
       x: 0.6, y: 2.3, w: 8.8, h: 0.9,
       fontSize: 28, bold: true, color: BLUE, fontFace: 'Calibri'
     });
-    slide.addText(closingText || 'Consulte a atividade prática no Portal de Aulas para colocar a mão na massa.', {
+    slide.addText(closingText || 'Consulte a atividade prática no Axis para colocar a mão na massa.', {
       x: 0.6, y: 3.2, w: 8.8, h: 0.8,
       fontSize: 14, color: DARK, fontFace: 'Calibri', fit: 'shrink'
     });

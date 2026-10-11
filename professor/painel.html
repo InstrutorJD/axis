@@ -74,7 +74,9 @@
        lugar, esticar pelo canto e ocultar (botão "Personalizar" no topo) —
        shared/painel-layout.js. Posição padrão no HTML, numa grade de 12
        colunas: data-x (coluna, 0 a 11), data-w (largura) e data-min (largura
-       mínima); a altura sai do conteúdo e quem vem depois desce.
+       mínima); a altura sai do conteúdo e quem vem depois desce. No celular a
+       grade é de 4 colunas: data-w-celular (padrão 2, dois por linha) e
+       data-min-celular.
 
        IP do jogo do hacker (GitHack OS) é diferente por turma: cada linha de
        network_nodes pertence a uma turma só, então o professor precisa de
@@ -83,7 +85,7 @@
        jogando — ver sql/supabase-setup-completo.sql (bloco 6b). -->
   <section class="pr-secao">
     <div class="pr-painel" id="painelGrade">
-      <div class="pr-bloco" data-bloco="relogio" data-nome="Relógio e frase" data-x="3" data-w="6" data-min="3">
+      <div class="pr-bloco" data-bloco="relogio" data-nome="Relógio e frase" data-x="3" data-w="6" data-min="3" data-w-celular="4">
       <!-- Saudação, relógio, data e uma frase estoica que troca sozinha
            (shared/frases-estoicas.js). -->
       <section class="pr-hero">
@@ -154,7 +156,7 @@
       <!-- Agenda: mini calendário que expande pra tela cheia (Mês/Semana),
            compromissos arrastáveis e lembretes com contador no sininho —
            shared/professor-agenda.js, tabela em sql/professor-agenda.sql. -->
-      <div class="pr-bloco" data-bloco="agenda" data-nome="Agenda" data-x="3" data-w="6" data-min="4">
+      <div class="pr-bloco" data-bloco="agenda" data-nome="Agenda" data-x="3" data-w="6" data-min="4" data-w-celular="4" data-min-celular="4">
         <div id="agenda" aria-label="Agenda"></div>
       </div>
     </div>

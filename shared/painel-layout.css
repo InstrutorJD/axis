@@ -1,32 +1,36 @@
 /* Painel do professor com arrumação livre (shared/painel-layout.js): o JS
    posiciona cada .pr-bloco (left/top/width/height) numa grade de 12
-   colunas da largura da tela. Em tela estreita (.pr-painel-pilha) tudo
-   empilha. Usa os tokens --pr-* de shared/professor.css. */
+   colunas da largura da tela; no celular (.pr-modo-celular), 4 colunas e
+   cartões menores. Usa os tokens --pr-* de shared/professor.css. */
 
 /* A área ocupa a tela toda (o resto do painel continua centralizado). */
 .pr-main.pr-main-livre{ max-width:none; padding:24px 32px 48px; }
 
 .pr-painel{ position:relative; }
-.pr-painel.pr-painel-livre:not(.pr-painel-pilha) > .pr-bloco{ position:absolute; }
-.pr-painel-pronto:not(.pr-painel-pilha) > .pr-bloco{
+.pr-painel.pr-painel-livre > .pr-bloco{ position:absolute; }
+.pr-painel-pronto > .pr-bloco{
   transition:left .22s cubic-bezier(.2,.8,.2,1), top .22s cubic-bezier(.2,.8,.2,1), width .22s cubic-bezier(.2,.8,.2,1), height .22s cubic-bezier(.2,.8,.2,1);
 }
 .pr-bloco{ min-width:0; box-sizing:border-box; }
 .pr-bloco[hidden]{ display:none !important; }
 /* O conteúdo preenche o espaço do cartão (o JS mede a altura natural). */
-.pr-painel:not(.pr-painel-pilha) > .pr-bloco > :not(.pr-bloco-barra):not(.pr-bloco-redim){ height:100%; box-sizing:border-box; }
+.pr-painel > .pr-bloco > :not(.pr-bloco-barra):not(.pr-bloco-redim){ height:100%; box-sizing:border-box; }
 .pr-painel .pr-card, .pr-painel .pr-card.pr-card-ferramenta{ min-height:136px; }
 /* Relógio como cartão: sem a margem de baixo que ele tinha sozinho. */
 .pr-bloco[data-bloco="relogio"] .pr-hero{ margin:0; padding:8px 0 4px; display:flex; flex-direction:column; justify-content:center; }
 
-/* Celular / janela estreita: empilha na ordem (o JS põe `order`). */
-.pr-painel.pr-painel-pilha{ display:flex; flex-direction:column; gap:12px; }
-.pr-painel.pr-painel-pilha > .pr-bloco{ position:static; }
+/* Celular: cartões compactos, dois por linha. */
+.pr-modo-celular .pr-card, .pr-modo-celular .pr-card.pr-card-ferramenta{ min-height:116px; padding:14px 8px; gap:8px; border-radius:14px; }
+.pr-modo-celular .pr-card-icone{ width:38px; height:38px; border-radius:10px; }
+.pr-modo-celular .pr-card-icone svg{ width:19px; height:19px; }
+.pr-modo-celular .pr-card-nome{ font-size:13px; }
+.pr-modo-celular .pr-hero .pr-relogio{ font-size:64px; }
+.pr-modo-celular .pr-hero .pr-frase{ margin-top:14px; min-height:0; }
 
 /* ---------- Botão do topo ---------- */
 .pr-btn-personalizar svg{ width:16px; height:16px; }
 .pr-btn-personalizar[aria-pressed="true"]{ background:var(--pr-accent-soft); color:var(--pr-accent); }
-.pr-btn-personalizar[hidden]{ display:none; }
+@media (max-width:600px){ .pr-btn-personalizar span{ display:none; } }
 
 /* ---------- Arrastando (com ou sem Personalizar) ---------- */
 .pr-bloco.pr-bloco-solto{
@@ -82,6 +86,12 @@ body.pr-esticando-cartao, body.pr-esticando-cartao *{ cursor:nwse-resize !import
 }
 @keyframes prBarraEntra{ from{ opacity:0; transform:translateY(4px); } to{ opacity:1; transform:none; } }
 .pr-bloco-pegador{ display:grid; place-items:center; width:20px; height:22px; color:var(--pr-text-3); }
+/* No toque, é pela etiqueta e pela alça que se arrasta: elas não rolam a página. */
+.pr-bloco-barra, .pr-bloco-redim{ touch-action:none; }
+.pr-modo-celular .pr-bloco-barra{ top:-16px; left:8px; padding:3px 4px 3px 3px; }
+.pr-modo-celular .pr-bloco-pegador{ height:26px; }
+.pr-modo-celular .pr-bloco-ocultar{ width:26px; height:26px; }
+.pr-modo-celular .pr-bloco-redim{ width:34px; height:34px; right:-10px; bottom:-10px; }
 .pr-bloco-pegador svg{ width:14px; height:14px; }
 .pr-bloco-nome{ min-width:0; overflow:hidden; text-overflow:ellipsis; padding-right:4px; font-size:12px; font-weight:600; color:var(--pr-text-2); }
 .pr-bloco-ocultar{
@@ -129,6 +139,8 @@ body.pr-esticando-cartao, body.pr-esticando-cartao *{ cursor:nwse-resize !import
 
 @media (max-width:600px){
   .pr-main.pr-main-livre{ padding:20px 16px 40px; }
+  .pr-pb-texto, .pr-pb-restaurar span{ display:none; }
+  .pr-personalizar-barra{ padding:8px; }
 }
 @media (prefers-reduced-motion: reduce){
   .pr-painel-pronto > .pr-bloco, .pr-vaga{ transition:none !important; }

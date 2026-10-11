@@ -13,7 +13,9 @@
 // cabeçalho; clique simples continua abrindo). O botão "Personalizar" mostra
 // as guias das colunas, a alça de esticar no canto, ocultar e "Restaurar
 // padrão". Teclado no Personalizar: setas movem, Shift+setas esticam,
-// Delete oculta. Em tela estreita (celular) tudo fica empilhado na ordem.
+// Delete oculta. No celular a arrumação é outra (4 colunas, cartões menores),
+// guardada à parte; lá arrasta-se pela etiqueta do nome (no Personalizar) e
+// tocar no resto do cartão continua rolando a página. Ocultar vale nos dois.
 //
 // A arrumação fica no localStorage (abre já arrumado) e na conta do
 // professor (user_preferences.painel_layout, sql/painel-layout.sql). Sem a
@@ -23,10 +25,11 @@
 // Uso: window.PainelLayout.montar({ grade, botao, client, email })
 window.PainelLayout = (function () {
   const CHAVE_LOCAL = 'axis.painel.layout.v2';
-  const COLUNAS = 12;
   const LINHA = 8;          // px de cada linha da grade
-  const GAP = 16;           // espaço entre cartões
-  const TELA_LIVRE = 720;   // abaixo disso (px de área), empilha
+  const TELA_LARGA = 720;   // abaixo disso (px de área) vale a arrumação do celular
+  // Computador e celular têm arrumações separadas (layout.itens e
+  // layout.celular): 12 colunas no computador, 4 no celular.
+  const MODOS = { itens: { colunas: 12, gap: 16 }, celular: { colunas: 4, gap: 12 } };
   const PASSO_TECLADO = 4;  // linhas por seta
 
   const ICONES = {
@@ -41,7 +44,7 @@ window.PainelLayout = (function () {
   const copiar = o => JSON.parse(JSON.stringify(o));
 
   let grade, botao, sb, email;
-  let padrao, layout;       // layout = { v: 2, itens: { id: { x, y, w, h, oculto } } }
+  let padrao, layout;       // layout = { v: 2, itens: {...}, celular: {...} }, cada um { id: { x, y, w, h, oculto } }
   let editando = false;
   let barra = null;
   let soLocal = false;
@@ -51,48 +54,75 @@ window.PainelLayout = (function () {
   const blocos = () => Array.from(grade.querySelectorAll(':scope > .pr-bloco'));
   const porId = id => grade.querySelector(`:scope > .pr-bloco[data-bloco="${id}"]`);
   const ids = () => blocos().map(b => b.dataset.bloco);
-  const larguraMin = id => { const b = porId(id); return limitar(Number(b && b.dataset.min) || 2, 1, COLUNAS); };
+  const modo = () => (grade.clientWidth >= TELA_LARGA ? 'itens' : 'celular');
+  const COLUNAS_DE = m => MODOS[m].colunas;
+  const cols = () => COLUNAS_DE(modo());
+  const gap = () => MODOS[modo()].gap;
+  const L = () => layout[modo()];            // arrumação da tela atual
+  // Largura mínima: data-min (computador) e data-min-celular (celular).
+  const larguraMin = (id, m = modo()) => {
+    const b = porId(id);
+    const v = m === 'celular' ? Number(b && b.dataset.minCelular) || 2 : Number(b && b.dataset.min) || 2;
+    return limitar(v, 1, COLUNAS_DE(m));
+  };
   const conteudo = b => b.querySelector(':scope > :not(.pr-bloco-barra):not(.pr-bloco-redim)');
-  const livre = () => grade.clientWidth >= TELA_LIVRE;
-  const larguraColuna = () => (grade.clientWidth + GAP) / COLUNAS;
-  const altura = id => Math.max(layout.itens[id].h || 0, natural.get(id) || 1);
-  const visiveis = () => ids().filter(id => !layout.itens[id].oculto);
+  const larguraColuna = () => (grade.clientWidth + gap()) / cols();
+  const altura = id => Math.max(L()[id].h || 0, natural.get(id) || 1);
+  const visiveis = () => ids().filter(id => !L()[id].oculto);
 
   // ---------- Arrumação ----------
+  // Computador: data-x/data-w do HTML. Celular: data-w-celular (padrão 2,
+  // ou seja, dois cartões por linha), um ao lado do outro na ordem do HTML.
   function padraoDoHtml() {
-    const itens = {};
+    const itens = {}, celular = {};
+    let cursor = 0;
     blocos().forEach(b => {
-      const w = limitar(Number(b.dataset.w) || 3, larguraMin(b.dataset.bloco), COLUNAS);
-      itens[b.dataset.bloco] = { x: limitar(Number(b.dataset.x) || 0, 0, COLUNAS - w), y: 0, w, h: null, oculto: false };
+      const id = b.dataset.bloco;
+      const w = limitar(Number(b.dataset.w) || 3, larguraMin(id, 'itens'), 12);
+      itens[id] = { x: limitar(Number(b.dataset.x) || 0, 0, 12 - w), y: 0, w, h: null, oculto: false };
+      const wc = limitar(Number(b.dataset.wCelular) || 2, larguraMin(id, 'celular'), 4);
+      if (cursor + wc > 4) cursor = 0;
+      celular[id] = { x: cursor, y: 0, w: wc, h: null, oculto: false };
+      cursor = (cursor + wc) % 4;
     });
-    return { v: 2, itens };
+    return { v: 2, itens, celular };
   }
 
   // Junta o salvo com o padrão: cartão novo entra embaixo de tudo; cartão
   // que sumiu do HTML é ignorado; valores fora do permitido são corrigidos.
   function mesclar(salvo) {
     const res = copiar(padrao);
-    const s = salvo && salvo.v === 2 && salvo.itens ? salvo.itens : null;
-    if (!s) return res;
-    const novos = [];
-    Object.keys(res.itens).forEach(id => {
-      const v = s[id];
-      if (!v) { novos.push(id); return; }
-      const w = limitar(Math.round(Number(v.w)) || res.itens[id].w, larguraMin(id), COLUNAS);
-      res.itens[id] = {
-        x: limitar(Math.round(Number(v.x)) || 0, 0, COLUNAS - w),
-        y: Math.max(0, Math.round(Number(v.y)) || 0),
-        w,
-        h: v.h ? Math.max(1, Math.round(Number(v.h))) : null,
-        oculto: !!v.oculto,
-      };
+    if (!salvo || salvo.v !== 2) return res;
+    ['itens', 'celular'].forEach(m => {
+      const s = salvo[m];
+      if (!s) return;
+      const colunas = COLUNAS_DE(m);
+      const novos = [];
+      Object.keys(res[m]).forEach(id => {
+        const v = s[id];
+        if (!v) { novos.push(id); return; }
+        const w = limitar(Math.round(Number(v.w)) || res[m][id].w, larguraMin(id, m), colunas);
+        res[m][id] = {
+          x: limitar(Math.round(Number(v.x)) || 0, 0, colunas - w),
+          y: Math.max(0, Math.round(Number(v.y)) || 0),
+          w,
+          h: v.h ? Math.max(1, Math.round(Number(v.h))) : null,
+          oculto: !!v.oculto,
+        };
+      });
+      if (novos.length) {
+        let fundo = 0;
+        Object.keys(res[m]).forEach(id => { if (!novos.includes(id)) fundo = Math.max(fundo, res[m][id].y + 30); });
+        novos.forEach(id => { res[m][id].y = fundo; });
+      }
     });
-    if (novos.length) {
-      let fundo = 0;
-      Object.keys(res.itens).forEach(id => { if (!novos.includes(id)) fundo = Math.max(fundo, res.itens[id].y + 30); });
-      novos.forEach(id => { res.itens[id].y = fundo; });
-    }
+    // Ocultar vale nas duas telas (arrumação antiga só tinha a do computador).
+    Object.keys(res.itens).forEach(id => { if (res.itens[id].oculto) res.celular[id].oculto = true; });
     return res;
+  }
+  function definirOculto(id, oculto) {
+    layout.itens[id].oculto = oculto;
+    layout.celular[id].oculto = oculto;
   }
 
   const sobrepoe = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
@@ -106,11 +136,11 @@ window.PainelLayout = (function () {
     const lista = visiveis().sort((a, b) => {
       if (a === prioridade) return -1;
       if (b === prioridade) return 1;
-      return layout.itens[a].y - layout.itens[b].y || ordemHtml.indexOf(a) - ordemHtml.indexOf(b);
+      return L()[a].y - L()[b].y || ordemHtml.indexOf(a) - ordemHtml.indexOf(b);
     });
     const postos = [];
     lista.forEach(id => {
-      const it = layout.itens[id];
+      const it = L()[id];
       const r = { x: it.x, y: it.y, w: it.w, h: altura(id) };
       for (let bate = postos.find(p => sobrepoe(p, r)); bate; bate = postos.find(p => sobrepoe(p, r))) r.y = bate.y + bate.h;
       it.y = r.y;
@@ -128,7 +158,7 @@ window.PainelLayout = (function () {
       if (!c) return;
       const antes = c.style.height;
       c.style.height = 'auto';
-      const linhas = Math.ceil((c.offsetHeight + GAP) / LINHA);
+      const linhas = Math.ceil((c.offsetHeight + gap()) / LINHA);
       c.style.height = antes;
       if (natural.get(b.dataset.bloco) !== linhas) { natural.set(b.dataset.bloco, linhas); mudou = true; }
     });
@@ -138,30 +168,18 @@ window.PainelLayout = (function () {
   // Desenha tudo. `prioridade`: quem não pode sair do lugar ao resolver.
   // `pular`: cartão que está grudado no mouse (não reposiciona).
   function render(prioridade, pular) {
-    const itens = layout.itens;
+    const itens = L();
+    const G = gap();
     blocos().forEach(b => { b.hidden = !!itens[b.dataset.bloco].oculto; });
-    if (botao) botao.hidden = !livre();
-    if (!livre()) {
-      grade.classList.add('pr-painel-pilha');
-      grade.style.height = '';
-      const ordem = visiveis().sort((a, b) => itens[a].y - itens[b].y || itens[a].x - itens[b].x);
-      blocos().forEach(b => {
-        b.style.left = b.style.top = b.style.width = b.style.height = '';
-        b.style.order = String(ordem.indexOf(b.dataset.bloco));
-      });
-      if (editando) sair();
-      return;
-    }
-    grade.classList.remove('pr-painel-pilha');
+    grade.classList.toggle('pr-modo-celular', modo() === 'celular');
     const cw = larguraColuna();
     grade.style.setProperty('--coluna', `${cw}px`);
     grade.style.setProperty('--linha', `${LINHA}px`);
     blocos().forEach(b => {
       const it = itens[b.dataset.bloco];
-      b.style.order = '';
       if (b.hidden || b === pular) return;
       b.style.left = `${it.x * cw}px`;
-      b.style.width = `${it.w * cw - GAP}px`;
+      b.style.width = `${it.w * cw - G}px`;
     });
     medir();
     resolver(prioridade);
@@ -173,7 +191,7 @@ window.PainelLayout = (function () {
       fundo = Math.max(fundo, (itens[id].y + h) * LINHA);
       if (b === pular) return;
       b.style.top = `${itens[id].y * LINHA}px`;
-      b.style.height = `${h * LINHA - GAP}px`;
+      b.style.height = `${h * LINHA - G}px`;
     });
     // Personalizando, sobra espaço embaixo pra soltar cartão lá.
     grade.style.height = `${fundo + (editando || arrastando ? 240 : 0)}px`;
@@ -214,7 +232,6 @@ window.PainelLayout = (function () {
 
   // ---------- Modo Personalizar ----------
   function entrar() {
-    if (!livre()) return;
     editando = true;
     grade.classList.add('pr-editando');
     document.body.classList.add('pr-personalizando');
@@ -264,7 +281,7 @@ window.PainelLayout = (function () {
       if (!b) return;
       if (b.dataset.mostrar) {
         const id = b.dataset.mostrar;
-        layout.itens[id].oculto = false;
+        definirOculto(id, false);
         render(id);
         salvar();
         const bloco = porId(id);
@@ -281,7 +298,7 @@ window.PainelLayout = (function () {
   }
   function renderBarra() {
     if (!barra) return;
-    const ocultos = ids().filter(id => layout.itens[id].oculto).map(porId);
+    const ocultos = ids().filter(id => L()[id].oculto).map(porId);
     barra.innerHTML = `
       <span class="pr-pb-texto">Arraste pra qualquer lugar · estique pelo canto</span>
       ${ocultos.length ? `<span class="pr-pb-sep"></span><span class="pr-pb-rotulo">Ocultos:</span>${ocultos.map(b => `
@@ -293,18 +310,18 @@ window.PainelLayout = (function () {
   }
 
   function ocultar(b) {
-    layout.itens[b.dataset.bloco].oculto = true;
+    definirOculto(b.dataset.bloco, true);
     render();
     salvar();
   }
   function moverTeclado(b, dx, dy, esticar) {
     const id = b.dataset.bloco;
-    const it = layout.itens[id];
+    const it = L()[id];
     if (esticar) {
-      it.w = limitar(it.w + dx, larguraMin(id), COLUNAS - it.x);
+      it.w = limitar(it.w + dx, larguraMin(id), cols() - it.x);
       if (dy) it.h = Math.max(natural.get(id) || 1, altura(id) + dy * PASSO_TECLADO);
     } else {
-      it.x = limitar(it.x + dx, 0, COLUNAS - it.w);
+      it.x = limitar(it.x + dx, 0, cols() - it.w);
       it.y = Math.max(0, it.y + dy * PASSO_TECLADO);
     }
     render(id);
@@ -321,9 +338,12 @@ window.PainelLayout = (function () {
     return !!topo && !e.target.closest('button');
   }
   function aoApertar(e) {
-    if (e.button !== 0 || !livre()) return;
+    if (e.button !== 0) return;
     if (e.target.closest('.pr-bloco-ocultar')) return;
     const redim = !!e.target.closest('.pr-bloco-redim');
+    // No toque (celular), arrastar só no Personalizar e pela etiqueta do
+    // nome ou pela alça — tocar no resto do cartão continua rolando a página.
+    if (e.pointerType === 'touch' && !(editando && e.target.closest('.pr-bloco-barra, .pr-bloco-redim'))) return;
     if (!editando && !podeArrastarSemEditar(e)) return;
     const b = e.target.closest('.pr-bloco');
     if (!b || b.parentElement !== grade) return;
@@ -331,7 +351,7 @@ window.PainelLayout = (function () {
     const id = b.dataset.bloco;
     const r = b.getBoundingClientRect();
     const d = {
-      b, id, redim, base: copiar(layout), x0: e.clientX, y0: e.clientY,
+      b, id, redim, base: copiar(layout), modo: modo(), x0: e.clientX, y0: e.clientY,
       dx: e.clientX - r.left, dy: e.clientY - r.top, ativo: false, vaga: null, ultimoMov: e, chave: '',
     };
 
@@ -352,17 +372,17 @@ window.PainelLayout = (function () {
       }
       const g = grade.getBoundingClientRect();
       const cw = larguraColuna();
-      const it0 = d.base.itens[id];
+      const it0 = d.base[d.modo][id];
       let x, y, w, h;
       if (d.redim) {
         x = it0.x; y = it0.y;
-        w = limitar(Math.round((m.clientX - g.left - x * cw + GAP) / cw), larguraMin(id), COLUNAS - x);
-        h = Math.max(1, Math.round((m.clientY - g.top - y * LINHA + GAP) / LINHA));
+        w = limitar(Math.round((m.clientX - g.left - x * cw + gap()) / cw), larguraMin(id), cols() - x);
+        h = Math.max(1, Math.round((m.clientY - g.top - y * LINHA + gap()) / LINHA));
       } else {
         w = it0.w; h = it0.h;
         const px = m.clientX - g.left - d.dx;
         const py = m.clientY - g.top - d.dy;
-        x = limitar(Math.round(px / cw), 0, COLUNAS - w);
+        x = limitar(Math.round(px / cw), 0, cols() - w);
         y = Math.max(0, Math.round(py / LINHA));
         // O cartão acompanha o mouse livremente; a vaga mostra onde encaixa.
         b.style.left = `${px}px`;
@@ -372,16 +392,16 @@ window.PainelLayout = (function () {
       if (chave !== d.chave) {
         d.chave = chave;
         layout = copiar(d.base);
-        Object.assign(layout.itens[id], { x, y, w, h });
+        Object.assign(L()[id], { x, y, w, h });
         render(id, d.redim ? null : b);
         // Esticou pra menos que o conteúdo: volta pra "altura do conteúdo".
-        if (d.redim && h <= (natural.get(id) || 0)) layout.itens[id].h = null;
+        if (d.redim && h <= (natural.get(id) || 0)) L()[id].h = null;
         if (d.vaga) {
-          const it = layout.itens[id];
+          const it = L()[id];
           d.vaga.style.left = `${it.x * cw}px`;
           d.vaga.style.top = `${it.y * LINHA}px`;
-          d.vaga.style.width = `${it.w * cw - GAP}px`;
-          d.vaga.style.height = `${altura(id) * LINHA - GAP}px`;
+          d.vaga.style.width = `${it.w * cw - gap()}px`;
+          d.vaga.style.height = `${altura(id) * LINHA - gap()}px`;
         }
       }
       rolarPerto(m.clientY, () => mover(d.ultimoMov));
@@ -449,7 +469,7 @@ window.PainelLayout = (function () {
     grade.addEventListener('dblclick', e => {
       if (!e.target.closest('.pr-bloco-redim')) return;
       const id = e.target.closest('.pr-bloco').dataset.bloco;
-      layout.itens[id].h = null;
+      L()[id].h = null;
       render(id);
       salvar();
     });
@@ -486,7 +506,7 @@ window.PainelLayout = (function () {
       cancelAnimationFrame(pendente);
       pendente = requestAnimationFrame(() => {
         const largura = grade.clientWidth;
-        if (largura !== larguraAntes || (livre() && medir())) { larguraAntes = largura; render(); }
+        if (largura !== larguraAntes || medir()) { larguraAntes = largura; render(); }
       });
     };
     window.addEventListener('resize', conferir);

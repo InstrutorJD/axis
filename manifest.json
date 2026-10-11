@@ -1,7 +1,7 @@
 {
-  "name": "Axis — Portal de Aulas",
+  "name": "Axis",
   "short_name": "Axis",
-  "description": "Portal de aulas, atividades e jogos das turmas, com painel do professor.",
+  "description": "Aulas, atividades e jogos das turmas, com painel do professor.",
   "lang": "pt-BR",
   "dir": "ltr",
   "id": "./",
