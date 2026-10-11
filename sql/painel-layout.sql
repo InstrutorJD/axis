@@ -1,0 +1,12 @@
+-- Painel do professor personalizável (botão "Personalizar" no topo do
+-- painel, shared/painel-layout.js): guarda a posição, o tamanho e os cartões
+-- ocultos na linha do professor em user_preferences, pra arrumação seguir
+-- ele em qualquer computador. Rode UMA vez no SQL Editor do Supabase — é
+-- seguro rodar de novo (idempotente). É o mesmo trecho que está em
+-- sql/supabase-setup-completo.sql, logo depois de user_preferences.
+--
+-- Formato: { "v": 2, "itens": { "agenda": { "x": 6, "y": 0, "w": 6, "h": null, "oculto": false }, ... } }
+-- (x/w em colunas de 12, y/h em linhas de 8 px; h null = altura do conteúdo).
+-- As policies de user_preferences já valem (cada um só lê/grava a própria
+-- linha). Sem esta coluna, o painel salva a arrumação só no navegador.
+alter table public.user_preferences add column if not exists painel_layout jsonb;

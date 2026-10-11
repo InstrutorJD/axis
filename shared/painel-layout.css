@@ -1,0 +1,137 @@
+/* Painel do professor com arrumação livre (shared/painel-layout.js): o JS
+   posiciona cada .pr-bloco (left/top/width/height) numa grade de 12
+   colunas da largura da tela. Em tela estreita (.pr-painel-pilha) tudo
+   empilha. Usa os tokens --pr-* de shared/professor.css. */
+
+/* A área ocupa a tela toda (o resto do painel continua centralizado). */
+.pr-main.pr-main-livre{ max-width:none; padding:24px 32px 48px; }
+
+.pr-painel{ position:relative; }
+.pr-painel.pr-painel-livre:not(.pr-painel-pilha) > .pr-bloco{ position:absolute; }
+.pr-painel-pronto:not(.pr-painel-pilha) > .pr-bloco{
+  transition:left .22s cubic-bezier(.2,.8,.2,1), top .22s cubic-bezier(.2,.8,.2,1), width .22s cubic-bezier(.2,.8,.2,1), height .22s cubic-bezier(.2,.8,.2,1);
+}
+.pr-bloco{ min-width:0; box-sizing:border-box; }
+.pr-bloco[hidden]{ display:none !important; }
+/* O conteúdo preenche o espaço do cartão (o JS mede a altura natural). */
+.pr-painel:not(.pr-painel-pilha) > .pr-bloco > :not(.pr-bloco-barra):not(.pr-bloco-redim){ height:100%; box-sizing:border-box; }
+.pr-painel .pr-card, .pr-painel .pr-card.pr-card-ferramenta{ min-height:136px; }
+/* Relógio como cartão: sem a margem de baixo que ele tinha sozinho. */
+.pr-bloco[data-bloco="relogio"] .pr-hero{ margin:0; padding:8px 0 4px; display:flex; flex-direction:column; justify-content:center; }
+
+/* Celular / janela estreita: empilha na ordem (o JS põe `order`). */
+.pr-painel.pr-painel-pilha{ display:flex; flex-direction:column; gap:12px; }
+.pr-painel.pr-painel-pilha > .pr-bloco{ position:static; }
+
+/* ---------- Botão do topo ---------- */
+.pr-btn-personalizar svg{ width:16px; height:16px; }
+.pr-btn-personalizar[aria-pressed="true"]{ background:var(--pr-accent-soft); color:var(--pr-accent); }
+.pr-btn-personalizar[hidden]{ display:none; }
+
+/* ---------- Arrastando (com ou sem Personalizar) ---------- */
+.pr-bloco.pr-bloco-solto{
+  z-index:50; transition:none !important; cursor:grabbing;
+  filter:drop-shadow(0 22px 34px rgba(16,24,40,.22)) drop-shadow(0 4px 10px rgba(16,24,40,.10));
+  rotate:1deg; opacity:.96;
+}
+.pr-bloco.pr-bloco-solto > *{ pointer-events:none; }
+.pr-bloco.pr-bloco-esticando{ z-index:50; transition:none !important; }
+/* Onde o cartão vai encaixar ao soltar. */
+.pr-vaga{
+  position:absolute; z-index:1; pointer-events:none; border-radius:16px;
+  border:2px dashed var(--pr-accent); background:color-mix(in srgb, var(--pr-accent) 9%, transparent);
+  transition:left .12s ease, top .12s ease, width .12s ease, height .12s ease;
+}
+body.pr-arrastando-cartao, body.pr-arrastando-cartao *{ cursor:grabbing !important; user-select:none; }
+body.pr-esticando-cartao, body.pr-esticando-cartao *{ cursor:nwse-resize !important; user-select:none; }
+/* Guias das 12 colunas enquanto personaliza ou arrasta. */
+.pr-painel.pr-editando, .pr-painel.pr-grade-ativa{
+  background-image:linear-gradient(to right, color-mix(in srgb, var(--pr-accent) 4%, transparent) calc(100% - 16px), transparent calc(100% - 16px));
+  background-size:var(--coluna, 8.33%) 100%;
+  border-radius:12px;
+}
+/* A Agenda é arrastada pelo cabeçalho. */
+.pr-bloco[data-bloco="agenda"] .ag-cartao-topo{ cursor:grab; }
+
+/* ---------- Modo Personalizar ---------- */
+/* Nada dentro do cartão recebe clique (nem abre turma, nem mexe na
+   agenda): quem recebe é o próprio cartão, pra ser arrastado. A barrinha e
+   a alça de esticar continuam clicáveis. */
+.pr-editando .pr-bloco{ cursor:grab; border-radius:18px; outline:none; }
+.pr-editando .pr-bloco > :not(.pr-bloco-barra):not(.pr-bloco-redim){ pointer-events:none; user-select:none; }
+.pr-editando .pr-bloco > .pr-card{ transform:none !important; }
+.pr-editando .pr-bloco::after{
+  content:''; position:absolute; inset:-4px; border-radius:20px; pointer-events:none;
+  border:2px dashed color-mix(in srgb, var(--pr-accent) 35%, transparent);
+  transition:border-color .15s ease;
+}
+.pr-editando .pr-bloco:hover::after, .pr-editando .pr-bloco:focus-visible::after{ border-color:var(--pr-accent); }
+.pr-editando .pr-bloco.pr-bloco-solto::after{ display:none; }
+/* Relógio sem caixa: no Personalizar ganha um fundo pra ver o tamanho. */
+.pr-editando .pr-bloco[data-bloco="relogio"]{ background:color-mix(in srgb, var(--pr-surface) 70%, transparent); border-radius:16px; }
+.pr-bloco-chegou::after{ animation:prChegou .9s ease-out; }
+@keyframes prChegou{ 0%{ background:color-mix(in srgb, var(--pr-accent) 25%, transparent); } 100%{ background:transparent; } }
+
+/* Barrinha com o nome, presa na borda de cima do cartão. */
+.pr-bloco-barra{
+  position:absolute; top:-14px; left:12px; z-index:4;
+  display:flex; align-items:center; gap:2px; max-width:calc(100% - 24px); padding:2px 3px 2px 2px;
+  background:var(--pr-surface); border:1px solid var(--pr-border); border-radius:999px;
+  box-shadow:var(--pr-shadow); white-space:nowrap;
+  animation:prBarraEntra .18s ease-out;
+}
+@keyframes prBarraEntra{ from{ opacity:0; transform:translateY(4px); } to{ opacity:1; transform:none; } }
+.pr-bloco-pegador{ display:grid; place-items:center; width:20px; height:22px; color:var(--pr-text-3); }
+.pr-bloco-pegador svg{ width:14px; height:14px; }
+.pr-bloco-nome{ min-width:0; overflow:hidden; text-overflow:ellipsis; padding-right:4px; font-size:12px; font-weight:600; color:var(--pr-text-2); }
+.pr-bloco-ocultar{
+  flex:none; display:grid; place-items:center; width:22px; height:22px; padding:0; border:0; border-radius:50%;
+  background:transparent; color:var(--pr-text-3); cursor:pointer;
+}
+.pr-bloco-ocultar svg{ width:13px; height:13px; }
+.pr-bloco-ocultar:hover{ background:var(--pr-danger-soft); color:var(--pr-danger); }
+
+/* Alça de esticar, no canto de baixo à direita. */
+.pr-bloco-redim{
+  position:absolute; right:-6px; bottom:-6px; z-index:4; width:22px; height:22px;
+  cursor:nwse-resize; border-radius:6px;
+}
+.pr-bloco-redim::before{
+  content:''; position:absolute; right:6px; bottom:6px; width:10px; height:10px;
+  border-right:3px solid var(--pr-accent); border-bottom:3px solid var(--pr-accent); border-bottom-right-radius:4px;
+  opacity:.55; transition:opacity .12s ease, transform .12s ease;
+}
+.pr-bloco:hover > .pr-bloco-redim::before, .pr-bloco-redim:hover::before, .pr-bloco-esticando > .pr-bloco-redim::before{ opacity:1; transform:translate(1px, 1px); }
+
+/* Barra flutuante embaixo. */
+.pr-personalizar-barra{
+  position:fixed; left:50%; bottom:18px; z-index:90; transform:translateX(-50%);
+  display:flex; align-items:center; flex-wrap:wrap; justify-content:center; gap:8px;
+  width:max-content; max-width:calc(100vw - 24px); padding:8px 8px 8px 16px;
+  background:var(--pr-surface); border:1px solid var(--pr-border); border-radius:14px;
+  box-shadow:0 16px 40px rgba(16,24,40,.18), 0 2px 6px rgba(16,24,40,.06);
+  font-size:14px; animation:prBarraSobe .22s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes prBarraSobe{ from{ opacity:0; transform:translate(-50%, 16px); } to{ opacity:1; transform:translateX(-50%); } }
+.pr-pb-texto{ font-weight:500; color:var(--pr-text-2); }
+.pr-pb-rotulo{ font-size:13px; color:var(--pr-text-3); }
+.pr-pb-sep{ width:1px; height:22px; background:var(--pr-border); }
+.pr-pb-oculto{
+  display:inline-flex; align-items:center; gap:4px; padding:5px 10px 5px 8px;
+  border:1px dashed var(--pr-border); border-radius:999px; background:var(--pr-surface-2);
+  font-size:13px; font-weight:500; color:var(--pr-text-2); cursor:pointer;
+  transition:background .12s ease, color .12s ease, border-color .12s ease;
+}
+.pr-pb-oculto svg{ width:14px; height:14px; }
+.pr-pb-oculto:hover{ border-style:solid; border-color:var(--pr-accent); background:var(--pr-accent-soft); color:var(--pr-accent); }
+.pr-pb-restaurar svg{ width:15px; height:15px; }
+.pr-pb-aviso{ flex-basis:100%; text-align:center; font-size:12px; color:var(--pr-warn); }
+
+@media (max-width:600px){
+  .pr-main.pr-main-livre{ padding:20px 16px 40px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .pr-painel-pronto > .pr-bloco, .pr-vaga{ transition:none !important; }
+  .pr-bloco-barra, .pr-personalizar-barra{ animation:none; }
+  .pr-bloco.pr-bloco-solto{ rotate:none; }
+}

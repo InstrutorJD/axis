@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- App instalável (manifest.json na raiz) e ícone do Axis (shared/assets/app/). -->
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" type="image/svg+xml" href="../shared/assets/app/icone.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="../shared/assets/app/favicon-32.png">
+<link rel="apple-touch-icon" href="../shared/assets/app/apple-touch-icon.png">
+<meta name="theme-color" content="#0b0e12">
+<meta name="apple-mobile-web-app-title" content="Axis">
+<title>Axis — Conhecimentos</title>
+
+<!-- Base de conhecimento do professor no estilo do Obsidian: notas em
+     Markdown conectadas por [[links]], backlinks e grafo. SÓ o professor:
+     aluno e substituto voltam pro login/painel (e no banco cada linha é do
+     próprio professor — sql/professor-notas.sql). Lógica em
+     shared/conhecimentos.js, visual em shared/conhecimentos.css. -->
+<link rel="stylesheet" href="../shared/professor.css">
+<link rel="stylesheet" href="../shared/conhecimentos.css">
+
+<script src="../shared/supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../shared/session.js"></script>
+<script src="../shared/axis-logo.js"></script>
+<script src="../shared/conhecimentos.js"></script>
+</head>
+<body class="cn-body">
+
+<header class="pr-topbar">
+  <div class="cn-topo-titulo">
+    <span data-axis-logo>Axis</span>
+    <span class="cn-topo-sep" aria-hidden="true"></span>
+    <span>Conhecimentos</span>
+  </div>
+  <div class="pr-usuario cn-topo-acoes">
+    <span class="pr-usuario-nome" id="sessionUser"></span>
+    <a class="btn btn-ghost" href="painel.html">Painel</a>
+  </div>
+</header>
+
+<div id="conhecimentos" class="cn-app"></div>
+
+<script>
+(async function () {
+  const currentUser = await window.PortalSession.requireUser('../index.html');
+  if (!currentUser) return;
+  // Só o professor (o substituto aparece como professor na tela, mas não
+  // entra aqui).
+  if (currentUser.role !== 'professor' || currentUser.substituto) {
+    window.location.href = currentUser.substituto ? 'painel.html' : '../index.html';
+    return;
+  }
+  document.getElementById('sessionUser').textContent = currentUser.nome;
+  window.Conhecimentos.montar(document.getElementById('conhecimentos'), window.PortalSession.client());
+})();
+</script>
+
+</body>
+</html>

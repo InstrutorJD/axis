@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Versão "maskable" do ícone do Axis (ver icone.svg): fundo até a borda
+       e a letra dentro da zona segura (círculo de 80% do centro), porque o
+       Android/iOS recortam no formato que quiserem (círculo, gota...). -->
+  <defs>
+    <linearGradient id="fundo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#141b2b"/>
+      <stop offset="1" stop-color="#0b0e12"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.55" r="0.45">
+      <stop offset="0" stop-color="#5ee7ff" stop-opacity=".22"/>
+      <stop offset=".55" stop-color="#a78bfa" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="traco" gradientUnits="userSpaceOnUse" x1="6" y1="4" x2="89" y2="93">
+      <stop offset="0" stop-color="#5ee7ff"/>
+      <stop offset=".5" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#ff4fd8"/>
+    </linearGradient>
+    <filter id="brilho" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <g id="letra" fill="none" stroke="url(#traco)" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="4.8" d="M12 90 C 17 78, 22 67, 28 55"/>
+      <path stroke-width="4.8" d="M33 47 C 37 36, 41 26, 46 15"/>
+      <path stroke-width="4.8" d="M57 4 C 61 16, 65 29, 70 42"/>
+      <path stroke-width="4.8" d="M75 57 C 79 68, 83 79, 89 92"/>
+      <path stroke-width="4.8" d="M6 66 C 20 62, 34 60, 52 59"/>
+      <path stroke-width="2.2" opacity=".6" d="M62 58 C 66 58, 70 58, 73 59"/>
+      <path stroke-width="2.2" opacity=".6" d="M44 9 C 47 6, 50 5, 53 7"/>
+      <path stroke-width="2.2" opacity=".6" d="M64 20 C 68 32, 72 44, 78 60"/>
+      <path stroke-width="2.2" opacity=".6" d="M18 84 C 21 77, 23 72, 25 68"/>
+    </g>
+  </defs>
+  <rect width="512" height="512" fill="url(#fundo)"/>
+  <rect width="512" height="512" fill="url(#halo)"/>
+  <use href="#letra" transform="translate(132.5 129.5) scale(2.6)" filter="url(#brilho)"/>
+</svg>

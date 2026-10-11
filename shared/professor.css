@@ -188,13 +188,16 @@ html{ cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg
 .pr-card.cor-verde{ --cor:#059669; }
 .pr-card.cor-laranja{ --cor:#ea580c; }
 .pr-card.cor-rosa{ --cor:#db2777; }
+.pr-card.cor-ciano{ --cor:#0891b2; }
 @media (prefers-color-scheme: dark){
   .pr-card.cor-violeta{ --cor:#a78bfa; }
   .pr-card.cor-azul{ --cor:#60a5fa; }
   .pr-card.cor-verde{ --cor:#34d399; }
   .pr-card.cor-laranja{ --cor:#fb923c; }
   .pr-card.cor-rosa{ --cor:#f472b6; }
+  .pr-card.cor-ciano{ --cor:#22d3ee; }
 }
+
 
 /* Emojis de tecnologia caindo no fundo, bem transparentes
    (shared/professor-fx.js cria os elementos). Ficam atrás do conteúdo e
