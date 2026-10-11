@@ -29,6 +29,31 @@ window.PortalSession = (function () {
     return `${username}@${EMAIL_DOMAIN}`;
   }
 
+  // "Permanecer logado" (caixa na tela de login). A sessão do Supabase fica
+  // sempre no localStorage; o que muda é quanto tempo ela vale:
+  // - marcado ('1'): até clicar em Sair — o login entra direto;
+  // - desmarcado ('0'): só enquanto o navegador estiver aberto. Um cookie
+  //   de sessão (sem data de validade, vale em todas as abas e o navegador
+  //   apaga ao fechar) marca que a sessão é "desta vez"; sem ele, a sessão
+  //   guardada é encerrada na próxima página. Bom pros computadores do
+  //   laboratório.
+  // Sem escolha gravada (quem logou antes desta opção existir), continua
+  // como era: a sessão vale até Sair.
+  const CHAVE_LEMBRAR = 'axis.lembrar';
+  const COOKIE_SESSAO = 'axis_sessao';
+  function lembrarLogin() {
+    try { return localStorage.getItem(CHAVE_LEMBRAR) !== '0'; } catch (e) { return true; }
+  }
+  function definirLembrar(sim) {
+    try { localStorage.setItem(CHAVE_LEMBRAR, sim ? '1' : '0'); } catch (e) { /* bloqueado */ }
+    document.cookie = sim
+      ? `${COOKIE_SESSAO}=; path=/; max-age=0; SameSite=Lax`
+      : `${COOKIE_SESSAO}=1; path=/; SameSite=Lax`;
+  }
+  const sessaoDestaVez = () => document.cookie.split(';').some(c => c.trim() === `${COOKIE_SESSAO}=1`);
+  // Desmarcou "Permanecer logado" e o navegador foi fechado desde então.
+  const sessaoVencida = () => !lembrarLogin() && !sessaoDestaVez();
+
   // Cache em memória: dura a vida da página (cada iframe tem a sua),
   // evita reconsultar profiles em toda chamada dentro da mesma página.
   let cachedUser = null;
@@ -41,6 +66,7 @@ window.PortalSession = (function () {
     pendingLookup = (async () => {
       const sb = client();
       if (!sb) return null;
+      if (sessaoVencida()) { await sb.auth.signOut(); return null; }
 
       const { data: authData, error: authError } = await sb.auth.getUser();
       if (authError || !authData || !authData.user) return null;
@@ -99,9 +125,11 @@ window.PortalSession = (function () {
     return user;
   }
 
-  async function signIn(username, senha) {
+  // lembrar: a caixa "Permanecer logado" (ver lembrarLogin()).
+  async function signIn(username, senha, lembrar) {
     const sb = client();
     if (!sb) return { data: null, error: { message: 'Supabase não configurado.' } };
+    if (lembrar !== undefined) definirLembrar(!!lembrar);
     return sb.auth.signInWithPassword({
       email: authEmailFromUsername((username || '').trim().toLowerCase()),
       password: senha,
@@ -111,8 +139,9 @@ window.PortalSession = (function () {
   async function signOut() {
     const sb = client();
     cachedUser = null;
+    document.cookie = `${COOKIE_SESSAO}=; path=/; max-age=0; SameSite=Lax`;
     if (sb) await sb.auth.signOut();
   }
 
-  return { client, getUser, requireUser, signIn, signOut, authEmailFromUsername };
+  return { client, getUser, requireUser, signIn, signOut, authEmailFromUsername, lembrarLogin };
 })();

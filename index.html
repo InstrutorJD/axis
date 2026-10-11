@@ -109,6 +109,27 @@
     .login-card, .form-group input, .btn-submit { transition: none; }
     .login-card:hover, .btn-submit:hover { transform: none; }
   }
+  /* "Permanecer logado" */
+  .lembrar {
+    display: flex; align-items: center; gap: 10px; margin: -4px 0 18px;
+    font-size: 14px; color: var(--ink-dim); cursor: pointer; user-select: none;
+  }
+  .lembrar input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .lembrar-caixa {
+    flex: none; width: 18px; height: 18px; border-radius: 5px;
+    border: 2px solid var(--green-dim); background: var(--panel2);
+    display: grid; place-items: center; transition: background .15s ease, border-color .15s ease;
+  }
+  .lembrar-caixa::after {
+    content: ''; width: 9px; height: 5px; margin-top: -2px;
+    border-left: 2px solid var(--bg); border-bottom: 2px solid var(--bg);
+    transform: rotate(-45deg) scale(0); transition: transform .15s ease;
+  }
+  .lembrar:hover { color: var(--ink); }
+  .lembrar:hover .lembrar-caixa { border-color: var(--green); }
+  .lembrar input:checked + .lembrar-caixa { background: var(--green); border-color: var(--green); }
+  .lembrar input:checked + .lembrar-caixa::after { transform: rotate(-45deg) scale(1); }
+  .lembrar input:focus-visible + .lembrar-caixa { outline: 2px solid var(--green); outline-offset: 2px; }
   .error-msg {
     color: var(--blood-bright); font-size: 11px; margin-top: 12px;
     text-align: center; display: none; font-weight: bold;
@@ -199,6 +220,15 @@
       <label for="txtPass">Senha</label>
       <input type="password" id="txtPass" placeholder="••••••••" required>
     </div>
+
+    <!-- Marcado: entra direto da próxima vez, até clicar em Sair.
+         Desmarcado: a sessão acaba quando o navegador fecha (ver
+         lembrarLogin() em shared/session.js). A escolha fica lembrada. -->
+    <label class="lembrar">
+      <input type="checkbox" id="chkLembrar">
+      <span class="lembrar-caixa" aria-hidden="true"></span>
+      Permanecer logado
+    </label>
 
     <button type="submit" class="btn-submit">Entrar</button>
     <div class="error-msg" id="errMsg"></div>
@@ -299,7 +329,8 @@ async function handleLogin(e) {
   const btn = document.querySelector('.btn-submit');
 
   btn.disabled = true;
-  const { error } = await window.PortalSession.signIn(uVal, pVal);
+  const lembrar = document.getElementById('chkLembrar').checked;
+  const { error } = await window.PortalSession.signIn(uVal, pVal, lembrar);
 
   if (error) {
     // GoTrue devolve uma mensagem específica pra conta banida (ver
@@ -321,14 +352,33 @@ async function handleLogin(e) {
   }
 
   err.style.display = 'none';
+  entrar(user);
+  return false;
+}
 
-  // Cada turma tem sua própria tela; o professor cai num painel único.
+// Cada turma tem sua própria tela; o professor cai num painel único.
+function entrar(user) {
   window.location.href = (user.role === 'professor')
     ? 'professor/painel.html'
     : `turmas/${encodeURIComponent(user.turma)}/plataforma.html`;
-
-  return false;
 }
+
+// "Permanecer logado": a caixa vem como ficou da última vez. Entra direto,
+// sem pedir a senha, se a caixa foi marcada ou se a sessão é a desta
+// janela do navegador (caixa desmarcada, navegador ainda não fechado).
+// Quem logou antes desta opção existir (sem escolha gravada) vê o login
+// normalmente. Conta arquivada nunca entra direto — requireUser() mandaria
+// de volta pra cá.
+(async function () {
+  let escolha = null;
+  try { escolha = localStorage.getItem('axis.lembrar'); } catch (e) { /* bloqueado */ }
+  document.getElementById('chkLembrar').checked = escolha === '1';
+  if (new URLSearchParams(window.location.search).get('arquivado') === '1') return;
+  const destaVez = document.cookie.split(';').some(c => c.trim() === 'axis_sessao=1');
+  if (escolha !== '1' && !destaVez) return;
+  const user = await window.PortalSession.getUser();
+  if (user && !user.archived_at) entrar(user);
+})();
 </script>
 
 </body>
