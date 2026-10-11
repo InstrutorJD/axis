@@ -164,21 +164,16 @@
 </main>
 
 <script>
-// Relógio, data e frases estoicas: começam já, antes do login terminar;
-// o nome entra na saudação quando a sessão responde (iniciarSaudacao).
-let nomeSaudacao = '';
-function iniciarSaudacao(nome) {
-  nomeSaudacao = (nome || '').split(/[\s/]+/)[0] || '';
-  atualizarRelogio();
-}
-
+// Relógio, data e frases estoicas: começam já, antes do login terminar.
+// A saudação é só "Bom dia/Boa tarde/Boa noite", sem o nome (pedido do
+// professor).
 function atualizarRelogio() {
   const agora = new Date();
   document.getElementById('relogio').textContent =
     agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   const h = agora.getHours();
   const cumprimento = h < 5 ? 'Boa noite' : h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
-  document.getElementById('saudacao').textContent = nomeSaudacao ? `${cumprimento}, ${nomeSaudacao}` : cumprimento;
+  document.getElementById('saudacao').textContent = cumprimento;
   const data = agora.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   document.getElementById('dataHoje').textContent = data.charAt(0).toUpperCase() + data.slice(1);
 }
@@ -227,7 +222,6 @@ setInterval(atualizarRelogio, 1000);
   }
 
   document.getElementById('sessionUser').textContent = currentUser.nome;
-  iniciarSaudacao(currentUser.nome);
   // Conhecimentos e Projetos são só do professor: o substituto nem vê os cartões.
   if (currentUser.substituto) document.querySelectorAll('[data-bloco="conhecimentos"], [data-bloco="projetos"]').forEach(b => b.remove());
   window.ProfessorAgenda.montar(document.getElementById('agenda'), window.PortalSession.client());
