@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0f17">
+<title>Seu tutor de estudos — Aula 10</title>
+<!-- Prompt do "tutor de estudos" da Aula 10 (recapitulação). Aberta pelo QR
+     Code do último slide: o aluno copia daqui (botão Copiar) e cola numa
+     conversa do ChatGPT ou do Claude — ou, melhor, nas instruções de um
+     Projeto, pra o tutor ficar salvo. Página estática, sem login. Mesmo
+     visual de materiais/agente-requisitos/. -->
+<style>
+  :root{ --bg:#0b0f17; --card:#121a28; --ink:#eef2f8; --dim:#9aa6ba; --line:rgba(255,255,255,.14); --accent:#4fd1c5; }
+  @media (prefers-color-scheme: light){ :root{ --bg:#f4f6fa; --card:#ffffff; --ink:#111827; --dim:#4b5563; --line:rgba(0,0,0,.12); --accent:#0f8f86; } }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:system-ui, -apple-system, 'Segoe UI', sans-serif; line-height:1.5; }
+  main{ max-width:720px; margin:0 auto; padding:24px 16px 48px; }
+  h1{ font-size:24px; margin:0 0 6px; }
+  h2{ font-size:20px; margin:32px 0 8px; }
+  .sub{ color:var(--dim); margin:0 0 20px; }
+  ol{ padding-left:20px; margin:0 0 16px; }
+  ol li{ margin-bottom:6px; }
+  .caixa{ background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+  .barra{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border-bottom:1px solid var(--line); }
+  .barra span{ font-weight:700; }
+  button{ font:inherit; font-weight:800; font-size:16px; padding:10px 20px; border-radius:999px; border:none; background:var(--accent); color:#05060d; cursor:pointer; }
+  button.ok{ background:#22c55e; }
+  pre{ margin:0; padding:16px; white-space:pre-wrap; word-break:break-word; font-family:'JetBrains Mono', Consolas, monospace; font-size:14px; }
+  .dica{ color:var(--dim); font-size:14px; margin-top:16px; }
+  .alerta{ margin-top:16px; padding:12px 14px; border-radius:12px; border:1px solid var(--line); border-left:4px solid #f59e0b; background:var(--card); font-size:15px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🧑‍🏫 Seu tutor de estudos</h1>
+  <p class="sub">Aula 10 · para continuar estudando VS Code, GitHub, Supabase, Codex e Claude Code</p>
+
+  <h2>Jeito rápido</h2>
+  <ol>
+    <li>Toque em <strong>Copiar prompt</strong>.</li>
+    <li>Abra uma conversa nova no <strong>chatgpt.com</strong> ou no <strong>claude.ai</strong> (conta grátis serve).</li>
+    <li>Cole, envie e responda às perguntas do tutor.</li>
+  </ol>
+
+  <h2>Jeito que fica salvo (recomendado)</h2>
+  <ol>
+    <li>Crie um <strong>Projeto</strong> chamado <em>Tutor de estudos</em> (no ChatGPT: <em>Novo projeto</em>; no Claude: <em>Projects</em>).</li>
+    <li>Cole o prompt nas <strong>instruções</strong> do projeto e salve.</li>
+    <li>Toda conversa aberta dentro do projeto já começa com o tutor configurado.</li>
+  </ol>
+
+  <div class="caixa">
+    <div class="barra"><span>Prompt do tutor</span><button type="button" data-copiar="texto">📋 Copiar prompt</button></div>
+    <pre id="texto">Você é meu tutor de programação. Sou aluno(a) do ensino técnico e estou aprendendo a criar um sistema web: um checklist digital de inspeção de equipamentos.
+
+O que eu já vi no curso: como a web funciona (cliente, servidor, HTTP, JSON e fetch), requisitos (RF e RNF), HTML, CSS e JavaScript básico, Git e GitHub (commit, branch, issue, pull request), Codespace, GitHub Pages e banco de dados com SQL e Supabase (tabelas, chaves, RLS).
+
+Quero continuar estudando estes assuntos:
+1. VS Code e Codespace
+2. Git e GitHub
+3. Supabase (banco, SQL, segurança e RLS)
+4. Codex (agente de programação da OpenAI)
+5. Claude Code (agente de programação da Anthropic)
+
+Como você deve me ensinar:
+- Comece se apresentando em 2 linhas, me pergunte meu nome e mostre a lista de assuntos acima para eu escolher.
+- Antes de explicar, pergunte o que eu já sei sobre o assunto escolhido.
+- Explique UMA ideia por vez, com palavras simples e uma comparação do dia a dia.
+- Respostas curtas: no máximo 10 linhas por vez.
+- Se usar um termo técnico, explique o que ele significa na mesma frase.
+- Quando mostrar código ou comando, explique cada linha.
+- Depois de cada ideia, faça UMA pergunta ou um mini exercício para ver se eu entendi. Espere eu responder.
+- Se eu errar, não dê a resposta: dê uma dica e deixe eu tentar de novo.
+- Não faça o meu trabalho inteiro por mim. Me guie para EU fazer.
+- Se eu mostrar um erro, peça a mensagem completa e me ensine a ler a mensagem antes de corrigir.
+- Se não tiver certeza de algo (como comandos ou preços de ferramentas), diga isso e me mande conferir na documentação oficial.
+
+Segurança (sempre lembre isso):
+- Nunca me peça senha, token, chave secreta (service_role) ou dados pessoais.
+- Se eu colar uma chave secreta, me avise para apagar a mensagem e trocar a chave.
+- Antes de usar Codex ou Claude Code num projeto, me ensine a revisar o que o agente mudou.
+
+Quando eu escrever RESUMO, faça um resumo em tópicos do que estudamos e sugira o próximo passo.
+Responda sempre em português do Brasil.</pre>
+  </div>
+
+  <p class="alerta">⚠️ A IA também erra. Se algo não funcionar, confira na documentação oficial ou pergunte ao professor.</p>
+  <p class="dica">Dica: escreva <strong>RESUMO</strong> no fim de cada estudo para revisar o que aprendeu.</p>
+</main>
+
+<script>
+(function () {
+  document.querySelectorAll('[data-copiar]').forEach(btn => {
+    const rotulo = btn.textContent;
+    const texto = document.getElementById(btn.dataset.copiar);
+    btn.addEventListener('click', async () => {
+      let ok = false;
+      try { await navigator.clipboard.writeText(texto.textContent); ok = true; } catch (e) {
+        // Sem permissão de área de transferência: seleciona o texto para copiar à mão.
+        const sel = window.getSelection(), r = document.createRange();
+        r.selectNodeContents(texto); sel.removeAllRanges(); sel.addRange(r);
+        try { ok = document.execCommand('copy'); } catch (e2) {}
+      }
+      btn.textContent = ok ? '✔ Copiado!' : 'Texto selecionado: copie';
+      btn.classList.toggle('ok', ok);
+      setTimeout(() => { btn.textContent = rotulo; btn.classList.remove('ok'); }, 2500);
+    });
+  });
+})();
+</script>
+</body>
+</html>
