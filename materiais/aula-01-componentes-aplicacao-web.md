@@ -612,7 +612,7 @@ Na volta: um hacker vai tentar invadir o seu celular. 😈
 ## 🚨 Alerta: invasão!
 Aponte a câmera e defenda o seu celular antes que o hacker chegue a **100%**.
 
-[qrcode https://instrutorjd.github.io/portal_aulas/games/invasao-hacker.html?p=aula-01 Defenda o seu celular]
+[qrcode https://instrutorjd.github.io/axis/games/invasao-hacker.html?p=aula-01 Defenda o seu celular]
 
 ---
 
@@ -722,7 +722,7 @@ A mina quer saber quantas horas o caminhão ainda roda antes da próxima troca d
 ## ⚡ Rodada relâmpago
 Qual uso da IA resolve cada problema da mina? 10 segundos por cenário: rápido vale mais!
 
-[qrcode https://instrutorjd.github.io/portal_aulas/games/rodada-relampago.html?p=aula-01 Rodada relâmpago]
+[qrcode https://instrutorjd.github.io/axis/games/rodada-relampago.html?p=aula-01 Rodada relâmpago]
 
 ---
 
@@ -828,7 +828,7 @@ O operador envia a inspeção do caminhão CAM-99, que não está cadastrado.
 ## O site de exemplo da aula
 Uma prévia do **Checklist Digital de Inspeção**, o projeto do curso. Aponte a câmera:
 
-[qrcode https://instrutorjd.github.io/portal_aulas/materiais/checklist/ Site de exemplo]
+[qrcode https://instrutorjd.github.io/axis/materiais/checklist/ Site de exemplo]
 
 ---
 

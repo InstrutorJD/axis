@@ -348,7 +348,7 @@ Hoje o foco é o **JavaScript**. HTML e CSS: só o básico para reconhecer.
 3. O que sobrou? A estrutura **sem roupa**
 4. Dê **F5**: tudo volta, porque o arquivo não mudou
 
-[Abrir o checklist da Aula 1](https://instrutorjd.github.io/portal_aulas/materiais/checklist/)
+[Abrir o checklist da Aula 1](https://instrutorjd.github.io/axis/materiais/checklist/)
 
 ---
 
@@ -981,7 +981,7 @@ No chat, `#index.html` mostra ao Copilot o arquivo que já existe.
 ---
 
 ## Copie os prompts
-[qrcode https://instrutorjd.github.io/portal_aulas/materiais/prompts-checklist/ instrutorjd.github.io/portal_aulas/materiais/prompts-checklist]
+[qrcode https://instrutorjd.github.io/axis/materiais/prompts-checklist/ instrutorjd.github.io/axis/materiais/prompts-checklist]
 
 Abra **no computador**, numa aba ao lado do Codespace. Cada prompt tem o seu botão **Copiar**.
 

@@ -51,7 +51,7 @@ Olhe com calma. Você consegue dizer o que aconteceu com o caminhão?
 - Toque na resposta antes do tempo acabar
 - No fim, o telão mostra quanto a turma acertou
 
-[Abrir o telão da revisão](https://instrutorjd.github.io/portal_aulas/professor/revisao.html?p=aula-02)
+[Abrir o telão da revisão](https://instrutorjd.github.io/axis/professor/revisao.html?p=aula-02)
 
 ---
 
@@ -510,7 +510,7 @@ Repare: ele **pergunta e critica**, mas quem escreve é **você**.
 ---
 
 ## Copie as instruções do agente
-[qrcode https://instrutorjd.github.io/portal_aulas/materiais/agente-requisitos/ instrutorjd.github.io/portal_aulas/materiais/agente-requisitos]
+[qrcode https://instrutorjd.github.io/axis/materiais/agente-requisitos/ instrutorjd.github.io/axis/materiais/agente-requisitos]
 
 Leia o QR ou digite o endereço: toque em **Copiar instruções** e cole no projeto.
 
@@ -1120,7 +1120,7 @@ Use o ChatGPT num chat **novo**, fora do projeto de requisitos.
 ---
 
 ## Copie o pedido
-[qrcode https://instrutorjd.github.io/portal_aulas/materiais/agente-requisitos/#pagina instrutorjd.github.io/portal_aulas/materiais/agente-requisitos]
+[qrcode https://instrutorjd.github.io/axis/materiais/agente-requisitos/#pagina instrutorjd.github.io/axis/materiais/agente-requisitos]
 
 Na mesma página das instruções do agente: role até **O pedido da página**.
 
