@@ -31,11 +31,11 @@
 
   /* Relógio */
   .relogio{ display:flex; flex-direction:column; justify-content:center; padding-left:2vmin; }
-  .hora{ font-size:clamp(64px, 17vw, 340px); font-weight:800; line-height:.9; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+  .hora{ font-size:clamp(44px, 9vw, 180px); font-weight:800; line-height:.9; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
   .hora .seg{ font-size:.32em; font-weight:600; color:var(--texto-3); letter-spacing:0; margin-left:.15em; }
   .hora .pisca{ animation:pisca 1s steps(1) infinite; }
   @keyframes pisca{ 50%{ opacity:.25; } }
-  .data{ margin-top:2vmin; font-size:clamp(26px, 3.6vw, 72px); font-weight:500; color:var(--texto-2); text-transform:capitalize; }
+  .data{ margin-top:2vmin; font-size:clamp(15px, 1.8vw, 36px); font-weight:500; color:var(--texto-2); text-transform:capitalize; }
 
   /* Coluna da direita */
   .lado{ display:flex; flex-direction:column; gap:3vmin; min-height:0; }
@@ -48,19 +48,19 @@
   .banheiro > *{ position:relative; }
   .banheiro.liberado{ --cor:var(--ok); border-color:color-mix(in srgb, var(--ok) 55%, var(--borda)); }
   .banheiro.proibido{ --cor:var(--nao); border-color:color-mix(in srgb, var(--nao) 55%, var(--borda)); }
-  .rotulo{ font-size:clamp(20px, 2.2vw, 40px); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--texto-3); }
-  .status{ display:flex; align-items:center; gap:2vmin; font-size:clamp(48px, 7.4vw, 150px); font-weight:800; line-height:1; color:var(--cor); }
+  .rotulo{ font-size:clamp(12px, 1.15vw, 22px); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--texto-3); }
+  .status{ display:flex; align-items:center; gap:2vmin; font-size:clamp(26px, 3.6vw, 72px); font-weight:800; line-height:1; color:var(--cor); }
   .status .bolinha{ flex:none; width:.55em; height:.55em; border-radius:50%; background:var(--cor); box-shadow:0 0 0 0 var(--cor); animation:pulsa 2s ease-out infinite; }
   @keyframes pulsa{ 0%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--cor) 60%, transparent); } 100%{ box-shadow:0 0 0 .5em transparent; } }
-  .detalhe{ font-size:clamp(24px, 3vw, 58px); font-weight:500; color:var(--texto-2); }
+  .detalhe{ font-size:clamp(14px, 1.5vw, 30px); font-weight:500; color:var(--texto-2); }
   .detalhe b{ color:var(--texto); font-weight:700; }
   .horarios{ display:flex; gap:1.2vmin; flex-wrap:wrap; margin-top:.6vmin; }
-  .horarios span{ padding:.5vmin 1.4vmin; border:1px solid var(--borda); border-radius:99px; font-size:clamp(20px, 2.2vw, 42px); font-weight:600; color:var(--texto-3); font-variant-numeric:tabular-nums; }
+  .horarios span{ padding:.5vmin 1.4vmin; border:1px solid var(--borda); border-radius:99px; font-size:clamp(12px, 1.15vw, 22px); font-weight:600; color:var(--texto-3); font-variant-numeric:tabular-nums; }
   .horarios span.agora{ color:var(--texto); border-color:var(--cor); background:color-mix(in srgb, var(--cor) 18%, transparent); }
 
   /* Link do portal */
   .portal{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:1.4vmin; min-height:0; }
-  .url{ font-size:clamp(30px, 4.2vw, 88px); font-weight:800; line-height:1.1; letter-spacing:-.01em; word-break:break-word; }
+  .url{ font-size:clamp(18px, 2.1vw, 42px); font-weight:800; line-height:1.1; letter-spacing:-.01em; word-break:break-word; }
 
   /* Botão de tela cheia: some sozinho quando o mouse para */
   .tela-cheia{
