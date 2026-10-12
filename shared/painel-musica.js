@@ -63,11 +63,13 @@ window.PainelMusica = (function () {
     raiz.className = 'pm';
     raiz.innerHTML = `
       <button type="button" class="pm-btn pm-play" aria-label="Tocar a música" title="Tocar a música">${svg('nota')}<span class="pm-estado">${svg('play')}</span></button>
-      <label class="pm-volume" title="Volume">
-        <span class="pm-ico-vol">${svg('som')}</span>
-        <input type="range" min="0" max="100" step="1" aria-label="Volume da música">
-      </label>
-      <button type="button" class="pm-btn pm-trocar" aria-label="Trocar a música" title="Trocar a música (link do YouTube)">${svg('mais')}</button>
+      <div class="pm-extra">
+        <label class="pm-volume" title="Volume">
+          <span class="pm-ico-vol">${svg('som')}</span>
+          <input type="range" min="0" max="100" step="1" aria-label="Volume da música">
+        </label>
+        <button type="button" class="pm-btn pm-trocar" aria-label="Trocar a música" title="Trocar a música (link do YouTube)">${svg('mais')}</button>
+      </div>
       <form class="pm-pop" hidden>
         <label>Link do YouTube (playlist ou vídeo)
           <input type="url" placeholder="https://www.youtube.com/watch?v=…" autocomplete="off" required>

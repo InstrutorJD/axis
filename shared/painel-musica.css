@@ -1,29 +1,43 @@
 /* Música do painel do professor (shared/painel-musica.js): play/pause,
    volume e ⋯ (trocar playlist) no topo do painel. */
-.pm{ position:relative; display:flex; align-items:center; gap:2px; padding:2px; border:1px solid var(--pr-border); border-radius:999px; background:var(--pr-surface); }
+/* Compacto: só o botão da nota (com o ▶/⏸ pequeno no canto). Volume e ⋯
+   aparecem ao passar o mouse (ou ao focar com o teclado); no celular, sem
+   mouse, aparecem enquanto toca. */
+.pm{ position:relative; display:flex; align-items:center; gap:0; border-radius:999px; transition:background .15s ease; }
+.pm:hover, .pm:focus-within{ background:var(--pr-surface-2); }
 .pm-btn{
-  display:inline-flex; align-items:center; justify-content:center; gap:4px; height:32px; min-width:32px; padding:0 8px;
+  display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; padding:0;
   border:0; border-radius:999px; background:transparent; color:var(--pr-text-2); cursor:pointer;
-  transition:background .15s ease, color .15s ease;
+  transition:color .15s ease;
 }
-.pm-btn:hover{ background:var(--pr-surface-2); color:var(--pr-text); }
+.pm-btn:hover{ color:var(--pr-text); }
 .pm-btn svg{ width:16px; height:16px; }
-.pm-estado{ display:inline-flex; }
-.pm-estado svg{ width:13px; height:13px; }
-.pm-trocar{ min-width:28px; padding:0 6px; color:var(--pr-text-3); }
+.pm-play{ position:relative; }
+.pm-estado{
+  position:absolute; right:2px; bottom:3px; display:grid; place-items:center; width:11px; height:11px; border-radius:50%;
+  background:var(--pr-text-2); color:var(--pr-surface);
+}
+.pm-estado svg{ width:7px; height:7px; }
 .pm.pm-tocando .pm-play{ color:var(--pr-accent); }
+.pm.pm-tocando .pm-estado{ background:var(--pr-accent); }
 /* Nota "dançando" enquanto toca. */
 .pm.pm-tocando .pm-play > svg{ animation:pmBalanca 1.2s ease-in-out infinite; transform-origin:50% 80%; }
 @keyframes pmBalanca{ 0%, 100%{ transform:rotate(-8deg); } 50%{ transform:rotate(8deg) translateY(-1px); } }
 
-.pm-volume{ display:flex; align-items:center; gap:6px; padding:0 6px 0 4px; color:var(--pr-text-3); cursor:pointer; }
-.pm-ico-vol svg{ width:15px; height:15px; display:block; }
+.pm-extra{ display:flex; align-items:center; max-width:0; overflow:hidden; opacity:0; transition:max-width .2s ease, opacity .15s ease; }
+.pm:hover .pm-extra, .pm:focus-within .pm-extra{ max-width:140px; opacity:1; }
+@media (hover:none){ .pm.pm-tocando .pm-extra{ max-width:140px; opacity:1; } }
+.pm-trocar{ width:24px; color:var(--pr-text-3); }
+.pm-trocar svg{ width:14px; height:14px; }
+
+.pm-volume{ display:flex; align-items:center; padding:0 4px 0 2px; cursor:pointer; }
+.pm-ico-vol{ display:none; }
 .pm-volume input{
-  -webkit-appearance:none; appearance:none; width:84px; height:4px; margin:0; border-radius:999px; cursor:pointer;
+  -webkit-appearance:none; appearance:none; width:64px; height:4px; margin:0; border-radius:999px; cursor:pointer;
   background:linear-gradient(to right, var(--pr-accent) var(--pm-v, 40%), var(--pr-border) var(--pm-v, 40%));
 }
-.pm-volume input::-webkit-slider-thumb{ -webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:var(--pr-accent); border:2px solid var(--pr-surface); box-shadow:0 0 0 1px var(--pr-accent); }
-.pm-volume input::-moz-range-thumb{ width:10px; height:10px; border-radius:50%; background:var(--pr-accent); border:2px solid var(--pr-surface); }
+.pm-volume input::-webkit-slider-thumb{ -webkit-appearance:none; width:11px; height:11px; border-radius:50%; background:var(--pr-accent); border:2px solid var(--pr-surface); box-shadow:0 0 0 1px var(--pr-accent); }
+.pm-volume input::-moz-range-thumb{ width:9px; height:9px; border-radius:50%; background:var(--pr-accent); border:2px solid var(--pr-surface); }
 
 /* Caixa pra colar o link da playlist. */
 .pm-pop{
@@ -42,5 +56,4 @@
 /* O player do YouTube existe, mas fica fora da vista (só o som interessa). */
 .pm-player{ position:fixed; left:-9999px; top:0; width:200px; height:200px; overflow:hidden; pointer-events:none; }
 
-@media (max-width:600px){ .pm-volume input{ width:56px; } }
 @media (prefers-reduced-motion: reduce){ .pm.pm-tocando .pm-play > svg{ animation:none; } }
