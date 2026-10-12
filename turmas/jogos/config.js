@@ -1208,6 +1208,19 @@ window.TURMA_CONFIG_JOGOS = {
               semEntrega: true
             }
           ]
+        },
+        {
+          // Culminância: o evento de fim de ano em que os projetos são
+          // apresentados. Por enquanto só a aba, sem módulos (o portal mostra
+          // "Nenhum módulo cadastrado ainda") — o conteúdo entra depois.
+          // semEntrega: fica fora de toda conta (fez tudo/parte/nada, %,
+          // ranking, Perfil). Sem capacidade de propósito: a capacidade MSEP
+          // não pode ser inventada; entra junto com os módulos.
+          key: 'culminancia',
+          label: 'Culminância',
+          desc: 'Evento de fim de ano em que a turma apresenta os projetos. Conteúdo em breve.',
+          semEntrega: true,
+          modules: []
         }
       ]
     },
