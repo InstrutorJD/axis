@@ -5,14 +5,13 @@
 body.cn-body{ display:flex; flex-direction:column; height:100vh; height:100dvh; overflow:hidden; }
 .cn-topo-titulo{ display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; color:var(--pr-text-2); }
 .cn-topo-titulo .axis-logo{ width:82px; height:34px; }
-.cn-topo-sep{ width:1px; height:22px; background:var(--pr-border); }
 .cn-topo-acoes{ display:flex; align-items:center; gap:6px; }
 .cn-topo-acoes a{ text-decoration:none; }
 
 .cn-app{
-  --cn-lado:268px; --cn-dir:300px;
+  --cn-lado:268px; --cn-mini:232px;
   position:relative; flex:1; min-height:0;
-  display:grid; grid-template-columns:var(--cn-lado) minmax(0, 1fr) var(--cn-dir);
+  display:grid; grid-template-columns:var(--cn-lado) minmax(0, 1fr);
 }
 
 /* ---------- Botões pequenos ---------- */
@@ -219,16 +218,28 @@ body.cn-body{ display:flex; flex-direction:column; height:100vh; height:100dvh; 
 .cn-vazio h2{ margin:0; font-size:20px; }
 .cn-vazio p{ margin:0 0 12px; color:var(--pr-text-3); }
 
-/* ---------- Coluna da direita ---------- */
-.cn-dir{
-  display:flex; flex-direction:column; gap:18px; min-height:0; overflow-y:auto; padding:14px;
-  background:var(--pr-surface); border-left:1px solid var(--pr-border);
+/* ---------- Grafo local (flutuando no canto da nota) ---------- */
+.cn-mini{
+  position:absolute; top:62px; right:16px; z-index:5; width:var(--cn-mini);
+  border:1px solid var(--pr-border); border-radius:var(--pr-radius);
+  background:color-mix(in srgb, var(--pr-bg) 90%, transparent); backdrop-filter:blur(6px);
+  box-shadow:0 8px 24px rgba(16,24,40,.08); overflow:hidden;
 }
-.cn-app[data-cn-vista="grafo"] .cn-dir .cn-painel:first-child{ display:none; }
-.cn-canvas-local{
-  display:block; width:100%; height:220px; cursor:grab; touch-action:none;
-  border:1px solid var(--pr-border); border-radius:var(--pr-radius); background:var(--pr-bg);
+.cn-mini[hidden]{ display:none; }
+.cn-canvas-local{ display:block; width:100%; height:170px; cursor:grab; touch-action:none; }
+/* Com tela larga a nota chega pro lado, pra não ficar embaixo do cartão. */
+@media (min-width:1181px) and (max-width:1560px){
+  .cn-app[data-cn-vista="nota"] .cn-nota{ margin-right:calc(var(--cn-mini) + 24px); margin-left:auto; }
 }
+
+/* ---------- "Mencionada em" (recolhido, embaixo da lista) ---------- */
+.cn-mencoes{ flex:none; max-height:40%; overflow-y:auto; padding-top:8px; border-top:1px solid var(--pr-border); }
+.cn-mencoes[hidden]{ display:none; }
+.cn-mencoes summary{ margin:0; cursor:pointer; list-style:none; }
+.cn-mencoes summary::-webkit-details-marker{ display:none; }
+.cn-mencoes summary::before{ content:'▸'; font-size:10px; transition:transform .15s ease; }
+.cn-mencoes[open] summary::before{ transform:rotate(90deg); }
+.cn-mencoes[open] summary{ margin-bottom:6px; }
 .cn-entradas{ display:flex; flex-direction:column; gap:2px; }
 .cn-saida{
   display:flex; align-items:center; gap:8px; width:100%; padding:6px 8px;
@@ -268,12 +279,9 @@ body.cn-body{ display:flex; flex-direction:column; height:100vh; height:100dvh; 
 @media (max-width:1180px){
   .cn-app{ grid-template-columns:var(--cn-lado) minmax(0, 1fr); }
   .cn-so-medio{ display:inline-grid !important; }
-  .cn-dir{
-    position:absolute; top:0; right:0; bottom:0; z-index:20; width:min(320px, 88vw);
-    transform:translateX(100%); transition:transform .22s ease; box-shadow:-12px 0 32px rgba(16,24,40,.15);
-  }
-  .cn-app.cn-mostrar-dir .cn-dir{ transform:none; }
-  .cn-app.cn-mostrar-dir .cn-veu, .cn-app.cn-mostrar-lado .cn-veu{
+  /* Tela média: o grafo local só aparece pelo botão da barra. */
+  .cn-app:not(.cn-mostrar-dir) .cn-mini{ display:none; }
+  .cn-app.cn-mostrar-lado .cn-veu{
     display:block; position:absolute; inset:0; z-index:15; background:rgba(15,17,21,.3);
   }
 }
@@ -290,8 +298,7 @@ body.cn-body{ display:flex; flex-direction:column; height:100vh; height:100dvh; 
   .cn-barra{ padding:8px 10px; gap:6px; }
   .cn-seg button span{ display:none; }
   .cn-check{ font-size:12px; }
-  .cn-topo-titulo .cn-topo-sep, .cn-topo-titulo > span:last-child{ display:none; }
 }
 @media (prefers-reduced-motion: reduce){
-  .cn-lado, .cn-dir, .cn-aviso{ transition:none; }
+  .cn-lado, .cn-aviso, .cn-mencoes summary::before{ transition:none; }
 }

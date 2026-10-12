@@ -5,7 +5,6 @@
 body.pj-body{ display:flex; flex-direction:column; height:100vh; height:100dvh; overflow:hidden; }
 .pj-topo-titulo{ display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; color:var(--pr-text-2); }
 .pj-topo-titulo .axis-logo{ width:82px; height:34px; }
-.pj-topo-sep{ width:1px; height:22px; background:var(--pr-border); }
 .pj-topo-acoes a{ text-decoration:none; }
 
 .pj-app{
@@ -222,7 +221,6 @@ body.pj-body{ display:flex; flex-direction:column; height:100vh; height:100dvh; 
   .pj-conteudo input.pj-descricao{ margin-left:0; }
   .pj-dica{ display:none; }
   .pj-novo .pj-novo-salvar{ margin-left:auto; }
-  .pj-topo-titulo .pj-topo-sep, .pj-topo-titulo > span:last-child{ display:none; }
 }
 @media (prefers-reduced-motion: reduce){
   .pj-lado, .pj-aviso{ transition:none; }

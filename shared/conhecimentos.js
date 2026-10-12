@@ -5,7 +5,8 @@
 // - conexões com [[Nome da nota]] (ou [[Nome|texto]]): ao digitar "[[" abre
 //   a lista de notas; link pra nota que ainda não existe fica tracejado e
 //   clicar nele cria a nota;
-// - "Mencionada em" (backlinks) e "Links desta nota" na coluna da direita;
+// - grafo local flutuando no canto da nota e "Mencionada em" (backlinks),
+//   recolhido, embaixo da lista de notas;
 // - grafo: geral (botão Grafo, Ctrl+G) e local (vizinhos da nota aberta),
 //   com física, arrastar, zoom e clique pra abrir;
 // - #tags filtram a lista; renomear uma nota atualiza os [[links]] das
@@ -341,6 +342,10 @@ window.Conhecimentos = (function () {
         <label class="cn-busca">${ico('busca')}<input type="search" placeholder="Buscar notas (Ctrl+K)" autocomplete="off"></label>
         <div class="cn-filtro" hidden></div>
         <nav class="cn-lista" aria-label="Lista de notas"></nav>
+        <details class="cn-mencoes" hidden>
+          <summary class="cn-secao-titulo">Mencionada em <span class="cn-contagem cn-n-entradas"></span></summary>
+          <div class="cn-entradas"></div>
+        </details>
         <p class="cn-local" hidden>Salvando só neste navegador. Rode <code>sql/professor-notas.sql</code> no Supabase pra guardar na sua conta.</p>
       </aside>
 
@@ -359,7 +364,7 @@ window.Conhecimentos = (function () {
           <label class="cn-check cn-so-grafo"><input type="checkbox" data-acao="fantasmas"> Notas que ainda não existem</label>
           <button type="button" class="cn-icone-btn cn-so-grafo" data-acao="centralizar" title="Centralizar o grafo">${ico('centro')}</button>
           <button type="button" class="cn-icone-btn cn-excluir cn-so-nota" data-acao="excluir" title="Apagar nota">${ico('lixo')}</button>
-          <button type="button" class="cn-icone-btn cn-so-medio" data-acao="dir" aria-label="Mostrar conexões">${ico('conexoes')}</button>
+          <button type="button" class="cn-icone-btn cn-so-medio" data-acao="dir" aria-label="Mostrar grafo local" title="Grafo local">${ico('conexoes')}</button>
         </div>
 
         <section class="cn-nota">
@@ -383,18 +388,11 @@ window.Conhecimentos = (function () {
           <p>Crie notas e conecte os assuntos com <code>[[Nome da nota]]</code>.</p>
           <button type="button" class="btn" data-acao="nova">${ico('mais')}Criar a primeira nota</button>
         </div>
-      </main>
-
-      <aside class="cn-dir" aria-label="Conexões">
-        <div class="cn-painel">
-          <div class="cn-secao-titulo">Grafo local</div>
+        <!-- Grafo local: cartão flutuando no canto da nota aberta. -->
+        <div class="cn-mini" aria-label="Grafo local">
           <canvas class="cn-canvas-local" aria-label="Notas ligadas à nota aberta"></canvas>
         </div>
-        <div class="cn-painel">
-          <div class="cn-secao-titulo">Mencionada em <span class="cn-contagem cn-n-entradas"></span></div>
-          <div class="cn-entradas"></div>
-        </div>
-      </aside>
+      </main>
       <div class="cn-veu" data-acao="fechar-gavetas"></div>`;
 
     // Cliques
@@ -531,6 +529,8 @@ window.Conhecimentos = (function () {
     raiz.querySelectorAll('[data-vista]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.vista === st.vista)));
     $('.cn-vazio').hidden = st.notas.length > 0 || st.vista === 'grafo';
     $('.cn-nota').hidden = st.vista !== 'nota' || !atual();
+    $('.cn-mini').hidden = st.vista !== 'nota' || !atual();
+    $('.cn-mencoes').hidden = !atual();
     $('.cn-grafo-vista').hidden = st.vista !== 'grafo';
     renderLista();
     renderNota();
