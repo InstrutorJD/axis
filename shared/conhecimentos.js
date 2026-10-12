@@ -1007,15 +1007,15 @@ window.Conhecimentos = (function () {
       conteudo: `Um **banco de dados** guarda informações de forma organizada, pra que um sistema consiga **gravar, buscar e alterar** dados com segurança. No curso, o FinancApp usa o Supabase, que roda um banco **PostgreSQL**.
 
 > [!dica] Como ler esta nota
-> As palavras entre colchetes duplos, como [[SQL Básico]], são **conexões**: clique pra abrir a nota. As tracejadas, como [[NoSQL]], ainda não existem; clique pra criar.
+> As palavras entre colchetes duplos, como [[SQL Básico]], são **conexões**: clique pra abrir a nota. As tracejadas, como [[Chave Primária]], ainda não existem; clique pra criar.
 
 ## Dois grandes tipos
 - **Relacional**: tabelas com linhas e colunas, ligadas por chaves. Consulta com [[SQL Básico|SQL]].
-- **Não relacional**: documentos, chave-valor, grafos... Ver [[NoSQL]].
+- **Não relacional** (NoSQL): documentos, chave-valor, grafos...
 
 ## Onde aparece nas aulas
 1. Projeto FinancApp: a tabela de transações no Supabase
-2. Trilha de [[Modelagem de Dados]]: o DER vem antes de criar as tabelas
+2. Modelagem de dados: o DER vem antes de criar as tabelas
 
 ## Pra revisar com a turma
 - [x] Diferença entre banco de dados e planilha
@@ -1047,7 +1047,7 @@ order by valor desc;
 > [!atencao] Cuidado
 > \`DELETE\` sem \`WHERE\` apaga **todas** as linhas da tabela.
 
-Conecta com: [[Chave Primária]] e [[Modelagem de Dados]].
+Conecta com: [[Chave Primária]].
 
 #sql #banco-de-dados`,
     },
@@ -1076,10 +1076,13 @@ Conecta com: [[Chave Primária]] e [[Modelagem de Dados]].
     indexar();
     grafoLocal = criarGrafo($('.cn-canvas-local'), { local: true, zoom: 1, aoClicar: clicouNo });
     grafoGeral = criarGrafo($('.cn-canvas-geral'), { local: false, zoom: 1, aoClicar: clicouNo });
-    // Abre a nota do endereço (#Título), senão a mais recente.
+    // Abre a nota do endereço (#Título); sem endereço, começa no grafo geral
+    // (a mais recente fica escolhida pro botão Nota).
     const doEndereco = decodeURIComponent(location.hash.slice(1));
-    const inicial = (doEndereco && st.porTitulo.get(chave(doEndereco))) || notasFiltradas()[0];
+    const doLink = doEndereco && st.porTitulo.get(chave(doEndereco));
+    const inicial = doLink || notasFiltradas()[0];
     st.atualId = inicial ? inicial.id : null;
+    st.vista = doLink ? 'nota' : 'grafo';
     status('');
     renderTudo();
   }

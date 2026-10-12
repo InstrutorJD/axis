@@ -160,6 +160,7 @@ window.Projetos = (function () {
     st.itens.unshift(it);
     campo.value = '';
     ajustarAltura(campo);
+    atualizarBotaoSalvar();
     if (st.tipoAntesDoLink) { st.tipoNovo = st.tipoAntesDoLink; st.tipoAntesDoLink = null; renderTipos(); }
     if (st.filtro !== 'tudo' && st.filtro !== tipo) st.filtro = 'tudo';
     renderItens();
@@ -216,6 +217,7 @@ window.Projetos = (function () {
                 ${Object.entries(TIPOS).map(([k, t]) => `<button type="button" role="radio" data-tipo-novo="${k}">${t.emoji} ${t.nome}</button>`).join('')}
               </div>
               <span class="pj-dica">Enter salva · Shift+Enter nova linha</span>
+              <button type="button" class="btn pj-novo-salvar" data-acao="anotar" disabled>Salvar</button>
             </div>
           </div>
 
@@ -247,6 +249,7 @@ window.Projetos = (function () {
       const id = b.closest('[data-item]') && b.closest('[data-item]').dataset.item;
       const it = id && st.itens.find(i => i.id === id);
       if (a === 'novo-projeto') novoProjeto();
+      else if (a === 'anotar') anotar();
       else if (a === 'lado') raiz.classList.toggle('pj-mostrar-lado');
       else if (a === 'fechar-lado') raiz.classList.remove('pj-mostrar-lado');
       else if (a === 'menu-projeto') abrirMenuProjeto(b);
@@ -282,6 +285,7 @@ window.Projetos = (function () {
     const novo = $('.pj-novo-texto');
     novo.addEventListener('input', () => {
       ajustarAltura(novo);
+      atualizarBotaoSalvar();
       // Colou um link sozinho: já marca como Link.
       if (soLink(novo.value) && st.tipoNovo !== 'link') {
         st.tipoAntesDoLink = st.tipoNovo;
@@ -293,8 +297,10 @@ window.Projetos = (function () {
         renderTipos();
       }
     });
+    // No celular o Enter quebra linha (não existe Shift+Enter) e quem salva é
+    // o botão "Salvar"; no computador o Enter continua salvando.
     novo.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); anotar(); }
+      if (e.key === 'Enter' && !e.shiftKey && !telaDeToque()) { e.preventDefault(); anotar(); }
     });
 
     // Edição de anotação: Enter salva, Esc cancela.
@@ -302,7 +308,7 @@ window.Projetos = (function () {
       const t = e.target.closest('.pj-edicao textarea');
       if (!t) return;
       const it = st.itens.find(i => i.id === st.editandoId);
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (it) salvarEdicao(it); }
+      if (e.key === 'Enter' && !e.shiftKey && !telaDeToque()) { e.preventDefault(); if (it) salvarEdicao(it); }
       else if (e.key === 'Escape') { e.preventDefault(); st.editandoId = null; renderItens(); }
     });
     raiz.addEventListener('input', e => { if (e.target.closest('.pj-edicao textarea')) ajustarAltura(e.target); });
@@ -310,6 +316,14 @@ window.Projetos = (function () {
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') { fecharMenu(); raiz.classList.remove('pj-mostrar-lado'); }
     });
+  }
+
+  // Celular/tablet: tela de toque sem mouse.
+  function telaDeToque() {
+    return window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  }
+  function atualizarBotaoSalvar() {
+    $('.pj-novo-salvar').disabled = !$('.pj-novo-texto').value.trim();
   }
 
   function salvarEdicao(it) {
