@@ -40,20 +40,27 @@
 
 (async function () {
   if (!window.PortalSession) return;
-  const user = await window.PortalSession.getUser();
-  if (!user || user.role === 'professor' || user.role === 'admin') return;
 
-  // O bloqueio agora é ligado por turma (dentro do portal de cada uma), não mais global.
-  const turma = user.turma || 'global';
+  // Os bloqueios entram NA HORA, antes de saber quem é o usuário e o que a
+  // Gestão diz: conferir o login e consultar o Supabase leva de décimos de
+  // segundo a vários segundos (internet da escola), e nesse intervalo dava
+  // pra colar. Enquanto não chega a resposta, vale o último estado que este
+  // navegador viu pra turma (CHAVE_ESTADO); se a consulta falhar, ele
+  // continua valendo (antes, um erro deixava tudo liberado até recarregar).
+  const CHAVE_ESTADO = 'axis.clipboard.estado'; // { turma, bloqueado }
+  function lerEstado() {
+    try { return JSON.parse(localStorage.getItem(CHAVE_ESTADO) || 'null'); } catch (e) { return null; }
+  }
+  function gravarEstado(turma, bloqueado) {
+    try { localStorage.setItem(CHAVE_ESTADO, JSON.stringify({ turma, bloqueado })); } catch (e) { /* bloqueado */ }
+  }
 
-  const sb = window.PortalSession.client();
-  if (!sb) return;
-
-  let settingBlocked = false; // chave "Copiar e Colar" da Gestão
+  let ativo = true; // vira false pra professor/admin e pra quem não está logado
+  let settingBlocked = !!(lerEstado() || {}).bloqueado; // chave "Copiar e Colar" da Gestão
   let toastTimer = null;
 
   function isBlocked() {
-    return settingBlocked || window.__PORTAL_EXAM_LOCK__ === true;
+    return ativo && (settingBlocked || window.__PORTAL_EXAM_LOCK__ === true);
   }
 
   function applyBlockedClass() {
@@ -136,9 +143,14 @@
     }
   }
 
+  // stopPropagation: editores que tratam o colar por conta própria (o
+  // Monaco das provas finais, ver shared/code-editor-widget.js) escutam o
+  // evento no próprio elemento; sem parar a propagação aqui, na captura do
+  // documento, eles ainda recebiam o texto.
   function onClipboardEvent(e) {
     if (!isBlocked()) return;
     e.preventDefault();
+    e.stopPropagation();
     showToast();
   }
 
@@ -148,9 +160,14 @@
   // o código e pesquisando: o texto selecionado vai inteiro pra barra de
   // busca do Google numa aba nova, sem clipboard-guard nenhum rodando lá,
   // e dá pra copiar dali à vontade.
+  // stopPropagation: o Monaco (editor das provas finais) tem um menu de
+  // botão direito PRÓPRIO, com "Colar" que lê a área de transferência sem
+  // passar pelo evento 'paste' — preventDefault só fechava o menu do
+  // navegador, e o do editor abria e colava normalmente.
   function onContextMenu(e) {
     if (!isBlocked()) return;
     e.preventDefault();
+    e.stopPropagation();
     showToast();
   }
 
@@ -176,14 +193,36 @@
   document.addEventListener('mousedown', onMousedownReadOnly, true);
   document.addEventListener('click', onClickReadOnly, true);
   injectReadOnlyStyle();
+  applyBlockedClass();
+
+  const user = await window.PortalSession.getUser();
+  if (!user || user.role === 'professor' || user.role === 'admin') {
+    ativo = false;
+    applyBlockedClass();
+    return;
+  }
+
+  // O bloqueio agora é ligado por turma (dentro do portal de cada uma), não mais global.
+  const turma = user.turma || 'global';
+  const salvo = lerEstado();
+  if (!salvo || salvo.turma !== turma) { settingBlocked = false; applyBlockedClass(); } // estado de outra turma (PC compartilhado)
+
+  const sb = window.PortalSession.client();
+  if (!sb) return;
 
   async function fetchState() {
-    const { data } = await sb
-      .from('classroom_settings')
-      .select('clipboard_blocked')
-      .eq('id', turma)
-      .maybeSingle();
-    settingBlocked = !!(data && data.clipboard_blocked);
+    try {
+      const { data, error } = await sb
+        .from('classroom_settings')
+        .select('clipboard_blocked')
+        .eq('id', turma)
+        .maybeSingle();
+      if (error) return; // sem resposta: mantém o último estado conhecido
+      settingBlocked = !!(data && data.clipboard_blocked);
+      gravarEstado(turma, settingBlocked);
+    } catch (e) {
+      return;
+    }
     applyBlockedClass();
   }
 
@@ -193,7 +232,6 @@
       .subscribe();
   }
 
-  applyBlockedClass();
   fetchState();
   setupRealtime();
 })();

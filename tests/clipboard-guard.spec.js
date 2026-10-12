@@ -63,8 +63,10 @@ test.describe('shared/clipboard-guard.js', () => {
 
     await stubSupabaseFake(page, { classroom_settings: [{ id: 'jogos', clipboard_blocked: false }] });
     await page.goto(URL);
-    await page.waitForTimeout(100);
-    expect(await dropPrevented()).toBe(false);
+    // A 2ª visita começa com o último estado salvo neste navegador (bloqueado)
+    // e só libera quando a Gestão responde — por isso espera, em vez de
+    // conferir na hora.
+    await expect.poll(dropPrevented).toBe(false);
   });
 
   test('não bloqueia quando clipboard_blocked=false', async ({ page }) => {
