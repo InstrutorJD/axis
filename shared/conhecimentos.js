@@ -371,6 +371,10 @@ window.Conhecimentos = (function () {
         <section class="cn-grafo-vista" hidden>
           <canvas class="cn-canvas-geral" aria-label="Grafo das notas"></canvas>
           <div class="cn-legenda" aria-label="Cores por tag"></div>
+          <div class="cn-zoom" role="group" aria-label="Zoom do grafo">
+            <button type="button" class="cn-icone-btn" data-acao="zoom-mais" aria-label="Aproximar" title="Aproximar">+</button>
+            <button type="button" class="cn-icone-btn" data-acao="zoom-menos" aria-label="Afastar" title="Afastar">−</button>
+          </div>
         </section>
 
         <div class="cn-vazio" hidden>
@@ -419,6 +423,8 @@ window.Conhecimentos = (function () {
         }
       } else if (a === 'limpar-tag') filtrarTag(null);
       else if (a === 'centralizar') grafoGeral && grafoGeral.centralizar();
+      else if (a === 'zoom-mais') grafoGeral && grafoGeral.zoom(1.4);
+      else if (a === 'zoom-menos') grafoGeral && grafoGeral.zoom(1 / 1.4);
       else if (a === 'lado') raiz.classList.toggle('cn-mostrar-lado');
       else if (a === 'dir') raiz.classList.toggle('cn-mostrar-dir');
       else if (a === 'fechar-gavetas') raiz.classList.remove('cn-mostrar-lado', 'cn-mostrar-dir');
@@ -677,20 +683,33 @@ window.Conhecimentos = (function () {
 
   // ---------- Grafo ----------
   // Simulação de forças simples (repulsão entre todas as notas, mola em
-  // cada conexão, puxão leve pro centro) desenhada num <canvas>. Esfria
-  // sozinha e para de calcular quando assenta; mexer reaquece.
+  // cada conexão, colisão pra ninguém ficar em cima de ninguém, puxão leve
+  // pro centro) desenhada num <canvas>. A física esfria sozinha; a animação
+  // (bolinhas "respirando", luz correndo nas conexões, fade do destaque,
+  // zoom suave) continua enquanto o grafo está na tela, menos com "reduzir
+  // movimento" ligado. Mouse: arrastar, roda = zoom. Toque: arrastar com um
+  // dedo, pinça com dois = zoom, toque duplo no vazio = centralizar.
   function criarGrafo(canvas, opcoes) {
     const ctx = canvas.getContext('2d');
     let nos = [], arestas = [], vizinhos = new Map();
     let foco = null, hover = null;
     let vista = { x: 0, y: 0, k: opcoes.zoom || 1 };
-    let alpha = 1, rodando = false, arrasto = null;
-    let largura = 0, altura = 0, dpr = 1;
+    let alvoVista = null;              // zoom/centralizar animados
+    let seguirLayout = true;           // enquadra sozinho até a pessoa mexer
+    let alpha = 1, rodando = false, arrasto = null, pinca = null;
+    let largura = 0, altura = 0, dpr = 1, agora = 0;
+    const dedos = new Map();           // pointerId -> {x, y}
     const posicoes = new Map();
+    const calmo = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+    const animar = () => !calmo.matches;
 
     const cor = nome => getComputedStyle(raiz).getPropertyValue(nome).trim() || '#888';
     const raio = n => (n.fantasma ? 4 : 5) + Math.sqrt(n.grau) * (opcoes.local ? 2 : 2.4);
     const tela = n => ({ x: largura / 2 + vista.x + n.x * vista.k, y: altura / 2 + vista.y + n.y * vista.k });
+    const limitar = (v, a, b) => Math.max(a, Math.min(b, v));
+    const visivel = () => largura > 0 && canvas.offsetParent !== null && document.visibilityState !== 'hidden';
+    // Passa um pouco do tamanho final e volta (efeito "pop" ao surgir).
+    const pop = t => 1 + 2.70158 * Math.pow(t - 1, 3) + 1.70158 * Math.pow(t - 1, 2);
 
     let assinatura = '';
     function definir(dados, focoId) {
@@ -700,32 +719,47 @@ window.Conhecimentos = (function () {
       if (nova === assinatura) {
         const porId = new Map(dados.nos.map(d => [d.id, d]));
         nos.forEach(n => { const d = porId.get(n.id); Object.assign(n, { rotulo: d.rotulo, cor: d.cor, foraDoFiltro: d.foraDoFiltro }); });
-        if (!rodando) desenhar();
+        acordar();
         return;
       }
       assinatura = nova;
       foco = focoId || null;
       const antigos = new Map(nos.map(n => [n.id, n]));
       nos = dados.nos.map((d, i) => {
-        const v = antigos.get(d.id) || posicoes.get(d.id);
+        const velho = antigos.get(d.id);
+        const v = velho || posicoes.get(d.id);
         const ang = i * 2.399963;
         const dist = 30 * Math.sqrt(i + 1);
-        return { ...d, x: v ? v.x : Math.cos(ang) * dist, y: v ? v.y : Math.sin(ang) * dist, vx: 0, vy: 0, fixo: false };
+        return {
+          ...d, x: v ? v.x : Math.cos(ang) * dist, y: v ? v.y : Math.sin(ang) * dist, vx: 0, vy: 0, fixo: false,
+          // surge: 0 → 1 quando a nota aparece (em cascata); vis: destaque com fade.
+          surge: velho || !animar() ? 1 : 0, atraso: velho ? 0 : Math.min(i * 25, 700),
+          vis: velho ? velho.vis : 1, fase: velho ? velho.fase : Math.random() * Math.PI * 2,
+        };
       });
       const porId = new Map(nos.map(n => [n.id, n]));
-      arestas = dados.arestas.map(a => ({ a: porId.get(a.de), b: porId.get(a.para) })).filter(a => a.a && a.b);
+      arestas = dados.arestas.map(a => ({ a: porId.get(a.de), b: porId.get(a.para), fase: Math.random() })).filter(a => a.a && a.b);
       vizinhos = new Map(nos.map(n => [n, new Set()]));
       arestas.forEach(({ a, b }) => { vizinhos.get(a).add(b); vizinhos.get(b).add(a); });
       nos.forEach(n => { n.grau = vizinhos.get(n).size; });
+      if (hover && !porId.has(hover.id)) hover = null;
       if (opcoes.local && foco) { const f = porId.get(foco); if (f) { f.x = 0; f.y = 0; } }
+      if (!antigos.size) seguirLayout = true;
       reaquecer(antigos.size ? 0.5 : 1);
     }
     function reaquecer(a) {
       alpha = Math.max(alpha, a);
-      if (!rodando) { rodando = true; requestAnimationFrame(passo); }
+      acordar();
+    }
+    function acordar() {
+      if (rodando) return;
+      if (!visivel()) { if (largura) desenhar(); return; }
+      rodando = true;
+      requestAnimationFrame(passo);
     }
     function simular() {
-      const REP = opcoes.local ? 900 : 1600, MOLA = 0.06, COMP = opcoes.local ? 60 : 80, CENTRO = 0.012;
+      const REP = opcoes.local ? 1100 : 2600, MOLA = 0.05, CENTRO = opcoes.local ? 0.012 : 0.007;
+      const COMP0 = opcoes.local ? 64 : 95;
       for (let i = 0; i < nos.length; i++) {
         const a = nos[i];
         for (let j = i + 1; j < nos.length; j++) {
@@ -733,8 +767,13 @@ window.Conhecimentos = (function () {
           let dx = a.x - b.x, dy = a.y - b.y;
           let d2 = dx * dx + dy * dy;
           if (d2 < 0.01) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; d2 = 0.5; }
-          if (d2 > 250000) continue;
-          const d = Math.sqrt(d2), f = REP * alpha / d2;
+          if (d2 > 640000) continue;
+          const d = Math.sqrt(d2);
+          let f = REP * alpha / d2;
+          // Colisão: bolinha + espaço do rótulo. Empurra mesmo com a física
+          // quase fria, pra nada ficar empilhado.
+          const minimo = raio(a) + raio(b) + 22;
+          if (d < minimo) f += (minimo - d) * 0.25;
           const fx = dx / d * f, fy = dy / d * f;
           a.vx += fx; a.vy += fy; b.vx -= fx; b.vy -= fy;
         }
@@ -742,17 +781,43 @@ window.Conhecimentos = (function () {
       arestas.forEach(({ a, b }) => {
         const dx = b.x - a.x, dy = b.y - a.y;
         const d = Math.sqrt(dx * dx + dy * dy) || 1;
-        const f = (d - COMP) / d * MOLA * alpha;
+        // Entre notas com muita conexão a mola é mais comprida (abre espaço).
+        const comp = COMP0 + 6 * Math.sqrt(Math.min(a.grau, b.grau));
+        const f = (d - comp) / d * MOLA * alpha;
         a.vx += dx * f; a.vy += dy * f; b.vx -= dx * f; b.vy -= dy * f;
       });
       nos.forEach(n => {
         n.vx -= n.x * CENTRO * alpha; n.vy -= n.y * CENTRO * alpha;
         if (n.fixo) { n.vx = n.vy = 0; return; }
-        n.vx *= 0.6; n.vy *= 0.6;
+        n.vx *= 0.62; n.vy *= 0.62;
         n.x += n.vx; n.y += n.vy;
+        posicoes.set(n.id, { x: n.x, y: n.y });
       });
-      alpha *= 0.985;
+      alpha *= 0.99;
     }
+    // Vista que enquadra todas as notas (centralizar e layout inicial).
+    function enquadramento() {
+      if (!nos.length || !largura) return null;
+      const xs = nos.map(n => n.x), ys = nos.map(n => n.y);
+      const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+      const k = limitar(Math.min((largura - 90) / (maxX - minX || 1), (altura - 90) / (maxY - minY || 1)), 0.3, opcoes.local ? 1.4 : 1.8);
+      return { k, x: -((minX + maxX) / 2) * k, y: -((minY + maxY) / 2) * k };
+    }
+    function animarVista(dt) {
+      if (seguirLayout && alpha > 0.03 && !arrasto && !pinca) alvoVista = enquadramento() || alvoVista;
+      if (!alvoVista) return false;
+      const t = animar() ? 1 - Math.pow(0.0015, dt / 1000) : 1;
+      vista.x += (alvoVista.x - vista.x) * t;
+      vista.y += (alvoVista.y - vista.y) * t;
+      vista.k += (alvoVista.k - vista.k) * t;
+      if (Math.abs(alvoVista.x - vista.x) < 0.3 && Math.abs(alvoVista.y - vista.y) < 0.3 && Math.abs(alvoVista.k - vista.k) < 0.002) {
+        vista = { ...alvoVista };
+        alvoVista = null;
+      }
+      return true;
+    }
+    function soltarLayout() { seguirLayout = false; alvoVista = null; }
+
     function desenhar() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, largura, altura);
@@ -764,58 +829,89 @@ window.Conhecimentos = (function () {
         return;
       }
       // Cada nota tem a sua cor (n.cor, da tag principal). Passar o mouse
-      // apaga quem não é vizinho; filtro por tag apaga quem não tem a tag.
+      // (ou tocar) apaga quem não é vizinho; filtro por tag apaga quem não
+      // tem a tag. O apagar é em fade: n.vis vai chegando no alvo em passo().
       const destaque = hover;
       const perto = destaque ? vizinhos.get(destaque) : null;
       const escuro = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       const cTexto = cor('--pr-text'), cTexto3 = cor('--pr-text-3'), cFundo = cor('--pr-bg');
-      const apagado = n => (destaque ? n !== destaque && !perto.has(n) : !!n.foraDoFiltro);
-      arestas.forEach(({ a, b }) => {
+      const mexe = animar();
+      arestas.forEach(e => {
+        const { a, b } = e;
+        const surge = Math.min(a.surge, b.surge);
+        if (surge <= 0) return;
         const pa = tela(a), pb = tela(b);
         const liga = destaque && (a === destaque || b === destaque);
+        const vis = Math.min(a.vis, b.vis);
         const grad = ctx.createLinearGradient(pa.x, pa.y, pb.x, pb.y);
         grad.addColorStop(0, a.cor);
         grad.addColorStop(1, b.cor);
         ctx.strokeStyle = grad;
-        ctx.globalAlpha = liga ? 0.95 : (apagado(a) || apagado(b) ? 0.1 : (escuro ? 0.5 : 0.45));
+        ctx.globalAlpha = (liga ? 0.95 : Math.max(0.06, (escuro ? 0.5 : 0.45) * vis)) * surge;
         ctx.lineWidth = liga ? 2.6 : 1.6;
-        ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
+        // A linha "cresce" de uma nota até a outra quando aparece.
+        ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pa.x + (pb.x - pa.x) * surge, pa.y + (pb.y - pa.y) * surge); ctx.stroke();
+        // Luz correndo pela conexão (mais rápida na nota em destaque).
+        if (mexe && surge >= 1 && vis > 0.3) {
+          const t = (agora * (liga ? 0.0006 : 0.00022) + e.fase) % 1;
+          ctx.globalAlpha = (liga ? 1 : 0.8) * vis;
+          ctx.fillStyle = t < 0.5 ? a.cor : b.cor;
+          ctx.beginPath();
+          ctx.arc(pa.x + (pb.x - pa.x) * t, pa.y + (pb.y - pa.y) * t, (liga ? 2.4 : 1.7) * limitar(vista.k, 0.8, 1.3), 0, Math.PI * 2);
+          ctx.fill();
+        }
       });
       ctx.globalAlpha = 1;
       nos.forEach(n => {
+        if (n.surge <= 0) return;
         const p = tela(n);
-        const r = raio(n) * Math.max(0.7, Math.min(1.4, vista.k));
+        const respira = mexe ? 1 + 0.05 * Math.sin(agora * 0.0022 + n.fase) : 1;
+        const r = raio(n) * limitar(vista.k, 0.7, 1.4) * respira * (n.surge < 1 ? Math.max(0, pop(n.surge)) : 1);
         const ehFoco = n.id === foco;
-        const sumido = apagado(n);
-        ctx.globalAlpha = sumido ? 0.2 : 1;
+        const vivo = n.vis > 0.5;
+        const opaco = n.vis * Math.min(1, n.surge * 1.5);
+        ctx.globalAlpha = opaco;
         if (ehFoco) {
-          // Nota aberta: anel na cor dela em volta.
+          // Nota aberta: anel na cor dela em volta, pulsando.
           ctx.beginPath();
-          ctx.arc(p.x, p.y, r + 5, 0, Math.PI * 2);
+          ctx.arc(p.x, p.y, r + (mexe ? 5 + 2 * Math.sin(agora * 0.004) : 5), 0, Math.PI * 2);
           ctx.strokeStyle = n.cor; ctx.lineWidth = 2; ctx.stroke();
+        }
+        if (n === hover && mexe) {
+          // Onda saindo da nota em destaque.
+          const o = (agora * 0.0012) % 1;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, r + 4 + o * 16, 0, Math.PI * 2);
+          ctx.strokeStyle = n.cor; ctx.lineWidth = 1.5;
+          ctx.globalAlpha = (1 - o) * 0.6; ctx.stroke();
+          ctx.globalAlpha = opaco;
         }
         ctx.beginPath();
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         if (n.fantasma) {
           ctx.fillStyle = cFundo; ctx.fill();
           ctx.setLineDash([3, 3]);
+          ctx.lineDashOffset = mexe ? -agora * 0.01 : 0;
           ctx.strokeStyle = n.cor; ctx.lineWidth = 1.6; ctx.stroke();
           ctx.setLineDash([]);
         } else {
           ctx.save();
-          if (!sumido) { ctx.shadowColor = n.cor; ctx.shadowBlur = (escuro ? 14 : 8) + (n === hover || ehFoco ? 8 : 0); }
+          if (vivo) { ctx.shadowColor = n.cor; ctx.shadowBlur = (escuro ? 14 : 8) + (n === hover || ehFoco ? 8 : 0); }
           ctx.fillStyle = n.cor;
           ctx.fill();
           ctx.restore();
           // Brilho de cima, pra bolinha parecer "acesa".
-          const luz = ctx.createRadialGradient(p.x - r * 0.35, p.y - r * 0.4, 0, p.x, p.y, r);
+          const luz = ctx.createRadialGradient(p.x - r * 0.35, p.y - r * 0.4, 0, p.x, p.y, Math.max(r, 0.1));
           luz.addColorStop(0, 'rgba(255,255,255,.55)');
           luz.addColorStop(0.6, 'rgba(255,255,255,0)');
           ctx.fillStyle = luz;
           ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
         }
-        const mostrarRotulo = opcoes.local || vista.k > 0.75 || n === hover || ehFoco || (perto && perto.has(n));
-        if (mostrarRotulo) {
+        // Rótulo: aparece aos poucos conforme o zoom aumenta.
+        const forte = opcoes.local || n === hover || ehFoco || (perto && perto.has(n));
+        const aRot = forte ? 1 : limitar((vista.k - 0.6) / 0.3, 0, 1);
+        if (aRot > 0) {
+          ctx.globalAlpha = n.vis * aRot * Math.min(1, n.surge);
           ctx.font = `${ehFoco || n === hover ? 600 : 500} 12px Inter, system-ui, sans-serif`;
           ctx.textAlign = 'center';
           ctx.fillStyle = n.fantasma ? cTexto3 : cTexto;
@@ -824,11 +920,28 @@ window.Conhecimentos = (function () {
       });
       ctx.globalAlpha = 1;
     }
-    function passo() {
-      if (alpha > 0.02 || arrasto) simular();
+    let ultimo = 0;
+    function passo(t) {
+      const dt = ultimo ? Math.min(64, t - ultimo) : 16;
+      ultimo = t; agora = t;
+      if (alpha > 0.01 || arrasto) simular();
+      // Fades: surgir e destaque.
+      const destaque = hover, perto = destaque ? vizinhos.get(destaque) : null;
+      let transicao = false;
+      nos.forEach(n => {
+        if (n.surge < 1) {
+          if (n.atraso > 0) n.atraso -= dt;
+          else n.surge = Math.min(1, n.surge + dt / 450);
+          transicao = true;
+        }
+        const alvo = destaque ? (n === destaque || perto.has(n) ? 1 : 0.15) : (n.foraDoFiltro ? 0.2 : 1);
+        if (Math.abs(n.vis - alvo) > 0.01) { n.vis += (alvo - n.vis) * (animar() ? Math.min(1, dt / 90) : 1); transicao = true; }
+        else n.vis = alvo;
+      });
+      if (animarVista(dt)) transicao = true;
       desenhar();
-      if (alpha > 0.02 || arrasto) requestAnimationFrame(passo);
-      else rodando = false;
+      if (visivel() && (alpha > 0.01 || arrasto || pinca || transicao || animar())) requestAnimationFrame(passo);
+      else { rodando = false; ultimo = 0; }
     }
     function redimensionar() {
       const r = canvas.getBoundingClientRect();
@@ -838,33 +951,69 @@ window.Conhecimentos = (function () {
       canvas.width = Math.round(r.width * dpr);
       canvas.height = Math.round(r.height * dpr);
       desenhar();
+      acordar();
     }
-    function noEm(x, y) {
+    function noEm(x, y, folga = 6) {
       let melhor = null, dist = Infinity;
       nos.forEach(n => {
         const p = tela(n);
         const d = Math.hypot(p.x - x, p.y - y);
-        if (d < raio(n) * Math.max(0.7, vista.k) + 6 && d < dist) { dist = d; melhor = n; }
+        if (d < raio(n) * Math.max(0.7, vista.k) + folga && d < dist) { dist = d; melhor = n; }
       });
       return melhor;
     }
     function ponto(e) { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+    function iniciarPinca() {
+      const [a, b] = [...dedos.values()];
+      if (arrasto && arrasto.n) arrasto.n.fixo = false;
+      arrasto = null;
+      hover = null;
+      const cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2;
+      // Guarda o ponto do grafo que está entre os dedos: ele acompanha os dedos.
+      pinca = {
+        d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, k0: vista.k,
+        wx: (cx - largura / 2 - vista.x) / vista.k, wy: (cy - altura / 2 - vista.y) / vista.k,
+      };
+      soltarLayout();
+      acordar();
+    }
 
+    let ultimoToque = { t: 0, x: 0, y: 0 };
     canvas.addEventListener('pointerdown', e => {
       const p = ponto(e);
-      const n = noEm(p.x, p.y);
       canvas.setPointerCapture(e.pointerId);
+      dedos.set(e.pointerId, p);
+      if (dedos.size === 2) { iniciarPinca(); return; }
+      if (dedos.size > 2) return;
+      // Folga maior no dedo, que é menos preciso que o mouse.
+      const n = noEm(p.x, p.y, e.pointerType === 'touch' ? 14 : 6);
       arrasto = { n, x0: p.x, y0: p.y, vx: vista.x, vy: vista.y, moveu: false };
       if (n) { n.fixo = true; reaquecer(0.3); }
+      if (e.pointerType === 'touch') { hover = n; acordar(); }
     });
     canvas.addEventListener('pointermove', e => {
       const p = ponto(e);
-      if (!arrasto) {
-        const n = noEm(p.x, p.y);
-        if (n !== hover) { hover = n; canvas.style.cursor = n ? 'pointer' : 'grab'; if (!rodando) desenhar(); }
+      if (dedos.has(e.pointerId)) dedos.set(e.pointerId, p);
+      if (pinca) {
+        if (dedos.size < 2) return;
+        const [a, b] = [...dedos.values()];
+        const d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+        const cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2;
+        // Escala pela distância entre os dedos e move junto com o meio deles.
+        vista.k = limitar(pinca.k0 * d / pinca.d0, 0.2, 4);
+        vista.x = cx - largura / 2 - pinca.wx * vista.k;
+        vista.y = cy - altura / 2 - pinca.wy * vista.k;
         return;
       }
-      if (Math.hypot(p.x - arrasto.x0, p.y - arrasto.y0) > 3) arrasto.moveu = true;
+      if (!arrasto) {
+        if (e.pointerType === 'touch') return;
+        const n = noEm(p.x, p.y);
+        if (n !== hover) { hover = n; canvas.style.cursor = n ? 'pointer' : 'grab'; acordar(); }
+        return;
+      }
+      if (Math.hypot(p.x - arrasto.x0, p.y - arrasto.y0) > (e.pointerType === 'touch' ? 8 : 3)) arrasto.moveu = true;
+      if (!arrasto.moveu) return;
+      soltarLayout();
       if (arrasto.n) {
         arrasto.n.x = (p.x - largura / 2 - vista.x) / vista.k;
         arrasto.n.y = (p.y - altura / 2 - vista.y) / vista.k;
@@ -873,42 +1022,70 @@ window.Conhecimentos = (function () {
         vista.x = arrasto.vx + p.x - arrasto.x0;
         vista.y = arrasto.vy + p.y - arrasto.y0;
         canvas.style.cursor = 'grabbing';
-        if (!rodando) desenhar();
+        acordar();
       }
     });
-    const soltar = () => {
+    const soltar = e => {
+      dedos.delete(e.pointerId);
+      if (pinca) {
+        if (dedos.size < 2) pinca = null;
+        // Sobrou um dedo: segue arrastando a tela a partir dele (não vira clique).
+        if (dedos.size === 1) {
+          const [p] = [...dedos.values()];
+          arrasto = { n: null, x0: p.x, y0: p.y, vx: vista.x, vy: vista.y, moveu: true };
+        }
+        return;
+      }
       if (!arrasto) return;
       const a = arrasto;
       arrasto = null;
       if (a.n) a.n.fixo = false;
+      if (e.pointerType === 'touch') hover = null;
       canvas.style.cursor = hover ? 'pointer' : 'grab';
-      if (a.n && !a.moveu) opcoes.aoClicar(a.n);
+      if (e.type === 'pointercancel') return;
+      if (a.n && !a.moveu) { opcoes.aoClicar(a.n); return; }
+      // Toque duplo no vazio: centraliza (no mouse é o dblclick).
+      if (!a.n && !a.moveu && e.pointerType === 'touch') {
+        const p = ponto(e);
+        if (e.timeStamp - ultimoToque.t < 320 && Math.hypot(p.x - ultimoToque.x, p.y - ultimoToque.y) < 30) { centralizar(); ultimoToque.t = 0; }
+        else ultimoToque = { t: e.timeStamp, x: p.x, y: p.y };
+      }
     };
     canvas.addEventListener('pointerup', soltar);
     canvas.addEventListener('pointercancel', soltar);
-    canvas.addEventListener('pointerleave', () => { if (!arrasto && hover) { hover = null; if (!rodando) desenhar(); } });
+    canvas.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch' && !arrasto && hover) { hover = null; acordar(); } });
     canvas.addEventListener('wheel', e => {
       e.preventDefault();
+      soltarLayout();
       const p = ponto(e);
-      const k = Math.max(0.2, Math.min(4, vista.k * Math.exp(-e.deltaY * 0.0015)));
+      const k = limitar(vista.k * Math.exp(-e.deltaY * 0.0015), 0.2, 4);
       const wx = (p.x - largura / 2 - vista.x) / vista.k, wy = (p.y - altura / 2 - vista.y) / vista.k;
       vista.k = k;
       vista.x = p.x - largura / 2 - wx * k;
       vista.y = p.y - altura / 2 - wy * k;
+      acordar();
       if (!rodando) desenhar();
     }, { passive: false });
     canvas.addEventListener('dblclick', e => { const p = ponto(e); if (!noEm(p.x, p.y)) centralizar(); });
+    document.addEventListener('visibilitychange', acordar);
 
     function centralizar() {
-      if (!nos.length) return;
-      const xs = nos.map(n => n.x), ys = nos.map(n => n.y);
-      const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
-      const k = Math.min(2, Math.max(0.3, Math.min((largura - 80) / (maxX - minX || 1), (altura - 80) / (maxY - minY || 1))));
-      vista = { k, x: -((minX + maxX) / 2) * k, y: -((minY + maxY) / 2) * k };
-      desenhar();
+      const q = enquadramento();
+      if (!q) return;
+      seguirLayout = false;
+      alvoVista = q;
+      acordar();
+    }
+    // Botões + e −: zoom pelo meio da tela, animado.
+    function zoom(fator) {
+      if (!largura) return;
+      soltarLayout();
+      const k = limitar(vista.k * fator, 0.2, 4);
+      alvoVista = { k, x: vista.x / vista.k * k, y: vista.y / vista.k * k };
+      acordar();
     }
     new ResizeObserver(redimensionar).observe(canvas);
-    return { definir, redimensionar, centralizar, reaquecer };
+    return { definir, redimensionar, centralizar, reaquecer, zoom };
   }
 
   // Cores do grafo: cada tag tem uma cor fixa da paleta (sai do nome da
