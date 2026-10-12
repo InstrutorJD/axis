@@ -2187,6 +2187,12 @@
     return (key || '').split('_').filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   }
 
+  // Nome e atividade vêm da linha que o PRÓPRIO aluno grava em
+  // exam_guard_events: escapa antes de virar HTML na tela do professor.
+  function escExamGuard(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
   function renderExamGuardBadge() {
     const badge = document.getElementById('examGuardBadge');
     if (!badge) return;
@@ -2206,12 +2212,13 @@
     // "Liberar" zera a advertência (a próxima saída volta a ser a 1ª).
     box.innerHTML = examGuardEvents.map(ev => {
       const bloqueado = (ev.warnings || 0) >= 2;
+      const atividade = escExamGuard(humanizeActivityKey(ev.activity_location));
       const meta = bloqueado
-        ? `Saiu de "${humanizeActivityKey(ev.activity_location)}" pela 2ª vez e foi bloqueado há ${formatDurationSince(ev.created_at)}.`
-        : `Saiu da tela em "${humanizeActivityKey(ev.activity_location)}" há ${formatDurationSince(ev.created_at)} (advertência ${ev.warnings || 1}/2).`;
+        ? `Saiu de "${atividade}" pela 2ª vez e foi bloqueado há ${formatDurationSince(ev.created_at)}.`
+        : `Saiu da tela em "${atividade}" há ${formatDurationSince(ev.created_at)} (advertência ${Number(ev.warnings) || 1}/2).`;
       return `
-      <div class="exam-guard-item" data-event-ids="${ev.ids.join(',')}">
-        <b>${bloqueado ? '🚨' : '⚠️'} ${ev.student_name || ev.student_email}</b>
+      <div class="exam-guard-item" data-event-ids="${escExamGuard(ev.ids.join(','))}">
+        <b>${bloqueado ? '🚨' : '⚠️'} ${escExamGuard(ev.student_name || ev.student_email)}</b>
         <div class="exam-guard-meta">${meta}</div>
         <div class="exam-guard-actions">
           <button class="btn" data-acao="liberado">Liberar</button>
