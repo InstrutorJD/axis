@@ -1,0 +1,46 @@
+/* Música do painel do professor (shared/painel-musica.js): play/pause,
+   volume e ⋯ (trocar playlist) no topo do painel. */
+.pm{ position:relative; display:flex; align-items:center; gap:2px; padding:2px; border:1px solid var(--pr-border); border-radius:999px; background:var(--pr-surface); }
+.pm-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:4px; height:32px; min-width:32px; padding:0 8px;
+  border:0; border-radius:999px; background:transparent; color:var(--pr-text-2); cursor:pointer;
+  transition:background .15s ease, color .15s ease;
+}
+.pm-btn:hover{ background:var(--pr-surface-2); color:var(--pr-text); }
+.pm-btn svg{ width:16px; height:16px; }
+.pm-estado{ display:inline-flex; }
+.pm-estado svg{ width:13px; height:13px; }
+.pm-trocar{ min-width:28px; padding:0 6px; color:var(--pr-text-3); }
+.pm.pm-tocando .pm-play{ color:var(--pr-accent); }
+/* Nota "dançando" enquanto toca. */
+.pm.pm-tocando .pm-play > svg{ animation:pmBalanca 1.2s ease-in-out infinite; transform-origin:50% 80%; }
+@keyframes pmBalanca{ 0%, 100%{ transform:rotate(-8deg); } 50%{ transform:rotate(8deg) translateY(-1px); } }
+
+.pm-volume{ display:flex; align-items:center; gap:6px; padding:0 6px 0 4px; color:var(--pr-text-3); cursor:pointer; }
+.pm-ico-vol svg{ width:15px; height:15px; display:block; }
+.pm-volume input{
+  -webkit-appearance:none; appearance:none; width:84px; height:4px; margin:0; border-radius:999px; cursor:pointer;
+  background:linear-gradient(to right, var(--pr-accent) var(--pm-v, 40%), var(--pr-border) var(--pm-v, 40%));
+}
+.pm-volume input::-webkit-slider-thumb{ -webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:var(--pr-accent); border:2px solid var(--pr-surface); box-shadow:0 0 0 1px var(--pr-accent); }
+.pm-volume input::-moz-range-thumb{ width:10px; height:10px; border-radius:50%; background:var(--pr-accent); border:2px solid var(--pr-surface); }
+
+/* Caixa pra colar o link da playlist. */
+.pm-pop{
+  position:absolute; top:calc(100% + 8px); right:0; z-index:60; width:min(340px, 88vw); padding:14px;
+  border:1px solid var(--pr-border); border-radius:var(--pr-radius); background:var(--pr-surface); box-shadow:var(--pr-shadow-hover);
+  display:flex; flex-direction:column; gap:8px; font-size:13px; color:var(--pr-text-2);
+}
+.pm-pop[hidden]{ display:none; }
+.pm-pop label{ display:flex; flex-direction:column; gap:6px; font-weight:600; color:var(--pr-text); }
+.pm-pop input{ padding:8px 10px; border:1px solid var(--pr-border); border-radius:var(--pr-radius-sm); background:var(--pr-bg); color:var(--pr-text); font:inherit; }
+.pm-dica{ margin:0; font-size:12px; color:var(--pr-text-3); }
+.pm-erro{ margin:0; font-size:12px; color:var(--pr-danger); }
+.pm-erro[hidden]{ display:none; }
+.pm-pop-acoes{ display:flex; justify-content:flex-end; gap:6px; }
+
+/* O player do YouTube existe, mas fica fora da vista (só o som interessa). */
+.pm-player{ position:fixed; left:-9999px; top:0; width:200px; height:200px; overflow:hidden; pointer-events:none; }
+
+@media (max-width:600px){ .pm-volume input{ width:56px; } }
+@media (prefers-reduced-motion: reduce){ .pm.pm-tocando .pm-play > svg{ animation:none; } }

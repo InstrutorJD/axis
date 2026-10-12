@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="../shared/professor.css">
 <link rel="stylesheet" href="../shared/professor-agenda.css">
 <link rel="stylesheet" href="../shared/painel-layout.css">
+<link rel="stylesheet" href="../shared/painel-musica.css">
 <style>
   /* Modal do arquivo de lançamento (shared/lancamento.js). */
   .pr-btn-telao svg{ width:16px; height:16px; }
@@ -54,13 +55,15 @@
 <script src="../shared/frases-estoicas.js"></script>
 <script src="../shared/professor-agenda.js"></script>
 <script src="../shared/painel-layout.js"></script>
+<script src="../shared/painel-musica.js"></script>
 </head>
 <body>
 
 <header class="pr-topbar">
   <div class="pr-marca"><span data-axis-logo>Axis</span></div>
-  <div class="pr-usuario">
-    <!-- Telão: janela separada (relógio, link do portal e banheiro) pra
+  <div class="pr-usuario" id="topoAcoes">
+    <!-- Música (shared/painel-musica.js) entra aqui, antes do Telão.
+         Telão: janela separada (relógio, link do portal e banheiro) pra
          arrastar pra TV/monitor estendido — professor/telao.html. -->
     <button id="btnTelao" class="btn btn-ghost pr-btn-telao" type="button" title="Abrir o telão da sala numa janela separada, pra projetar na TV"
       onclick="window.open('telao.html', 'axis-telao', 'popup,width=1280,height=720')">
@@ -229,6 +232,7 @@ setInterval(atualizarRelogio, 1000);
     window.location.href = '../index.html';
     return;
   }
+  window.PainelMusica.montar(document.getElementById('topoAcoes'));
 
   document.getElementById('sessionUser').textContent = currentUser.nome;
   // Conhecimentos e Projetos são só do professor: o substituto nem vê os cartões.
