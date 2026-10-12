@@ -1324,9 +1324,20 @@ window.TURMA_CONFIG_JOGOS = {
           // não pode ser inventada; entra junto com os módulos.
           key: 'culminancia',
           label: 'Culminância',
-          desc: 'Evento de fim de ano em que a turma apresenta os projetos. Conteúdo em breve.',
+          desc: 'Evento de fim de ano em que a turma apresenta os projetos. Um card por proposta, com a ficha do projeto e o visto do professor.',
           semEntrega: true,
-          modules: []
+          // Card de projeto: ficha em etapas (cenas, mapa, personagens,
+          // minigames, quiz/ranking no Supabase, equipes e cronograma) e
+          // visto no fim. Phaser 3 + VS Code/Codespace + Supabase.
+          modules: [
+            {
+              key: 'jogo-escola', title: 'Projeto — Jogo do João Roberto',
+              desc: 'Jogo em Phaser andando pela escola, com os personagens de verdade, minigames de futebol, basquete e ping-pong, quiz por matéria e ranking dos alunos.',
+              icon: '🏫', src: 'atividades/culminancia-jogo-escola.html', telaCheia: true,
+              progressKey: 'culminancia_jogo_escola_progress_', progressMode: 'flag',
+              semEntrega: true, hasGabarito: true
+            }
+          ]
         }
       ]
     },

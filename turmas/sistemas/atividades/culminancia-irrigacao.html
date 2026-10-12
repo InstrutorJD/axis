@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Culminância — Irrigação Automatizada da Escola</title>
+<!-- Ficha de projeto da Culminância (trilha 'culminancia', card Projetos).
+     Padrão novo de trilhas (docs/padrao-trilhas.md): visual base
+     compartilhado, mesmo formato de roteiro com visto de
+     turmas/jogos/atividades/cod-phaser-final-pratica.html. A trilha é
+     semEntrega: fica fora de toda conta; o visto só marca a ficha.
+     Projeto: irrigação com ESP32 + sensor de umidade + bomba, dados no Supabase e app PWA, com maquete. -->
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<style>
+  :root{ --green:#4fd1a5; --green-dim:#2b8a6a; --yellow:#e0c34a; }
+</style>
+<script>
+  window.ACTIVITY_LOCATION = 'culminancia_irrigacao';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/professor-visto.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Culminância — Irrigação Automatizada</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">7</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  const LOC = 'culminancia_irrigacao';
+  const username = new URLSearchParams(window.location.search).get('user') || 'anon';
+  const PROGRESS_KEY = `${LOC}_progress_${username}`;
+  const STEP_KEY = `${LOC}_step_${username}`;
+
+  // Marcações no texto: ¤código¤, **negrito**, blocos de código entre §§§,
+  // "- [ ]" vira checklist clicável (AulaBase.decorar).
+  const STEPS = [
+    {
+      titulo: 'Irrigação Automatizada da Escola',
+      corpo: `
+Um sistema que **rega sozinho** um canteiro quando a terra fica seca, e um **app** que mostra tudo o que aconteceu: quantas vezes regou, quantos litros gastou e como está a umidade.
+
+### O que a turma vai entregar na Culminância
+
+1. Uma **maquete pequena** (um canteiro com planta) regando de verdade, sozinha.
+2. O **app instalável** (PWA, via ¤manifest.json¤) mostrando os dados ao vivo do Supabase.
+3. Uma apresentação curta: como funciona, o que cada parte faz e os números coletados.
+
+### Regras do projeto
+
+- Código no **VS Code / Codespace**, versionado no **GitHub** (um repositório da turma).
+- Dados no **Supabase**: a placa grava, o app lê.
+- O mínimo de equipamento possível, com placa compatível com **Arduino**.`
+    },
+    {
+      titulo: 'Como o sistema funciona',
+      corpo: `
+| Parte | O que faz |
+|---|---|
+| Sensor de umidade | Mede se a terra está seca ou molhada |
+| Placa ESP32 (Arduino) | Lê o sensor e decide se liga a bomba |
+| Relé + bomba | Liga a bomba d'água pelo tempo combinado |
+| Wi-Fi + Supabase | A placa grava cada leitura e cada rega na nuvem |
+| App (PWA) | Mostra acionamentos, média de litros e de umidade |
+
+**Ciclo, a cada 10 minutos:**
+
+1. A placa lê a umidade da terra e grava a leitura no Supabase.
+2. Se a umidade estiver **abaixo do limite** (ex.: 35%), liga a bomba por alguns segundos.
+3. Grava a **rega**: horário, duração, litros estimados e a umidade antes.
+4. O app atualiza os números e o gráfico.`
+    },
+    {
+      titulo: 'Equipamentos (o mínimo possível)',
+      corpo: `
+| Item | Qtd | Para quê |
+|---|---|---|
+| Placa **ESP32 DevKit** (programável na IDE do Arduino) | 1 | Cérebro do sistema, já com **Wi-Fi** |
+| Sensor de umidade do solo **capacitivo** v1.2 | 1 | Mede a umidade (não enferruja como o resistivo) |
+| Módulo **relé 1 canal** 5V | 1 | Liga e desliga a bomba com segurança |
+| **Mini bomba d'água submersível** 3–6V | 1 | Leva a água até o canteiro |
+| Mangueira de silicone (de aquário) | 1 m | Liga a bomba ao canteiro |
+| Suporte para **4 pilhas AA** (ou fonte 5V) | 1 | Alimenta a bomba, separado da placa |
+| Protoboard + jumpers macho-fêmea | 1 kit | Ligações sem solda |
+| Cabo USB (do tipo da placa) | 1 | Grava o programa e alimenta a placa |
+
+> **Por que ESP32 e não Arduino Uno?** O Uno não tem Wi-Fi, então precisaria de um módulo a mais. O ESP32 se programa na mesma IDE do Arduino e já conecta na internet sozinho.
+
+**Litros sem sensor de fluxo:** meça quantos mL a bomba enche num copo medidor em 10 segundos (a **vazão**). Depois, litros = vazão × tempo ligada. Um sensor de fluxo (ex.: YF-S401) é opcional, se quiserem medir de verdade.`
+    },
+    {
+      titulo: 'Maquete',
+      corpo: `
+- [ ] Base de papelão ou MDF (uns 30 × 40 cm) representando um canteiro da escola
+- [ ] Um vaso ou pote com terra e uma planta pequena (ou muda)
+- [ ] Reservatório de água: garrafa PET cortada, com a bomba dentro
+- [ ] Mangueira saindo da bomba e terminando sobre a terra
+- [ ] Sensor de umidade enterrado perto da raiz
+- [ ] Placa, relé e pilhas numa "casinha" (caixa) **longe da água**
+- [ ] Plaquinha com o nome do projeto e um QR Code para abrir o app
+
+> **Segurança:** só pilhas e 5V, nada ligado na tomada perto da água. Teste a bomba sempre dentro do reservatório: ela não pode funcionar a seco.`
+    },
+    {
+      titulo: 'Banco de dados no Supabase',
+      corpo: `
+Duas tabelas bastam:
+
+§§§sql
+create table leituras (
+  id bigint generated always as identity primary key,
+  criado_em timestamptz default now(),
+  umidade numeric not null          -- 0 a 100 (%)
+);
+
+create table irrigacoes (
+  id bigint generated always as identity primary key,
+  criado_em timestamptz default now(),
+  duracao_s integer not null,       -- segundos com a bomba ligada
+  litros numeric not null,          -- vazão × tempo
+  umidade_antes numeric not null
+);
+§§§
+
+- Ligue o **RLS** nas duas tabelas.
+- Policy de **insert** para a placa e de **select** para o app. Ninguém pode apagar pelo navegador.
+- Os números do app saem de consultas: **quantas** linhas em ¤irrigacoes¤, **média** de ¤litros¤ e **média** de ¤umidade¤ em ¤leituras¤.
+
+> A chave que vai na placa é a **anon**, nunca a ¤service_role¤.`
+    },
+    {
+      titulo: 'Código da placa',
+      corpo: `
+Escrevam o código no **Codespace** (pasta ¤placa/¤ do repositório) e testem primeiro no **Wokwi** (wokwi.com), que simula o ESP32 com Wi-Fi no navegador. Depois gravem na placa real pela **IDE do Arduino**.
+
+Esqueleto da lógica (o Wi-Fi e o envio HTTP para o Supabase vocês completam):
+
+§§§cpp
+const int PINO_SENSOR = 34;   // entrada analógica
+const int PINO_RELE = 26;
+const int LIMITE_SECO = 35;   // % de umidade
+const int TEMPO_REGA_S = 5;
+const float VAZAO_L_POR_S = 0.02; // medida no copo
+
+int lerUmidade() {
+  int bruto = analogRead(PINO_SENSOR);
+  // calibre: valor no ar (seco) e na água (molhado)
+  int pct = map(bruto, 3000, 1300, 0, 100);
+  return constrain(pct, 0, 100);
+}
+§§§
+
+- [ ] Calibrar o sensor: anotar o valor no ar e dentro de um copo d'água
+- [ ] Medir a vazão da bomba no copo medidor
+- [ ] Enviar uma leitura de teste para a tabela ¤leituras¤
+- [ ] Ligar a bomba pelo relé quando a umidade passar do limite`
+    },
+    {
+      titulo: 'O app (PWA)',
+      corpo: `
+Um site no mesmo repositório (pasta ¤app/¤), instalável no celular:
+
+- [ ] ¤index.html¤ com os 3 números grandes: **acionamentos**, **média de litros** e **média de umidade**
+- [ ] Lista das últimas regas (horário, duração e litros)
+- [ ] Gráfico da umidade nas últimas 24 h (Chart.js pela CDN)
+- [ ] ¤manifest.json¤ com nome, ícone e cores, ligado no ¤<head>¤
+- [ ] Publicado (GitHub Pages) e instalado num celular para a apresentação
+
+§§§json
+{
+  "name": "Irrigação da Escola",
+  "short_name": "Irrigação",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1a12",
+  "theme_color": "#1f9d55",
+  "icons": [{ "src": "icone-512.png", "sizes": "512x512", "type": "image/png" }]
+}
+§§§`
+    },
+    {
+      titulo: 'Equipes e cronograma',
+      corpo: `
+| Equipe | Responsável por |
+|---|---|
+| Hardware | Montagem, calibração do sensor e da vazão |
+| Placa | Código do ESP32, Wi-Fi e envio para o Supabase |
+| Banco | Tabelas, RLS e consultas das médias |
+| App | Telas, gráfico, manifest e publicação |
+| Maquete | Canteiro, reservatório, acabamento e QR Code |
+
+1. **Semana 1:** lista de compras, repositório, tabelas no Supabase e simulação no Wokwi.
+2. **Semana 2:** placa lendo o sensor e gravando no Supabase; primeira tela do app.
+3. **Semana 3:** bomba e relé funcionando; médias e gráfico no app.
+4. **Semana 4:** maquete pronta, teste completo e ensaio da apresentação.`
+    },
+  ];
+
+  function loadProgress() {
+    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || 'null'); } catch (e) { return null; }
+  }
+  function saveProgress(data) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(data)); }
+  function loadStepIndex() {
+    try {
+      const n = parseInt(localStorage.getItem(STEP_KEY), 10);
+      return Number.isInteger(n) && n >= 0 && n <= STEPS.length ? n : 0;
+    } catch (e) { return 0; }
+  }
+  function saveStepIndex(i) { try { localStorage.setItem(STEP_KEY, String(i)); } catch (e) {} }
+
+  const savedProgress = loadProgress();
+  let currentIndex = (savedProgress && savedProgress.completed) ? STEPS.length : loadStepIndex();
+
+  const stepWrap = document.getElementById('stepWrap');
+  const lblStepNum = document.getElementById('lblStepNum');
+  const progressFill = document.getElementById('progressFill');
+  document.getElementById('lblStepTotal').textContent = STEPS.length + 1;
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function inline(s) {
+    let t = escapeHtml(s);
+    t = t.replace(/¤([^¤]+)¤/g, '<code>$1</code>');
+    t = t.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    return t;
+  }
+
+  // Mesmo parser markdown-enxuto de cod-phaser-pratica.html.
+  function mdToHtml(md) {
+    const lines = md.replace(/\r\n/g, '\n').split('\n');
+    let html = '';
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i].trim();
+      if (line === '') { i++; continue; }
+
+      if (line.startsWith('§§§')) {
+        i++;
+        const codeLines = [];
+        while (i < lines.length && lines[i].trim() !== '§§§') { codeLines.push(lines[i]); i++; }
+        i++;
+        html += `<pre><code>${escapeHtml(codeLines.join('\n'))}</code></pre>`;
+        continue;
+      }
+
+      const hm = line.match(/^(#{1,6})\s+(.*)$/);
+      if (hm) {
+        const level = Math.min(hm[1].length + 2, 6);
+        html += `<h${level}>${inline(hm[2])}</h${level}>`;
+        i++; continue;
+      }
+
+      if (line.startsWith('|') && lines[i + 1] && /^\s*\|[\s:-]+\|/.test(lines[i + 1])) {
+        const headerCells = line.slice(1, -1).split('|').map(s => s.trim());
+        i += 2;
+        const rows = [];
+        while (i < lines.length && lines[i].trim().startsWith('|')) {
+          rows.push(lines[i].trim().slice(1, -1).split('|').map(s => s.trim()));
+          i++;
+        }
+        html += '<div class="md-table-wrap"><table class="md-table"><thead><tr>'
+          + headerCells.map(c => `<th>${inline(c)}</th>`).join('') + '</tr></thead><tbody>'
+          + rows.map(r => '<tr>' + r.map(c => `<td>${inline(c)}</td>`).join('') + '</tr>').join('')
+          + '</tbody></table></div>';
+        continue;
+      }
+
+      if (/^\d+\.\s+/.test(line)) {
+        const items = [];
+        while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) { items.push(lines[i].trim().replace(/^\d+\.\s+/, '')); i++; }
+        html += '<ol class="md-list">' + items.map(it => `<li>${inline(it)}</li>`).join('') + '</ol>';
+        continue;
+      }
+
+      if (/^-\s+/.test(line)) {
+        const items = [];
+        while (i < lines.length && /^-\s+/.test(lines[i].trim())) { items.push(lines[i].trim()); i++; }
+        html += '<ul class="md-list">' + items.map(it => {
+          const cbm = it.match(/^-\s+\[( |x)\]\s*(.*)$/i);
+          if (cbm) return `<li class="md-check">${inline(cbm[2])}</li>`;
+          return `<li>${inline(it.replace(/^-\s+/, ''))}</li>`;
+        }).join('') + '</ul>';
+        continue;
+      }
+
+      if (line.startsWith('>')) {
+        const q = [];
+        while (i < lines.length && lines[i].trim().startsWith('>')) { q.push(lines[i].trim().replace(/^>\s?/, '')); i++; }
+        html += `<blockquote>${inline(q.join(' '))}</blockquote>`;
+        continue;
+      }
+
+      const para = [];
+      while (i < lines.length && lines[i].trim() !== '' && !/^(§§§|#|\||-|\d+\.|>)/.test(lines[i].trim())) {
+        para.push(lines[i].trim());
+        i++;
+      }
+      html += `<p>${inline(para.join(' '))}</p>`;
+    }
+    return html;
+  }
+
+  function reportStep(label) {
+    if (typeof window.reportActivity === 'function') {
+      window.reportActivity(LOC, label, { step: currentIndex + 1, total: STEPS.length + 1 });
+    }
+  }
+
+  function renderNav(showBack, showNext) {
+    return `
+      <div class="ab-nav">
+        ${showBack ? '<button class="btn btn-secondary" id="btnBack">← Voltar</button>' : '<span></span>'}
+        <span class="ab-nav-dica">use ← → do teclado</span>
+        ${showNext ? '<button class="btn" id="btnNext">Próximo →</button>' : '<span></span>'}
+      </div>`;
+  }
+
+  let direcao = 1;
+  function irPara(i) {
+    direcao = i < currentIndex ? -1 : 1;
+    currentIndex = Math.max(0, Math.min(i, STEPS.length));
+    renderStep();
+  }
+  function mostrarEtapa() {
+    document.getElementById('palco').scrollTop = 0;
+    window.AulaBase.transicao(stepWrap.querySelector('.ab-cartao'), direcao);
+  }
+  window.AulaBase.teclado({
+    proximo: () => { const b = document.getElementById('btnNext'); if (b) b.click(); },
+    anterior: () => { const b = document.getElementById('btnBack'); if (b) b.click(); },
+  });
+
+  function renderStep() {
+    if (currentIndex >= STEPS.length) { renderVisto(); return; }
+    saveStepIndex(currentIndex);
+    progressFill.style.width = Math.min(Math.round((currentIndex / STEPS.length) * 100), 100) + '%';
+    lblStepNum.textContent = currentIndex + 1;
+
+    const step = STEPS[currentIndex];
+    reportStep(`Irrigação — ${step.titulo}`);
+    stepWrap.innerHTML = `
+      <article class="ab-cartao">
+        <div class="ab-cartao-etapa">Etapa ${currentIndex + 1} de ${STEPS.length + 1}</div>
+        <h2>${escapeHtml(step.titulo)}</h2>
+        <div class="ab-conteudo">${mdToHtml(step.corpo)}</div>
+      </article>
+      ${renderNav(currentIndex > 0, true)}
+    `;
+    window.AulaBase.decorar(stepWrap, { chaveChecklist: `${LOC}_check_${username}_${currentIndex}` });
+    mostrarEtapa();
+    const btnBack = document.getElementById('btnBack');
+    if (btnBack) btnBack.addEventListener('click', () => irPara(currentIndex - 1));
+    document.getElementById('btnNext').addEventListener('click', () => irPara(currentIndex + 1));
+  }
+
+  function renderVisto() {
+    progressFill.style.width = '100%';
+    lblStepNum.textContent = STEPS.length + 1;
+    reportStep('Irrigação — Visto do professor');
+
+    const already = loadProgress();
+    if (already && already.completed) {
+      const quando = already.vistoEm ? new Date(already.vistoEm).toLocaleString('pt-BR') : '';
+      stepWrap.innerHTML = `
+        <div class="ab-cartao ab-concluida">
+          <h2>✅ Projeto aprovado para a Culminância</h2>
+          <p>Visto dado por <b>${escapeHtml(already.vistoPor || '')}</b>${quando ? ' em ' + escapeHtml(quando) : ''}.</p>
+        </div>
+        ${renderNav(true, false)}
+      `;
+      mostrarEtapa();
+      document.getElementById('btnBack').addEventListener('click', () => irPara(STEPS.length - 1));
+      return;
+    }
+
+    stepWrap.innerHTML = `
+      <div class="ab-cartao">
+        <div class="ab-cartao-etapa">Etapa ${STEPS.length + 1} de ${STEPS.length + 1}</div>
+        <h2>🧑‍🏫 Etapa final — Visto do professor</h2>
+        <div class="ab-conteudo">
+          <p>A maquete <b>rega sozinha</b> quando a terra seca, cada leitura e cada rega aparecem no <b>Supabase</b> e o <b>app instalado</b> mostra acionamentos, média de litros e média de umidade?</p>
+          <p>Chame o professor e faça a demonstração completa: secar a terra (ou tirar o sensor), ver a bomba ligar e o número de acionamentos subir no app. Quando ele confirmar, peça o token de professor e digite abaixo.</p>
+        </div>
+        <div class="ab-form">
+          <label>Token do professor
+            <input type="text" id="vistoToken" inputmode="numeric" maxlength="6" autocomplete="off">
+          </label>
+          <button class="btn" id="btnDarVisto">Dar visto</button>
+          <div class="ab-msg" id="vistoMsg" style="display:none;"></div>
+        </div>
+      </div>
+      ${renderNav(true, false)}
+    `;
+    mostrarEtapa();
+    document.getElementById('btnBack').addEventListener('click', () => irPara(STEPS.length - 1));
+
+    const btnDarVisto = document.getElementById('btnDarVisto');
+    const vistoMsg = document.getElementById('vistoMsg');
+    btnDarVisto.addEventListener('click', async () => {
+      const t = document.getElementById('vistoToken').value;
+      vistoMsg.style.display = 'none';
+      if (!t) {
+        vistoMsg.className = 'ab-msg erro';
+        vistoMsg.textContent = 'Informe o token do professor.';
+        vistoMsg.style.display = 'block';
+        return;
+      }
+      btnDarVisto.disabled = true;
+      btnDarVisto.textContent = 'Verificando...';
+      try {
+        const result = window.PortalProfessorVisto
+          ? await window.PortalProfessorVisto.verificarToken(t)
+          : { ok: false, erro: 'Verificação indisponível nesta tela.' };
+        if (!result.ok) {
+          vistoMsg.className = 'ab-msg erro';
+          vistoMsg.textContent = result.erro;
+          vistoMsg.style.display = 'block';
+          btnDarVisto.disabled = false;
+          btnDarVisto.textContent = 'Dar visto';
+          return;
+        }
+        saveProgress({ completed: true, vistoPor: result.nome, vistoEm: new Date().toISOString() });
+        renderVisto();
+      } catch (e) {
+        vistoMsg.className = 'ab-msg erro';
+        vistoMsg.textContent = 'Erro inesperado ao verificar. Tente de novo.';
+        vistoMsg.style.display = 'block';
+        btnDarVisto.disabled = false;
+        btnDarVisto.textContent = 'Dar visto';
+      }
+    });
+  }
+
+  // Gabarito = checklist de entrega pra o professor conferir o projeto.
+  window.generateGabaritoForGestao = function () {
+    return window.PortalGabarito.generate({
+      title: 'Culminância — Irrigação Automatizada — Checklist de entrega',
+      subtitle: 'Projeto da Culminância · Turma Sistemas (verificado presencialmente)',
+      items: [
+        { number: 1, title: 'Maquete e hardware', prompt: 'A maquete tem canteiro, reservatório, bomba, sensor enterrado e a eletrônica protegida longe da água?', answer: 'ESP32 + sensor capacitivo + relé + mini bomba + pilhas; nada na tomada perto da água; bomba sempre dentro do reservatório.' },
+        { number: 2, title: 'Rega automática', prompt: 'Com a terra seca (umidade abaixo do limite), a bomba liga sozinha pelo tempo combinado?', answer: 'Leitura a cada N minutos; abaixo de LIMITE_SECO liga o relé por TEMPO_REGA_S; sensor calibrado (valor no ar e na água).' },
+        { number: 3, title: 'Supabase', prompt: 'Cada leitura vai para a tabela leituras e cada rega para irrigacoes, com RLS ligado?', answer: 'Insert pela placa com a chave anon; select pelo app; sem delete pelo navegador; nunca a service_role na placa.' },
+        { number: 4, title: 'App (PWA)', prompt: 'O app instalado no celular mostra acionamentos, média de litros, média de umidade, últimas regas e gráfico?', answer: 'manifest.json no <head>, publicado no GitHub Pages; médias calculadas das tabelas; litros = vazão medida × tempo.' },
+        { number: 5, title: 'Repositório', prompt: 'O código da placa e do app está no GitHub, editado no Codespace, com README?', answer: 'Pastas placa/ e app/; README explicando montagem, calibração e como rodar.' }
+      ],
+      fileName: 'culminancia-irrigacao-checklist.txt',
+    });
+  };
+
+  renderStep();
+</script>
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

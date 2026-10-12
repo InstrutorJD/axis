@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Culminância — Portal Atlas: Educação Especial e Simulador do ENEM</title>
+<!-- Ficha de projeto da Culminância (trilha 'culminancia', card Projetos).
+     Padrão novo de trilhas (docs/padrao-trilhas.md): visual base
+     compartilhado, mesmo formato de roteiro com visto de
+     turmas/jogos/atividades/cod-phaser-final-pratica.html. A trilha é
+     semEntrega: fica fora de toda conta; o visto só marca a ficha.
+     Projeto: finalizar o portal Atlas + módulo de Educação Especial (alfabetização e quebra-cabeças) + Simulador do ENEM (~800 questões, gráfico por área). -->
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<style>
+  :root{ --green:#7c9cff; --green-dim:#4a63d9; --yellow:#e0c34a; }
+</style>
+<script>
+  window.ACTIVITY_LOCATION = 'culminancia_atlas';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/professor-visto.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Culminância — Portal Atlas</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">7</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  const LOC = 'culminancia_atlas';
+  const username = new URLSearchParams(window.location.search).get('user') || 'anon';
+  const PROGRESS_KEY = `${LOC}_progress_${username}`;
+  const STEP_KEY = `${LOC}_step_${username}`;
+
+  // Marcações no texto: ¤código¤, **negrito**, blocos de código entre §§§,
+  // "- [ ]" vira checklist clicável (AulaBase.decorar).
+  const STEPS = [
+    {
+      titulo: 'Portal Atlas: Educação Especial + Simulador do ENEM',
+      corpo: `
+O projeto é **finalizar o portal Atlas** e entregar dois módulos novos dentro dele:
+
+1. **Educação Especial:** jogos de alfabetização e quebra-cabeças, pensados para alunos com deficiência intelectual, TEA ou dificuldade de leitura.
+2. **Simulador do ENEM:** uma base com cerca de **800 questões** de provas anteriores, para o aluno treinar, e um **gráfico** mostrando onde ele mais precisa estudar.
+
+### Regras do projeto
+
+- Código no **VS Code / Codespace**, versionado no **GitHub**.
+- Dados e login no **Supabase**.
+- Tudo roda no navegador (HTML, CSS e JavaScript), também no celular.`
+    },
+    {
+      titulo: 'Parte 1 — Finalizar o Atlas',
+      corpo: `
+Antes dos módulos novos, o portal precisa estar sólido. Façam uma lista do que falta e fechem o essencial:
+
+- [ ] Login e cadastro funcionando pelo **Supabase Auth**
+- [ ] Menu levando aos dois módulos novos
+- [ ] Visual igual em todas as telas (cores, fontes e botões)
+- [ ] Funciona no celular (tela estreita) sem quebrar o layout
+- [ ] README do repositório explicando o projeto e como rodar
+- [ ] Publicado no **GitHub Pages**, com o link pronto para a Culminância
+
+> Funcionalidade pela metade não entra na apresentação: é melhor menos coisa funcionando bem.`
+    },
+    {
+      titulo: 'Parte 2 — Módulo de Educação Especial',
+      corpo: `
+Jogos curtos, com uma tarefa por tela, poucos estímulos e muito retorno positivo.
+
+| Jogo | Como funciona |
+|---|---|
+| Letra e figura | Mostra uma figura (🐱) e o aluno toca na letra inicial (G, **C**, P) |
+| Monte a palavra | Arrastar as sílabas na ordem: **CA** + **SA** = CASA |
+| Quebra-cabeça | Uma imagem cortada em 4, 6 ou 9 peças para arrastar |
+| Ouça e toque | O app fala a palavra e o aluno toca na figura certa |
+
+### Acessibilidade (obrigatório)
+
+- [ ] Botões grandes, fonte grande e alto contraste
+- [ ] Áudio com a **Web Speech API** (¤speechSynthesis¤), que fala a palavra em português sem custo
+- [ ] Sem tempo-limite e sem som de erro agressivo: erro vira "tente de novo"
+- [ ] Funciona por toque e por mouse
+- [ ] Níveis: começar fácil (3 opções) e aumentar aos poucos`
+    },
+    {
+      titulo: 'Parte 3 — Simulador do ENEM',
+      corpo: `
+### A base de questões
+
+- As provas e os gabaritos do ENEM são **públicos** no site do INEP.
+- Meta: cerca de **800 questões** das 4 áreas, com ano, área, disciplina e gabarito.
+- Questão com imagem: guardem a imagem no **Supabase Storage** e o link na questão.
+- Dividam a digitação/importação entre as equipes: por exemplo, 200 questões por área.
+
+> Também existem bases abertas com questões do ENEM já em formato de dados. Se usarem uma, confiram as questões contra a prova oficial e citem a fonte.
+
+### O treino
+
+- [ ] O aluno escolhe a área (ou "misturado") e a quantidade (10, 20 ou 45)
+- [ ] Uma questão por tela, com as 5 alternativas (A a E)
+- [ ] Ao final: acertos, tempo e a correção questão por questão
+- [ ] Cada resposta fica gravada para alimentar o gráfico`
+    },
+    {
+      titulo: 'O gráfico: onde estudar mais',
+      corpo: `
+Com as respostas gravadas, o app calcula a **taxa de acerto** por área e por disciplina e mostra num gráfico (Chart.js pela CDN):
+
+| Área | Questões | Acertos | Taxa |
+|---|---|---|---|
+| Linguagens | 40 | 28 | 70% |
+| Humanas | 40 | 30 | 75% |
+| Natureza | 40 | 14 | 35% |
+| Matemática | 40 | 18 | 45% |
+
+- [ ] Gráfico de barras com a taxa de acerto por área
+- [ ] Destaque automático para as **2 disciplinas com menor acerto** ("estude mais: Física e Geometria")
+- [ ] Evolução no tempo: a taxa de cada simulado feito`
+    },
+    {
+      titulo: 'Banco de dados no Supabase',
+      corpo: `
+§§§sql
+create table questoes (
+  id bigint generated always as identity primary key,
+  ano integer not null,
+  area text not null,          -- linguagens, humanas, natureza, matematica
+  disciplina text not null,
+  enunciado text not null,
+  alternativas jsonb not null, -- ["texto A", ..., "texto E"]
+  correta smallint not null,   -- 0 a 4
+  imagem_url text
+);
+
+create table respostas (
+  id bigint generated always as identity primary key,
+  aluno_id uuid references auth.users default auth.uid(),
+  questao_id bigint references questoes,
+  acertou boolean not null,
+  respondida_em timestamptz default now()
+);
+§§§
+
+- [ ] RLS: todo mundo logado **lê** ¤questoes¤; cada aluno só **lê e grava** as próprias ¤respostas¤
+- [ ] Progresso dos jogos de Educação Especial numa tabela própria, também por aluno`
+    },
+    {
+      titulo: 'Equipes e cronograma',
+      corpo: `
+| Equipe | Responsável por |
+|---|---|
+| Atlas | Login, menu, visual, celular e publicação |
+| Educação Especial | Os 4 jogos e a acessibilidade |
+| Base ENEM | Importar e revisar as ~800 questões |
+| Simulador | Treino, correção e gravação das respostas |
+| Gráficos | Taxas por área/disciplina e evolução |
+
+1. **Semana 1:** lista do que falta no Atlas, tabelas no Supabase e divisão das questões.
+2. **Semana 2:** primeiros jogos e simulador com 100 questões funcionando.
+3. **Semana 3:** base completa, gráfico e todos os jogos com acessibilidade.
+4. **Semana 4:** testes com colegas, correções e ensaio da apresentação.`
+    },
+  ];
+
+  function loadProgress() {
+    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || 'null'); } catch (e) { return null; }
+  }
+  function saveProgress(data) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(data)); }
+  function loadStepIndex() {
+    try {
+      const n = parseInt(localStorage.getItem(STEP_KEY), 10);
+      return Number.isInteger(n) && n >= 0 && n <= STEPS.length ? n : 0;
+    } catch (e) { return 0; }
+  }
+  function saveStepIndex(i) { try { localStorage.setItem(STEP_KEY, String(i)); } catch (e) {} }
+
+  const savedProgress = loadProgress();
+  let currentIndex = (savedProgress && savedProgress.completed) ? STEPS.length : loadStepIndex();
+
+  const stepWrap = document.getElementById('stepWrap');
+  const lblStepNum = document.getElementById('lblStepNum');
+  const progressFill = document.getElementById('progressFill');
+  document.getElementById('lblStepTotal').textContent = STEPS.length + 1;
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function inline(s) {
+    let t = escapeHtml(s);
+    t = t.replace(/¤([^¤]+)¤/g, '<code>$1</code>');
+    t = t.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    return t;
+  }
+
+  // Mesmo parser markdown-enxuto de cod-phaser-pratica.html.
+  function mdToHtml(md) {
+    const lines = md.replace(/\r\n/g, '\n').split('\n');
+    let html = '';
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i].trim();
+      if (line === '') { i++; continue; }
+
+      if (line.startsWith('§§§')) {
+        i++;
+        const codeLines = [];
+        while (i < lines.length && lines[i].trim() !== '§§§') { codeLines.push(lines[i]); i++; }
+        i++;
+        html += `<pre><code>${escapeHtml(codeLines.join('\n'))}</code></pre>`;
+        continue;
+      }
+
+      const hm = line.match(/^(#{1,6})\s+(.*)$/);
+      if (hm) {
+        const level = Math.min(hm[1].length + 2, 6);
+        html += `<h${level}>${inline(hm[2])}</h${level}>`;
+        i++; continue;
+      }
+
+      if (line.startsWith('|') && lines[i + 1] && /^\s*\|[\s:-]+\|/.test(lines[i + 1])) {
+        const headerCells = line.slice(1, -1).split('|').map(s => s.trim());
+        i += 2;
+        const rows = [];
+        while (i < lines.length && lines[i].trim().startsWith('|')) {
+          rows.push(lines[i].trim().slice(1, -1).split('|').map(s => s.trim()));
+          i++;
+        }
+        html += '<div class="md-table-wrap"><table class="md-table"><thead><tr>'
+          + headerCells.map(c => `<th>${inline(c)}</th>`).join('') + '</tr></thead><tbody>'
+          + rows.map(r => '<tr>' + r.map(c => `<td>${inline(c)}</td>`).join('') + '</tr>').join('')
+          + '</tbody></table></div>';
+        continue;
+      }
+
+      if (/^\d+\.\s+/.test(line)) {
+        const items = [];
+        while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) { items.push(lines[i].trim().replace(/^\d+\.\s+/, '')); i++; }
+        html += '<ol class="md-list">' + items.map(it => `<li>${inline(it)}</li>`).join('') + '</ol>';
+        continue;
+      }
+
+      if (/^-\s+/.test(line)) {
+        const items = [];
+        while (i < lines.length && /^-\s+/.test(lines[i].trim())) { items.push(lines[i].trim()); i++; }
+        html += '<ul class="md-list">' + items.map(it => {
+          const cbm = it.match(/^-\s+\[( |x)\]\s*(.*)$/i);
+          if (cbm) return `<li class="md-check">${inline(cbm[2])}</li>`;
+          return `<li>${inline(it.replace(/^-\s+/, ''))}</li>`;
+        }).join('') + '</ul>';
+        continue;
+      }
+
+      if (line.startsWith('>')) {
+        const q = [];
+        while (i < lines.length && lines[i].trim().startsWith('>')) { q.push(lines[i].trim().replace(/^>\s?/, '')); i++; }
+        html += `<blockquote>${inline(q.join(' '))}</blockquote>`;
+        continue;
+      }
+
+      const para = [];
+      while (i < lines.length && lines[i].trim() !== '' && !/^(§§§|#|\||-|\d+\.|>)/.test(lines[i].trim())) {
+        para.push(lines[i].trim());
+        i++;
+      }
+      html += `<p>${inline(para.join(' '))}</p>`;
+    }
+    return html;
+  }
+
+  function reportStep(label) {
+    if (typeof window.reportActivity === 'function') {
+      window.reportActivity(LOC, label, { step: currentIndex + 1, total: STEPS.length + 1 });
+    }
+  }
+
+  function renderNav(showBack, showNext) {
+    return `
+      <div class="ab-nav">
+        ${showBack ? '<button class="btn btn-secondary" id="btnBack">← Voltar</button>' : '<span></span>'}
+        <span class="ab-nav-dica">use ← → do teclado</span>
+        ${showNext ? '<button class="btn" id="btnNext">Próximo →</button>' : '<span></span>'}
+      </div>`;
+  }
+
+  let direcao = 1;
+  function irPara(i) {
+    direcao = i < currentIndex ? -1 : 1;
+    currentIndex = Math.max(0, Math.min(i, STEPS.length));
+    renderStep();
+  }
+  function mostrarEtapa() {
+    document.getElementById('palco').scrollTop = 0;
+    window.AulaBase.transicao(stepWrap.querySelector('.ab-cartao'), direcao);
+  }
+  window.AulaBase.teclado({
+    proximo: () => { const b = document.getElementById('btnNext'); if (b) b.click(); },
+    anterior: () => { const b = document.getElementById('btnBack'); if (b) b.click(); },
+  });
+
+  function renderStep() {
+    if (currentIndex >= STEPS.length) { renderVisto(); return; }
+    saveStepIndex(currentIndex);
+    progressFill.style.width = Math.min(Math.round((currentIndex / STEPS.length) * 100), 100) + '%';
+    lblStepNum.textContent = currentIndex + 1;
+
+    const step = STEPS[currentIndex];
+    reportStep(`Atlas — ${step.titulo}`);
+    stepWrap.innerHTML = `
+      <article class="ab-cartao">
+        <div class="ab-cartao-etapa">Etapa ${currentIndex + 1} de ${STEPS.length + 1}</div>
+        <h2>${escapeHtml(step.titulo)}</h2>
+        <div class="ab-conteudo">${mdToHtml(step.corpo)}</div>
+      </article>
+      ${renderNav(currentIndex > 0, true)}
+    `;
+    window.AulaBase.decorar(stepWrap, { chaveChecklist: `${LOC}_check_${username}_${currentIndex}` });
+    mostrarEtapa();
+    const btnBack = document.getElementById('btnBack');
+    if (btnBack) btnBack.addEventListener('click', () => irPara(currentIndex - 1));
+    document.getElementById('btnNext').addEventListener('click', () => irPara(currentIndex + 1));
+  }
+
+  function renderVisto() {
+    progressFill.style.width = '100%';
+    lblStepNum.textContent = STEPS.length + 1;
+    reportStep('Atlas — Visto do professor');
+
+    const already = loadProgress();
+    if (already && already.completed) {
+      const quando = already.vistoEm ? new Date(already.vistoEm).toLocaleString('pt-BR') : '';
+      stepWrap.innerHTML = `
+        <div class="ab-cartao ab-concluida">
+          <h2>✅ Projeto aprovado para a Culminância</h2>
+          <p>Visto dado por <b>${escapeHtml(already.vistoPor || '')}</b>${quando ? ' em ' + escapeHtml(quando) : ''}.</p>
+        </div>
+        ${renderNav(true, false)}
+      `;
+      mostrarEtapa();
+      document.getElementById('btnBack').addEventListener('click', () => irPara(STEPS.length - 1));
+      return;
+    }
+
+    stepWrap.innerHTML = `
+      <div class="ab-cartao">
+        <div class="ab-cartao-etapa">Etapa ${STEPS.length + 1} de ${STEPS.length + 1}</div>
+        <h2>🧑‍🏫 Etapa final — Visto do professor</h2>
+        <div class="ab-conteudo">
+          <p>O <b>Atlas</b> está publicado, com login, os <b>4 jogos de Educação Especial</b> acessíveis e o <b>Simulador do ENEM</b> com a base de questões, gravando as respostas e mostrando o <b>gráfico</b> de onde estudar mais?</p>
+          <p>Chame o professor e mostre: um jogo de alfabetização com áudio, um simulado curto do começo ao fim e o gráfico atualizando. Quando ele confirmar, peça o token de professor e digite abaixo.</p>
+        </div>
+        <div class="ab-form">
+          <label>Token do professor
+            <input type="text" id="vistoToken" inputmode="numeric" maxlength="6" autocomplete="off">
+          </label>
+          <button class="btn" id="btnDarVisto">Dar visto</button>
+          <div class="ab-msg" id="vistoMsg" style="display:none;"></div>
+        </div>
+      </div>
+      ${renderNav(true, false)}
+    `;
+    mostrarEtapa();
+    document.getElementById('btnBack').addEventListener('click', () => irPara(STEPS.length - 1));
+
+    const btnDarVisto = document.getElementById('btnDarVisto');
+    const vistoMsg = document.getElementById('vistoMsg');
+    btnDarVisto.addEventListener('click', async () => {
+      const t = document.getElementById('vistoToken').value;
+      vistoMsg.style.display = 'none';
+      if (!t) {
+        vistoMsg.className = 'ab-msg erro';
+        vistoMsg.textContent = 'Informe o token do professor.';
+        vistoMsg.style.display = 'block';
+        return;
+      }
+      btnDarVisto.disabled = true;
+      btnDarVisto.textContent = 'Verificando...';
+      try {
+        const result = window.PortalProfessorVisto
+          ? await window.PortalProfessorVisto.verificarToken(t)
+          : { ok: false, erro: 'Verificação indisponível nesta tela.' };
+        if (!result.ok) {
+          vistoMsg.className = 'ab-msg erro';
+          vistoMsg.textContent = result.erro;
+          vistoMsg.style.display = 'block';
+          btnDarVisto.disabled = false;
+          btnDarVisto.textContent = 'Dar visto';
+          return;
+        }
+        saveProgress({ completed: true, vistoPor: result.nome, vistoEm: new Date().toISOString() });
+        renderVisto();
+      } catch (e) {
+        vistoMsg.className = 'ab-msg erro';
+        vistoMsg.textContent = 'Erro inesperado ao verificar. Tente de novo.';
+        vistoMsg.style.display = 'block';
+        btnDarVisto.disabled = false;
+        btnDarVisto.textContent = 'Dar visto';
+      }
+    });
+  }
+
+  // Gabarito = checklist de entrega pra o professor conferir o projeto.
+  window.generateGabaritoForGestao = function () {
+    return window.PortalGabarito.generate({
+      title: 'Culminância — Portal Atlas — Checklist de entrega',
+      subtitle: 'Projeto da Culminância · Turma Sistemas (verificado presencialmente)',
+      items: [
+        { number: 1, title: 'Atlas finalizado', prompt: 'Login pelo Supabase Auth, menu, visual consistente, funciona no celular e está publicado?', answer: 'GitHub Pages com link; README; nada pela metade na apresentação.' },
+        { number: 2, title: 'Educação Especial', prompt: 'Os 4 jogos (letra e figura, monte a palavra, quebra-cabeça, ouça e toque) funcionam com acessibilidade?', answer: 'Botões e fonte grandes, alto contraste, áudio com speechSynthesis em pt-BR, sem tempo-limite, toque e mouse, níveis.' },
+        { number: 3, title: 'Base do ENEM', prompt: 'A base tem cerca de 800 questões com ano, área, disciplina, alternativas e gabarito conferidos?', answer: 'Fonte: provas e gabaritos oficiais do INEP (ou base aberta conferida contra a prova); imagens no Supabase Storage.' },
+        { number: 4, title: 'Simulador', prompt: 'O aluno escolhe área e quantidade, responde, vê a correção e as respostas ficam gravadas?', answer: 'Tabela respostas com aluno_id = auth.uid(); RLS: cada aluno lê e grava só as próprias; questoes só leitura.' },
+        { number: 5, title: 'Gráfico', prompt: 'O gráfico mostra a taxa de acerto por área, destaca as 2 disciplinas mais fracas e a evolução?', answer: 'Chart.js pela CDN; taxa = acertos / respondidas por área e por disciplina.' }
+      ],
+      fileName: 'culminancia-atlas-checklist.txt',
+    });
+  };
+
+  renderStep();
+</script>
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

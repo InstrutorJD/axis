@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Culminância — Jogo do João Roberto</title>
+<!-- Ficha de projeto da Culminância (trilha 'culminancia', card Projetos).
+     Padrão novo de trilhas (docs/padrao-trilhas.md): visual base
+     compartilhado, mesmo formato de roteiro com visto de
+     turmas/jogos/atividades/cod-phaser-final-pratica.html. A trilha é
+     semEntrega: fica fora de toda conta; o visto só marca a ficha.
+     Projeto: jogo em Phaser 3 andando pela escola, com personagens reais, 3 minigames de esporte, quiz por matéria e ranking no Supabase. -->
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<style>
+  :root{ --green:#c9a6ff; --green-dim:#7a58b3; --yellow:#e0b84a; }
+</style>
+<script>
+  window.ACTIVITY_LOCATION = 'culminancia_jogo_escola';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/professor-visto.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Culminância — Jogo do João Roberto</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">7</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  const LOC = 'culminancia_jogo_escola';
+  const username = new URLSearchParams(window.location.search).get('user') || 'anon';
+  const PROGRESS_KEY = `${LOC}_progress_${username}`;
+  const STEP_KEY = `${LOC}_step_${username}`;
+
+  // Marcações no texto: ¤código¤, **negrito**, blocos de código entre §§§,
+  // "- [ ]" vira checklist clicável (AulaBase.decorar).
+  const STEPS = [
+    {
+      titulo: 'Jogo do João Roberto',
+      corpo: `
+Um jogo 2D em que o jogador **anda pela escola**, encontra os **personagens** de verdade (diretor, coordenação, professores, merendeira...) e joga **minigames** e **quizzes** valendo pontos num **ranking** da escola.
+
+### O que a turma vai entregar na Culminância
+
+1. O jogo rodando no navegador (também no celular), publicado com link e QR Code.
+2. O mapa da escola com pelo menos **4 personagens** que conversam com o jogador.
+3. **3 minigames** de esporte: futebol, basquete e ping-pong.
+4. O **modo aprendizado** com quizzes por matéria e o **ranking** dos alunos.
+
+### Regras do projeto
+
+- **Phaser 3**, com código no **VS Code / Codespace**, versionado no **GitHub**.
+- Ranking e perguntas no **Supabase**.
+- Sprites desenhados pela turma no **Piskel**, como no Pacman.`
+    },
+    {
+      titulo: 'Cenas do jogo (scenes)',
+      corpo: `
+Cada parte do jogo é uma **cena** do Phaser, e o jogador troca de uma para outra com ¤this.scene.start('NomeDaCena')¤.
+
+| Cena | O que tem |
+|---|---|
+| ¤Menu¤ | Título, "Jogar", "Aprender" e "Ranking" |
+| ¤Escola¤ | O mapa, o jogador andando e os personagens |
+| ¤Futebol¤ | Cobrança de pênalti contra o goleiro |
+| ¤Basquete¤ | Arremesso com força e ângulo (física com gravidade) |
+| ¤PingPong¤ | Raquete contra a máquina, no estilo Pong |
+| ¤Quiz¤ | Perguntas da matéria escolhida, com tempo |
+| ¤Ranking¤ | Os melhores da escola, geral e por matéria |
+
+§§§javascript
+const configuracao = {
+  type: Phaser.AUTO,
+  width: 800,
+  height: 600,
+  physics: { default: 'arcade' },
+  scene: [Menu, Escola, Futebol, Basquete, PingPong, Quiz, Ranking]
+};
+§§§`
+    },
+    {
+      titulo: 'O mapa da escola',
+      corpo: `
+Façam como o labirinto do Pacman: o mapa é um **array de textos**, e cada caractere vira um bloco.
+
+§§§javascript
+// 1 = parede, 0 = chão, Q = quadra, C = cantina,
+// D = sala da direção, S = sala de aula
+const mapa = [
+  '1111111111111111111',
+  '1SS0000000000000DD1',
+  '1SS0011111111000DD1',
+  '1000001QQQQQ1000001',
+  '1CC0001QQQQQ1000SS1',
+  '1CC0000000000000SS1',
+  '1111111111111111111'
+];
+§§§
+
+- [ ] Desenhar no papel a planta da escola (pátio, quadra, cantina, direção e salas)
+- [ ] Passar a planta para o array e desenhar os blocos (tileset no Piskel)
+- [ ] Jogador andando com as setas, com ¤collider¤ nas paredes
+- [ ] Câmera seguindo o jogador: ¤this.cameras.main.startFollow(jogador)¤`
+    },
+    {
+      titulo: 'Personagens da escola',
+      corpo: `
+Cada personagem é um sprite parado num lugar do mapa. Quando o jogador chega perto (¤overlap¤) e aperta **E**, abre uma caixa de diálogo.
+
+| Personagem | Onde fica | O que faz |
+|---|---|---|
+| Diretor(a) | Sala da direção | Dá as boas-vindas e explica o jogo |
+| Coordenação | Corredor | Libera o modo aprendizado (quiz) |
+| Professor(a) de Ed. Física | Quadra | Desafia para os minigames |
+| Merendeira | Cantina | Dá uma dica ou um bônus de pontos |
+
+> **Combinem com as pessoas antes:** peçam permissão para usar o nome e a imagem de cada funcionário. Desenhem de forma respeitosa, sem apelidos nem piadas.
+
+- [ ] Sprites dos personagens no Piskel
+- [ ] Caixa de diálogo com o texto e "aperte E para continuar"
+- [ ] Cada personagem levando à sua cena (minigame ou quiz)`
+    },
+    {
+      titulo: 'Minigames de esporte',
+      corpo: `
+| Minigame | Mecânica | Técnica do Phaser |
+|---|---|---|
+| **Futebol** | Escolher o canto e a força do chute; o goleiro pula para um lado sorteado | ¤Phaser.Math.Between¤ e ¤tweens¤ |
+| **Basquete** | Segurar a tecla para dar força; a bola faz curva e cai | ¤setGravityY¤ e ¤setVelocity¤ |
+| **Ping-pong** | Raquete nas setas; a bola rebate nas bordas e nas raquetes | ¤setBounce(1)¤ e ¤collider¤ |
+
+- [ ] Cada minigame com placar e fim de partida (ex.: 5 pênaltis, 60 segundos)
+- [ ] Ao terminar, os pontos vão para o ranking e o jogador volta para a escola
+- [ ] Instruções na tela antes de começar`
+    },
+    {
+      titulo: 'Modo aprendizado e ranking',
+      corpo: `
+### Quiz por matéria
+
+Matemática, História, Geografia, Física, Português... O jogador escolhe a matéria, responde 10 perguntas com tempo, e cada acerto soma pontos (mais rápido, mais pontos).
+
+### Banco de dados no Supabase
+
+§§§sql
+create table perguntas (
+  id bigint generated always as identity primary key,
+  materia text not null,
+  enunciado text not null,
+  alternativas jsonb not null,  -- 4 textos
+  correta smallint not null     -- 0 a 3
+);
+
+create table pontuacoes (
+  id bigint generated always as identity primary key,
+  jogador text not null,        -- apelido
+  materia text not null,        -- ou 'futebol', 'basquete'...
+  pontos integer not null,
+  criado_em timestamptz default now()
+);
+§§§
+
+- [ ] Pelo menos **20 perguntas por matéria**, conferidas pelos professores
+- [ ] Ranking geral e por matéria (os 10 melhores)
+- [ ] RLS: todos **leem** o ranking; só se **grava** pontuação nova (sem apagar nem editar)
+
+> No ranking, usem **apelido**, não o nome completo: muitos jogadores são menores de idade.`
+    },
+    {
+      titulo: 'Equipes e cronograma',
+      corpo: `
+| Equipe | Responsável por |
+|---|---|
+| Mapa | Planta da escola, tileset, colisões e câmera |
+| Personagens | Sprites, diálogos e ligação com as cenas |
+| Esportes | Futebol, basquete e ping-pong |
+| Aprendizado | Perguntas, cena do quiz e tabelas no Supabase |
+| Ranking e menu | Menu, ranking, publicação e QR Code |
+
+1. **Semana 1:** planta da escola, repositório, cenas vazias ligadas e tabelas no Supabase.
+2. **Semana 2:** jogador andando no mapa e primeiro minigame jogável.
+3. **Semana 3:** personagens com diálogos, os 3 minigames e o quiz gravando pontos.
+4. **Semana 4:** ranking, testes com colegas, correções e ensaio da apresentação.`
+    },
+  ];
+
+  function loadProgress() {
+    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || 'null'); } catch (e) { return null; }
+  }
+  function saveProgress(data) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(data)); }
+  function loadStepIndex() {
+    try {
+      const n = parseInt(localStorage.getItem(STEP_KEY), 10);
+      return Number.isInteger(n) && n >= 0 && n <= STEPS.length ? n : 0;
+    } catch (e) { return 0; }
+  }
+  function saveStepIndex(i) { try { localStorage.setItem(STEP_KEY, String(i)); } catch (e) {} }
+
+  const savedProgress = loadProgress();
+  let currentIndex = (savedProgress && savedProgress.completed) ? STEPS.length : loadStepIndex();
+
+  const stepWrap = document.getElementById('stepWrap');
+  const lblStepNum = document.getElementById('lblStepNum');
+  const progressFill = document.getElementById('progressFill');
+  document.getElementById('lblStepTotal').textContent = STEPS.length + 1;
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function inline(s) {
+    let t = escapeHtml(s);
+    t = t.replace(/¤([^¤]+)¤/g, '<code>$1</code>');
+    t = t.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    return t;
+  }
+
+  // Mesmo parser markdown-enxuto de cod-phaser-pratica.html.
+  function mdToHtml(md) {
+    const lines = md.replace(/\r\n/g, '\n').split('\n');
+    let html = '';
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i].trim();
+      if (line === '') { i++; continue; }
+
+      if (line.startsWith('§§§')) {
+        i++;
+        const codeLines = [];
+        while (i < lines.length && lines[i].trim() !== '§§§') { codeLines.push(lines[i]); i++; }
+        i++;
+        html += `<pre><code>${escapeHtml(codeLines.join('\n'))}</code></pre>`;
+        continue;
+      }
+
+      const hm = line.match(/^(#{1,6})\s+(.*)$/);
+      if (hm) {
+        const level = Math.min(hm[1].length + 2, 6);
+        html += `<h${level}>${inline(hm[2])}</h${level}>`;
+        i++; continue;
+      }
+
+      if (line.startsWith('|') && lines[i + 1] && /^\s*\|[\s:-]+\|/.test(lines[i + 1])) {
+        const headerCells = line.slice(1, -1).split('|').map(s => s.trim());
+        i += 2;
+        const rows = [];
+        while (i < lines.length && lines[i].trim().startsWith('|')) {
+          rows.push(lines[i].trim().slice(1, -1).split('|').map(s => s.trim()));
+          i++;
+        }
+        html += '<div class="md-table-wrap"><table class="md-table"><thead><tr>'
+          + headerCells.map(c => `<th>${inline(c)}</th>`).join('') + '</tr></thead><tbody>'
+          + rows.map(r => '<tr>' + r.map(c => `<td>${inline(c)}</td>`).join('') + '</tr>').join('')
+          + '</tbody></table></div>';
+        continue;
+      }
+
+      if (/^\d+\.\s+/.test(line)) {
+        const items = [];
+        while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) { items.push(lines[i].trim().replace(/^\d+\.\s+/, '')); i++; }
+        html += '<ol class="md-list">' + items.map(it => `<li>${inline(it)}</li>`).join('') + '</ol>';
+        continue;
+      }
+
+      if (/^-\s+/.test(line)) {
+        const items = [];
+        while (i < lines.length && /^-\s+/.test(lines[i].trim())) { items.push(lines[i].trim()); i++; }
+        html += '<ul class="md-list">' + items.map(it => {
+          const cbm = it.match(/^-\s+\[( |x)\]\s*(.*)$/i);
+          if (cbm) return `<li class="md-check">${inline(cbm[2])}</li>`;
+          return `<li>${inline(it.replace(/^-\s+/, ''))}</li>`;
+        }).join('') + '</ul>';
+        continue;
+      }
+
+      if (line.startsWith('>')) {
+        const q = [];
+        while (i < lines.length && lines[i].trim().startsWith('>')) { q.push(lines[i].trim().replace(/^>\s?/, '')); i++; }
+        html += `<blockquote>${inline(q.join(' '))}</blockquote>`;
+        continue;
+      }
+
+      const para = [];
+      while (i < lines.length && lines[i].trim() !== '' && !/^(§§§|#|\||-|\d+\.|>)/.test(lines[i].trim())) {
+        para.push(lines[i].trim());
+        i++;
+      }
+      html += `<p>${inline(para.join(' '))}</p>`;
+    }
+    return html;
+  }
+
+  function reportStep(label) {
+    if (typeof window.reportActivity === 'function') {
+      window.reportActivity(LOC, label, { step: currentIndex + 1, total: STEPS.length + 1 });
+    }
+  }
+
+  function renderNav(showBack, showNext) {
+    return `
+      <div class="ab-nav">
+        ${showBack ? '<button class="btn btn-secondary" id="btnBack">← Voltar</button>' : '<span></span>'}
+        <span class="ab-nav-dica">use ← → do teclado</span>
+        ${showNext ? '<button class="btn" id="btnNext">Próximo →</button>' : '<span></span>'}
+      </div>`;
+  }
+
+  let direcao = 1;
+  function irPara(i) {
+    direcao = i < currentIndex ? -1 : 1;
+    currentIndex = Math.max(0, Math.min(i, STEPS.length));
+    renderStep();
+  }
+  function mostrarEtapa() {
+    document.getElementById('palco').scrollTop = 0;
+    window.AulaBase.transicao(stepWrap.querySelector('.ab-cartao'), direcao);
+  }
+  window.AulaBase.teclado({
+    proximo: () => { const b = document.getElementById('btnNext'); if (b) b.click(); },
+    anterior: () => { const b = document.getElementById('btnBack'); if (b) b.click(); },
+  });
+
+  function renderStep() {
+    if (currentIndex >= STEPS.length) { renderVisto(); return; }
+    saveStepIndex(currentIndex);
+    progressFill.style.width = Math.min(Math.round((currentIndex / STEPS.length) * 100), 100) + '%';
+    lblStepNum.textContent = currentIndex + 1;
+
+    const step = STEPS[currentIndex];
+    reportStep(`Jogo da escola — ${step.titulo}`);
+    stepWrap.innerHTML = `
+      <article class="ab-cartao">
+        <div class="ab-cartao-etapa">Etapa ${currentIndex + 1} de ${STEPS.length + 1}</div>
+        <h2>${escapeHtml(step.titulo)}</h2>
+        <div class="ab-conteudo">${mdToHtml(step.corpo)}</div>
+      </article>
+      ${renderNav(currentIndex > 0, true)}
+    `;
+    window.AulaBase.decorar(stepWrap, { chaveChecklist: `${LOC}_check_${username}_${currentIndex}` });
+    mostrarEtapa();
+    const btnBack = document.getElementById('btnBack');
+    if (btnBack) btnBack.addEventListener('click', () => irPara(currentIndex - 1));
+    document.getElementById('btnNext').addEventListener('click', () => irPara(currentIndex + 1));
+  }
+
+  function renderVisto() {
+    progressFill.style.width = '100%';
+    lblStepNum.textContent = STEPS.length + 1;
+    reportStep('Jogo da escola — Visto do professor');
+
+    const already = loadProgress();
+    if (already && already.completed) {
+      const quando = already.vistoEm ? new Date(already.vistoEm).toLocaleString('pt-BR') : '';
+      stepWrap.innerHTML = `
+        <div class="ab-cartao ab-concluida">
+          <h2>✅ Jogo aprovado para a Culminância</h2>
+          <p>Visto dado por <b>${escapeHtml(already.vistoPor || '')}</b>${quando ? ' em ' + escapeHtml(quando) : ''}.</p>
+        </div>
+        ${renderNav(true, false)}
+      `;
+      mostrarEtapa();
+      document.getElementById('btnBack').addEventListener('click', () => irPara(STEPS.length - 1));
+      return;
+    }
+
+    stepWrap.innerHTML = `
+      <div class="ab-cartao">
+        <div class="ab-cartao-etapa">Etapa ${STEPS.length + 1} de ${STEPS.length + 1}</div>
+        <h2>🧑‍🏫 Etapa final — Visto do professor</h2>
+        <div class="ab-conteudo">
+          <p>O jogo está <b>publicado</b>, o jogador anda pelo <b>mapa da escola</b>, conversa com os <b>personagens</b>, joga os <b>3 minigames</b> e o <b>quiz</b>, e os pontos aparecem no <b>ranking</b> do Supabase?</p>
+          <p>Chame o professor e jogue uma partida completa na frente dele: andar até um personagem, jogar um minigame, fazer um quiz e ver o nome no ranking. Quando ele confirmar, peça o token de professor e digite abaixo.</p>
+        </div>
+        <div class="ab-form">
+          <label>Token do professor
+            <input type="text" id="vistoToken" inputmode="numeric" maxlength="6" autocomplete="off">
+          </label>
+          <button class="btn" id="btnDarVisto">Dar visto</button>
+          <div class="ab-msg" id="vistoMsg" style="display:none;"></div>
+        </div>
+      </div>
+      ${renderNav(true, false)}
+    `;
+    mostrarEtapa();
+    document.getElementById('btnBack').addEventListener('click', () => irPara(STEPS.length - 1));
+
+    const btnDarVisto = document.getElementById('btnDarVisto');
+    const vistoMsg = document.getElementById('vistoMsg');
+    btnDarVisto.addEventListener('click', async () => {
+      const t = document.getElementById('vistoToken').value;
+      vistoMsg.style.display = 'none';
+      if (!t) {
+        vistoMsg.className = 'ab-msg erro';
+        vistoMsg.textContent = 'Informe o token do professor.';
+        vistoMsg.style.display = 'block';
+        return;
+      }
+      btnDarVisto.disabled = true;
+      btnDarVisto.textContent = 'Verificando...';
+      try {
+        const result = window.PortalProfessorVisto
+          ? await window.PortalProfessorVisto.verificarToken(t)
+          : { ok: false, erro: 'Verificação indisponível nesta tela.' };
+        if (!result.ok) {
+          vistoMsg.className = 'ab-msg erro';
+          vistoMsg.textContent = result.erro;
+          vistoMsg.style.display = 'block';
+          btnDarVisto.disabled = false;
+          btnDarVisto.textContent = 'Dar visto';
+          return;
+        }
+        saveProgress({ completed: true, vistoPor: result.nome, vistoEm: new Date().toISOString() });
+        renderVisto();
+      } catch (e) {
+        vistoMsg.className = 'ab-msg erro';
+        vistoMsg.textContent = 'Erro inesperado ao verificar. Tente de novo.';
+        vistoMsg.style.display = 'block';
+        btnDarVisto.disabled = false;
+        btnDarVisto.textContent = 'Dar visto';
+      }
+    });
+  }
+
+  // Gabarito = checklist de entrega pra o professor conferir o projeto.
+  window.generateGabaritoForGestao = function () {
+    return window.PortalGabarito.generate({
+      title: 'Culminância — Jogo do João Roberto — Checklist de entrega',
+      subtitle: 'Projeto da Culminância · Turma Jogos (verificado presencialmente)',
+      items: [
+        { number: 1, title: 'Cenas', prompt: 'O jogo tem as cenas Menu, Escola, Futebol, Basquete, PingPong, Quiz e Ranking, trocando com this.scene.start?', answer: 'Phaser 3 pela CDN; scene: [Menu, Escola, ...] na configuração; código no Codespace e no GitHub.' },
+        { number: 2, title: 'Mapa da escola', prompt: 'O jogador anda pelo mapa (array de textos), colide com as paredes e a câmera o segue?', answer: 'Tileset do Piskel; collider com paredes; cameras.main.startFollow(jogador).' },
+        { number: 3, title: 'Personagens', prompt: 'Há pelo menos 4 personagens com diálogo (overlap + tecla E), levando a minigames ou ao quiz?', answer: 'Uso de nome e imagem combinado com cada funcionário; desenho respeitoso.' },
+        { number: 4, title: 'Minigames', prompt: 'Futebol, basquete e ping-pong têm placar, fim de partida e mandam os pontos para o ranking?', answer: 'Futebol: Phaser.Math.Between/tweens; basquete: setGravityY/setVelocity; ping-pong: setBounce(1)/collider.' },
+        { number: 5, title: 'Quiz e ranking', prompt: 'O quiz por matéria usa perguntas do Supabase e o ranking mostra os 10 melhores, geral e por matéria, com apelidos?', answer: 'Tabelas perguntas e pontuacoes; 20+ perguntas por matéria conferidas; RLS: leitura para todos, só insert de pontuação.' }
+      ],
+      fileName: 'culminancia-jogo-escola-checklist.txt',
+    });
+  };
+
+  renderStep();
+</script>
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

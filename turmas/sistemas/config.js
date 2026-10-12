@@ -1171,9 +1171,27 @@ window.TURMA_CONFIG_SISTEMAS = {
           // não pode ser inventada; entra junto com os módulos.
           key: 'culminancia',
           label: 'Culminância',
-          desc: 'Evento de fim de ano em que a turma apresenta os projetos. Conteúdo em breve.',
+          desc: 'Evento de fim de ano em que a turma apresenta os projetos. Um card por proposta, com a ficha do projeto e o visto do professor.',
           semEntrega: true,
-          modules: []
+          // Cards de projeto: ficha em etapas (visão geral, funcionalidades,
+          // equipamentos/tecnologias, Supabase, equipes e cronograma) e visto
+          // no fim. Todos usam VS Code/Codespace + Supabase.
+          modules: [
+            {
+              key: 'irrigacao', title: 'Projeto 1 — Irrigação Automatizada da Escola',
+              desc: 'ESP32 + sensor de umidade + bomba regando sozinho, dados no Supabase e app instalável (PWA) com acionamentos, média de litros e de umidade. Com maquete.',
+              icon: '💧', src: 'atividades/culminancia-irrigacao.html', telaCheia: true,
+              progressKey: 'culminancia_irrigacao_progress_', progressMode: 'flag',
+              semEntrega: true, hasGabarito: true
+            },
+            {
+              key: 'atlas', title: 'Projeto 2 — Portal Atlas: Educação Especial e Simulador do ENEM',
+              desc: 'Finalizar o portal Atlas, com jogos de alfabetização e quebra-cabeças acessíveis e um simulado do ENEM (~800 questões) com gráfico de onde estudar mais.',
+              icon: '🧭', src: 'atividades/culminancia-atlas.html', telaCheia: true,
+              progressKey: 'culminancia_atlas_progress_', progressMode: 'flag',
+              semEntrega: true, hasGabarito: true
+            }
+          ]
         }
       ]
     },
