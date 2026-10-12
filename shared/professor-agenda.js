@@ -865,7 +865,7 @@ window.ProfessorAgenda = (function () {
     return {
       id: null, titulo: '', descricao: '', dia,
       dia_todo: !inicio, hora_inicio: inicio || null, hora_fim: fim || null,
-      cor: 'azul', lembrete_min: inicio ? 10 : null, lembrete_lido: false,
+      cor: 'azul', lembrete_min: null, lembrete_lido: false,
     };
   }
 

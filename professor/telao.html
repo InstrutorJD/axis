@@ -105,7 +105,7 @@
 <script>
 (function () {
   // Horários em que o banheiro é liberado (início incluso, fim não).
-  // Fora deles, proibido.
+  // Fora deles, não liberado.
   const HORARIOS_BANHEIRO = [
     ['09:50', '11:00'],
     ['13:10', '13:30'],
@@ -138,10 +138,10 @@
       status = 'Liberado';
       detalhe = `Até as <b>${dentro.b}</b> · faltam <b>${falta(dentro.fim - atual)}</b>`;
     } else if (proxima) {
-      status = 'Proibido';
+      status = 'Não Liberado';
       detalhe = `Libera às <b>${proxima.a}</b> · daqui a <b>${falta(proxima.ini - atual)}</b>`;
     } else {
-      status = 'Proibido';
+      status = 'Não Liberado';
       detalhe = 'Hoje não tem mais horário liberado';
     }
     const chave = `${status}|${detalhe}|${dentro ? dentro.a : ''}`;
