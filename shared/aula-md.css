@@ -91,3 +91,29 @@ body:has(.sm-presenter:not([hidden])) #btnGenGabaritoFloat{ display:none; }
   .am-capa h1{ font-size:1.8em; }
   .am-btn-apresentar{ display:none; }
 }
+
+/* ---------- Tamanho que acompanha a tela ----------
+   A teoria é um cartão por etapa (um "slide"). Com letra fixa em 15px e
+   coluna de no máximo 1180px, no projetor/TV o cartão ficava pequeno, preso
+   no alto e com muito espaço vazio. Aqui a letra cresce com a tela (largura
+   e altura, de 15px num notebook até 26px numa tela grande; a escala da
+   Personalização continua valendo), a coluna fica mais larga e o cartão
+   vem pro meio da altura quando sobra espaço. Tudo dentro do cartão está em
+   em, então cresce junto; os tamanhos fixos em px viram em abaixo. */
+.am-app .ab-palco{ display:flex; flex-direction:column; }
+.am-app .ab-coluna{
+  width:100%; max-width:min(1560px, 100%); flex:1 0 auto; justify-content:center;
+  font-size:calc(clamp(15px, 0.5vw + 0.7vh + 3px, 26px) * var(--user-font-scale, 1));
+}
+.am-app .ab-cartao{ padding:1.75em 2em; }
+.am-app .ab-cartao-etapa{ font-size:.73em; }
+.am-app .sm-code-lang{ font-size:.73em; }
+.am-app .sm-copy{ font-size:.77em; }
+.am-app .sm-code code, .am-app .ab-codigo code{ font-size:.87em; }
+.am-app .am-letra{ width:2em; height:2em; font-size:.87em; }
+.am-app .am-capacidade span{ font-size:.73em; }
+.am-app .ab-nav-dica{ font-size:.73em; }
+.am-app button.btn{ font-size:.87em; padding:.85em 1.7em; }
+@media (max-width:700px){
+  .am-app .ab-cartao{ padding:1.2em 1.05em; }
+}

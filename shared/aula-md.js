@@ -129,7 +129,7 @@ window.AulaMD = (function () {
     const mdUrl = new URL(opts.md, location.href).href;
 
     document.body.innerHTML = `
-      <div class="ab-app">
+      <div class="ab-app am-app">
         <header class="ab-topo">
           <div class="ab-topo-titulo" id="amTitulo"></div>
           <div class="am-topo-dir">
