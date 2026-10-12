@@ -14,6 +14,11 @@
 > única `projeto-financapp`, no card "Projetos") e **Motor Phaser: Construa
 > o Pacman** em Jogos (`cod-phaser`).
 >
+> **Semana 12–18/10/2026:** `mundo-profissoes` (Mundo do Trabalho,
+> compartilhada: arquivos em `turmas/sistemas/`), `prog-comentarios`
+> (Sistemas), `teste-bugs`, `fund-jogo2d` (prática com
+> `js-challenge-engine.js` no visual base) e `cod-phaser-final` (Jogos).
+>
 > **Carga horária:** quando o professor manda a linha do plano de ensino
 > ("Aula N - data", com um mínimo de horas), teoria + práticas precisam
 > cobrir esse tempo. Anote a estimativa por módulo num comentário da trilha

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codificação — Pacman: Reta Final</title>
+<!-- Padrão novo de trilhas (docs/padrao-trilhas.md): visual base
+     compartilhado. Roteiro sem correção automática (o jogo roda no
+     Codespace do aluno): cada tela só navega, e quem marca como concluída é
+     o professor, no visto da última etapa — mesmo formato de
+     cod-phaser-pratica.html. Esta prática FECHA o Pacman da trilha
+     "Motor Phaser: Construa o Pacman" e aplica duas técnicas novas
+     (constantes com nome e vidas). Mesma cor de destaque da trilha Phaser. -->
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<style>
+  :root{ --green:#c9a6ff; --green-dim:#7a58b3; --yellow:#e0b84a; }
+</style>
+<script>
+  window.ACTIVITY_LOCATION = 'cod_phaser_final_pratica';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/professor-visto.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Codificação — Pacman: Reta Final</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">7</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  const LOC = 'cod_phaser_final_pratica';
+  const username = new URLSearchParams(window.location.search).get('user') || 'anon';
+  const PROGRESS_KEY = `${LOC}_progress_${username}`;
+  const STEP_KEY = `${LOC}_step_${username}`;
+
+  // Marcações no texto: ¤código¤, **negrito**, blocos de código entre §§§,
+  // "- [ ]" vira checklist clicável (AulaBase.decorar).
+  const STEPS = [
+    {
+      titulo: 'Reta final do Pacman',
+      corpo: `
+Hoje é o dia de **terminar o Pacman** em Phaser. Quem já terminou vai aplicar duas técnicas de desenvolvimento que deixam o código melhor; quem ainda não terminou fecha o jogo primeiro.
+
+### O que entregar no fim da aula
+
+1. O Pacman completo rodando no navegador, sem erro no Console.
+2. Os números soltos do código trocados por **constantes com nome**.
+3. (Se der tempo) o sistema de **3 vidas**.
+
+### Como funciona aqui
+
+- Etapa 2: descubra onde você parou.
+- Etapas 3 e 4: teste o jogo e conserte o que faltar.
+- Etapas 5 e 6: as duas técnicas novas.
+- Última etapa: o professor confere e dá o visto.`
+    },
+    {
+      titulo: 'Onde você parou?',
+      corpo: `
+Abra o seu Codespace e o arquivo ¤game.js¤. Marque o que **já está pronto**:
+
+- [ ] ¤game.html¤ carrega o Phaser (CDN) e depois o ¤game.js¤
+- [ ] Os sprites ¤pacman_sheet.png¤ e ¤ghost_sheet.png¤ do Piskel estão na pasta
+- [ ] ¤configuracao¤, variáveis e ¤mapa¤ no topo do ¤game.js¤
+- [ ] ¤preCarregar()¤ completa
+- [ ] ¤criar()¤ completa: labirinto, moedas, jogador, fantasmas, colisões, animações, teclado, placar e o R
+- [ ] As funções ¤coletarMoeda¤, ¤colidirComInimigo¤ e ¤encerrarJogo¤
+- [ ] ¤atualizar()¤ e a linha final ¤new Phaser.Game(configuracao)¤
+
+> Faltou alguma coisa? Volte à trilha **"Motor Phaser: Construa o Pacman"**, abra a **Prática — Construa o Pacman no Phaser** e continue da etapa que falta. Depois volte aqui.`
+    },
+    {
+      titulo: 'Teste de aceitação',
+      corpo: `
+Rode o jogo pelo **Live Server** e jogue de verdade. Cada item é um caso de teste: só marque se o resultado obtido for **igual** ao esperado.
+
+- [ ] O jogo abre sem nenhuma mensagem vermelha no Console (F12)
+- [ ] O labirinto azul aparece, com moedas brancas nos espaços livres
+- [ ] O Pacman anda nas 4 direções, para nas paredes e para quando solto a tecla
+- [ ] O Pacman e os fantasmas animam (boca abrindo e fantasma flutuando)
+- [ ] Comer uma moeda soma 10 pontos e ela some
+- [ ] Encostar num fantasma mostra "Game Over"; comer todas as moedas mostra "Você venceu!"
+- [ ] Depois do fim, apertar R reinicia tudo do zero
+
+> Algum item falhou? A próxima etapa tem o guia de conserto.`
+    },
+    {
+      titulo: 'Guia de conserto',
+      corpo: `
+Procure o sintoma que você está vendo. Comece **sempre** pela mensagem vermelha do Console: ela diz o arquivo e a linha.
+
+| Sintoma | O que conferir |
+|---|---|
+| Tela preta | Mensagem do Console; ordem dos ¤<script>¤ no ¤game.html¤ |
+| "X is not defined" | Se a função X existe e tem o nome idêntico ao da ¤configuracao¤ |
+| Quadrado verde no lugar do sprite | Nome e pasta do PNG iguais ao do ¤this.load.spritesheet¤ |
+| Atravessa a parede | ¤this.physics.add.collider(jogador, paredes)¤ dentro do ¤criar()¤ |
+| Moeda empurra o Pacman | Moedas com ¤overlap¤, não ¤collider¤ |
+| Moeda soma várias vezes | ¤moeda.destroy()¤ no começo do ¤coletarMoeda¤ |
+| Anda depois do Game Over | ¤if (jogoTerminou) return;¤ no começo do ¤atualizar()¤ |
+| R não reinicia | O ¤keydown-R¤ no ¤criar()¤ e ¤jogoTerminou = false¤ no fim do ¤criar()¤ |
+
+- [ ] Todos os itens do teste de aceitação passando`
+    },
+    {
+      titulo: 'Técnica 1 — Constantes com nome',
+      corpo: `
+O seu ¤game.js¤ tem **números soltos** espalhados: ¤90¤ (velocidade dos fantasmas), ¤1500¤ (tempo para trocar de direção) e ¤10¤ (pontos da moeda). Quem lê não sabe o que eles significam, e para mudar a dificuldade é preciso caçar cada um.
+
+**1.** No topo do arquivo, logo abaixo de ¤let velocidade = 160;¤, crie as constantes:
+
+§§§javascript
+const VELOCIDADE_FANTASMA = 90;
+const TEMPO_TROCA_DIRECAO = 1500; // em milissegundos
+const PONTOS_POR_MOEDA = 10;
+§§§
+
+**2.** Troque cada número pelo nome:
+
+§§§javascript
+// no criar(), dentro do time.addEvent
+delay: TEMPO_TROCA_DIRECAO,
+
+// no coletarMoeda()
+pontuacao += PONTOS_POR_MOEDA;
+
+// no atualizar(), dentro do forEach dos inimigos
+inimigo.setVelocity(
+  inimigo.direcao.x * VELOCIDADE_FANTASMA,
+  inimigo.direcao.y * VELOCIDADE_FANTASMA
+);
+§§§
+
+**3.** Teste: mude ¤VELOCIDADE_FANTASMA¤ para ¤150¤, salve e jogue. Os fantasmas ficam mais rápidos? Volte para ¤90¤ (ou deixe do jeito que achar mais divertido).
+
+> Constante com nome é uma técnica de **código limpo**: o nome explica o número e a mudança acontece num lugar só.
+
+- [ ] As 3 constantes criadas no topo
+- [ ] Os números 90, 1500 e 10 trocados pelos nomes
+- [ ] Testei mudando a velocidade dos fantasmas`
+    },
+    {
+      titulo: 'Técnica 2 — Três vidas (se der tempo)',
+      corpo: `
+Hoje um toque num fantasma já encerra o jogo. Vamos dar **3 vidas** ao jogador: cada toque tira uma vida e volta o Pacman para o início; só com 0 vidas é "Game Over".
+
+**1.** No topo, junto das outras variáveis:
+
+§§§javascript
+let vidas = 3;
+let textoVidas;
+§§§
+
+**2.** No ¤criar()¤, logo abaixo do ¤textoPontuacao¤:
+
+§§§javascript
+  vidas = 3;
+  textoVidas = this.add.text(500, 460, 'Vidas: 3', { fontSize: '20px', fill: '#fff' });
+  textoVidas.setDepth(10);
+§§§
+
+**3.** Troque a função ¤colidirComInimigo¤ inteira por esta:
+
+§§§javascript
+function colidirComInimigo() {
+  vidas = vidas - 1;
+  textoVidas.setText('Vidas: ' + vidas);
+
+  if (vidas <= 0) {
+    encerrarJogo(this, 'Game Over');
+    return;
+  }
+  // volta pro ponto de partida
+  jogador.setPosition(tamanhoBloco * 1.5, tamanhoBloco * 1.5);
+}
+§§§
+
+- O ¤vidas = 3;¤ dentro do ¤criar()¤ faz o R reiniciar também as vidas.
+- O ¤return¤ encerra a função: com 0 vidas o Pacman não volta para o início.
+- Voltar o Pacman para longe do fantasma evita perder as 3 vidas no mesmo toque.
+
+- [ ] Placar de vidas aparecendo na tela
+- [ ] Encostar num fantasma tira 1 vida e volta o Pacman para o início
+- [ ] Com 0 vidas aparece "Game Over", e o R devolve as 3 vidas`
+    },
+  ];
+
+  function loadProgress() {
+    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || 'null'); } catch (e) { return null; }
+  }
+  function saveProgress(data) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(data)); }
+  function loadStepIndex() {
+    try {
+      const n = parseInt(localStorage.getItem(STEP_KEY), 10);
+      return Number.isInteger(n) && n >= 0 && n <= STEPS.length ? n : 0;
+    } catch (e) { return 0; }
+  }
+  function saveStepIndex(i) { try { localStorage.setItem(STEP_KEY, String(i)); } catch (e) {} }
+
+  const savedProgress = loadProgress();
+  let currentIndex = (savedProgress && savedProgress.completed) ? STEPS.length : loadStepIndex();
+
+  const stepWrap = document.getElementById('stepWrap');
+  const lblStepNum = document.getElementById('lblStepNum');
+  const progressFill = document.getElementById('progressFill');
+  document.getElementById('lblStepTotal').textContent = STEPS.length + 1;
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function inline(s) {
+    let t = escapeHtml(s);
+    t = t.replace(/¤([^¤]+)¤/g, '<code>$1</code>');
+    t = t.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    return t;
+  }
+
+  // Mesmo parser markdown-enxuto de cod-phaser-pratica.html.
+  function mdToHtml(md) {
+    const lines = md.replace(/\r\n/g, '\n').split('\n');
+    let html = '';
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i].trim();
+      if (line === '') { i++; continue; }
+
+      if (line.startsWith('§§§')) {
+        i++;
+        const codeLines = [];
+        while (i < lines.length && lines[i].trim() !== '§§§') { codeLines.push(lines[i]); i++; }
+        i++;
+        html += `<pre><code>${escapeHtml(codeLines.join('\n'))}</code></pre>`;
+        continue;
+      }
+
+      const hm = line.match(/^(#{1,6})\s+(.*)$/);
+      if (hm) {
+        const level = Math.min(hm[1].length + 2, 6);
+        html += `<h${level}>${inline(hm[2])}</h${level}>`;
+        i++; continue;
+      }
+
+      if (line.startsWith('|') && lines[i + 1] && /^\s*\|[\s:-]+\|/.test(lines[i + 1])) {
+        const headerCells = line.slice(1, -1).split('|').map(s => s.trim());
+        i += 2;
+        const rows = [];
+        while (i < lines.length && lines[i].trim().startsWith('|')) {
+          rows.push(lines[i].trim().slice(1, -1).split('|').map(s => s.trim()));
+          i++;
+        }
+        html += '<div class="md-table-wrap"><table class="md-table"><thead><tr>'
+          + headerCells.map(c => `<th>${inline(c)}</th>`).join('') + '</tr></thead><tbody>'
+          + rows.map(r => '<tr>' + r.map(c => `<td>${inline(c)}</td>`).join('') + '</tr>').join('')
+          + '</tbody></table></div>';
+        continue;
+      }
+
+      if (/^\d+\.\s+/.test(line)) {
+        const items = [];
+        while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) { items.push(lines[i].trim().replace(/^\d+\.\s+/, '')); i++; }
+        html += '<ol class="md-list">' + items.map(it => `<li>${inline(it)}</li>`).join('') + '</ol>';
+        continue;
+      }
+
+      if (/^-\s+/.test(line)) {
+        const items = [];
+        while (i < lines.length && /^-\s+/.test(lines[i].trim())) { items.push(lines[i].trim()); i++; }
+        html += '<ul class="md-list">' + items.map(it => {
+          const cbm = it.match(/^-\s+\[( |x)\]\s*(.*)$/i);
+          if (cbm) return `<li class="md-check">${inline(cbm[2])}</li>`;
+          return `<li>${inline(it.replace(/^-\s+/, ''))}</li>`;
+        }).join('') + '</ul>';
+        continue;
+      }
+
+      if (line.startsWith('>')) {
+        const q = [];
+        while (i < lines.length && lines[i].trim().startsWith('>')) { q.push(lines[i].trim().replace(/^>\s?/, '')); i++; }
+        html += `<blockquote>${inline(q.join(' '))}</blockquote>`;
+        continue;
+      }
+
+      const para = [];
+      while (i < lines.length && lines[i].trim() !== '' && !/^(§§§|#|\||-|\d+\.|>)/.test(lines[i].trim())) {
+        para.push(lines[i].trim());
+        i++;
+      }
+      html += `<p>${inline(para.join(' '))}</p>`;
+    }
+    return html;
+  }
+
+  function reportStep(label) {
+    if (typeof window.reportActivity === 'function') {
+      window.reportActivity(LOC, label, { step: currentIndex + 1, total: STEPS.length + 1 });
+    }
+  }
+
+  function renderNav(showBack, showNext) {
+    return `
+      <div class="ab-nav">
+        ${showBack ? '<button class="btn btn-secondary" id="btnBack">← Voltar</button>' : '<span></span>'}
+        <span class="ab-nav-dica">use ← → do teclado</span>
+        ${showNext ? '<button class="btn" id="btnNext">Próximo →</button>' : '<span></span>'}
+      </div>`;
+  }
+
+  let direcao = 1;
+  function irPara(i) {
+    direcao = i < currentIndex ? -1 : 1;
+    currentIndex = Math.max(0, Math.min(i, STEPS.length));
+    renderStep();
+  }
+  function mostrarEtapa() {
+    document.getElementById('palco').scrollTop = 0;
+    window.AulaBase.transicao(stepWrap.querySelector('.ab-cartao'), direcao);
+  }
+  window.AulaBase.teclado({
+    proximo: () => { const b = document.getElementById('btnNext'); if (b) b.click(); },
+    anterior: () => { const b = document.getElementById('btnBack'); if (b) b.click(); },
+  });
+
+  function renderStep() {
+    if (currentIndex >= STEPS.length) { renderVisto(); return; }
+    saveStepIndex(currentIndex);
+    progressFill.style.width = Math.min(Math.round((currentIndex / STEPS.length) * 100), 100) + '%';
+    lblStepNum.textContent = currentIndex + 1;
+
+    const step = STEPS[currentIndex];
+    reportStep(`Reta final — ${step.titulo}`);
+    stepWrap.innerHTML = `
+      <article class="ab-cartao">
+        <div class="ab-cartao-etapa">Etapa ${currentIndex + 1} de ${STEPS.length + 1}</div>
+        <h2>${escapeHtml(step.titulo)}</h2>
+        <div class="ab-conteudo">${mdToHtml(step.corpo)}</div>
+      </article>
+      ${renderNav(currentIndex > 0, true)}
+    `;
+    window.AulaBase.decorar(stepWrap, { chaveChecklist: `${LOC}_check_${username}_${currentIndex}` });
+    mostrarEtapa();
+    const btnBack = document.getElementById('btnBack');
+    if (btnBack) btnBack.addEventListener('click', () => irPara(currentIndex - 1));
+    document.getElementById('btnNext').addEventListener('click', () => irPara(currentIndex + 1));
+  }
+
+  function renderVisto() {
+    progressFill.style.width = '100%';
+    lblStepNum.textContent = STEPS.length + 1;
+    reportStep('Reta final — Visto do professor');
+
+    const already = loadProgress();
+    if (already && already.completed) {
+      const quando = already.vistoEm ? new Date(already.vistoEm).toLocaleString('pt-BR') : '';
+      stepWrap.innerHTML = `
+        <div class="ab-cartao ab-concluida">
+          <h2>✅ Pacman concluído</h2>
+          <p>Visto dado por <b>${escapeHtml(already.vistoPor || '')}</b>${quando ? ' em ' + escapeHtml(quando) : ''}.</p>
+        </div>
+        ${renderNav(true, false)}
+      `;
+      mostrarEtapa();
+      document.getElementById('btnBack').addEventListener('click', () => irPara(STEPS.length - 1));
+      return;
+    }
+
+    stepWrap.innerHTML = `
+      <div class="ab-cartao">
+        <div class="ab-cartao-etapa">Etapa ${STEPS.length + 1} de ${STEPS.length + 1}</div>
+        <h2>🧑‍🏫 Etapa final — Visto do professor</h2>
+        <div class="ab-conteudo">
+          <p>O seu Pacman passa em <b>todos</b> os itens do teste de aceitação e o código usa as <b>constantes com nome</b> (VELOCIDADE_FANTASMA, TEMPO_TROCA_DIRECAO e PONTOS_POR_MOEDA)?</p>
+          <p>Chame o professor, mostre o jogo rodando pelo Live Server e o trecho do <code>game.js</code> com as constantes. Se fez as 3 vidas, mostre também. Quando ele confirmar, peça o token de professor e digite abaixo.</p>
+        </div>
+        <div class="ab-form">
+          <label>Token do professor
+            <input type="text" id="vistoToken" inputmode="numeric" maxlength="6" autocomplete="off">
+          </label>
+          <button class="btn" id="btnDarVisto">Dar visto</button>
+          <div class="ab-msg" id="vistoMsg" style="display:none;"></div>
+        </div>
+      </div>
+      ${renderNav(true, false)}
+    `;
+    mostrarEtapa();
+    document.getElementById('btnBack').addEventListener('click', () => irPara(STEPS.length - 1));
+
+    const btnDarVisto = document.getElementById('btnDarVisto');
+    const vistoMsg = document.getElementById('vistoMsg');
+    btnDarVisto.addEventListener('click', async () => {
+      const t = document.getElementById('vistoToken').value;
+      vistoMsg.style.display = 'none';
+      if (!t) {
+        vistoMsg.className = 'ab-msg erro';
+        vistoMsg.textContent = 'Informe o token do professor.';
+        vistoMsg.style.display = 'block';
+        return;
+      }
+      btnDarVisto.disabled = true;
+      btnDarVisto.textContent = 'Verificando...';
+      try {
+        const result = window.PortalProfessorVisto
+          ? await window.PortalProfessorVisto.verificarToken(t)
+          : { ok: false, erro: 'Verificação indisponível nesta tela.' };
+        if (!result.ok) {
+          vistoMsg.className = 'ab-msg erro';
+          vistoMsg.textContent = result.erro;
+          vistoMsg.style.display = 'block';
+          btnDarVisto.disabled = false;
+          btnDarVisto.textContent = 'Dar visto';
+          return;
+        }
+        saveProgress({ completed: true, vistoPor: result.nome, vistoEm: new Date().toISOString() });
+        renderVisto();
+      } catch (e) {
+        vistoMsg.className = 'ab-msg erro';
+        vistoMsg.textContent = 'Erro inesperado ao verificar. Tente de novo.';
+        vistoMsg.style.display = 'block';
+        btnDarVisto.disabled = false;
+        btnDarVisto.textContent = 'Dar visto';
+      }
+    });
+  }
+
+  // Gabarito = checklist pra o professor conferir o projeto na tela do aluno.
+  window.generateGabaritoForGestao = function () {
+    return window.PortalGabarito.generate({
+      title: 'Codificação — Pacman: Reta Final — Checklist de correção',
+      subtitle: 'Roteiro prático (projeto Phaser no Codespace, verificado presencialmente) · Codificação de Jogos · Turma Jogos Digitais',
+      items: [
+        { number: 1, title: 'Jogo completo', prompt: 'O Pacman roda pelo Live Server sem erro no Console e passa nos 7 itens do teste de aceitação (labirinto, movimento, animações, moedas, Game Over/vitória, R)?', answer: 'Mesmo checklist da Prática — Construa o Pacman no Phaser: collider com paredes, overlap com moedas e fantasmas, moeda.destroy(), jogoTerminou e keydown-R com scene.restart().' },
+        { number: 2, title: 'Constantes com nome', prompt: 'O game.js declara VELOCIDADE_FANTASMA, TEMPO_TROCA_DIRECAO e PONTOS_POR_MOEDA no topo e usa os nomes no lugar de 90, 1500 e 10?', answer: 'delay: TEMPO_TROCA_DIRECAO no time.addEvent; pontuacao += PONTOS_POR_MOEDA em coletarMoeda; setVelocity(direcao.x * VELOCIDADE_FANTASMA, direcao.y * VELOCIDADE_FANTASMA) em atualizar.' },
+        { number: 3, title: 'Três vidas (opcional)', prompt: 'Encostar num fantasma tira 1 vida e volta o Pacman ao início; com 0 vidas aparece Game Over; o R devolve as 3 vidas?', answer: 'let vidas/textoVidas no topo; vidas = 3 e textoVidas no criar(); colidirComInimigo decrementa, atualiza o texto, chama encerrarJogo com vidas <= 0 e senão jogador.setPosition(tamanhoBloco * 1.5, tamanhoBloco * 1.5).' },
+      ],
+      fileName: 'cod-phaser-final-pratica-checklist.txt',
+    });
+  };
+
+  renderStep();
+</script>
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

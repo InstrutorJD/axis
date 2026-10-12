@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mundo do Trabalho — Feira de Profissões</title>
+<!-- Padrão novo de trilhas (docs/padrao-trilhas.md): visual base
+     compartilhado. Prática em casos: cada caso pede DUAS escolhas (a
+     resposta e o motivo); as duas precisam estar certas. Errou: dica que
+     aponta o raciocínio, sem dar a resposta, e pode tentar de novo.
+     Progresso = lista de ids dos casos resolvidos (progressTotal no
+     config.js = número de casos). Mesmo formato de
+     turmas/sistemas/atividades/bd-nosql-consultoria.html. -->
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<style>
+  
+  /* Específico deste exercício: os dois grupos de escolha de cada caso. */
+  .cs-caso{ display:flex; gap:14px; align-items:flex-start; margin-bottom:16px; }
+  .cs-avatar{ font-size:40px; line-height:1; flex-shrink:0; }
+  .cs-caso pre{ margin:10px 0 0; }
+  .cs-grupo{ margin:18px 0 8px; font-size:11px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase; color:var(--ab-acento); }
+  .cs-opcoes{ display:flex; flex-wrap:wrap; gap:8px; }
+  .cs-opcoes.cs-motivos{ flex-direction:column; }
+  .cs-op{ display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:var(--panel2); transition:border-color .2s, background .2s; }
+  .cs-op:hover{ border-color:var(--green-dim); }
+  .cs-op input{ accent-color:var(--green); margin:0; flex-shrink:0; }
+  .cs-op:has(input:checked){ border-color:var(--green); background:color-mix(in srgb, var(--green) 10%, transparent); }
+  .cs-acoes{ display:flex; align-items:center; gap:12px; margin-top:18px; flex-wrap:wrap; }
+  .cs-acoes .ab-msg{ flex:1; min-width:220px; }
+  .cs-placar{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  .cs-placar span{ font-family:var(--ab-mono); font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--ink-dim); }
+  .cs-placar span.ok{ border-color:var(--ok); color:var(--ok); }
+</style>
+<script>
+  window.ACTIVITY_LOCATION = 'mundo_profissoes_pratica';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Mundo do Trabalho — Feira de Profissões</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">10</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+(function () {
+  const LOC = 'mundo_profissoes_pratica';
+  const user = new URLSearchParams(location.search).get('user') || 'anon';
+  const PROGRESS_KEY = `${LOC}_progress_${user}`;
+  const STEP_KEY = `${LOC}_step_${user}`;
+
+  // Cada caso: a profissão certa + 3 motivos (1 certo, ligado a uma
+  // característica da teoria: atividades, formação, competências, ambiente,
+  // regulamentação, mercado/carreira). A dica aponta a pista, não a resposta.
+  const DADOS = {
+    nome: 'Feira de Profissões',
+    subtitulo: 'Prática · Trilha Características das Profissões · Mundo do Trabalho · Turmas Sistemas e Jogos',
+    rotuloCaso: 'Estande',
+    botao: 'Enviar resposta',
+    acerto: '✅ Isso! Você identificou a profissão pelas características certas.',
+    pergunta1: 'Qual é a profissão?',
+    pergunta2: 'Qual característica mais ajudou a identificar?',
+    opcoes: ['Desenvolvedor(a) de software', 'Analista de testes (QA)', 'Game designer', 'Técnico(a) de redes e suporte', 'Designer de UX', 'Médico(a)'],
+    abertura: {
+      titulo: 'Bem-vindo(a) à Feira de Profissões',
+      html: `
+        <p>Oito profissionais montaram estandes, mas esqueceram de colocar a placa com o nome da profissão. Em cada estande, você vai:</p>
+        <ol>
+          <li>Ler a descrição do dia a dia (os detalhes em <b>negrito</b> importam)</li>
+          <li>Escolher a <b>profissão</b></li>
+          <li>Escolher a <b>característica</b> que mais denuncia essa profissão</li>
+        </ol>
+        <blockquote>As duas escolhas precisam estar certas. Se errar, você recebe uma dica e tenta de novo. Tempo sugerido: <b>20 minutos</b>.</blockquote>`,
+    },
+    fechamento: {
+      titulo: '✅ Feira concluída!',
+      html: `
+        <p>Você identificou os oito profissionais. Repare que nenhuma profissão foi reconhecida pelo <b>nome do cargo</b>: foram as atividades, a formação, o ambiente e as regras que entregaram cada uma.</p>
+        <p>Para pensar: qual desses estandes mais combina com você, e qual característica dele pesou na sua escolha?</p>`,
+    },
+    casos: [
+      {
+        id: 'dev', avatar: '💻', titulo: 'Estande 1 — "Eu transformo pedidos em código"',
+        cenario: '<p>Passo o dia <b>escrevendo e revisando código</b> em JavaScript, <b>criando telas e funções</b> que o cliente pediu e corrigindo erros que aparecem. Uso Git todo dia e trabalho num time que se reúne rapidinho toda manhã.</p>',
+        certa: 'Desenvolvedor(a) de software',
+        motivos: [
+          { t: 'As atividades principais: escrever, revisar e corrigir código', ok: true },
+          { t: 'A regulamentação: só trabalha quem tem registro no conselho' },
+          { t: 'O ambiente: atende pacientes num consultório o dia todo' },
+        ],
+        dica: 'Releia o que a pessoa FAZ no dia a dia. Qual profissão tem isso como atividade central?',
+      },
+      {
+        id: 'qa', avatar: '🔍', titulo: 'Estande 2 — "Eu procuro problemas antes do cliente"',
+        cenario: '<p>Antes de cada versão sair, eu <b>executo roteiros de teste</b>, comparo o resultado <b>esperado com o obtido</b> e <b>registro cada bug</b> com os passos para repetir. Preciso ser muito detalhista e saber explicar o problema sem culpar ninguém.</p>',
+        certa: 'Analista de testes (QA)',
+        motivos: [
+          { t: 'A formação: exige graduação em medicina e residência' },
+          { t: 'As atividades: executar testes e registrar defeitos encontrados', ok: true },
+          { t: 'A carreira: só existe o cargo de sênior nessa área' },
+        ],
+        dica: 'O que essa pessoa entrega no fim do dia não é código nem arte: é informação sobre problemas. Que profissão faz isso?',
+      },
+      {
+        id: 'game', avatar: '🎮', titulo: 'Estande 3 — "Eu invento as regras da diversão"',
+        cenario: '<p>Eu escrevo o <b>documento de design do jogo</b> (GDD), defino <b>mecânicas, fases e regras</b> e ajusto a dificuldade depois de ver gente jogando. Converso o tempo todo com programadores e artistas para a ideia sair do papel.</p>',
+        certa: 'Game designer',
+        motivos: [
+          { t: 'A competência técnica de montar e configurar redes de computadores' },
+          { t: 'A regulamentação por lei, que exige registro para criar jogos' },
+          { t: 'As atividades de definir mecânicas, regras e fases do jogo', ok: true },
+        ],
+        dica: 'GDD, mecânicas e dificuldade são do mesmo universo. Quem é responsável por como o jogo funciona, e não por programá-lo?',
+      },
+      {
+        id: 'redes', avatar: '🌐', titulo: 'Estande 4 — "Quando a internet cai, me chamam"',
+        cenario: '<p>Eu <b>instalo e configuro roteadores e switches</b>, passo cabos, <b>atendo chamados</b> de quem está sem acesso e troco peças. Trabalho muito <b>em pé, indo de sala em sala</b>, e às vezes em plantão fora do horário.</p>',
+        certa: 'Técnico(a) de redes e suporte',
+        motivos: [
+          { t: 'O ambiente: trabalho de campo, indo até os equipamentos e usuários', ok: true },
+          { t: 'A formação: precisa de registro em conselho de medicina' },
+          { t: 'As atividades: desenhar fases e personagens de jogos' },
+        ],
+        dica: 'Repare em ONDE e COMO essa pessoa trabalha: ela fica parada numa mesa ou vai até os equipamentos?',
+      },
+      {
+        id: 'ux', avatar: '🧭', titulo: 'Estande 5 — "Eu falo com quem usa o app"',
+        cenario: '<p>Eu <b>entrevisto usuários</b>, observo onde eles se perdem no app e desenho <b>protótipos de telas</b> no Figma. Preciso de <b>empatia e boa comunicação</b> para entender o que as pessoas sentem ao usar o sistema.</p>',
+        certa: 'Designer de UX',
+        motivos: [
+          { t: 'A competência técnica de escrever consultas em SQL todos os dias' },
+          { t: 'As competências: empatia e comunicação para entender o usuário', ok: true },
+          { t: 'A regulamentação: só pode atuar com registro no CREA' },
+        ],
+        dica: 'Que competências a pessoa diz que precisa? Elas apontam para alguém que estuda a experiência de quem usa o sistema.',
+      },
+      {
+        id: 'medico', avatar: '🩺', titulo: 'Estande 6 — "Sem o registro, eu não posso trabalhar"',
+        cenario: '<p>Fiz uma <b>graduação de seis anos</b> e residência. Para atender, preciso de <b>registro no conselho regional</b> da minha categoria, e a lei define o que só eu posso fazer. Uso sistemas de computador, mas não é com eles que eu trabalho.</p>',
+        certa: 'Médico(a)',
+        motivos: [
+          { t: 'O mercado: entra como jovem aprendiz aos 14 anos' },
+          { t: 'As atividades: programar sistemas de prontuário eletrônico' },
+          { t: 'A regulamentação: lei própria e registro obrigatório em conselho', ok: true },
+        ],
+        dica: 'A pista mais forte não é a tecnologia: é o que a pessoa PRECISA ter, por lei, para poder trabalhar.',
+      },
+      {
+        id: 'dev-junior', avatar: '🌱', titulo: 'Estande 7 — "Meu primeiro emprego na área"',
+        cenario: '<p>Tenho 17 anos e faço o técnico. Na empresa, eu <b>corrijo pequenos erros no código</b> e crio telas simples, sempre com um <b>colega mais experiente revisando</b>. Meu contrato é de <b>aprendiz</b>: parte do tempo trabalho, parte estudo.</p>',
+        certa: 'Desenvolvedor(a) de software',
+        motivos: [
+          { t: 'O mercado e a carreira: entrada como aprendiz, no nível júnior', ok: true },
+          { t: 'A regulamentação: precisa de registro para mexer em código' },
+          { t: 'O ambiente: trabalho de campo, trocando peças e passando cabos' },
+        ],
+        dica: 'Duas pistas juntas: o que a pessoa faz (atividade) e a forma como ela entrou nessa profissão. Qual das características fala da entrada no mercado?',
+      },
+      {
+        id: 'qa-jogos', avatar: '🕹️', titulo: 'Estande 8 — "Eu jogo a mesma fase 50 vezes"',
+        cenario: '<p>Trabalho num estúdio de jogos. Jogo <b>a mesma fase dezenas de vezes</b> tentando quebrar o jogo, anoto <b>quando o personagem atravessa a parede</b> e confiro se cada correção não estragou outra coisa. Paciência é minha principal ferramenta.</p>',
+        certa: 'Analista de testes (QA)',
+        motivos: [
+          { t: 'As atividades: criar as regras e mecânicas da fase' },
+          { t: 'As atividades: testar repetidamente e registrar falhas do jogo', ok: true },
+          { t: 'A formação: graduação longa com residência obrigatória' },
+        ],
+        dica: 'Trabalhar num estúdio de jogos não faz de todo mundo um game designer. O que essa pessoa entrega: regras novas ou falhas encontradas?',
+      },
+    ],
+  };
+
+  const CASOS = DADOS.casos;
+  const TOTAL = CASOS.length + 2; // abertura + casos + fechamento
+  const stepWrap = document.getElementById('stepWrap');
+
+  function lerResolvidos() {
+    try { const a = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+  function salvarResolvidos(a) { try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(a)); } catch (e) {} }
+  function lerEtapa() {
+    try { const n = parseInt(localStorage.getItem(STEP_KEY), 10); return n >= 0 && n < TOTAL ? n : 0; } catch (e) { return 0; }
+  }
+  function salvarEtapa(n) { try { localStorage.setItem(STEP_KEY, String(n)); } catch (e) {} }
+  function reportar(rotulo) {
+    if (typeof window.reportActivity === 'function') {
+      window.reportActivity(LOC, rotulo, { step: atual + 1, total: TOTAL, resolvidos: lerResolvidos().length });
+    }
+  }
+
+  let atual = lerEtapa();
+  let direcao = 1;
+
+  function nav(voltar, avancar) {
+    return `
+      <div class="ab-nav">
+        ${voltar ? '<button class="btn btn-secondary" id="btnBack">← Voltar</button>' : '<span></span>'}
+        <span class="ab-nav-dica">use ← → do teclado</span>
+        ${avancar ? '<button class="btn" id="btnNext">Próximo →</button>' : '<span></span>'}
+      </div>`;
+  }
+  function irPara(i) {
+    direcao = i < atual ? -1 : 1;
+    atual = Math.max(0, Math.min(i, TOTAL - 1));
+    salvarEtapa(atual);
+    render();
+  }
+  function ligarNav() {
+    const b = document.getElementById('btnBack');
+    if (b) b.addEventListener('click', () => irPara(atual - 1));
+    const n = document.getElementById('btnNext');
+    if (n) n.addEventListener('click', () => irPara(atual + 1));
+    document.getElementById('palco').scrollTop = 0;
+    window.AulaBase.decorar(stepWrap, {});
+    window.AulaBase.transicao(stepWrap.querySelector('.ab-cartao'), direcao);
+  }
+
+  function placar() {
+    const feitos = lerResolvidos();
+    return `<div class="cs-placar">${CASOS.map((c, i) => `<span class="${feitos.includes(c.id) ? 'ok' : ''}">${feitos.includes(c.id) ? '✔' : i + 1} ${c.avatar}</span>`).join('')}</div>`;
+  }
+
+  function render() {
+    document.getElementById('lblStepNum').textContent = atual + 1;
+    document.getElementById('lblStepTotal').textContent = TOTAL;
+    document.getElementById('progressFill').style.width = Math.round((lerResolvidos().length / CASOS.length) * 100) + '%';
+
+    if (atual === 0) {
+      reportar(`${DADOS.nome} — Abertura`);
+      stepWrap.innerHTML = `
+        <article class="ab-cartao">
+          <div class="ab-cartao-etapa">Etapa 1 de ${TOTAL}</div>
+          <h2>${DADOS.abertura.titulo}</h2>
+          <div class="ab-conteudo">${DADOS.abertura.html}</div>
+          ${placar()}
+        </article>
+        ${nav(false, true)}`;
+      ligarNav();
+      return;
+    }
+
+    if (atual === TOTAL - 1) {
+      const feitos = lerResolvidos().length;
+      reportar(`${DADOS.nome} — Fechamento (${feitos}/${CASOS.length})`);
+      const pronto = feitos >= CASOS.length;
+      stepWrap.innerHTML = `
+        <article class="ab-cartao ${pronto ? 'ab-concluida' : ''}">
+          <div class="ab-cartao-etapa">Etapa ${TOTAL} de ${TOTAL}</div>
+          <h2>${pronto ? DADOS.fechamento.titulo : 'Ainda faltam casos'}</h2>
+          <div class="ab-conteudo">
+            ${pronto ? DADOS.fechamento.html : `<p>Você resolveu ${feitos} de ${CASOS.length}. Volte aos casos que ainda não têm ✔.</p>`}
+          </div>
+          ${placar()}
+        </article>
+        ${nav(true, false)}`;
+      ligarNav();
+      return;
+    }
+
+    renderCaso(CASOS[atual - 1]);
+  }
+
+  function renderCaso(caso) {
+    const resolvido = lerResolvidos().includes(caso.id);
+    reportar(`${DADOS.nome} — ${caso.titulo}${resolvido ? ' (resolvido)' : ''}`);
+    const g1 = caso.opcoes || DADOS.opcoes;
+    stepWrap.innerHTML = `
+      <article class="ab-cartao">
+        <div class="ab-cartao-etapa">${DADOS.rotuloCaso} ${atual} de ${CASOS.length}</div>
+        <h2>${caso.titulo}</h2>
+        <div class="ab-conteudo">
+          <div class="cs-caso"><div class="cs-avatar">${caso.avatar}</div><div>${caso.cenario}</div></div>
+        </div>
+        <div class="cs-grupo">1. ${caso.pergunta1 || DADOS.pergunta1}</div>
+        <div class="cs-opcoes" id="csG1">
+          ${g1.map(a => `<label class="cs-op"><input type="radio" name="g1" value="${a}" ${resolvido && a === caso.certa ? 'checked' : ''}>${a}</label>`).join('')}
+        </div>
+        <div class="cs-grupo">2. ${caso.pergunta2 || DADOS.pergunta2}</div>
+        <div class="cs-opcoes cs-motivos" id="csG2">
+          ${caso.motivos.map((m, i) => `<label class="cs-op"><input type="radio" name="g2" value="${i}" ${resolvido && m.ok ? 'checked' : ''}>${m.t}</label>`).join('')}
+        </div>
+        <div class="cs-acoes">
+          <button class="btn" id="btnVerificar">${resolvido ? '✔ Resolvido' : DADOS.botao}</button>
+          <div class="ab-msg" id="csMsg" style="display:none;"></div>
+        </div>
+      </article>
+      ${nav(true, true)}`;
+    ligarNav();
+    const btn = document.getElementById('btnVerificar');
+    const msg = document.getElementById('csMsg');
+    if (resolvido) { btn.disabled = true; return; }
+    btn.addEventListener('click', () => {
+      const r1 = (stepWrap.querySelector('input[name="g1"]:checked') || {}).value;
+      const r2 = (stepWrap.querySelector('input[name="g2"]:checked') || {}).value;
+      msg.style.display = 'block';
+      if (!r1 || r2 === undefined) {
+        msg.className = 'ab-msg erro';
+        msg.textContent = 'Responda as duas perguntas antes de enviar.';
+        return;
+      }
+      const ok1 = r1 === caso.certa;
+      const ok2 = !!caso.motivos[parseInt(r2, 10)].ok;
+      if (ok1 && ok2) {
+        const feitos = lerResolvidos();
+        if (!feitos.includes(caso.id)) { feitos.push(caso.id); salvarResolvidos(feitos); }
+        reportar(`${DADOS.nome} — ${caso.titulo} (resolvido)`);
+        msg.className = 'ab-msg ok';
+        msg.textContent = DADOS.acerto;
+        btn.disabled = true;
+        btn.textContent = '✔ Resolvido';
+        document.getElementById('progressFill').style.width = Math.round((feitos.length / CASOS.length) * 100) + '%';
+        return;
+      }
+      msg.className = 'ab-msg erro';
+      msg.textContent = ok1
+        ? '⚠️ A primeira escolha está certa, mas esse motivo não se aplica a este caso. Releia o cenário.'
+        : `❌ Ainda não. Dica: ${caso.dica}`;
+    });
+  }
+
+  window.generateGabaritoForGestao = function () {
+    return window.PortalGabarito.generate({
+      title: 'Mundo do Trabalho — Feira de Profissões',
+      subtitle: DADOS.subtitulo,
+      items: CASOS.map((c, i) => ({
+        number: i + 1,
+        title: c.titulo,
+        prompt: `${c.cenario.replace(/<[^>]+>/g, '')} ${c.pergunta1 || DADOS.pergunta1}`,
+        answer: `${c.certa} — ${c.motivos.find(m => m.ok).t}`,
+      })),
+      fileName: 'mundo-profissoes-pratica-gabarito.txt',
+    });
+  };
+
+  window.AulaBase.teclado({
+    proximo: () => { const b = document.getElementById('btnNext'); if (b) b.click(); },
+    anterior: () => { const b = document.getElementById('btnBack'); if (b) b.click(); },
+  });
+
+  render();
+})();
+</script>
+
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

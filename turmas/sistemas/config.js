@@ -955,6 +955,33 @@ window.TURMA_CONFIG_SISTEMAS = {
               requires: 'teoria', hasGabarito: true
             }
           ]
+        },
+        {
+          // Mundo do Trabalho 4.0 — FO de 13/10. Trilha COMPARTILHADA entre
+          // Sistemas e Jogos: os arquivos ficam em turmas/sistemas/ e o
+          // config.js de Jogos aponta pra eles.
+          // Estimativa: teoria ~45 min, prática ~30 min.
+          key: 'mundo-profissoes',
+          label: 'Características das Profissões',
+          desc: 'Profissão, ocupação e cargo; CBO; atividades, formação, competências, ambiente, regulamentação, formas de contratação e carreira.',
+          capacidade: 'Identificar as características das profissões',
+          dataAula: '2026-10-13',
+          modules: [
+            {
+              key: 'teoria', title: 'Teoria — Características das Profissões',
+              desc: 'Profissão × ocupação × cargo, a CBO, competências técnicas e socioemocionais, profissões regulamentadas, aprendiz/estágio/CLT/PJ e júnior/pleno/sênior.',
+              icon: '📖', src: 'atividades/mundo-profissoes-teoria.html', telaCheia: true,
+              progressKey: 'mundo_profissoes_teoria_progress_', progressMode: 'flag',
+              hasGabarito: true
+            },
+            {
+              key: 'pratica', title: 'Prática — Feira de Profissões',
+              desc: 'Oito estandes sem placa: identifique a profissão e a característica que a denuncia.',
+              icon: '🎪', src: 'atividades/mundo-profissoes-pratica.html', telaCheia: true,
+              progressKey: 'mundo_profissoes_pratica_progress_', progressTotal: 8,
+              requires: 'teoria', hasGabarito: true
+            }
+          ]
         }
       ]
     },
@@ -1038,6 +1065,31 @@ window.TURMA_CONFIG_SISTEMAS = {
               icon: '🔐', src: 'atividades/prog-conexao-segura-trabalho.html',
               progressKey: 'prog_conexao_segura_trabalho_progress_', progressMode: 'flag',
               hasGabarito: true
+            }
+          ]
+        },
+        {
+          // Programação de Aplicativos — FO de 13/10. Usa o FinancApp como
+          // contexto. Estimativa: teoria ~45 min, prática ~30 min.
+          key: 'prog-comentarios',
+          label: 'Comentários e Documentação do Código',
+          desc: 'Comentários de linha e de bloco, o porquê × o quê, comentário desatualizado, nomes e constantes, JSDoc e marcadores TODO/FIXME.',
+          capacidade: 'Empregar comentários para documentação do código fonte',
+          dataAula: '2026-10-13',
+          modules: [
+            {
+              key: 'teoria', title: 'Teoria — Comentários e Documentação do Código',
+              desc: '// e /* */, comentário útil × redundante × desatualizado, constantes com nome, JSDoc (@param/@returns) e TODO/FIXME.',
+              icon: '📖', src: 'atividades/prog-comentarios-teoria.html', telaCheia: true,
+              progressKey: 'prog_comentarios_teoria_progress_', progressMode: 'flag',
+              hasGabarito: true
+            },
+            {
+              key: 'pratica', title: 'Prática — Revisão de Comentários',
+              desc: 'Revise os comentários de oito trechos do FinancApp: diga como está cada um e escolha a melhor correção.',
+              icon: '🔎', src: 'atividades/prog-comentarios-pratica.html', telaCheia: true,
+              progressKey: 'prog_comentarios_pratica_progress_', progressTotal: 8,
+              requires: 'teoria', hasGabarito: true
             }
           ]
         }

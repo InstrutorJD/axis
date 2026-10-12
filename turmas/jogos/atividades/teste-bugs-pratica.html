@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testes de Jogos — Sessão de Testes</title>
+<!-- Padrão novo de trilhas (docs/padrao-trilhas.md): visual base
+     compartilhado. Prática em casos: cada caso pede DUAS escolhas (a
+     resposta e o motivo); as duas precisam estar certas. Errou: dica que
+     aponta o raciocínio, sem dar a resposta, e pode tentar de novo.
+     Progresso = lista de ids dos casos resolvidos (progressTotal no
+     config.js = número de casos). Mesmo formato de
+     turmas/sistemas/atividades/bd-nosql-consultoria.html. -->
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<style>
+  
+  /* Específico deste exercício: os dois grupos de escolha de cada caso. */
+  .cs-caso{ display:flex; gap:14px; align-items:flex-start; margin-bottom:16px; }
+  .cs-avatar{ font-size:40px; line-height:1; flex-shrink:0; }
+  .cs-caso pre{ margin:10px 0 0; }
+  .cs-grupo{ margin:18px 0 8px; font-size:11px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase; color:var(--ab-acento); }
+  .cs-opcoes{ display:flex; flex-wrap:wrap; gap:8px; }
+  .cs-opcoes.cs-motivos{ flex-direction:column; }
+  .cs-op{ display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:var(--panel2); transition:border-color .2s, background .2s; }
+  .cs-op:hover{ border-color:var(--green-dim); }
+  .cs-op input{ accent-color:var(--green); margin:0; flex-shrink:0; }
+  .cs-op:has(input:checked){ border-color:var(--green); background:color-mix(in srgb, var(--green) 10%, transparent); }
+  .cs-acoes{ display:flex; align-items:center; gap:12px; margin-top:18px; flex-wrap:wrap; }
+  .cs-acoes .ab-msg{ flex:1; min-width:220px; }
+  .cs-placar{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  .cs-placar span{ font-family:var(--ab-mono); font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--ink-dim); }
+  .cs-placar span.ok{ border-color:var(--ok); color:var(--ok); }
+</style>
+<script>
+  window.ACTIVITY_LOCATION = 'teste_bugs_pratica';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Testes de Jogos — Sessão de Testes</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">10</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+(function () {
+  const LOC = 'teste_bugs_pratica';
+  const user = new URLSearchParams(location.search).get('user') || 'anon';
+  const PROGRESS_KEY = `${LOC}_progress_${user}`;
+  const STEP_KEY = `${LOC}_step_${user}`;
+
+  // Cada caso: um caso de teste executado no jogo fictício Coin Runner, com
+  // esperado × obtido. 1ª escolha: o tipo do problema (ou "sem defeito");
+  // 2ª: a gravidade/conduta certa (1 certa). A dica aponta o raciocínio.
+  const DADOS = {
+    nome: 'Sessão de Testes',
+    subtitulo: 'Prática · Trilha Caçando Bugs com Testes · Testes de Jogos Digitais · Turma Jogos',
+    rotuloCaso: 'Caso de teste',
+    botao: 'Registrar resultado',
+    acerto: '✅ Registro aceito pelo time de desenvolvimento!',
+    pergunta1: 'O que o teste encontrou?',
+    pergunta2: 'Como registrar no relatório?',
+    opcoes: ['Bug funcional', 'Bug visual', 'Bug de desempenho', 'Bug de compatibilidade', 'Regressão', 'Sem defeito (aprovado)'],
+    abertura: {
+      titulo: 'Sessão de testes: Coin Runner v1.3',
+      html: `
+        <p>O estúdio vai lançar a versão 1.3 do <b>Coin Runner</b>, um jogo 2D de pegar moedas e fugir de inimigos. Você é do time de QA e executou oito casos de teste. Em cada um:</p>
+        <ol>
+          <li>Compare o <b>resultado esperado</b> com o <b>obtido</b></li>
+          <li>Diga o que o teste encontrou: o <b>tipo do bug</b>, ou se o teste foi <b>aprovado</b></li>
+          <li>Escolha como isso vai para o <b>relatório</b></li>
+        </ol>
+        <blockquote>As duas escolhas precisam estar certas. Se errar, você recebe uma dica e tenta de novo. Tempo sugerido: <b>20 minutos</b>.</blockquote>`,
+    },
+    fechamento: {
+      titulo: '✅ Sessão de testes concluída!',
+      html: `
+        <p>Você executou os oito casos. Repare que nem todo caso termina em bug: comparar com o <b>esperado</b> é o que separa defeito de comportamento correto.</p>
+        <p>Desafio extra: escolha um bug do seu Pacman (ou de um colega) e escreva o relatório completo: título, passos, esperado × obtido, frequência, ambiente e gravidade.</p>`,
+    },
+    casos: [
+      {
+        id: 'placar', avatar: '🪙', titulo: 'CT-01 — Pegar moeda',
+        cenario: `<p><b>Passos:</b> abrir a fase 1 e encostar numa moeda.<br><b>Esperado:</b> a moeda some e o placar soma 10.<br><b>Obtido:</b> a moeda some, mas o placar <b>continua em 0</b>. Aconteceu em <b>10 de 10</b> tentativas.</p>`,
+        certa: 'Bug funcional',
+        motivos: [
+          { t: 'Gravidade alta: quebra a regra principal do jogo, sempre', ok: true },
+          { t: 'Gravidade baixa: é só um número na tela, ninguém percebe' },
+          { t: 'Não relatar: a moeda sumiu, então o teste passou' },
+        ],
+        dica: 'O que deixou de acontecer é uma REGRA do jogo ou um detalhe de aparência? E com que frequência acontece?',
+      },
+      {
+        id: 'sprite', avatar: '🎨', titulo: 'CT-02 — Animação do inimigo',
+        cenario: `<p><b>Passos:</b> esperar um inimigo andar para a esquerda.<br><b>Esperado:</b> o sprite vira para a esquerda.<br><b>Obtido:</b> ele anda para a esquerda, mas <b>olhando para a direita</b>. O jogo continua normal.</p>`,
+        certa: 'Bug visual',
+        motivos: [
+          { t: 'Gravidade crítica: impede o jogador de continuar a partida' },
+          { t: 'Gravidade baixa: só a aparência está errada, o jogo funciona', ok: true },
+          { t: 'Gravidade alta: o inimigo atravessa paredes do cenário' },
+        ],
+        dica: 'O inimigo se move e colide certo? O que está errado é o que ele FAZ ou como ele APARECE?',
+      },
+      {
+        id: 'fps', avatar: '🐢', titulo: 'CT-03 — Fase 4 cheia de inimigos',
+        cenario: `<p><b>Passos:</b> jogar a fase 4, que tem 30 inimigos na tela.<br><b>Esperado:</b> 60 quadros por segundo (FPS).<br><b>Obtido:</b> o jogo cai para <b>15 FPS</b> e o personagem anda aos trancos. Nas outras fases, 60 FPS.</p>`,
+        certa: 'Bug de desempenho',
+        motivos: [
+          { t: 'Registrar só "a fase 4 está estranha", sem número' },
+          { t: 'Registrar que o placar não soma na fase 4' },
+          { t: 'Registrar o FPS medido e a quantidade de inimigos na fase', ok: true },
+        ],
+        dica: 'O jogo faz as coisas certas, só que devagar. Que informação ajuda o programador a medir e repetir isso?',
+      },
+      {
+        id: 'safari', avatar: '📱', titulo: 'CT-04 — Jogar no celular',
+        cenario: `<p><b>Passos:</b> abrir o jogo no navegador do celular e tocar em "Jogar".<br><b>Esperado:</b> a partida começa.<br><b>Obtido:</b> no <b>iPhone (Safari)</b> o botão não responde; no <b>Android (Chrome)</b> e no computador funciona.</p>`,
+        certa: 'Bug de compatibilidade',
+        motivos: [
+          { t: 'Registrar o aparelho e o navegador em que falha e em que funciona', ok: true },
+          { t: 'Registrar "botão Jogar quebrado" sem dizer onde foi testado' },
+          { t: 'Não relatar: no computador funciona, então está aprovado' },
+        ],
+        dica: 'O mesmo botão funciona num lugar e falha em outro. Qual informação do relatório faz o programador repetir o problema?',
+      },
+      {
+        id: 'aprovado', avatar: '✅', titulo: 'CT-05 — Fim de jogo',
+        cenario: `<p><b>Passos:</b> encostar num inimigo com 1 vida.<br><b>Esperado:</b> aparece "Game Over" e o jogo para.<br><b>Obtido:</b> aparece <b>"Game Over"</b> e o jogo <b>para</b>. Um colega comentou: "achei triste perder assim".</p>`,
+        certa: 'Sem defeito (aprovado)',
+        motivos: [
+          { t: 'Relatar bug funcional, porque o colega não gostou de perder' },
+          { t: 'Marcar como aprovado: o obtido é igual ao esperado', ok: true },
+          { t: 'Relatar bug visual, porque a tela de Game Over é triste' },
+        ],
+        dica: 'Compare só o esperado com o obtido. A opinião do colega muda o resultado do caso de teste?',
+      },
+      {
+        id: 'regressao', avatar: '🔙', titulo: 'CT-06 — Depois da correção',
+        cenario: `<p>Na versão 1.3, corrigiram o bug "inimigo atravessa parede".<br><b>Passos:</b> repetir o teste do inimigo e também <b>pegar uma moeda</b>.<br><b>Obtido:</b> o inimigo agora bate na parede, mas a <b>moeda deixou de sumir</b> ao ser pega. Na 1.2 a moeda sumia normalmente.</p>`,
+        certa: 'Regressão',
+        motivos: [
+          { t: 'Avisar que a correção quebrou algo que já funcionava na 1.2', ok: true },
+          { t: 'Marcar como aprovado, porque o bug do inimigo foi corrigido' },
+          { t: 'Relatar como compatibilidade, porque mudou a versão do jogo' },
+        ],
+        dica: 'A moeda funcionava antes da correção? Como se chama quando consertar uma coisa quebra outra?',
+      },
+      {
+        id: 'trava', avatar: '💥', titulo: 'CT-07 — Pausar e voltar',
+        cenario: `<p><b>Passos:</b> apertar P para pausar e P de novo para voltar.<br><b>Esperado:</b> o jogo continua de onde parou.<br><b>Obtido:</b> o jogo <b>trava</b> e só volta recarregando a página; o progresso da fase <b>é perdido</b>. Aconteceu em <b>7 de 10</b> tentativas.</p>`,
+        certa: 'Bug funcional',
+        motivos: [
+          { t: 'Gravidade baixa: é só não usar a pausa durante o jogo' },
+          { t: 'Gravidade média: o jogador pode recarregar a página' },
+          { t: 'Gravidade crítica: trava o jogo e faz perder o progresso', ok: true },
+        ],
+        dica: 'O que o jogador perde quando isso acontece? Ele consegue continuar a partida de algum jeito?',
+      },
+      {
+        id: 'titulo', avatar: '📝', titulo: 'CT-08 — Relatório do pulo',
+        cenario: `<p><b>Passos:</b> pular encostado numa parede, na fase 2.<br><b>Esperado:</b> o personagem pula e cai no chão.<br><b>Obtido:</b> ele <b>fica preso dentro da parede</b> e não sai mais. Aconteceu em <b>10 de 10</b> tentativas.</p>`,
+        certa: 'Bug funcional',
+        motivos: [
+          { t: 'Título: "Pulo bugado na fase 2, arrumem urgente!!!"' },
+          { t: 'Título: "Personagem fica preso na parede ao pular encostado nela"', ok: true },
+          { t: 'Título: "Testei a fase 2 e encontrei alguns problemas"' },
+        ],
+        dica: 'Um bom título diz O QUE falha e EM QUE situação, sem opinião. Qual dos três o programador entende sem abrir o relatório?',
+      },
+    ],
+  };
+
+  const CASOS = DADOS.casos;
+  const TOTAL = CASOS.length + 2; // abertura + casos + fechamento
+  const stepWrap = document.getElementById('stepWrap');
+
+  function lerResolvidos() {
+    try { const a = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+  function salvarResolvidos(a) { try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(a)); } catch (e) {} }
+  function lerEtapa() {
+    try { const n = parseInt(localStorage.getItem(STEP_KEY), 10); return n >= 0 && n < TOTAL ? n : 0; } catch (e) { return 0; }
+  }
+  function salvarEtapa(n) { try { localStorage.setItem(STEP_KEY, String(n)); } catch (e) {} }
+  function reportar(rotulo) {
+    if (typeof window.reportActivity === 'function') {
+      window.reportActivity(LOC, rotulo, { step: atual + 1, total: TOTAL, resolvidos: lerResolvidos().length });
+    }
+  }
+
+  let atual = lerEtapa();
+  let direcao = 1;
+
+  function nav(voltar, avancar) {
+    return `
+      <div class="ab-nav">
+        ${voltar ? '<button class="btn btn-secondary" id="btnBack">← Voltar</button>' : '<span></span>'}
+        <span class="ab-nav-dica">use ← → do teclado</span>
+        ${avancar ? '<button class="btn" id="btnNext">Próximo →</button>' : '<span></span>'}
+      </div>`;
+  }
+  function irPara(i) {
+    direcao = i < atual ? -1 : 1;
+    atual = Math.max(0, Math.min(i, TOTAL - 1));
+    salvarEtapa(atual);
+    render();
+  }
+  function ligarNav() {
+    const b = document.getElementById('btnBack');
+    if (b) b.addEventListener('click', () => irPara(atual - 1));
+    const n = document.getElementById('btnNext');
+    if (n) n.addEventListener('click', () => irPara(atual + 1));
+    document.getElementById('palco').scrollTop = 0;
+    window.AulaBase.decorar(stepWrap, {});
+    window.AulaBase.transicao(stepWrap.querySelector('.ab-cartao'), direcao);
+  }
+
+  function placar() {
+    const feitos = lerResolvidos();
+    return `<div class="cs-placar">${CASOS.map((c, i) => `<span class="${feitos.includes(c.id) ? 'ok' : ''}">${feitos.includes(c.id) ? '✔' : i + 1} ${c.avatar}</span>`).join('')}</div>`;
+  }
+
+  function render() {
+    document.getElementById('lblStepNum').textContent = atual + 1;
+    document.getElementById('lblStepTotal').textContent = TOTAL;
+    document.getElementById('progressFill').style.width = Math.round((lerResolvidos().length / CASOS.length) * 100) + '%';
+
+    if (atual === 0) {
+      reportar(`${DADOS.nome} — Abertura`);
+      stepWrap.innerHTML = `
+        <article class="ab-cartao">
+          <div class="ab-cartao-etapa">Etapa 1 de ${TOTAL}</div>
+          <h2>${DADOS.abertura.titulo}</h2>
+          <div class="ab-conteudo">${DADOS.abertura.html}</div>
+          ${placar()}
+        </article>
+        ${nav(false, true)}`;
+      ligarNav();
+      return;
+    }
+
+    if (atual === TOTAL - 1) {
+      const feitos = lerResolvidos().length;
+      reportar(`${DADOS.nome} — Fechamento (${feitos}/${CASOS.length})`);
+      const pronto = feitos >= CASOS.length;
+      stepWrap.innerHTML = `
+        <article class="ab-cartao ${pronto ? 'ab-concluida' : ''}">
+          <div class="ab-cartao-etapa">Etapa ${TOTAL} de ${TOTAL}</div>
+          <h2>${pronto ? DADOS.fechamento.titulo : 'Ainda faltam casos'}</h2>
+          <div class="ab-conteudo">
+            ${pronto ? DADOS.fechamento.html : `<p>Você resolveu ${feitos} de ${CASOS.length}. Volte aos casos que ainda não têm ✔.</p>`}
+          </div>
+          ${placar()}
+        </article>
+        ${nav(true, false)}`;
+      ligarNav();
+      return;
+    }
+
+    renderCaso(CASOS[atual - 1]);
+  }
+
+  function renderCaso(caso) {
+    const resolvido = lerResolvidos().includes(caso.id);
+    reportar(`${DADOS.nome} — ${caso.titulo}${resolvido ? ' (resolvido)' : ''}`);
+    const g1 = caso.opcoes || DADOS.opcoes;
+    stepWrap.innerHTML = `
+      <article class="ab-cartao">
+        <div class="ab-cartao-etapa">${DADOS.rotuloCaso} ${atual} de ${CASOS.length}</div>
+        <h2>${caso.titulo}</h2>
+        <div class="ab-conteudo">
+          <div class="cs-caso"><div class="cs-avatar">${caso.avatar}</div><div>${caso.cenario}</div></div>
+        </div>
+        <div class="cs-grupo">1. ${caso.pergunta1 || DADOS.pergunta1}</div>
+        <div class="cs-opcoes" id="csG1">
+          ${g1.map(a => `<label class="cs-op"><input type="radio" name="g1" value="${a}" ${resolvido && a === caso.certa ? 'checked' : ''}>${a}</label>`).join('')}
+        </div>
+        <div class="cs-grupo">2. ${caso.pergunta2 || DADOS.pergunta2}</div>
+        <div class="cs-opcoes cs-motivos" id="csG2">
+          ${caso.motivos.map((m, i) => `<label class="cs-op"><input type="radio" name="g2" value="${i}" ${resolvido && m.ok ? 'checked' : ''}>${m.t}</label>`).join('')}
+        </div>
+        <div class="cs-acoes">
+          <button class="btn" id="btnVerificar">${resolvido ? '✔ Resolvido' : DADOS.botao}</button>
+          <div class="ab-msg" id="csMsg" style="display:none;"></div>
+        </div>
+      </article>
+      ${nav(true, true)}`;
+    ligarNav();
+    const btn = document.getElementById('btnVerificar');
+    const msg = document.getElementById('csMsg');
+    if (resolvido) { btn.disabled = true; return; }
+    btn.addEventListener('click', () => {
+      const r1 = (stepWrap.querySelector('input[name="g1"]:checked') || {}).value;
+      const r2 = (stepWrap.querySelector('input[name="g2"]:checked') || {}).value;
+      msg.style.display = 'block';
+      if (!r1 || r2 === undefined) {
+        msg.className = 'ab-msg erro';
+        msg.textContent = 'Responda as duas perguntas antes de enviar.';
+        return;
+      }
+      const ok1 = r1 === caso.certa;
+      const ok2 = !!caso.motivos[parseInt(r2, 10)].ok;
+      if (ok1 && ok2) {
+        const feitos = lerResolvidos();
+        if (!feitos.includes(caso.id)) { feitos.push(caso.id); salvarResolvidos(feitos); }
+        reportar(`${DADOS.nome} — ${caso.titulo} (resolvido)`);
+        msg.className = 'ab-msg ok';
+        msg.textContent = DADOS.acerto;
+        btn.disabled = true;
+        btn.textContent = '✔ Resolvido';
+        document.getElementById('progressFill').style.width = Math.round((feitos.length / CASOS.length) * 100) + '%';
+        return;
+      }
+      msg.className = 'ab-msg erro';
+      msg.textContent = ok1
+        ? '⚠️ A primeira escolha está certa, mas esse motivo não se aplica a este caso. Releia o cenário.'
+        : `❌ Ainda não. Dica: ${caso.dica}`;
+    });
+  }
+
+  window.generateGabaritoForGestao = function () {
+    return window.PortalGabarito.generate({
+      title: 'Testes de Jogos — Sessão de Testes',
+      subtitle: DADOS.subtitulo,
+      items: CASOS.map((c, i) => ({
+        number: i + 1,
+        title: c.titulo,
+        prompt: `${c.cenario.replace(/<[^>]+>/g, '')} ${c.pergunta1 || DADOS.pergunta1}`,
+        answer: `${c.certa} — ${c.motivos.find(m => m.ok).t}`,
+      })),
+      fileName: 'teste-bugs-pratica-gabarito.txt',
+    });
+  };
+
+  window.AulaBase.teclado({
+    proximo: () => { const b = document.getElementById('btnNext'); if (b) b.click(); },
+    anterior: () => { const b = document.getElementById('btnBack'); if (b) b.click(); },
+  });
+
+  render();
+})();
+</script>
+
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

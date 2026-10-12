@@ -346,6 +346,33 @@ window.TURMA_CONFIG_JOGOS = {
               requires: 'teoria', hasGabarito: true
             }
           ]
+        },
+        {
+          // Mundo do Trabalho 4.0 — FO de 14/10. Trilha COMPARTILHADA entre
+          // Sistemas e Jogos: os arquivos ficam em turmas/sistemas/ e o
+          // config.js de Jogos aponta pra eles.
+          // Estimativa: teoria ~45 min, prática ~30 min.
+          key: 'mundo-profissoes',
+          label: 'Características das Profissões',
+          desc: 'Profissão, ocupação e cargo; CBO; atividades, formação, competências, ambiente, regulamentação, formas de contratação e carreira.',
+          capacidade: 'Identificar as características das profissões',
+          dataAula: '2026-10-14',
+          modules: [
+            {
+              key: 'teoria', title: 'Teoria — Características das Profissões',
+              desc: 'Profissão × ocupação × cargo, a CBO, competências técnicas e socioemocionais, profissões regulamentadas, aprendiz/estágio/CLT/PJ e júnior/pleno/sênior.',
+              icon: '📖', src: '../sistemas/atividades/mundo-profissoes-teoria.html', telaCheia: true,
+              progressKey: 'mundo_profissoes_teoria_progress_', progressMode: 'flag',
+              hasGabarito: true
+            },
+            {
+              key: 'pratica', title: 'Prática — Feira de Profissões',
+              desc: 'Oito estandes sem placa: identifique a profissão e a característica que a denuncia.',
+              icon: '🎪', src: '../sistemas/atividades/mundo-profissoes-pratica.html', telaCheia: true,
+              progressKey: 'mundo_profissoes_pratica_progress_', progressTotal: 8,
+              requires: 'teoria', hasGabarito: true
+            }
+          ]
         }
       ]
     },
@@ -646,6 +673,33 @@ window.TURMA_CONFIG_JOGOS = {
               hasGabarito: true
             }
           ]
+        },
+        {
+          // Codificação de Sistemas de Jogos Digitais — FO de 15/10. Fecha o
+          // Pacman da trilha 'cod-phaser' (a prática remete pra lá quem ainda
+          // não terminou) e aplica duas técnicas: constantes com nome e
+          // vidas. Estimativa: teoria ~40 min, prática ~1h30.
+          key: 'cod-phaser-final',
+          label: 'Phaser: Reta Final do Pacman',
+          desc: 'Ciclo de vida da cena, game loop, collider × overlap, funções de evento, estado do jogo e depuração com o Console, fechando o Pacman com visto.',
+          capacidade: 'Aplicar técnicas e métodos de desenvolvimento, conforme a linguagem de programação empregada;',
+          dataAula: '2026-10-15',
+          modules: [
+            {
+              key: 'teoria', title: 'Teoria — Técnicas por Trás do Pacman',
+              desc: 'preCarregar/criar/atualizar, por que a velocidade é zerada a cada frame, collider × overlap, callbacks, jogoTerminou e leitura do Console.',
+              icon: '📖', src: 'atividades/cod-phaser-final-teoria.html', telaCheia: true,
+              progressKey: 'cod_phaser_final_teoria_progress_', progressMode: 'flag',
+              hasGabarito: true
+            },
+            {
+              key: 'pratica', title: 'Prática — Pacman: Reta Final',
+              desc: 'Descubra onde parou, passe no teste de aceitação, conserte com o guia, troque números por constantes e (se der tempo) crie 3 vidas. Visto do professor no fim.',
+              icon: '🏁', src: 'atividades/cod-phaser-final-pratica.html', telaCheia: true,
+              progressKey: 'cod_phaser_final_pratica_progress_', progressMode: 'flag',
+              requires: 'teoria', hasGabarito: true
+            }
+          ]
         }
       ]
     },
@@ -897,6 +951,33 @@ window.TURMA_CONFIG_JOGOS = {
               hasGabarito: true
             }
           ]
+        },
+        {
+          // Fundamentos de Programação de Jogos Digitais — FO de 14/10. As
+          // funções da prática são a lógica por trás do Pacman (movimento,
+          // limite, colisão, pontos, vidas, perseguição). Estimativa: teoria
+          // ~40 min, desafios ~50 min.
+          key: 'fund-jogo2d',
+          label: 'Lógica de Jogo 2D em JavaScript',
+          desc: 'Coordenadas de tela, movimento por frame, limite de tela, colisão entre retângulos (AABB), funções com decisão e inimigo que persegue.',
+          capacidade: 'Utilizar linguagem de programação para desenvolvimento de jogos digitais 2D',
+          dataAula: '2026-10-14',
+          modules: [
+            {
+              key: 'teoria', title: 'Teoria — Lógica de Jogo 2D em JavaScript',
+              desc: 'Plano cartesiano da tela (y para baixo), posição + velocidade, limitar, colisão AABB, funções que decidem e direção até o alvo.',
+              icon: '📖', src: 'atividades/fund-jogo2d-teoria.html', telaCheia: true,
+              progressKey: 'fund_jogo2d_teoria_progress_', progressMode: 'flag',
+              hasGabarito: true
+            },
+            {
+              key: 'desafios', title: 'Prática — Desafios de Lógica 2D',
+              desc: 'Escreva 8 funções do motor de um jogo 2D, com testes automáticos: andar, limitar, colidir, pontuar, vidas, vitória, grade e perseguição.',
+              icon: '🧩', src: 'atividades/fund-jogo2d-desafios.html', telaCheia: true,
+              progressKey: 'fund_jogo2d_desafios_progress_', progressTotal: 8,
+              requires: 'teoria', hasGabarito: true
+            }
+          ]
         }
       ]
     },
@@ -1040,6 +1121,31 @@ window.TURMA_CONFIG_JOGOS = {
               icon: '🎨', src: 'atividades/teste-roteiros-questionario-engel.html',
               progressKey: 'teste_roteiros_questionario_engel_progress_', progressMode: 'flag',
               requires: 'trabalho', hasGabarito: true
+            }
+          ]
+        },
+        {
+          // Testes de Jogos Digitais I — FO de 14/10. Estimativa: teoria
+          // ~45 min, prática ~30 min.
+          key: 'teste-bugs',
+          label: 'Caçando Bugs com Testes',
+          desc: 'Caso de teste (esperado × obtido), erro/defeito/falha, tipos e gravidade de bug, reprodução, relatório e teste de regressão.',
+          capacidade: 'Identificar problemas de sistemas por meio de aplicação de teste;',
+          dataAula: '2026-10-14',
+          modules: [
+            {
+              key: 'teoria', title: 'Teoria — Caçando Bugs com Testes',
+              desc: 'Executar caso de teste, erro × defeito × falha, tipos de bug, gravidade, reproduzir, relatar e testar regressão.',
+              icon: '📖', src: 'atividades/teste-bugs-teoria.html', telaCheia: true,
+              progressKey: 'teste_bugs_teoria_progress_', progressMode: 'flag',
+              hasGabarito: true
+            },
+            {
+              key: 'pratica', title: 'Prática — Sessão de Testes',
+              desc: 'Oito casos de teste do jogo Coin Runner: diga o que cada teste encontrou e como registrar no relatório.',
+              icon: '🐞', src: 'atividades/teste-bugs-pratica.html', telaCheia: true,
+              progressKey: 'teste_bugs_pratica_progress_', progressTotal: 8,
+              requires: 'teoria', hasGabarito: true
             }
           ]
         }

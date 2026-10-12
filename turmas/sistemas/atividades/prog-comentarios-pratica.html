@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programação de Aplicativos — Revisão de Comentários</title>
+<!-- Padrão novo de trilhas (docs/padrao-trilhas.md): visual base
+     compartilhado. Prática em casos: cada caso pede DUAS escolhas (a
+     resposta e o motivo); as duas precisam estar certas. Errou: dica que
+     aponta o raciocínio, sem dar a resposta, e pode tentar de novo.
+     Progresso = lista de ids dos casos resolvidos (progressTotal no
+     config.js = número de casos). Mesmo formato de
+     turmas/sistemas/atividades/bd-nosql-consultoria.html. -->
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<style>
+  
+  /* Específico deste exercício: os dois grupos de escolha de cada caso. */
+  .cs-caso{ display:flex; gap:14px; align-items:flex-start; margin-bottom:16px; }
+  .cs-avatar{ font-size:40px; line-height:1; flex-shrink:0; }
+  .cs-caso pre{ margin:10px 0 0; }
+  .cs-grupo{ margin:18px 0 8px; font-size:11px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase; color:var(--ab-acento); }
+  .cs-opcoes{ display:flex; flex-wrap:wrap; gap:8px; }
+  .cs-opcoes.cs-motivos{ flex-direction:column; }
+  .cs-op{ display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:var(--panel2); transition:border-color .2s, background .2s; }
+  .cs-op:hover{ border-color:var(--green-dim); }
+  .cs-op input{ accent-color:var(--green); margin:0; flex-shrink:0; }
+  .cs-op:has(input:checked){ border-color:var(--green); background:color-mix(in srgb, var(--green) 10%, transparent); }
+  .cs-acoes{ display:flex; align-items:center; gap:12px; margin-top:18px; flex-wrap:wrap; }
+  .cs-acoes .ab-msg{ flex:1; min-width:220px; }
+  .cs-placar{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  .cs-placar span{ font-family:var(--ab-mono); font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--ink-dim); }
+  .cs-placar span.ok{ border-color:var(--ok); color:var(--ok); }
+</style>
+<script>
+  window.ACTIVITY_LOCATION = 'prog_comentarios_pratica';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Programação de Aplicativos — Revisão de Comentários</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">10</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+(function () {
+  const LOC = 'prog_comentarios_pratica';
+  const user = new URLSearchParams(location.search).get('user') || 'anon';
+  const PROGRESS_KEY = `${LOC}_progress_${user}`;
+  const STEP_KEY = `${LOC}_step_${user}`;
+
+  // Cada caso: um trecho do FinancApp com um comentário. 1ª escolha: o
+  // diagnóstico do comentário; 2ª: a melhor correção (1 certa). A dica
+  // aponta o raciocínio, não a resposta.
+  const DADOS = {
+    nome: 'Revisão de Comentários',
+    subtitulo: 'Prática · Trilha Comentários e Documentação do Código · Programação de Aplicativos · Turma Sistemas',
+    rotuloCaso: 'Trecho',
+    botao: 'Enviar revisão',
+    acerto: '✅ Revisão aprovada! Esse trecho ficou bem documentado.',
+    pergunta1: 'Como está o comentário deste trecho?',
+    pergunta2: 'Qual é a melhor correção?',
+    opcoes: ['Útil: explica o porquê', 'Redundante: repete o código', 'Desatualizado: contradiz o código', 'Falta documentar (JSDoc)', 'Marcador errado (TODO × FIXME)', 'Código morto comentado'],
+    abertura: {
+      titulo: 'Você é o revisor do FinancApp',
+      html: `
+        <p>O time do FinancApp abriu um pedido de revisão de código. Antes de aprovar, você precisa olhar os <b>comentários</b> de oito trechos. Em cada um:</p>
+        <ol>
+          <li>Leia o código e o comentário com atenção</li>
+          <li>Diga como está o comentário: <b>útil</b>, <b>redundante</b>, <b>desatualizado</b>, <b>falta documentar</b>, <b>marcador errado</b> ou <b>código morto</b></li>
+          <li>Escolha a <b>melhor correção</b> (às vezes é não mexer em nada)</li>
+        </ol>
+        <blockquote>As duas escolhas precisam estar certas. Se errar, você recebe uma dica e tenta de novo. Tempo sugerido: <b>20 minutos</b>.</blockquote>`,
+    },
+    fechamento: {
+      titulo: '✅ Revisão concluída!',
+      html: `
+        <p>Você revisou os oito trechos. Repare que nem todo comentário precisava sair: os que explicam uma <b>regra de negócio</b> ficam, os que só <b>repetem o código</b> ou <b>mentem</b> saem.</p>
+        <p>Desafio extra: abra o seu FinancApp no Codespace e escreva o JSDoc de pelo menos duas funções do seu <code>app.js</code>.</p>`,
+    },
+    casos: [
+      {
+        id: 'redundante', avatar: '🔁', titulo: 'Trecho 1 — Somando receitas',
+        cenario: `<pre><code>// soma o valor no total
+total = total + transacao.valor;</code></pre>`,
+        certa: 'Redundante: repete o código',
+        motivos: [
+          { t: 'Apagar o comentário, porque a linha já se explica sozinha', ok: true },
+          { t: 'Trocar por um comentário de bloco com a mesma frase' },
+          { t: 'Escrever um JSDoc com @returns em cima dessa linha' },
+        ],
+        dica: 'Leia o comentário e depois o código. O comentário conta alguma coisa que o código ainda não contava?',
+      },
+      {
+        id: 'porque', avatar: '💡', titulo: 'Trecho 2 — Arredondamento dos centavos',
+        cenario: `<pre><code>// o Supabase guarda valor como numeric; o JS soma
+// 0.1 + 0.2 = 0.30000000000000004, então trabalhamos
+// em centavos inteiros e só dividimos por 100 na tela
+const centavos = Math.round(valor * 100);</code></pre>`,
+        certa: 'Útil: explica o porquê',
+        motivos: [
+          { t: 'Apagar, porque comentário de várias linhas atrapalha a leitura' },
+          { t: 'Manter como está: ele explica uma decisão que o código não mostra', ok: true },
+          { t: 'Trocar por TODO, porque ainda falta converter os valores' },
+        ],
+        dica: 'Sem esse comentário, alguém entenderia por que o valor é multiplicado por 100?',
+      },
+      {
+        id: 'desatualizado', avatar: '⚠️', titulo: 'Trecho 3 — Limite de categorias',
+        cenario: `<pre><code>// cada usuário pode criar no máximo 5 categorias
+const LIMITE_CATEGORIAS = 10;</code></pre><p>A regra combinada com o cliente, no README do projeto, é <b>10 categorias</b>.</p>`,
+        certa: 'Desatualizado: contradiz o código',
+        motivos: [
+          { t: 'Trocar a constante para 5, porque o comentário é a regra' },
+          { t: 'Manter os dois, porque o comentário registra a regra antiga' },
+          { t: 'Corrigir o comentário para 10, alinhando com a regra do cliente', ok: true },
+        ],
+        dica: 'Código e comentário dizem números diferentes. Qual dos dois bate com a regra combinada com o cliente?',
+      },
+      {
+        id: 'jsdoc', avatar: '📘', titulo: 'Trecho 4 — Função sem documentação',
+        cenario: `<pre><code>async function buscarTransacoes(usuarioId, mes) {
+  const { data, error } = await supabase
+    .from('transacoes')
+    .select('*')
+    .eq('usuario_id', usuarioId)
+    .eq('mes', mes);
+  if (error) throw error;
+  return data;
+}</code></pre><p>Essa função é chamada em <b>cinco telas</b> diferentes do app.</p>`,
+        certa: 'Falta documentar (JSDoc)',
+        motivos: [
+          { t: 'Escrever JSDoc com @param de usuarioId e mes e @returns da lista', ok: true },
+          { t: 'Comentar cada linha da função explicando o que ela faz' },
+          { t: 'Colocar FIXME, porque função sem comentário está quebrada' },
+        ],
+        dica: 'Função usada em vários lugares é lida por muita gente que não vai abrir o corpo dela. O que essas pessoas precisam saber logo de cara?',
+      },
+      {
+        id: 'todo-fixme', avatar: '🐞', titulo: 'Trecho 5 — Um defeito conhecido',
+        cenario: `<pre><code>// TODO: dá erro quando a lista de transações vem vazia
+function mediaDoMes(lista) {
+  return somar(lista) / lista.length;
+}</code></pre>`,
+        certa: 'Marcador errado (TODO × FIXME)',
+        motivos: [
+          { t: 'Manter TODO, porque toda pendência usa o mesmo marcador' },
+          { t: 'Trocar por FIXME, porque descreve algo que já está quebrado', ok: true },
+          { t: 'Apagar, porque marcadores não devem ficar no código' },
+        ],
+        dica: 'O comentário fala de uma funcionalidade que ainda não existe, ou de algo que existe e falha?',
+      },
+      {
+        id: 'nome', avatar: '🏷️', titulo: 'Trecho 6 — O número misterioso',
+        cenario: `<pre><code>// 0.0035 é a taxa de juros diária do cartão
+const j = v * 0.0035 * d;</code></pre>`,
+        certa: 'Útil: explica o porquê',
+        motivos: [
+          { t: 'Apagar o comentário e deixar só a conta com o número' },
+          { t: 'Trocar o comentário de linha por um comentário de bloco' },
+          { t: 'Criar const TAXA_DIARIA = 0.0035 e nomes como juros, valor e dias', ok: true },
+        ],
+        dica: 'O comentário ajuda, mas a linha ainda usa j, v e d. Dá para o próprio código contar a mesma coisa?',
+      },
+      {
+        id: 'codigo-morto', avatar: '🪦', titulo: 'Trecho 7 — Código guardado "por garantia"',
+        cenario: `<pre><code>// function calcularSaldoAntigo(lista) {
+//   let s = 0;
+//   for (let i = 0; i &lt; lista.length; i++) s += lista[i];
+//   return s;
+// }
+function calcularSaldo(lista) {
+  return lista.reduce((s, t) => s + t.valor, 0);
+}</code></pre><p>O projeto está no <b>GitHub</b> e a versão antiga já foi substituída há dois meses.</p>`,
+        certa: 'Código morto comentado',
+        motivos: [
+          { t: 'Manter, porque o código antigo pode ser útil um dia' },
+          { t: 'Apagar, porque o histórico do Git já guarda a versão antiga', ok: true },
+          { t: 'Trocar os // por /* */ para ocupar menos linhas' },
+        ],
+        dica: 'Se um dia precisar da versão antiga, onde ela já está guardada sem poluir o arquivo?',
+      },
+      {
+        id: 'jsdoc-errado', avatar: '📝', titulo: 'Trecho 8 — JSDoc que não bate',
+        cenario: `<pre><code>/**
+ * Calcula o saldo do mês.
+ * @param {number} mes
+ * @returns {Array} lista de transações
+ */
+function calcularSaldo(transacoes) {
+  return transacoes.reduce((s, t) => s + t.valor, 0);
+}</code></pre>`,
+        certa: 'Desatualizado: contradiz o código',
+        motivos: [
+          { t: 'Corrigir para @param {Array} transacoes e @returns {number} saldo', ok: true },
+          { t: 'Apagar o bloco /** */, porque JSDoc só serve para funções async' },
+          { t: 'Trocar o nome do parâmetro para mes, igual ao JSDoc' },
+        ],
+        dica: 'Compare o parâmetro e o retorno descritos no JSDoc com o que a função realmente recebe e devolve.',
+      },
+    ],
+  };
+
+  const CASOS = DADOS.casos;
+  const TOTAL = CASOS.length + 2; // abertura + casos + fechamento
+  const stepWrap = document.getElementById('stepWrap');
+
+  function lerResolvidos() {
+    try { const a = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+  function salvarResolvidos(a) { try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(a)); } catch (e) {} }
+  function lerEtapa() {
+    try { const n = parseInt(localStorage.getItem(STEP_KEY), 10); return n >= 0 && n < TOTAL ? n : 0; } catch (e) { return 0; }
+  }
+  function salvarEtapa(n) { try { localStorage.setItem(STEP_KEY, String(n)); } catch (e) {} }
+  function reportar(rotulo) {
+    if (typeof window.reportActivity === 'function') {
+      window.reportActivity(LOC, rotulo, { step: atual + 1, total: TOTAL, resolvidos: lerResolvidos().length });
+    }
+  }
+
+  let atual = lerEtapa();
+  let direcao = 1;
+
+  function nav(voltar, avancar) {
+    return `
+      <div class="ab-nav">
+        ${voltar ? '<button class="btn btn-secondary" id="btnBack">← Voltar</button>' : '<span></span>'}
+        <span class="ab-nav-dica">use ← → do teclado</span>
+        ${avancar ? '<button class="btn" id="btnNext">Próximo →</button>' : '<span></span>'}
+      </div>`;
+  }
+  function irPara(i) {
+    direcao = i < atual ? -1 : 1;
+    atual = Math.max(0, Math.min(i, TOTAL - 1));
+    salvarEtapa(atual);
+    render();
+  }
+  function ligarNav() {
+    const b = document.getElementById('btnBack');
+    if (b) b.addEventListener('click', () => irPara(atual - 1));
+    const n = document.getElementById('btnNext');
+    if (n) n.addEventListener('click', () => irPara(atual + 1));
+    document.getElementById('palco').scrollTop = 0;
+    window.AulaBase.decorar(stepWrap, {});
+    window.AulaBase.transicao(stepWrap.querySelector('.ab-cartao'), direcao);
+  }
+
+  function placar() {
+    const feitos = lerResolvidos();
+    return `<div class="cs-placar">${CASOS.map((c, i) => `<span class="${feitos.includes(c.id) ? 'ok' : ''}">${feitos.includes(c.id) ? '✔' : i + 1} ${c.avatar}</span>`).join('')}</div>`;
+  }
+
+  function render() {
+    document.getElementById('lblStepNum').textContent = atual + 1;
+    document.getElementById('lblStepTotal').textContent = TOTAL;
+    document.getElementById('progressFill').style.width = Math.round((lerResolvidos().length / CASOS.length) * 100) + '%';
+
+    if (atual === 0) {
+      reportar(`${DADOS.nome} — Abertura`);
+      stepWrap.innerHTML = `
+        <article class="ab-cartao">
+          <div class="ab-cartao-etapa">Etapa 1 de ${TOTAL}</div>
+          <h2>${DADOS.abertura.titulo}</h2>
+          <div class="ab-conteudo">${DADOS.abertura.html}</div>
+          ${placar()}
+        </article>
+        ${nav(false, true)}`;
+      ligarNav();
+      return;
+    }
+
+    if (atual === TOTAL - 1) {
+      const feitos = lerResolvidos().length;
+      reportar(`${DADOS.nome} — Fechamento (${feitos}/${CASOS.length})`);
+      const pronto = feitos >= CASOS.length;
+      stepWrap.innerHTML = `
+        <article class="ab-cartao ${pronto ? 'ab-concluida' : ''}">
+          <div class="ab-cartao-etapa">Etapa ${TOTAL} de ${TOTAL}</div>
+          <h2>${pronto ? DADOS.fechamento.titulo : 'Ainda faltam casos'}</h2>
+          <div class="ab-conteudo">
+            ${pronto ? DADOS.fechamento.html : `<p>Você resolveu ${feitos} de ${CASOS.length}. Volte aos casos que ainda não têm ✔.</p>`}
+          </div>
+          ${placar()}
+        </article>
+        ${nav(true, false)}`;
+      ligarNav();
+      return;
+    }
+
+    renderCaso(CASOS[atual - 1]);
+  }
+
+  function renderCaso(caso) {
+    const resolvido = lerResolvidos().includes(caso.id);
+    reportar(`${DADOS.nome} — ${caso.titulo}${resolvido ? ' (resolvido)' : ''}`);
+    const g1 = caso.opcoes || DADOS.opcoes;
+    stepWrap.innerHTML = `
+      <article class="ab-cartao">
+        <div class="ab-cartao-etapa">${DADOS.rotuloCaso} ${atual} de ${CASOS.length}</div>
+        <h2>${caso.titulo}</h2>
+        <div class="ab-conteudo">
+          <div class="cs-caso"><div class="cs-avatar">${caso.avatar}</div><div>${caso.cenario}</div></div>
+        </div>
+        <div class="cs-grupo">1. ${caso.pergunta1 || DADOS.pergunta1}</div>
+        <div class="cs-opcoes" id="csG1">
+          ${g1.map(a => `<label class="cs-op"><input type="radio" name="g1" value="${a}" ${resolvido && a === caso.certa ? 'checked' : ''}>${a}</label>`).join('')}
+        </div>
+        <div class="cs-grupo">2. ${caso.pergunta2 || DADOS.pergunta2}</div>
+        <div class="cs-opcoes cs-motivos" id="csG2">
+          ${caso.motivos.map((m, i) => `<label class="cs-op"><input type="radio" name="g2" value="${i}" ${resolvido && m.ok ? 'checked' : ''}>${m.t}</label>`).join('')}
+        </div>
+        <div class="cs-acoes">
+          <button class="btn" id="btnVerificar">${resolvido ? '✔ Resolvido' : DADOS.botao}</button>
+          <div class="ab-msg" id="csMsg" style="display:none;"></div>
+        </div>
+      </article>
+      ${nav(true, true)}`;
+    ligarNav();
+    const btn = document.getElementById('btnVerificar');
+    const msg = document.getElementById('csMsg');
+    if (resolvido) { btn.disabled = true; return; }
+    btn.addEventListener('click', () => {
+      const r1 = (stepWrap.querySelector('input[name="g1"]:checked') || {}).value;
+      const r2 = (stepWrap.querySelector('input[name="g2"]:checked') || {}).value;
+      msg.style.display = 'block';
+      if (!r1 || r2 === undefined) {
+        msg.className = 'ab-msg erro';
+        msg.textContent = 'Responda as duas perguntas antes de enviar.';
+        return;
+      }
+      const ok1 = r1 === caso.certa;
+      const ok2 = !!caso.motivos[parseInt(r2, 10)].ok;
+      if (ok1 && ok2) {
+        const feitos = lerResolvidos();
+        if (!feitos.includes(caso.id)) { feitos.push(caso.id); salvarResolvidos(feitos); }
+        reportar(`${DADOS.nome} — ${caso.titulo} (resolvido)`);
+        msg.className = 'ab-msg ok';
+        msg.textContent = DADOS.acerto;
+        btn.disabled = true;
+        btn.textContent = '✔ Resolvido';
+        document.getElementById('progressFill').style.width = Math.round((feitos.length / CASOS.length) * 100) + '%';
+        return;
+      }
+      msg.className = 'ab-msg erro';
+      msg.textContent = ok1
+        ? '⚠️ A primeira escolha está certa, mas esse motivo não se aplica a este caso. Releia o cenário.'
+        : `❌ Ainda não. Dica: ${caso.dica}`;
+    });
+  }
+
+  window.generateGabaritoForGestao = function () {
+    return window.PortalGabarito.generate({
+      title: 'Programação de Aplicativos — Revisão de Comentários',
+      subtitle: DADOS.subtitulo,
+      items: CASOS.map((c, i) => ({
+        number: i + 1,
+        title: c.titulo,
+        prompt: `${c.cenario.replace(/<[^>]+>/g, '')} ${c.pergunta1 || DADOS.pergunta1}`,
+        answer: `${c.certa} — ${c.motivos.find(m => m.ok).t}`,
+      })),
+      fileName: 'prog-comentarios-pratica-gabarito.txt',
+    });
+  };
+
+  window.AulaBase.teclado({
+    proximo: () => { const b = document.getElementById('btnNext'); if (b) b.click(); },
+    anterior: () => { const b = document.getElementById('btnBack'); if (b) b.click(); },
+  });
+
+  render();
+})();
+</script>
+
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>
