@@ -5,25 +5,25 @@
 
 /* Cor de cada compromisso: --ev é a cor "forte" (barra, ponto, texto) e o
    fundo do cartão sai dela misturada com a superfície. */
-.ag-cor-azul{ --ev:#2563eb; }
-.ag-cor-roxo{ --ev:#7c3aed; }
-.ag-cor-rosa{ --ev:#db2777; }
-.ag-cor-vermelho{ --ev:#dc2626; }
-.ag-cor-laranja{ --ev:#ea580c; }
-.ag-cor-amarelo{ --ev:#ca8a04; }
-.ag-cor-verde{ --ev:#059669; }
-.ag-cor-cinza{ --ev:#6b7280; }
-.ag-cor-marrom{ --ev:#92400e; }
+.ag-cor-azul{ --ev:#0a6cff; }
+.ag-cor-roxo{ --ev:#8e2cff; }
+.ag-cor-rosa{ --ev:#ff1f8e; }
+.ag-cor-vermelho{ --ev:#f01818; }
+.ag-cor-laranja{ --ev:#ff6a00; }
+.ag-cor-amarelo{ --ev:#e6a800; }
+.ag-cor-verde{ --ev:#00b86b; }
+.ag-cor-cinza{ --ev:#64748b; }
+.ag-cor-marrom{ --ev:#b4530a; }
 @media (prefers-color-scheme: dark){
-  .ag-cor-azul{ --ev:#60a5fa; }
-  .ag-cor-roxo{ --ev:#a78bfa; }
-  .ag-cor-rosa{ --ev:#f472b6; }
-  .ag-cor-vermelho{ --ev:#f87171; }
-  .ag-cor-laranja{ --ev:#fb923c; }
-  .ag-cor-amarelo{ --ev:#facc15; }
-  .ag-cor-verde{ --ev:#34d399; }
-  .ag-cor-cinza{ --ev:#9ca3af; }
-  .ag-cor-marrom{ --ev:#d6a26b; }
+  .ag-cor-azul{ --ev:#4d9bff; }
+  .ag-cor-roxo{ --ev:#b57bff; }
+  .ag-cor-rosa{ --ev:#ff5cad; }
+  .ag-cor-vermelho{ --ev:#ff5c5c; }
+  .ag-cor-laranja{ --ev:#ff8a3d; }
+  .ag-cor-amarelo{ --ev:#ffd60a; }
+  .ag-cor-verde{ --ev:#2ee59d; }
+  .ag-cor-cinza{ --ev:#a3aec2; }
+  .ag-cor-marrom{ --ev:#e69a55; }
 }
 
 /* ---------- Botões de ícone e sininho ---------- */
@@ -106,11 +106,11 @@
 .ag-item{
   display:flex; flex-direction:column; gap:1px; padding:7px 10px 7px 12px;
   border-radius:var(--pr-radius-sm); border-left:3px solid var(--ev);
-  background:color-mix(in srgb, var(--ev) 10%, var(--pr-surface));
+  background:color-mix(in srgb, var(--ev) 18%, var(--pr-surface));
   cursor:grab; touch-action:none; user-select:none;
   transition:background .12s ease, transform .12s ease;
 }
-.ag-item:hover{ background:color-mix(in srgb, var(--ev) 16%, var(--pr-surface)); }
+.ag-item:hover{ background:color-mix(in srgb, var(--ev) 26%, var(--pr-surface)); }
 .ag-item-hora{ font-size:11.5px; font-weight:600; color:var(--ev); font-variant-numeric:tabular-nums; }
 .ag-item-titulo{ font-size:14px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .ag-vazio{ margin:4px 0; font-size:13px; color:var(--pr-text-3); }
@@ -119,11 +119,11 @@
 .ag-chip{
   display:flex; align-items:center; gap:5px; min-width:0; height:22px; padding:0 6px;
   border-radius:5px; font-size:12px; line-height:22px; cursor:grab; touch-action:none; user-select:none;
-  background:color-mix(in srgb, var(--ev) 14%, var(--pr-surface));
+  background:color-mix(in srgb, var(--ev) 22%, var(--pr-surface));
   color:color-mix(in srgb, var(--ev) 70%, var(--pr-text));
   transition:background .12s ease, box-shadow .12s ease;
 }
-.ag-chip:hover{ background:color-mix(in srgb, var(--ev) 22%, var(--pr-surface)); }
+.ag-chip:hover{ background:color-mix(in srgb, var(--ev) 32%, var(--pr-surface)); }
 .ag-chip:not(.ag-chip-todo){ background:transparent; color:var(--pr-text); }
 .ag-chip:not(.ag-chip-todo)::before{ content:''; flex:none; width:6px; height:6px; border-radius:50%; background:var(--ev); }
 .ag-chip:not(.ag-chip-todo):hover{ background:var(--pr-surface-2); }
@@ -248,7 +248,7 @@ body.ag-travar-rolagem{ overflow:hidden; }
 .ag-bloco{
   position:absolute; z-index:2; overflow:hidden; display:flex; flex-direction:column;
   padding:3px 7px; border-radius:6px; border-left:3px solid var(--ev);
-  background:color-mix(in srgb, var(--ev) 16%, var(--pr-surface));
+  background:color-mix(in srgb, var(--ev) 24%, var(--pr-surface));
   box-shadow:0 0 0 1px var(--pr-surface);
   font-size:12px; line-height:1.3; cursor:grab; touch-action:none; user-select:none;
   transition:box-shadow .12s ease;
