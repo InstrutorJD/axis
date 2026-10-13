@@ -200,20 +200,10 @@ html{ cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg
 
 
 /* Emojis de tecnologia caindo no fundo, bem transparentes
-   (shared/professor-fx.js cria os elementos). Ficam atrás do conteúdo e
-   não recebem clique. */
+   (shared/professor-fx.js cria os elementos e faz a queda, quadro a
+   quadro). Ficam atrás do conteúdo e não recebem clique. */
 .pr-chuva{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
-.pr-chuva span{
-  position:absolute; top:-10vh; left:var(--x);
-  font-size:var(--tam); opacity:var(--op);
-  filter:grayscale(.2);
-  animation:prCair var(--dur) linear var(--atraso) infinite;
-  will-change:transform;
-}
-@keyframes prCair{
-  from{ transform:translate3d(0, 0, 0) rotate(0deg); }
-  to{ transform:translate3d(var(--deriva), 120vh, 0) rotate(var(--giro)); }
-}
+.pr-chuva span{ position:absolute; top:-10vh; filter:grayscale(.2); }
 .pr-main{ position:relative; z-index:1; }
 
 @media (prefers-reduced-motion: reduce){

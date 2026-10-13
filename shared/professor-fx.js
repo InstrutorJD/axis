@@ -11,26 +11,44 @@
   const semAnimacao = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const sorteio = (min, max) => min + Math.random() * (max - min);
 
+  // A queda é feita aqui, quadro a quadro (requestAnimationFrame), e não
+  // com @keyframes no CSS: a animação CSS roda na placa de vídeo e, depois
+  // do PC bloquear/dormir ou do painel ficar muito tempo aberto, o
+  // navegador às vezes deixava os emojis congelados no meio da tela até
+  // recarregar. A posição sai do relógio, então nunca fica presa.
   function montarChuva() {
     const chuva = document.createElement('div');
     chuva.className = 'pr-chuva';
     chuva.setAttribute('aria-hidden', 'true');
+    const gotas = [];
     for (let i = 0; i < QTD; i++) {
       const s = document.createElement('span');
       s.textContent = EMOJIS[i % EMOJIS.length];
-      const dur = sorteio(16, 32);
-      s.style.setProperty('--x', `${sorteio(0, 97).toFixed(1)}vw`);
-      s.style.setProperty('--tam', `${Math.round(sorteio(18, 38))}px`);
-      s.style.setProperty('--op', sorteio(0.07, 0.16).toFixed(2));
-      s.style.setProperty('--dur', `${dur.toFixed(1)}s`);
-      // Atraso negativo: já começa com emojis espalhados pela tela, em vez
-      // de todos surgirem juntos lá em cima.
-      s.style.setProperty('--atraso', `${(-sorteio(0, dur)).toFixed(1)}s`);
-      s.style.setProperty('--deriva', `${Math.round(sorteio(-60, 60))}px`);
-      s.style.setProperty('--giro', `${Math.round(sorteio(-180, 180))}deg`);
+      s.style.left = `${sorteio(0, 97).toFixed(1)}vw`;
+      s.style.fontSize = `${Math.round(sorteio(18, 38))}px`;
+      s.style.opacity = sorteio(0.07, 0.16).toFixed(2);
       chuva.appendChild(s);
+      gotas.push({
+        el: s,
+        dur: sorteio(16, 32) * 1000,
+        // Fase sorteada: já começa com emojis espalhados pela tela, em vez
+        // de todos surgirem juntos lá em cima.
+        fase: Math.random(),
+        deriva: sorteio(-60, 60),
+        giro: sorteio(-180, 180),
+      });
     }
     document.body.prepend(chuva);
+
+    function quadro(agora) {
+      const altura = window.innerHeight * 1.2;
+      for (const g of gotas) {
+        const p = (agora / g.dur + g.fase) % 1;
+        g.el.style.transform = `translate(${(g.deriva * p).toFixed(1)}px, ${(altura * p).toFixed(1)}px) rotate(${(g.giro * p).toFixed(1)}deg)`;
+      }
+      requestAnimationFrame(quadro);
+    }
+    requestAnimationFrame(quadro);
   }
 
   function ligarCartoes() {
