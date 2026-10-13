@@ -203,7 +203,8 @@ Um tutor de IA só seu
 + Um prompt pronto que transforma o ChatGPT ou o Claude em **tutor**
 + Explica **VS Code, GitHub, Supabase, Codex e Claude Code**
 + Uma ideia por vez, com palavras simples
-+ Faz perguntas e **não entrega a resposta pronta**
++ Você escolhe: respostas **curtas, médias ou detalhadas**
++ E escolhe se quer **dicas** para chegar na solução ou a **resposta explicada**
 
 ---
 
