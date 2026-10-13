@@ -26,6 +26,7 @@
 <script src="../../../shared/professor-visto.js"></script>
 <script src="../../../shared/gabarito-generator.js"></script>
 <script src="../../../shared/aula-base.js"></script>
+<script src="../../../shared/apresentacao-etapas.js"></script>
 </head>
 <body>
 
@@ -329,8 +330,8 @@ create table pontuacoes (
     window.AulaBase.transicao(stepWrap.querySelector('.ab-cartao'), direcao);
   }
   window.AulaBase.teclado({
-    proximo: () => { const b = document.getElementById('btnNext'); if (b) b.click(); },
-    anterior: () => { const b = document.getElementById('btnBack'); if (b) b.click(); },
+    proximo: () => { if (window.ApresentacaoEtapas.ativa()) return; const b = document.getElementById('btnNext'); if (b) b.click(); },
+    anterior: () => { if (window.ApresentacaoEtapas.ativa()) return; const b = document.getElementById('btnBack'); if (b) b.click(); },
   });
 
   function renderStep() {
@@ -449,6 +450,9 @@ create table pontuacoes (
       fileName: 'culminancia-jogo-escola-checklist.txt',
     });
   };
+
+  // ▶ Apresentação (só professor): as etapas viram slides pra projetar.
+  window.ApresentacaoEtapas.ligar({ titulo: document.title, steps: STEPS, etapaAtual: () => currentIndex });
 
   renderStep();
 </script>
