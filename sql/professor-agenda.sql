@@ -35,6 +35,13 @@ create table if not exists public.professor_compromissos (
 create index if not exists idx_professor_compromissos_dono_dia
   on public.professor_compromissos (professor_id, dia);
 
+-- tag (opcional): planejamento, lancamento, aula, pessoal ou compromisso —
+-- cada uma com a sua cor; o calendário filtra por elas (sql/agenda-tags.sql).
+alter table public.professor_compromissos add column if not exists tag text;
+alter table public.professor_compromissos drop constraint if exists professor_compromissos_tag_valida;
+alter table public.professor_compromissos add constraint professor_compromissos_tag_valida
+  check (tag is null or tag in ('planejamento', 'lancamento', 'aula', 'pessoal', 'compromisso'));
+
 alter table public.professor_compromissos enable row level security;
 
 drop policy if exists "professor_compromissos_select_dono" on public.professor_compromissos;

@@ -3,6 +3,9 @@
 // - botão de expandir abre a agenda em tela cheia, com visão de Mês e de
 //   Semana (grade de horários);
 // - compromisso com hora de início e/ou fim, ou dia todo, e cor do cartão;
+// - tag (planejamento, lançamento, aula, pessoal, compromisso), cada uma com
+//   a sua cor, e filtro por tag que vale pro calendário inteiro (mini,
+//   Mês e Semana);
 // - arrastar o cartão pra outro dia (mini calendário, Mês e Semana) e, na
 //   Semana, arrastar pra outro horário ou esticar pela borda de cima/baixo
 //   pra mudar início/fim (de 15 em 15 min);
@@ -20,6 +23,7 @@ window.ProfessorAgenda = (function () {
   const TABELA = 'professor_compromissos';
   const CHAVE_LOCAL = 'axis.agenda.v1';
   const CHAVE_VISTA = 'axis.agenda.vista';
+  const CHAVE_FILTRO = 'axis.agenda.filtro';
   const PX_HORA = 48;      // altura de 1 hora na grade da Semana
   const PASSO = 15;        // arrastar/esticar anda de 15 em 15 minutos
   const MAX_NO_MES = 3;    // cartões visíveis por dia na visão Mês
@@ -28,6 +32,14 @@ window.ProfessorAgenda = (function () {
     ['azul', 'Azul'], ['roxo', 'Roxo'], ['rosa', 'Rosa'], ['vermelho', 'Vermelho'], ['laranja', 'Laranja'],
     ['amarelo', 'Amarelo'], ['verde', 'Verde'], ['cinza', 'Cinza'], ['marrom', 'Marrom'],
   ];
+  // Tags: cada uma tem a sua cor (uma das CORES). Escolher a tag no editor
+  // já pinta o cartão com a cor dela — dá pra trocar a cor depois.
+  const TAGS = [
+    ['planejamento', 'Planejamento', 'roxo'], ['lancamento', 'Lançamento', 'laranja'], ['aula', 'Aula', 'azul'],
+    ['pessoal', 'Pessoal', 'rosa'], ['compromisso', 'Compromisso', 'verde'],
+  ];
+  const SEM_TAG = 'sem';    // no filtro: compromissos sem tag
+  const tagDe = id => TAGS.find(t => t[0] === id);
   const LEMBRETES = [
     ['', 'Sem lembrete'], ['0', 'Na hora'], ['5', '5 minutos antes'], ['10', '10 minutos antes'],
     ['15', '15 minutos antes'], ['30', '30 minutos antes'], ['60', '1 hora antes'], ['1440', '1 dia antes'],
@@ -107,7 +119,10 @@ window.ProfessorAgenda = (function () {
     if (!ta) { const d = faixa(a)[0] - faixa(b)[0]; if (d) return d; }
     return (a.titulo || '').localeCompare(b.titulo || '');
   }
-  const doDia = dia => st.eventos.filter(e => e.dia === dia).sort(ordenar);
+  // Filtro por tag (vazio = mostra tudo). Vale pro mini, Mês e Semana; o
+  // sininho continua avisando de tudo.
+  const passaFiltro = ev => !st.filtro.size || st.filtro.has(ev.tag || SEM_TAG);
+  const doDia = dia => st.eventos.filter(e => e.dia === dia && passaFiltro(e)).sort(ordenar);
 
   // Lembrete: conta a partir do início (ou do fim, se só tiver fim); dia
   // todo conta a partir das 8h do dia.
@@ -151,9 +166,21 @@ window.ProfessorAgenda = (function () {
     avisados: new Set(),    // ids que já deram aviso nesta aba
     ignorarCliqueAte: 0,    // depois de arrastar, o "click" que vem junto não abre nada
     tituloPagina: document.title,
+    filtro: lerFiltro(),    // tags marcadas no filtro (Set; vazio = todas)
+    semColunaTag: false,    // tabela sem a coluna "tag" (falta sql/agenda-tags.sql)
   };
   let raiz = null;          // seção do painel
   let telaCheia = null;     // overlay da tela cheia
+
+  function lerFiltro() {
+    try {
+      const v = JSON.parse(localStorage.getItem(CHAVE_FILTRO)) || [];
+      return new Set(v.filter(t => t === SEM_TAG || tagDe(t)));
+    } catch (e) { return new Set(); }
+  }
+  function gravarFiltro() {
+    try { localStorage.setItem(CHAVE_FILTRO, JSON.stringify([...st.filtro])); } catch (e) { /* ignore */ }
+  }
 
   // ---------- Persistência ----------
   function normalizar(r) {
@@ -166,6 +193,7 @@ window.ProfessorAgenda = (function () {
       hora_inicio: hhmm(r.hora_inicio),
       hora_fim: hhmm(r.hora_fim),
       cor: r.cor || 'azul',
+      tag: tagDe(r.tag) ? r.tag : null,
       lembrete_min: r.lembrete_min == null || r.lembrete_min === '' ? null : Number(r.lembrete_min),
       lembrete_lido: !!r.lembrete_lido,
     };
@@ -193,7 +221,16 @@ window.ProfessorAgenda = (function () {
     if (i >= 0) st.eventos[i] = ev; else st.eventos.push(ev);
     renderTudo();
     if (st.modo === 'local') { gravarLocal(); return; }
-    const { error } = await st.sb.from(TABELA).upsert({ ...ev, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+    const linha = { ...ev, updated_at: new Date().toISOString() };
+    if (st.semColunaTag) delete linha.tag;
+    let { error } = await st.sb.from(TABELA).upsert(linha, { onConflict: 'id' });
+    // Supabase ainda sem a coluna "tag": salva o resto e avisa.
+    if (error && !st.semColunaTag && /\btag\b/.test(error.message || '')) {
+      st.semColunaTag = true;
+      delete linha.tag;
+      ({ error } = await st.sb.from(TABELA).upsert(linha, { onConflict: 'id' }));
+      if (!error) aviso('Salvo, mas sem a tag: rode sql/agenda-tags.sql no Supabase pra guardar as tags.', 'erro');
+    }
     if (error) {
       const j = st.eventos.findIndex(e => e.id === ev.id);
       if (antes) st.eventos[j] = antes; else st.eventos.splice(j, 1);
@@ -213,9 +250,32 @@ window.ProfessorAgenda = (function () {
   }
 
   // ---------- Cartões (iguais no mini, no Mês e na Semana) ----------
+  const pilulaTag = ev => {
+    const t = tagDe(ev.tag);
+    return t ? `<span class="ag-tag ag-cor-${t[2]}">${esc(t[1])}</span>` : '';
+  };
+  const dicaCartao = ev => `${ev.titulo || 'Sem título'} · ${rotuloHora(ev)}${tagDe(ev.tag) ? ` · ${tagDe(ev.tag)[1]}` : ''}`;
+
+  // Linha de filtro por tag (tela cheia) e o aviso de filtro ligado (mini).
+  function htmlFiltro() {
+    const op = (id, nome, cor) => `<button type="button" class="ag-filtro-op${cor ? ` ag-cor-${cor}` : ''}" data-acao="filtro" data-tag="${id}" aria-pressed="${id ? st.filtro.has(id) : !st.filtro.size}">${nome}</button>`;
+    return `<span class="ag-filtro-rotulo">Tags</span>${op('', 'Todas')}${TAGS.map(([id, nome, cor]) => op(id, nome, cor)).join('')}${op(SEM_TAG, 'Sem tag')}`;
+  }
+  function nomesFiltro() {
+    return [...st.filtro].map(t => (t === SEM_TAG ? 'Sem tag' : tagDe(t)[1])).join(', ');
+  }
+  function alternarFiltro(tag) {
+    if (!tag) st.filtro.clear();
+    else if (st.filtro.has(tag)) st.filtro.delete(tag);
+    else st.filtro.add(tag);
+    gravarFiltro();
+    renderMini();
+    renderFull();
+  }
+
   function cartaoChip(ev, comHora) {
     const hora = comHora && !ehDiaTodo(ev) ? `<span class="ag-chip-hora">${esc(ev.hora_inicio || `até ${ev.hora_fim}`)}</span>` : '';
-    return `<div class="ag-chip ag-cor-${esc(ev.cor)}${ehDiaTodo(ev) ? ' ag-chip-todo' : ''}" data-id="${esc(ev.id)}" title="${esc(`${ev.titulo || 'Sem título'} · ${rotuloHora(ev)}`)}">${hora}<span class="ag-chip-titulo">${esc(ev.titulo || 'Sem título')}</span></div>`;
+    return `<div class="ag-chip ag-cor-${esc(ev.cor)}${ehDiaTodo(ev) ? ' ag-chip-todo' : ''}" data-id="${esc(ev.id)}" title="${esc(dicaCartao(ev))}">${hora}<span class="ag-chip-titulo">${esc(ev.titulo || 'Sem título')}</span></div>`;
   }
 
   function botaoSino() {
@@ -254,6 +314,7 @@ window.ProfessorAgenda = (function () {
             <div class="ag-mini-lista"></div>
           </div>
         </div>
+        <p class="ag-filtro-aviso" hidden><span></span><button type="button" data-acao="filtro" data-tag="">Mostrar tudo</button></p>
         <p class="ag-local" hidden>Salvando só neste navegador. Rode <code>sql/professor-agenda.sql</code> no Supabase pra guardar na nuvem.</p>
       </div>`;
 
@@ -266,6 +327,7 @@ window.ProfessorAgenda = (function () {
         else if (a === 'mini-ant' || a === 'mini-prox') { const m = st.mesMini; st.mesMini = new Date(m.getFullYear(), m.getMonth() + (a === 'mini-ant' ? -1 : 1), 1); renderMini(); }
         else if (a === 'mini-hoje') { st.sel = hoje(); st.mesMini = null; renderMini(); }
         else if (a === 'novo-sel') abrirEditor(novoEvento(st.sel));
+        else if (a === 'filtro') alternarFiltro(b.dataset.tag);
         return;
       }
       if (Date.now() < st.ignorarCliqueAte || e.target.closest('[data-id]')) return;
@@ -315,8 +377,12 @@ window.ProfessorAgenda = (function () {
           <div class="ag-item ag-cor-${esc(ev.cor)}" data-id="${esc(ev.id)}" tabindex="0">
             <span class="ag-item-hora">${esc(rotuloHora(ev))}</span>
             <span class="ag-item-titulo">${esc(ev.titulo || 'Sem título')}</span>
+            ${pilulaTag(ev)}
           </div>`).join('')
-      : '<p class="ag-vazio">Nada marcado. Dê dois cliques num dia ou use o <b>+</b>.</p>';
+      : (st.filtro.size ? '<p class="ag-vazio">Nada com essas tags neste dia.</p>' : '<p class="ag-vazio">Nada marcado. Dê dois cliques num dia ou use o <b>+</b>.</p>');
+    const avisoFiltro = raiz.querySelector('.ag-filtro-aviso');
+    avisoFiltro.hidden = !st.filtro.size;
+    avisoFiltro.querySelector('span').textContent = st.filtro.size ? `Filtro: ${nomesFiltro()}` : '';
     raiz.querySelector('.ag-local').hidden = st.modo !== 'local';
   }
 
@@ -347,6 +413,7 @@ window.ProfessorAgenda = (function () {
           <button type="button" class="ag-icone-btn" data-acao="fechar" aria-label="Fechar agenda" title="Fechar (Esc)">${ico('fechar')}</button>
         </div>
       </header>
+      <div class="ag-filtro" role="group" aria-label="Filtrar por tag"></div>
       <div class="ag-full-corpo"></div>`;
     document.body.appendChild(telaCheia);
 
@@ -370,6 +437,7 @@ window.ProfessorAgenda = (function () {
           renderFull(true);
         } else if (a === 'ver-dia') { f.ref = b.dataset.dia; f.vista = 'semana'; renderFull(true); }
         else if (a === 'novo-dia') abrirEditor(novoEvento(b.dataset.dia));
+        else if (a === 'filtro') alternarFiltro(b.dataset.tag);
         return;
       }
       if (Date.now() < st.ignorarCliqueAte || e.target.closest('[data-id]')) return;
@@ -409,6 +477,7 @@ window.ProfessorAgenda = (function () {
     const f = st.full;
     const r = deYmd(f.ref);
     telaCheia.querySelectorAll('[data-vista]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.vista === f.vista)));
+    telaCheia.querySelector('.ag-filtro').innerHTML = htmlFiltro();
     const corpo = telaCheia.querySelector('.ag-full-corpo');
     if (f.vista === 'mes') {
       telaCheia.querySelector('.ag-full-titulo').textContent = `${MESES[r.getMonth()]} ${r.getFullYear()}`;
@@ -500,7 +569,7 @@ window.ProfessorAgenda = (function () {
     return `
       <div class="ag-bloco ag-cor-${esc(ev.cor)}${pontas}${curto}" data-id="${esc(ev.id)}"
            style="top:${i * PX_HORA / 60}px;height:${Math.max(18, (f - i) * PX_HORA / 60 - 2)}px;left:calc(${it.trilha / it.n * 100}% + 2px);width:calc(${100 / it.n}% - 4px)"
-           title="${esc(`${ev.titulo || 'Sem título'} · ${rotuloHora(ev)}`)}">
+           title="${esc(dicaCartao(ev))}">
         <div class="ag-alca ag-alca-topo" data-alca="topo"></div>
         <span class="ag-bloco-titulo">${esc(ev.titulo || 'Sem título')}</span>
         <span class="ag-bloco-hora">${esc(rotuloHora(ev))}</span>
@@ -862,11 +931,15 @@ window.ProfessorAgenda = (function () {
 
   // ---------- Editor ----------
   function novoEvento(dia, inicio, fim) {
-    return {
+    const ev = {
       id: null, titulo: '', descricao: '', dia,
       dia_todo: !inicio, hora_inicio: inicio || null, hora_fim: fim || null,
-      cor: 'azul', lembrete_min: null, lembrete_lido: false,
+      cor: 'azul', tag: null, lembrete_min: null, lembrete_lido: false,
     };
+    // Filtro com uma tag só: o novo já nasce com ela (senão sumiria da tela).
+    const [unica] = st.filtro.size === 1 ? [...st.filtro] : [];
+    if (tagDe(unica)) { ev.tag = unica; ev.cor = tagDe(unica)[2]; }
+    return ev;
   }
 
   let editorAberto = null;
@@ -900,6 +973,14 @@ window.ProfessorAgenda = (function () {
           </div>
         </div>
         <p class="ag-dica ag-linha-horas">Pode deixar só o início ou só o fim.</p>
+        <div class="ag-linha ag-linha-topo">
+          <span class="ag-rotulo">Tag</span>
+          <div class="ag-tags" role="radiogroup" aria-label="Tag">
+            <label class="ag-tag-op"><input type="radio" name="tag" value=""${ev.tag ? '' : ' checked'}><span>Nenhuma</span></label>
+            ${TAGS.map(([id, nome, cor]) => `
+              <label class="ag-tag-op ag-cor-${cor}"><input type="radio" name="tag" value="${id}"${ev.tag === id ? ' checked' : ''}><span>${nome}</span></label>`).join('')}
+          </div>
+        </div>
         <div class="ag-linha ag-linha-topo">
           <span class="ag-rotulo">Cor</span>
           <div class="ag-cores" role="radiogroup" aria-label="Cor do cartão">
@@ -940,6 +1021,13 @@ window.ProfessorAgenda = (function () {
     };
     mostrarDia();
     mostrarLembrete();
+
+    // Escolheu a tag: o cartão pega a cor dela.
+    form.querySelectorAll('input[name="tag"]').forEach(r => r.addEventListener('change', () => {
+      const t = tagDe(r.value);
+      const radio = t && form.querySelector(`input[name="cor"][value="${t[2]}"]`);
+      if (radio) radio.checked = true;
+    }));
 
     let inicioAntes = lerHora(f.hora_inicio.value) || null;
     const todo = f.dia_todo;
@@ -1040,6 +1128,7 @@ window.ProfessorAgenda = (function () {
         hora_inicio: diaTodo ? null : ini,
         hora_fim: diaTodo ? null : fim,
         cor: (form.querySelector('input[name="cor"]:checked') || {}).value || 'azul',
+        tag: (form.querySelector('input[name="tag"]:checked') || {}).value || null,
         lembrete_min: lembrete,
         lembrete_lido: ev.lembrete_lido && lembrete === ev.lembrete_min,
       };

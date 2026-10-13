@@ -442,3 +442,58 @@ body.ag-travar-rolagem{ overflow:hidden; }
   .ag-dica{ margin-left:86px; }
   .ag-modal-acoes .btn-ghost span{ display:none; }
 }
+
+/* ---------- Tags ----------
+   Cada tag usa a classe ag-cor-* da cor dela (TAGS em
+   shared/professor-agenda.js), então segue o tema claro/escuro sozinha. */
+.ag-tag{
+  align-self:flex-start; margin-top:3px; padding:1px 8px; border-radius:999px;
+  font-size:10.5px; font-weight:700; line-height:1.6; letter-spacing:.01em;
+  color:color-mix(in srgb, var(--ev) 80%, var(--pr-text));
+  background:color-mix(in srgb, var(--ev) 22%, transparent);
+  border:1px solid color-mix(in srgb, var(--ev) 50%, transparent);
+}
+.ag-tags{ display:flex; flex-wrap:wrap; gap:6px; }
+.ag-tag-op{ position:relative; cursor:pointer; }
+.ag-tag-op input{ position:absolute; opacity:0; inset:0; margin:0; cursor:pointer; }
+.ag-tag-op span, .ag-filtro-op{
+  display:inline-block; padding:4px 11px; border-radius:999px;
+  font:inherit; font-size:12.5px; font-weight:600; white-space:nowrap; cursor:pointer;
+  color:var(--pr-text-2); background:transparent; border:1px solid var(--pr-border);
+  transition:background .12s ease, border-color .12s ease, color .12s ease;
+}
+.ag-tag-op[class*="ag-cor-"] span, .ag-filtro-op[class*="ag-cor-"]{
+  color:color-mix(in srgb, var(--ev) 80%, var(--pr-text));
+  border-color:color-mix(in srgb, var(--ev) 55%, var(--pr-border));
+}
+.ag-tag-op:hover span, .ag-filtro-op:hover{ background:var(--pr-surface-2); }
+.ag-tag-op[class*="ag-cor-"]:hover span, .ag-filtro-op[class*="ag-cor-"]:hover{ background:color-mix(in srgb, var(--ev) 12%, transparent); }
+.ag-tag-op input:checked + span, .ag-filtro-op[aria-pressed="true"]{
+  color:var(--pr-text); background:var(--pr-surface-2); border-color:var(--pr-text-3); font-weight:700;
+}
+.ag-tag-op[class*="ag-cor-"] input:checked + span, .ag-filtro-op[class*="ag-cor-"][aria-pressed="true"]{
+  color:color-mix(in srgb, var(--ev) 70%, var(--pr-text));
+  background:color-mix(in srgb, var(--ev) 26%, var(--pr-surface)); border-color:var(--ev);
+}
+.ag-tag-op input:focus-visible + span{ outline:2px solid var(--pr-accent); outline-offset:2px; }
+
+/* Filtro por tag: linha embaixo do topo da tela cheia; no mini, só um
+   aviso quando o filtro está ligado. */
+.ag-filtro{
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap; flex-shrink:0;
+  padding:8px 20px; background:var(--pr-surface); border-bottom:1px solid var(--pr-border);
+}
+.ag-filtro-rotulo{ margin-right:4px; font-size:12px; font-weight:700; color:var(--pr-text-3); text-transform:uppercase; letter-spacing:.04em; }
+.ag-filtro-aviso{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  margin:10px 0 0; font-size:12.5px; color:var(--pr-text-2);
+}
+.ag-filtro-aviso[hidden]{ display:none; }
+.ag-filtro-aviso button{
+  flex:none; padding:3px 10px; border-radius:999px; border:1px solid var(--pr-border);
+  background:transparent; font:inherit; font-size:12px; font-weight:600; color:var(--pr-text-2); cursor:pointer;
+}
+.ag-filtro-aviso button:hover{ background:var(--pr-surface-2); color:var(--pr-text); }
+@media (max-width:640px){
+  .ag-filtro{ padding:8px 12px; flex-wrap:nowrap; overflow-x:auto; }
+}
