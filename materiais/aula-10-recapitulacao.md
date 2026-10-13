@@ -13,7 +13,6 @@ Da web ao banco de dados: tudo o que você já construiu
 
 ## Hoje você vai
 + Relembrar o caminho do curso até aqui
-+ Responder uma pergunta de cada etapa
 + Conhecer os agentes de código: Codex e Claude Code
 + Montar o seu tutor de IA para continuar estudando
 
@@ -46,16 +45,6 @@ Do bit à IA
 
 ---
 
-## Pergunta
-A IA sugeriu uma função que usa um comando que não existe. Como isso se chama?
-
-- [ ] Compilação
-- [x] Alucinação
-- [ ] Interpretação
-- [ ] Tokenização
-
----
-
 # Aulas 2 e 3
 A inspeção vira dado e ganha uma casa
 
@@ -71,16 +60,6 @@ A inspeção vira dado e ganha uma casa
 
 ---
 
-## Pergunta
-"O sistema deve permitir marcar um item como reprovado." Que tipo de requisito é?
-
-- [x] Requisito funcional (RF)
-- [ ] Requisito não funcional (RNF)
-- [ ] Regra de segurança do banco
-- [ ] Teste de desempenho
-
----
-
 ## GitHub, Codespace e terminal
 - **GitHub** guarda o projeto na nuvem: é o seu currículo
 - **Codespace** é o VS Code rodando no navegador
@@ -92,16 +71,6 @@ git add .
 git commit -m "Adiciona a lista de itens"
 git push
 ```
-
----
-
-## Pergunta
-Qual comando envia os seus commits do Codespace para o GitHub?
-
-- [ ] `git add .`
-- [ ] `git commit`
-- [x] `git push`
-- [ ] `git status`
 
 ---
 
@@ -132,16 +101,6 @@ Lógica e o ciclo de uma mudança
 
 ---
 
-## Pergunta
-Você quer testar uma ideia sem estragar a versão que está no ar. O que cria primeiro?
-
-- [ ] Um merge
-- [x] Uma branch
-- [ ] Um .gitignore
-- [ ] Um pull request
-
----
-
 # Aula 9
 O sistema ganha memória
 
@@ -156,16 +115,6 @@ O sistema ganha memória
 
 ---
 
-## Pergunta
-Qual chave do Supabase **nunca** pode ir para o código do navegador?
-
-- [ ] A publishable (anon)
-- [x] A secret (service_role)
-- [ ] A URL do projeto
-- [ ] O nome da tabela
-
----
-
 ## Novidade: agentes de código
 - **Copilot** sugere código enquanto você digita
 - **Codex** (OpenAI) e **Claude Code** (Anthropic) são **agentes**
@@ -173,16 +122,6 @@ Qual chave do Supabase **nunca** pode ir para o código do navegador?
 - Você continua responsável: **revise tudo** que ele mudou
 
 > Assistente responde. Agente executa. Os dois erram.
-
----
-
-## Pergunta
-Um agente de código alterou 5 arquivos do seu projeto. Antes do commit, o que você faz?
-
-- [ ] Faz o commit direto, porque o agente já testou
-- [ ] Apaga tudo e escreve de novo à mão
-- [x] Revisa as mudanças e testa o sistema
-- [ ] Manda para o GitHub e espera alguém achar erro
 
 ---
 
