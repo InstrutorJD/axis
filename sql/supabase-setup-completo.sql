@@ -2520,3 +2520,51 @@ create policy "professor_projeto_itens_delete_dono"
 
 grant select, insert, update, delete on public.professor_projetos to authenticated;
 grant select, insert, update, delete on public.professor_projeto_itens to authenticated;
+
+-- ============================================================
+-- GITHUB DOS ALUNOS — link do repositório e do GitHub Pages de cada
+-- aluno (ícone do GitHub na barra de abas, shared/github-links.js).
+-- Aluno lê/grava só os próprios; professor (e substituto) leem todos.
+-- Mesmo trecho de sql/github-links.sql.
+-- ============================================================
+
+create table if not exists public.student_github_links (
+  email text primary key,
+  repo_url text,
+  pages_url text,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.student_github_links drop constraint if exists student_github_links_repo_valido;
+alter table public.student_github_links add constraint student_github_links_repo_valido
+  check (repo_url is null or repo_url ~* '^https://github\.com/[a-z0-9](-?[a-z0-9]){0,38}/[a-z0-9._-]{1,100}/?$');
+
+alter table public.student_github_links drop constraint if exists student_github_links_pages_valido;
+alter table public.student_github_links add constraint student_github_links_pages_valido
+  check (pages_url is null or pages_url ~* '^https://[a-z0-9](-?[a-z0-9]){0,38}\.github\.io(/[^[:space:]]*)?$');
+
+alter table public.student_github_links enable row level security;
+
+drop policy if exists "student_github_links_select_self_or_professor" on public.student_github_links;
+create policy "student_github_links_select_self_or_professor"
+  on public.student_github_links for select to authenticated
+  using (public.is_professor() or email = public.current_email());
+
+drop policy if exists "student_github_links_insert_self" on public.student_github_links;
+create policy "student_github_links_insert_self"
+  on public.student_github_links for insert to authenticated
+  with check (email = public.current_email());
+
+drop policy if exists "student_github_links_update_self" on public.student_github_links;
+create policy "student_github_links_update_self"
+  on public.student_github_links for update to authenticated
+  using (email = public.current_email())
+  with check (email = public.current_email());
+
+-- Substituto só lê (is_substituto() já foi criada no bloco do substituto, acima).
+drop policy if exists "student_github_links_select_substituto" on public.student_github_links;
+create policy "student_github_links_select_substituto"
+  on public.student_github_links for select to authenticated
+  using (public.is_substituto());
+
+grant select, insert, update on public.student_github_links to authenticated;

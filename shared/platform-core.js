@@ -291,6 +291,7 @@
           <button class="quick-action-btn" id="btnOpenPixelCode" title="Abrir o PixelCode (editor de HTML, CSS e JavaScript, com navegador) numa aba nova">💻 PixelCode</button>
           ${currentUser.role === 'professor' ? `<button class="tab-btn" data-tab="gestao">Gestão 🛠️</button>` : ''}
           <div class="nav-right-group">
+            <button type="button" class="quick-token-btn github-btn" id="btnGithubLinks" title="GitHub" aria-label="GitHub">${window.PortalGithub ? window.PortalGithub.SVG : 'GH'}</button>
             ${currentUser.role === 'professor' ? `<button class="quick-token-btn" id="btnQuickToken" title="Ver/gerar o token de Dar Visto e Pular Etapa">🔑</button>` : ''}
             <button class="tab-btn profile-tab-btn" data-tab="perfil" id="btnPerfilTab" title="Meu perfil e personalização do portal">
               <span id="perfilTabEmoji">${prefs.avatarEmoji || '👤'}</span>
@@ -5569,6 +5570,12 @@
       saveUserPreferences();
     });
     document.getElementById('btnAbrirPersonalizacao')?.addEventListener('click', openPersonalizacao);
+    // Ícone do GitHub (todos): aluno cadastra os próprios links; professor
+    // vê os da turma aberta (roster de turmaStudents()). Ver shared/github-links.js.
+    document.getElementById('btnGithubLinks').addEventListener('click', () => {
+      if (!window.PortalGithub) return;
+      window.PortalGithub.abrir({ client: sbClient, user: currentUser, alunos: turmaStudents(), turmaLabel: cfg.label });
+    });
     document.getElementById('btnFontBigger').addEventListener('click', () => {
       a11y.fontScale = Math.min(1.6, Math.round((a11y.fontScale + 0.1) * 10) / 10);
       applyA11y();

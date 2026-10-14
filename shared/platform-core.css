@@ -145,6 +145,29 @@ html[data-theme="light"] body{
 }
 .quick-token-btn:hover{ color:var(--ink); border-color:var(--ink-dim); background:linear-gradient(155deg, transparent 0%, rgba(255,255,255,0.08) 100%); }
 
+/* Ícone do GitHub (todos) — mesmo botão circular da chave 🔑, com o logo em
+   SVG (cor = currentColor, acompanha tema/hover). Abre a modal de
+   shared/github-links.js: aluno cadastra os links, professor vê os da turma. */
+.github-btn svg{ display:block; width:18px; height:18px; pointer-events:none; }
+.gh-box{ max-width:640px; }
+.gh-titulo{ display:flex; align-items:center; gap:8px; }
+.gh-titulo svg{ width:18px; height:18px; flex-shrink:0; }
+.gh-box label.pf-perso-label{ display:block; }
+.gh-box .gh-input{ width:100%; box-sizing:border-box; }
+.gh-box .gh-input.gh-invalido{ border-color:var(--blood-bright); }
+.gh-erro{ font-size:11px; color:var(--blood-bright); margin-top:6px; min-height:0; }
+.gh-erro:empty{ display:none; }
+.gh-abrir{ font-size:11px; color:var(--ink-dim); margin-top:6px; overflow-wrap:anywhere; }
+.gh-abrir:empty{ display:none; }
+.gh-box a{ color:var(--green); overflow-wrap:anywhere; }
+.gh-botoes{ display:flex; gap:8px; }
+.gh-tabela-wrap{ overflow-x:auto; }
+.gh-tabela{ width:100%; border-collapse:collapse; font-size:12px; }
+.gh-tabela th{ text-align:left; font-size:10.5px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.5px; padding:6px 8px; border-bottom:1px solid var(--line); }
+.gh-tabela td{ padding:8px; border-bottom:1px solid var(--line); vertical-align:top; }
+.gh-tabela .gh-nome{ font-weight:700; white-space:nowrap; }
+.gh-vazio{ color:var(--ink-dim); }
+
 /* Botões de atalho (só professor) — mesma barra dos tabs, mas são AÇÕES
    (abrem uma seção específica, ou ligam/desligam algo na hora), não
    destinos de navegação — por isso não usam .tab-btn (ficariam marcados
