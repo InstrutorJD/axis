@@ -140,7 +140,18 @@ window.PortalSession = (function () {
     const sb = client();
     cachedUser = null;
     document.cookie = `${COOKIE_SESSAO}=; path=/; max-age=0; SameSite=Lax`;
-    if (sb) await sb.auth.signOut();
+    if (!sb) return;
+    // O signOut padrão avisa o servidor ANTES de apagar a sessão local; sem
+    // rede ele pode demorar ou falhar e deixar a sessão guardada (o
+    // index.html entraria de novo sozinho). Por isso: tenta o global com
+    // limite de tempo e, de todo jeito, apaga a sessão local (sem rede).
+    try {
+      await Promise.race([
+        sb.auth.signOut(),
+        new Promise(resolve => setTimeout(resolve, 3000))
+      ]);
+    } catch (e) { /* segue pro local */ }
+    try { await sb.auth.signOut({ scope: 'local' }); } catch (e) { /* já saiu */ }
   }
 
   // App instalado (manifest.json): roda numa janela própria, sem abas. Lá

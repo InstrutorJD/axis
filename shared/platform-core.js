@@ -5553,6 +5553,11 @@
         await window.__testAfterLogoutSync();
       }
 
+      // Encerra a sessão do Supabase de verdade. Sem isso, o index.html
+      // achava a sessão ainda guardada e, com "Permanecer logado" marcado,
+      // entrava de novo sozinho. (O signOut já tem limite de tempo sem rede.)
+      try { await window.PortalSession.signOut(); } catch (e) { /* segue pro login mesmo assim */ }
+
       sessionStorage.clear();
       window.location.href = '../../index.html';
     });

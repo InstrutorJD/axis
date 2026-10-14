@@ -8,17 +8,18 @@
 <title>Axis — Telão</title>
 
 <!-- Telão da sala: tela pra projetar na TV (monitor estendido) enquanto a
-     turma faz atividade. Relógio, link do portal e se o
-     banheiro está liberado. Aberta pelo botão "Telão" do painel
-     (professor/painel.html), numa janela separada pra arrastar pra TV.
-     Não precisa de login: não mostra nenhum dado de aluno.
-     Horários do banheiro: HORARIOS_BANHEIRO abaixo. -->
+     turma faz atividade. Relógio, link do portal, se o banheiro está
+     liberado e o horário do intervalo e do almoço. Aberta pelo botão
+     "Telão" do painel (professor/painel.html), numa janela separada pra
+     arrastar pra TV. Não precisa de login: não mostra nenhum dado de aluno.
+     Horários do banheiro: HORARIOS_BANHEIRO abaixo. Intervalo e almoço:
+     PAUSAS abaixo. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
   :root{
     --bg:#0b0e12; --card:#141922; --borda:#232a36; --texto:#f3f5f8; --texto-2:#a7b0be; --texto-3:#6b7585;
-    --ok:#22c55e; --nao:#ef4444;
+    --ok:#22c55e; --nao:#ef4444; --almoco:#f59e0b; --espera:#60a5fa;
   }
   *{ box-sizing:border-box; }
   html, body{ height:100%; margin:0; }
@@ -41,13 +42,19 @@
   .lado{ display:flex; flex-direction:column; gap:3vmin; min-height:0; }
   .cartao{ border:1px solid var(--borda); border-radius:3vmin; background:var(--card); padding:3.2vmin 3.6vmin; }
 
-  /* Banheiro */
-  .banheiro{ flex:1.15; display:flex; flex-direction:column; justify-content:center; gap:1.6vmin; position:relative; overflow:hidden;
+  /* Banheiro e pausas (intervalo/almoço) */
+  .banheiro{ flex:1.15; }
+  .pausa{ flex:.9; }
+  .banheiro, .pausa{ display:flex; flex-direction:column; justify-content:center; gap:1.6vmin; position:relative; overflow:hidden;
     transition:border-color .6s ease, background .6s ease; }
-  .banheiro::before{ content:''; position:absolute; inset:0; opacity:.16; background:radial-gradient(circle at 85% 20%, var(--cor) 0%, transparent 60%); transition:background .6s ease; }
-  .banheiro > *{ position:relative; }
+  .banheiro::before, .pausa::before{ content:''; position:absolute; inset:0; opacity:.16; background:radial-gradient(circle at 85% 20%, var(--cor) 0%, transparent 60%); transition:background .6s ease; }
+  .banheiro > *, .pausa > *{ position:relative; }
   .banheiro.liberado{ --cor:var(--ok); border-color:color-mix(in srgb, var(--ok) 55%, var(--borda)); }
   .banheiro.proibido{ --cor:var(--nao); border-color:color-mix(in srgb, var(--nao) 55%, var(--borda)); }
+  .pausa.livre{ --cor:var(--ok); border-color:color-mix(in srgb, var(--ok) 55%, var(--borda)); }
+  .pausa.almoco{ --cor:var(--almoco); border-color:color-mix(in srgb, var(--almoco) 55%, var(--borda)); }
+  .pausa.espera{ --cor:var(--espera); }
+  .pausa.espera .bolinha{ animation:none; }
   .rotulo{ font-size:clamp(12px, 1.15vw, 22px); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--texto-3); }
   .status{ display:flex; align-items:center; gap:2vmin; font-size:clamp(26px, 3.6vw, 72px); font-weight:800; line-height:1; color:var(--cor); }
   .status .bolinha{ flex:none; width:.55em; height:.55em; border-radius:50%; background:var(--cor); box-shadow:0 0 0 0 var(--cor); animation:pulsa 2s ease-out infinite; }
@@ -94,6 +101,13 @@
     <div class="horarios" id="bHorarios"></div>
   </div>
 
+  <div class="cartao pausa espera" id="pausa">
+    <div class="rotulo">Intervalo e almoço</div>
+    <div class="status"><span class="bolinha"></span><span id="pStatus">—</span></div>
+    <div class="detalhe" id="pDetalhe"></div>
+    <div class="horarios" id="pHorarios"></div>
+  </div>
+
   <div class="cartao portal">
     <div class="rotulo">Portal</div>
     <div class="url" id="url"></div>
@@ -111,6 +125,15 @@
     ['13:10', '13:30'],
   ];
 
+  // Intervalo e almoço (início incluso, fim não). No intervalo os alunos
+  // podem sair; no almoço o telão só avisa que é horário de almoço, sem
+  // dizer que estão liberados. O fim marca quando o cartão volta a contar
+  // a próxima pausa.
+  const PAUSAS = [
+    { nome: 'Intervalo', ini: '08:35', fim: '08:55', sair: true },
+    { nome: 'Almoço', ini: '11:15', fim: '13:00', sair: false },
+  ];
+
   const min = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
   const faixas = HORARIOS_BANHEIRO.map(([a, b]) => ({ a, b, ini: min(a), fim: min(b) }));
   const $ = id => document.getElementById(id);
@@ -122,8 +145,38 @@
     return m ? `${h} h ${m} min` : `${h} h`;
   }
 
+  const pausas = PAUSAS.map(p => ({ ...p, a: min(p.ini), b: min(p.fim) }));
+
   // Monta só o que mudou (o relógio roda a cada segundo).
-  let ultimoBanheiro = '';
+  let ultimoBanheiro = '', ultimaPausa = '';
+  function atualizarPausa(atual) {
+    const dentro = pausas.find(p => atual >= p.a && atual < p.b);
+    const proxima = pausas.find(p => p.a > atual);
+    let classe = 'espera', status, detalhe = '';
+    if (dentro && dentro.sair) {
+      classe = 'livre';
+      status = 'Intervalo · podem sair';
+      detalhe = `Volta às <b>${dentro.fim}</b> · faltam <b>${falta(dentro.b - atual)}</b>`;
+    } else if (dentro) {
+      classe = 'almoco';
+      status = 'Horário de almoço';
+    } else if (proxima) {
+      status = `${proxima.nome} às ${proxima.ini}`;
+      detalhe = `Daqui a <b>${falta(proxima.a - atual)}</b>`;
+    } else {
+      status = 'Sem mais pausas hoje';
+    }
+    const chave = `${classe}|${status}|${detalhe}`;
+    if (chave === ultimaPausa) return;
+    ultimaPausa = chave;
+    const caixa = $('pausa');
+    caixa.classList.remove('livre', 'almoco', 'espera');
+    caixa.classList.add(classe);
+    $('pStatus').textContent = status;
+    $('pDetalhe').innerHTML = detalhe;
+    $('pDetalhe').hidden = !detalhe;
+    $('pHorarios').innerHTML = pausas.map(p => `<span class="${p === dentro ? 'agora' : ''}">${p.nome} ${p.ini}</span>`).join('');
+  }
   function atualizar() {
     const agora = new Date();
     const h = agora.getHours(), m = agora.getMinutes();
@@ -131,6 +184,7 @@
     $('data').textContent = agora.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
 
     const atual = h * 60 + m;
+    atualizarPausa(atual);
     const dentro = faixas.find(f => atual >= f.ini && atual < f.fim);
     const proxima = faixas.find(f => f.ini > atual);
     let status, detalhe;
