@@ -10,9 +10,10 @@
      student_github_links). Clicou no card, o jogo carrega aqui mesmo, num
      <iframe> isolado (sandbox, sem poder navegar a página de cima).
      Página própria, separada dos jogos do portal: aberta pelo botão 🕹️ da
-     barra de abas (shared/platform-core.js, numa aba nova), que passa
-     ?turma=. Aluno vê os jogos da própria turma (RLS em
-     sql/arcade-turma.sql); professor escolhe a turma nos botões do topo. -->
+     barra de abas do portal de Jogos Digitais (shared/platform-core.js,
+     numa aba nova). Só da turma de Jogos Digitais: aluno de outra turma vê
+     um aviso, e o banco também só libera os links dos colegas pra turma
+     'jogos' (RLS em sql/arcade-turma.sql). -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
@@ -43,13 +44,6 @@
     color:var(--texto); font:500 14px Inter, system-ui, sans-serif; outline:none; transition:border-color .2s, box-shadow .2s; }
   .busca input:focus{ border-color:var(--destaque); box-shadow:0 0 0 3px #ffcc3326; }
   .busca::before{ content:'🔍'; position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; opacity:.7; }
-  .turmas{ max-width:1280px; margin:0 auto; padding:0 20px 10px; display:flex; flex-wrap:wrap; gap:8px; }
-  .turmas[hidden]{ display:none; }
-  .turmas button{ padding:7px 14px; border-radius:99px; border:1px solid var(--borda); background:var(--card); color:var(--texto-2);
-    font:600 13px Inter, sans-serif; cursor:pointer; transition:border-color .2s, color .2s, background .2s; }
-  .turmas button:hover{ color:var(--texto); border-color:var(--texto-3); }
-  .turmas button[aria-pressed="true"]{ color:#1a1300; background:var(--destaque); border-color:var(--destaque); }
-  .turmas button:focus-visible{ outline:2px solid var(--destaque); outline-offset:2px; }
   .contagem{ max-width:1280px; margin:0 auto; padding:0 20px 14px; font-size:13px; color:var(--texto-3); }
 
   /* Grade de jogos */
@@ -120,8 +114,6 @@
     <input type="search" id="busca" placeholder="Buscar jogo ou aluno" aria-label="Buscar jogo ou aluno" autocomplete="off">
   </label>
 </header>
-<!-- Só pro professor: escolhe de qual turma ver os jogos. -->
-<nav class="turmas" id="turmas" hidden aria-label="Turma"></nav>
 <div class="contagem" id="contagem" aria-live="polite"></div>
 <main class="grade" id="grade">
   <div class="esqueleto"></div><div class="esqueleto"></div><div class="esqueleto"></div><div class="esqueleto"></div>
@@ -158,11 +150,13 @@
   if (!user) return;
   const sb = window.PortalSession.client();
   const professor = user.role === 'professor' || user.role === 'admin';
-  // Aluno: só a própria turma (a RLS já garante). Professor: escolhe nos
-  // botões do topo; começa pela do portal que abriu a página (?turma=).
-  const TURMAS = [['jogos', 'Jogos Digitais'], ['sistemas', 'Desenvolvimento de Sistemas'], ['', 'Todas']];
-  let turma = professor ? (new URLSearchParams(location.search).get('turma') || '') : user.turma;
-  if (!TURMAS.some(([id]) => id === turma)) turma = '';
+  // Só a turma de Jogos Digitais tem Arcade. Professor vê os jogos dela.
+  const TURMA = 'jogos';
+  if (!professor && user.turma !== TURMA) {
+    $('busca').closest('.busca').hidden = true;
+    $('grade').innerHTML = '<div class="vazio"><span class="grande">🕹️</span><b>O Arcade é da turma de Jogos Digitais.</b><br>Sua turma não tem acesso a esta página.</div>';
+    return;
+  }
 
   // Nome provisório do jogo: o nome do repositório no caminho do link
   // (usuario.github.io/meu-jogo → "Meu Jogo"); sem caminho, o usuário.
@@ -180,7 +174,7 @@
     const emails = validos.map(l => l.email);
     let perfis = [];
     if (emails.length) {
-      const r = await sb.from('profiles').select('email, nome, turma, role, archived_at').in('email', emails);
+      const r = await sb.from('profiles').select('email, nome, turma, role, archived_at').in('email', emails).eq('turma', TURMA);
       if (r.error) throw r.error;
       perfis = r.data || [];
     }
@@ -189,7 +183,6 @@
       email: l.email,
       url: l.pages_url,
       autor: porEmail.get(l.email).nome || l.email,
-      turma: porEmail.get(l.email).turma,
       titulo: nomeDoLink(l.pages_url),
       capa: '',
       h: hash(l.email) % 360,
@@ -217,31 +210,16 @@
 
   function desenhar() {
     const termo = $('busca').value.trim().toLowerCase();
-    const daTurma = jogos.filter(j => !turma || j.turma === turma);
     const lista = jogos.map((j, i) => [j, i])
-      .filter(([j]) => (!turma || j.turma === turma) && (!termo || `${j.titulo} ${j.autor}`.toLowerCase().includes(termo)));
-    if (!daTurma.length) {
+      .filter(([j]) => !termo || `${j.titulo} ${j.autor}`.toLowerCase().includes(termo));
+    if (!jogos.length) {
       $('grade').innerHTML = `<div class="vazio"><span class="grande">🎮</span><b>Nenhum jogo publicado ainda.</b><br>Cadastre o link do seu GitHub Pages no ícone do <b>GitHub</b>, na barra do portal, e ele aparece aqui.</div>`;
       $('contagem').textContent = '';
       return;
     }
-    $('contagem').textContent = termo ? `${lista.length} de ${daTurma.length} jogo(s)` : `${daTurma.length} jogo(s)`;
+    $('contagem').textContent = termo ? `${lista.length} de ${jogos.length} jogo(s)` : `${jogos.length} jogo(s)`;
     $('grade').innerHTML = lista.length ? lista.map(([j, i]) => card(j, i)).join('')
       : `<div class="vazio"><span class="grande">🔍</span>Nenhum jogo com “${esc(termo)}”.</div>`;
-  }
-  if (professor) {
-    const nav = $('turmas');
-    const marcar = () => nav.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.turma === turma)));
-    nav.innerHTML = TURMAS.map(([id, nome]) => `<button type="button" data-turma="${id}">${nome}</button>`).join('');
-    nav.hidden = false;
-    nav.addEventListener('click', e => {
-      const b = e.target.closest('button');
-      if (!b) return;
-      turma = b.dataset.turma;
-      marcar();
-      desenhar();
-    });
-    marcar();
   }
   desenhar();
   $('busca').addEventListener('input', desenhar);
