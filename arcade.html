@@ -201,7 +201,7 @@
       <button type="button" class="jogo" data-i="${i}" aria-label="Jogar ${esc(j.titulo)}, de ${esc(j.autor)}">
         <div class="capa" style="--h:${j.h}">
           <span class="emoji" aria-hidden="true">${j.emoji}</span>
-          ${j.capa ? `<img src="${esc(j.capa)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
+          ${j.capa ? `<img src='${esc(j.capa)}' alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
           <div class="jogar" aria-hidden="true"><span>▶ JOGAR</span></div>
         </div>
         <div class="info">
