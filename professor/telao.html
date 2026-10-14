@@ -39,12 +39,15 @@
   .data{ margin-top:2vmin; font-size:clamp(15px, 1.8vw, 36px); font-weight:500; color:var(--texto-2); text-transform:capitalize; }
 
   /* Coluna da direita */
-  .lado{ display:flex; flex-direction:column; gap:3vmin; min-height:0; }
-  .cartao{ border:1px solid var(--borda); border-radius:3vmin; background:var(--card); padding:3.2vmin 3.6vmin; }
+  .lado{ display:flex; flex-direction:column; gap:2.4vmin; min-height:0; }
+  .cartao{ border:1px solid var(--borda); border-radius:3vmin; background:var(--card); padding:2.6vmin 3.6vmin; }
 
-  /* Banheiro e pausas (intervalo/almoço) */
-  .banheiro{ flex:1.15; }
-  .pausa{ flex:.9; }
+  /* Banheiro e pausas (intervalo/almoço). Crescem pra ocupar a coluna, mas
+     nunca ficam menores que o próprio conteúdo (senão o overflow:hidden
+     abaixo cortava o texto). */
+  .banheiro{ flex:1.15 0 auto; }
+  .pausa{ flex:.9 0 auto; }
+  .pausa .status{ font-size:clamp(20px, 2.6vw, 52px); }
   .banheiro, .pausa{ display:flex; flex-direction:column; justify-content:center; gap:1.6vmin; position:relative; overflow:hidden;
     transition:border-color .6s ease, background .6s ease; }
   .banheiro::before, .pausa::before{ content:''; position:absolute; inset:0; opacity:.16; background:radial-gradient(circle at 85% 20%, var(--cor) 0%, transparent 60%); transition:background .6s ease; }
@@ -68,7 +71,7 @@
   .horarios span.agora{ color:var(--texto); border-color:var(--cor); background:color-mix(in srgb, var(--cor) 18%, transparent); }
 
   /* Link do portal */
-  .portal{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:1.4vmin; min-height:0; }
+  .portal{ flex:0 0 auto; display:flex; flex-direction:column; justify-content:center; gap:1.4vmin; min-height:0; }
   .url{ font-size:clamp(18px, 2.1vw, 42px); font-weight:800; line-height:1.1; letter-spacing:-.01em; word-break:break-word; }
 
   /* Botão de tela cheia: some sozinho quando o mouse para */
