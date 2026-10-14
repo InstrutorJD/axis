@@ -49,11 +49,12 @@
   /* Grade de jogos */
   .grade{ max-width:1280px; margin:0 auto; padding:0 20px 40px; display:grid; gap:18px;
     grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); }
-  .jogo{ all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; border-radius:16px; overflow:hidden;
+  .jogo{ display:flex; flex-direction:column; border-radius:16px; overflow:hidden;
     background:var(--card); border:1px solid var(--borda); transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
-  .jogo:hover, .jogo:focus-visible{ transform:translateY(-4px) scale(1.02); border-color:var(--destaque);
+  .jogo:hover, .jogo:focus-within{ transform:translateY(-4px) scale(1.02); border-color:var(--destaque);
     box-shadow:0 14px 34px #0009, 0 0 0 1px var(--destaque), 0 0 26px #ffcc3333; }
-  .jogo:focus-visible{ outline:none; }
+  .jogo-abrir{ all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; min-width:0; }
+  .jogo-abrir:focus-visible{ outline:none; }
   .capa{ position:relative; aspect-ratio:16/10; display:grid; place-items:center; overflow:hidden;
     background:linear-gradient(135deg, hsl(var(--h) 70% 45%), hsl(calc(var(--h) + 50) 75% 30%)); }
   .capa::after{ content:''; position:absolute; inset:0; background:repeating-linear-gradient(0deg, #0000 0 3px, #0000001a 3px 4px); pointer-events:none; }
@@ -65,9 +66,25 @@
   .capa:has(img.pronta) .emoji{ display:none; }
   .capa .jogar{ position:absolute; inset:0; display:grid; place-items:center; background:#000a; opacity:0; transition:opacity .2s ease; z-index:1; }
   .capa .jogar span{ padding:10px 18px; border-radius:99px; background:var(--destaque); color:#1a1300; font:800 14px Inter, sans-serif; letter-spacing:.04em; }
-  .jogo:hover .jogar, .jogo:focus-visible .jogar{ opacity:1; }
+  .jogo-abrir:hover .jogar, .jogo-abrir:focus-visible .jogar{ opacity:1; }
   .jogo:hover .emoji{ transform:scale(1.12) rotate(-6deg); }
-  .info{ padding:12px 14px 14px; display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .info{ padding:12px 14px 4px; display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .rodape{ padding:6px 10px 10px; display:flex; justify-content:flex-end; }
+
+  /* Curtir */
+  .curtir{ display:inline-flex; align-items:center; gap:6px; padding:6px 11px; border-radius:99px; border:1px solid var(--borda);
+    background:var(--card-2); color:var(--texto-2); font:700 13px Inter, sans-serif; cursor:pointer; font-variant-numeric:tabular-nums;
+    transition:border-color .2s, color .2s, background .2s; }
+  .curtir .coracao{ font-size:15px; line-height:1; display:inline-block; }
+  .curtir:hover:not(:disabled){ border-color:var(--destaque-2); color:var(--texto); }
+  .curtir:focus-visible{ outline:2px solid var(--destaque-2); outline-offset:2px; }
+  .curtir[aria-pressed="true"]{ color:#fff; border-color:var(--destaque-2); background:color-mix(in srgb, var(--destaque-2) 28%, var(--card-2)); }
+  .curtir:disabled{ cursor:default; opacity:.75; }
+  .curtir.pulou .coracao{ animation:pulo .45s ease; }
+  @keyframes pulo{ 0%{ transform:scale(1); } 40%{ transform:scale(1.5); } 100%{ transform:scale(1); } }
+  .ordem select{ padding:10px 12px; border-radius:12px; border:1px solid var(--borda); background:var(--card); color:var(--texto);
+    font:500 14px Inter, sans-serif; cursor:pointer; }
+  .ordem select:focus-visible{ outline:2px solid var(--destaque); outline-offset:2px; }
   .info h2{ margin:0; font-size:15px; font-weight:700; line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .info .autor{ font-size:12.5px; color:var(--texto-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .vazio{ grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--texto-2); }
@@ -113,6 +130,12 @@
   <label class="busca">
     <input type="search" id="busca" placeholder="Buscar jogo ou aluno" aria-label="Buscar jogo ou aluno" autocomplete="off">
   </label>
+  <label class="ordem" id="ordemWrap" hidden>
+    <select id="ordem" aria-label="Ordem dos jogos">
+      <option value="az">A–Z</option>
+      <option value="curtidos">Mais curtidos</option>
+    </select>
+  </label>
 </header>
 <div class="contagem" id="contagem" aria-live="polite"></div>
 <main class="grade" id="grade">
@@ -123,6 +146,7 @@
   <div class="player-barra">
     <button type="button" class="pbtn voltar" id="btnVoltar">← <span class="txt">Voltar</span></button>
     <div class="player-titulo"><b id="pTitulo"></b><span id="pAutor"></span></div>
+    <button type="button" class="curtir" id="pCurtir" hidden></button>
     <button type="button" class="pbtn" id="btnRecarregar" title="Recomeçar o jogo">⟳ <span class="txt">Recomeçar</span></button>
     <button type="button" class="pbtn" id="btnTelaCheia" title="Tela cheia">⛶ <span class="txt">Tela cheia</span></button>
     <a class="pbtn" id="btnNovaAba" target="_blank" rel="noopener noreferrer" title="Abrir numa aba nova">↗ <span class="txt">Nova aba</span></a>
@@ -193,25 +217,92 @@
     return;
   }
 
+  // ---------- Curtidas (tabela arcade_likes, sql/arcade-curtidas.sql) ----------
+  // Uma curtida por pessoa por jogo; o jogo é identificado pelo email do
+  // aluno dono. Não dá pra curtir o próprio jogo. Sem a tabela no banco
+  // (SQL ainda não rodado), os corações simplesmente não aparecem.
+  let curtidasOk = false;
+  const totalCurtidas = new Map();
+  const minhas = new Set();
+  try {
+    const { data, error } = await sb.from('arcade_likes').select('game_email, liker_email');
+    if (error) throw error;
+    for (const c of data || []) {
+      totalCurtidas.set(c.game_email, (totalCurtidas.get(c.game_email) || 0) + 1);
+      if (c.liker_email === user.email) minhas.add(c.game_email);
+    }
+    curtidasOk = true;
+    $('ordemWrap').hidden = false;
+  } catch (e) { /* sem curtidas */ }
+
+  function botaoCurtir(j, id) {
+    const n = totalCurtidas.get(j.email) || 0;
+    const meu = j.email === user.email;
+    const curtiu = minhas.has(j.email);
+    const rotulo = meu ? `Seu jogo tem ${n} curtida(s)` : `${curtiu ? 'Descurtir' : 'Curtir'} ${j.titulo} (${n} curtida(s))`;
+    return `<button type="button" class="curtir"${id ? ` id="${id}"` : ''} data-email="${esc(j.email)}" aria-pressed="${curtiu}"
+      aria-label="${esc(rotulo)}" title="${esc(meu ? 'Seu jogo' : curtiu ? 'Descurtir' : 'Curtir')}" ${meu ? 'disabled' : ''}>
+      <span class="coracao" aria-hidden="true">${curtiu ? '❤️' : '🤍'}</span><span>${n}</span></button>`;
+  }
+
+  function atualizarBotoes(email, pulou) {
+    const j = jogos.find(x => x.email === email);
+    if (!j) return;
+    document.querySelectorAll('.curtir[data-email]').forEach(b => {
+      if (b.dataset.email !== email) return;
+      const novo = document.createElement('template');
+      novo.innerHTML = botaoCurtir(j, b.id).trim();
+      const nb = novo.content.firstChild;
+      if (b.hidden) nb.hidden = true;
+      if (pulou) nb.classList.add('pulou');
+      b.replaceWith(nb);
+    });
+  }
+
+  let salvando = false;
+  async function alternarCurtida(email) {
+    if (!curtidasOk || salvando || email === user.email) return;
+    salvando = true;
+    const curtiu = minhas.has(email);
+    // Otimista: muda na tela na hora e desfaz se o banco recusar.
+    const aplicar = sim => {
+      if (sim) { minhas.add(email); totalCurtidas.set(email, (totalCurtidas.get(email) || 0) + 1); }
+      else { minhas.delete(email); totalCurtidas.set(email, Math.max(0, (totalCurtidas.get(email) || 0) - 1)); }
+    };
+    aplicar(!curtiu);
+    atualizarBotoes(email, !curtiu);
+    const { error } = curtiu
+      ? await sb.from('arcade_likes').delete().eq('game_email', email).eq('liker_email', user.email)
+      : await sb.from('arcade_likes').insert({ game_email: email, liker_email: user.email });
+    if (error && !(error.code === '23505' && !curtiu)) { aplicar(curtiu); atualizarBotoes(email, false); }
+    salvando = false;
+  }
+
   function card(j, i) {
     return `
-      <button type="button" class="jogo" data-i="${i}" aria-label="Jogar ${esc(j.titulo)}, de ${esc(j.autor)}">
-        <div class="capa" style="--h:${j.h}">
-          <span class="emoji" aria-hidden="true">${j.emoji}</span>
-          ${j.capas ? `<img src='${esc(j.capas[0])}' alt="" loading="lazy" referrerpolicy="no-referrer">` : ''}
-          <div class="jogar" aria-hidden="true"><span>▶ JOGAR</span></div>
-        </div>
-        <div class="info">
-          <h2>${esc(j.titulo)}</h2>
-          <span class="autor">por ${esc(j.autor)}</span>
-        </div>
-      </button>`;
+      <article class="jogo" data-i="${i}">
+        <button type="button" class="jogo-abrir" aria-label="Jogar ${esc(j.titulo)}, de ${esc(j.autor)}">
+          <div class="capa" style="--h:${j.h}">
+            <span class="emoji" aria-hidden="true">${j.emoji}</span>
+            ${j.capas ? `<img src='${esc(j.capas[0])}' alt="" loading="lazy" referrerpolicy="no-referrer">` : ''}
+            <div class="jogar" aria-hidden="true"><span>▶ JOGAR</span></div>
+          </div>
+          <div class="info">
+            <h2>${esc(j.titulo)}</h2>
+            <span class="autor">por ${esc(j.autor)}</span>
+          </div>
+        </button>
+        ${curtidasOk ? `<div class="rodape">${botaoCurtir(j)}</div>` : ''}
+      </article>`;
   }
 
   function desenhar() {
     const termo = $('busca').value.trim().toLowerCase();
     const lista = jogos.map((j, i) => [j, i])
       .filter(([j]) => !termo || `${j.titulo} ${j.autor}`.toLowerCase().includes(termo));
+    if ($('ordem').value === 'curtidos') {
+      lista.sort(([a], [b]) => (totalCurtidas.get(b.email) || 0) - (totalCurtidas.get(a.email) || 0) || a.autor.localeCompare(b.autor, 'pt-BR'));
+    }
     if (!jogos.length) {
       $('grade').innerHTML = `<div class="vazio"><span class="grande">🎮</span><b>Nenhum jogo publicado ainda.</b><br>Cadastre o link do seu GitHub Pages no ícone do <b>GitHub</b>, na barra do portal, e ele aparece aqui.</div>`;
       $('contagem').textContent = '';
@@ -307,6 +398,11 @@
     $('pTitulo').textContent = j.titulo;
     $('pAutor').textContent = 'por ' + j.autor;
     $('btnNovaAba').href = j.url;
+    if (curtidasOk) {
+      const t = document.createElement('template');
+      t.innerHTML = botaoCurtir(j, 'pCurtir').trim();
+      $('pCurtir').replaceWith(t.content.firstChild);
+    }
     $('pFrame').src = j.url;
     $('player').classList.add('aberto');
     $('player').setAttribute('aria-hidden', 'false');
@@ -322,9 +418,17 @@
     document.body.style.overflow = '';
   }
   $('grade').addEventListener('click', e => {
-    const b = e.target.closest('.jogo');
-    if (b) abrir(jogos[Number(b.dataset.i)]);
+    const curtir = e.target.closest('.curtir');
+    if (curtir) { alternarCurtida(curtir.dataset.email); return; }
+    const b = e.target.closest('.jogo-abrir');
+    if (b) abrir(jogos[Number(b.closest('.jogo').dataset.i)]);
   });
+  // O botão do jogador é trocado a cada curtida, por isso o clique é pego na barra.
+  document.querySelector('.player-barra').addEventListener('click', e => {
+    const curtir = e.target.closest('.curtir');
+    if (curtir) alternarCurtida(curtir.dataset.email);
+  });
+  $('ordem').addEventListener('change', desenhar);
   $('pFrame').addEventListener('load', () => { if (atual) $('pFrame').focus(); });
   $('btnVoltar').addEventListener('click', fechar);
   $('btnRecarregar').addEventListener('click', () => { if (atual) { $('pFrame').src = 'about:blank'; setTimeout(() => { $('pFrame').src = atual.url; }, 50); } });
