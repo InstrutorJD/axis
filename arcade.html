@@ -64,7 +64,11 @@
     background:linear-gradient(135deg, hsl(var(--h) 70% 45%), hsl(calc(var(--h) + 50) 75% 30%)); }
   .capa::after{ content:''; position:absolute; inset:0; background:repeating-linear-gradient(0deg, #0000 0 3px, #0000001a 3px 4px); pointer-events:none; }
   .capa .emoji{ font-size:56px; filter:drop-shadow(0 6px 10px #0006); transition:transform .3s ease; }
-  .capa img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .capa img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .3s ease; }
+  .capa img.pronta{ opacity:1; }
+  /* Sprite pequeno: inteiro, centralizado e nítido sobre o degradê */
+  .capa img.miniatura{ inset:14%; width:72%; height:72%; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 6px 10px #0008); }
+  .capa:has(img.pronta) .emoji{ display:none; }
   .capa .jogar{ position:absolute; inset:0; display:grid; place-items:center; background:#000a; opacity:0; transition:opacity .2s ease; z-index:1; }
   .capa .jogar span{ padding:10px 18px; border-radius:99px; background:var(--destaque); color:#1a1300; font:800 14px Inter, sans-serif; letter-spacing:.04em; }
   .jogo:hover .jogar, .jogo:focus-visible .jogar{ opacity:1; }
@@ -201,7 +205,7 @@
       <button type="button" class="jogo" data-i="${i}" aria-label="Jogar ${esc(j.titulo)}, de ${esc(j.autor)}">
         <div class="capa" style="--h:${j.h}">
           <span class="emoji" aria-hidden="true">${j.emoji}</span>
-          ${j.capa ? `<img src='${esc(j.capa)}' alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
+          ${j.capas ? `<img src='${esc(j.capas[0])}' alt="" loading="lazy" referrerpolicy="no-referrer">` : ''}
           <div class="jogar" aria-hidden="true"><span>▶ JOGAR</span></div>
         </div>
         <div class="info">
@@ -242,33 +246,81 @@
   desenhar();
   $('busca').addEventListener('input', desenhar);
 
-  // Título e capa de verdade: lê o <title> e o og:image da própria página
-  // (o GitHub Pages libera CORS). Sem rede/sem CORS, fica o nome do link.
-  // Guardado na sessão pra não buscar de novo a cada abertura.
-  async function detalhes(j) {
-    const chave = 'arcade.meta.' + j.url;
-    try { const c = JSON.parse(sessionStorage.getItem(chave) || 'null'); if (c) return c; } catch (e) { /* sem storage */ }
+  // Título e imagem do jogo, lidos da própria página (o GitHub Pages libera
+  // CORS). Ordem das imagens candidatas:
+  //   1) og:image — a capa que o aluno declarar no <head>;
+  //   2) as <img> da página;
+  //   3) imagens que o código do jogo carrega (ex.: this.load.image('fundo',
+  //      'assets/fundo.png') no Phaser), lidas dos .js do próprio site —
+  //      fundo/capa/título primeiro, botão/ícone/tiro por último.
+  // O card tenta uma por uma (a que não carregar passa pra próxima); sem
+  // nenhuma, fica o degradê com emoji. Guardado na sessão pra não buscar de
+  // novo a cada abertura.
+  const BOA_CAPA = /(capa|cover|thumb|title|titulo|título|menu|splash|bg|background|fundo|cenario|cenário|mapa|map|level|fase|sky|ceu|céu|tela|screen)/i;
+  const RUIM_CAPA = /(icon|favicon|button|botao|botão|btn|bullet|tiro|particle|particula|partícula|cursor|seta|arrow|heart|coracao|coração)/i;
+  async function buscarTexto(url, ms) {
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 6000);
+    const t = setTimeout(() => ctrl.abort(), ms);
     try {
-      const r = await fetch(j.url, { signal: ctrl.signal });
-      if (!r.ok) return null;
-      const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
-      const titulo = (doc.querySelector('meta[property="og:title"]')?.content || doc.title || '').trim().slice(0, 80);
-      let capa = doc.querySelector('meta[property="og:image"]')?.content || '';
-      if (capa) { try { capa = new URL(capa, r.url).href; } catch (e) { capa = ''; } }
-      if (!/^https:\/\//i.test(capa)) capa = '';
-      const meta = { titulo, capa };
-      try { sessionStorage.setItem(chave, JSON.stringify(meta)); } catch (e) { /* cheio */ }
-      return meta;
+      const r = await fetch(url, { signal: ctrl.signal });
+      return r.ok ? { texto: await r.text(), url: r.url } : null;
     } catch (e) { return null; } finally { clearTimeout(t); }
   }
+  async function detalhes(j) {
+    const chave = 'arcade.meta2.' + j.url;
+    try { const c = JSON.parse(sessionStorage.getItem(chave) || 'null'); if (c) return c; } catch (e) { /* sem storage */ }
+    const pagina = await buscarTexto(j.url, 6000);
+    if (!pagina) return null;
+    const base = pagina.url;
+    const host = new URL(base).host;
+    const doc = new DOMParser().parseFromString(pagina.texto, 'text/html');
+    const titulo = (doc.querySelector('meta[property="og:title"]')?.content || doc.title || '').trim().slice(0, 80);
+
+    const absoluta = s => { try { const u = new URL(s, base); return u.protocol === 'https:' ? u.href : ''; } catch (e) { return ''; } };
+    const og = absoluta(doc.querySelector('meta[property="og:image"]')?.content || '');
+    const daPagina = [...doc.querySelectorAll('img[src]')].map(i => absoluta(i.getAttribute('src')));
+    // Caminhos de imagem citados no JS do próprio site (até 3 arquivos).
+    const scripts = [...doc.querySelectorAll('script')];
+    const textos = scripts.filter(s => !s.src).map(s => s.textContent);
+    const externos = scripts.filter(s => s.getAttribute('src')).map(s => absoluta(s.getAttribute('src')))
+      .filter(u => u && new URL(u).host === host).slice(0, 3);
+    for (const r of await Promise.all(externos.map(u => buscarTexto(u, 5000)))) if (r) textos.push(r.texto.slice(0, 2_000_000));
+    const doCodigo = [];
+    for (const t of textos) {
+      for (const m of t.matchAll(/["'`]([^"'`\s<>]{1,200}\.(?:png|jpe?g|gif|webp))["'`]/gi)) doCodigo.push(absoluta(m[1]));
+    }
+    const nota = u => (BOA_CAPA.test(u) ? 0 : 1) + (RUIM_CAPA.test(u) ? 2 : 0);
+    doCodigo.sort((a, b) => nota(a) - nota(b));
+
+    const capas = [...new Set([og, ...daPagina, ...doCodigo].filter(Boolean))].slice(0, 6);
+    const meta = { titulo, capas };
+    try { sessionStorage.setItem(chave, JSON.stringify(meta)); } catch (e) { /* cheio */ }
+    return meta;
+  }
   Promise.all(jogos.map(async j => {
-    const m = await detalhes(j);
+    const m = await detalhes(j).catch(() => null);
     if (!m) return;
     if (m.titulo) j.titulo = m.titulo;
-    if (m.capa) j.capa = m.capa;
+    if (m.capas && m.capas.length) j.capas = m.capas;
   })).then(desenhar);
+
+  // Imagem do card: a que não carregar dá lugar à próxima candidata. Imagem
+  // pequena (sprite de pixel art) fica inteira e nítida, sem esticar.
+  // ("error"/"load" não sobem pelo DOM, por isso a captura.)
+  $('grade').addEventListener('error', e => {
+    const img = e.target;
+    if (img.tagName !== 'IMG') return;
+    const j = jogos[Number(img.closest('.jogo')?.dataset.i)];
+    const idx = j && j.capas ? j.capas.indexOf(img.src) : -1;
+    const prox = idx >= 0 ? j.capas[idx + 1] : null;
+    if (prox) img.src = prox; else img.remove();
+  }, true);
+  $('grade').addEventListener('load', e => {
+    const img = e.target;
+    if (img.tagName !== 'IMG') return;
+    img.classList.toggle('miniatura', img.naturalWidth < 260 && img.naturalHeight < 260);
+    img.classList.add('pronta');
+  }, true);
 
   // ---------- Jogador ----------
   let atual = null;
