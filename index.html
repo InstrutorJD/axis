@@ -51,6 +51,21 @@
   .form-group input:focus {
     border-color: var(--green); box-shadow: 0 0 0 3px rgba(143, 166, 201, 0.18);
   }
+  /* Olho pra mostrar/esconder a senha, dentro do campo */
+  .senha-wrap { position: relative; }
+  .senha-wrap input { padding-right: 42px; }
+  .ver-senha {
+    position: absolute; top: 50%; right: 6px; transform: translateY(-50%);
+    width: 32px; height: 32px; display: grid; place-items: center;
+    background: none; border: none; border-radius: 6px; padding: 0;
+    color: var(--ink-dim); cursor: pointer; transition: color 0.2s, background-color 0.2s;
+  }
+  .ver-senha:hover { color: var(--ink); background: rgba(143, 166, 201, 0.1); }
+  .ver-senha:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
+  .ver-senha svg { width: 18px; height: 18px; }
+  .ver-senha .olho-fechado { display: none; }
+  .ver-senha[aria-pressed="true"] .olho-aberto { display: none; }
+  .ver-senha[aria-pressed="true"] .olho-fechado { display: block; }
   .btn-submit {
     width: 100%; background: var(--green); color: #0b0e12; border: none;
     font-weight: 800; font-size: 12px; text-transform: uppercase;
@@ -218,7 +233,13 @@
 
     <div class="form-group">
       <label for="txtPass">Senha</label>
-      <input type="password" id="txtPass" placeholder="••••••••" required>
+      <div class="senha-wrap">
+        <input type="password" id="txtPass" placeholder="••••••••" required>
+        <button type="button" class="ver-senha" id="btnVerSenha" aria-pressed="false" aria-label="Mostrar senha" title="Mostrar senha">
+          <svg class="olho-aberto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="olho-fechado" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-2.3 3.2M6.6 6.6C3.6 8.4 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18"/></svg>
+        </button>
+      </div>
     </div>
 
     <!-- Marcado: entra direto da próxima vez, até clicar em Sair.
@@ -309,6 +330,19 @@ document.getElementById('anoCopy').textContent = new Date().getFullYear();
 })();
 
 const DESATIVADO_MSG = 'Esta conta foi desativada. Fale com o professor.';
+// Olho do campo de senha: alterna entre mostrar e esconder o que foi
+// digitado, sem tirar o foco do campo.
+document.getElementById('btnVerSenha').addEventListener('click', function () {
+  const campo = document.getElementById('txtPass');
+  const mostrar = campo.type === 'password';
+  campo.type = mostrar ? 'text' : 'password';
+  this.setAttribute('aria-pressed', String(mostrar));
+  const rotulo = mostrar ? 'Esconder senha' : 'Mostrar senha';
+  this.setAttribute('aria-label', rotulo);
+  this.title = rotulo;
+  campo.focus();
+});
+
 const CREDENCIAIS_MSG = 'Usuário ou senha incorretos!';
 
 // Voltou pra cá porque a sessão foi derrubada no meio de uma navegação
