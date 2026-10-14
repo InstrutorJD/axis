@@ -56,6 +56,8 @@
   .pausa.espera{ --cor:var(--espera); }
   .pausa.espera .bolinha{ animation:none; }
   .rotulo{ font-size:clamp(12px, 1.15vw, 22px); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--texto-3); }
+  .rotulo-icone{ display:flex; align-items:center; gap:1.2vmin; }
+  .icone-wc{ font-size:2.2em; line-height:1; letter-spacing:0; }
   .status{ display:flex; align-items:center; gap:2vmin; font-size:clamp(26px, 3.6vw, 72px); font-weight:800; line-height:1; color:var(--cor); }
   .status .bolinha{ flex:none; width:.55em; height:.55em; border-radius:50%; background:var(--cor); box-shadow:0 0 0 0 var(--cor); animation:pulsa 2s ease-out infinite; }
   @keyframes pulsa{ 0%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--cor) 60%, transparent); } 100%{ box-shadow:0 0 0 .5em transparent; } }
@@ -95,7 +97,7 @@
 
 <section class="lado">
   <div class="cartao banheiro proibido" id="banheiro">
-    <div class="rotulo">Banheiro</div>
+    <div class="rotulo rotulo-icone"><span class="icone-wc" aria-hidden="true">🚻</span>Banheiro</div>
     <div class="status"><span class="bolinha"></span><span id="bStatus">—</span></div>
     <div class="detalhe" id="bDetalhe"></div>
     <div class="horarios" id="bHorarios"></div>
@@ -118,7 +120,8 @@
 
 <script>
 (function () {
-  // Horários em que o banheiro é liberado (início incluso, fim não).
+  // Horários em que o banheiro é liberado (início incluso, fim não), além
+  // dos intervalos (PAUSAS com sair: true), que entram sozinhos na lista.
   // Fora deles, não liberado.
   const HORARIOS_BANHEIRO = [
     ['09:50', '11:00'],
@@ -135,7 +138,9 @@
   ];
 
   const min = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
-  const faixas = HORARIOS_BANHEIRO.map(([a, b]) => ({ a, b, ini: min(a), fim: min(b) }));
+  const faixas = [...HORARIOS_BANHEIRO, ...PAUSAS.filter(p => p.sair).map(p => [p.ini, p.fim])]
+    .map(([a, b]) => ({ a, b, ini: min(a), fim: min(b) }))
+    .sort((x, y) => x.ini - y.ini);
   const $ = id => document.getElementById(id);
   const dois = n => String(n).padStart(2, '0');
 
