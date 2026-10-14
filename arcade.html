@@ -69,7 +69,15 @@
   .jogo-abrir:hover .jogar, .jogo-abrir:focus-visible .jogar{ opacity:1; }
   .jogo:hover .emoji{ transform:scale(1.12) rotate(-6deg); }
   .info{ padding:12px 14px 4px; display:flex; flex-direction:column; gap:4px; min-width:0; }
-  .rodape{ padding:6px 10px 10px; display:flex; justify-content:flex-end; }
+  .rodape{ padding:6px 10px 10px; display:flex; align-items:center; justify-content:flex-end; gap:8px; }
+  .rodape:empty{ display:none; }
+  /* Link pro repositório do aluno (código do jogo) */
+  .codigo{ display:inline-flex; align-items:center; gap:6px; margin-right:auto; padding:6px 11px; border-radius:99px; border:1px solid var(--borda);
+    background:var(--card-2); color:var(--texto-2); font:600 12.5px Inter, sans-serif; text-decoration:none; transition:border-color .2s, color .2s; }
+  .codigo:hover{ color:var(--texto); border-color:var(--texto-3); }
+  .codigo:focus-visible{ outline:2px solid var(--destaque); outline-offset:2px; }
+  .codigo svg, .pbtn svg{ width:15px; height:15px; flex:none; }
+  .pbtn[hidden]{ display:none; }
 
   /* Curtir */
   .curtir{ display:inline-flex; align-items:center; gap:6px; padding:6px 11px; border-radius:99px; border:1px solid var(--borda);
@@ -149,6 +157,7 @@
     <button type="button" class="curtir" id="pCurtir" hidden></button>
     <button type="button" class="pbtn" id="btnRecarregar" title="Recomeçar o jogo">⟳ <span class="txt">Recomeçar</span></button>
     <button type="button" class="pbtn" id="btnTelaCheia" title="Tela cheia">⛶ <span class="txt">Tela cheia</span></button>
+    <a class="pbtn" id="btnCodigo" target="_blank" rel="noopener noreferrer" title="Ver o código do jogo no GitHub" hidden><span id="pIconeGithub"></span> <span class="txt">Código</span></a>
     <a class="pbtn" id="btnNovaAba" target="_blank" rel="noopener noreferrer" title="Abrir numa aba nova">↗ <span class="txt">Nova aba</span></a>
   </div>
   <!-- sandbox: o jogo roda scripts e usa o próprio github.io, mas não
@@ -165,6 +174,9 @@
 (async function () {
   // Mesma regra do CHECK de sql/github-links.sql: só https://<usuario>.github.io/...
   const PAGES_RE = /^https:\/\/[a-z0-9](?:-?[a-z0-9]){0,38}\.github\.io(\/\S*)?$/i;
+  // E a do repositório: só https://github.com/<usuario>/<repo>.
+  const REPO_RE = /^https:\/\/github\.com\/[a-z0-9](?:-?[a-z0-9]){0,38}\/[a-z0-9._-]{1,100}\/?$/i;
+  const SVG_GITHUB = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>';
   const EMOJIS = ['🎮', '👾', '🕹️', '🚀', '🐉', '⚔️', '🏎️', '🧩', '🏰', '🤖', '🦖', '💎', '🧟', '🛸', '⚽', '🐸'];
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -192,7 +204,7 @@
 
   let jogos = [];
   try {
-    const { data: links, error } = await sb.from('student_github_links').select('email, pages_url').not('pages_url', 'is', null);
+    const { data: links, error } = await sb.from('student_github_links').select('email, pages_url, repo_url').not('pages_url', 'is', null);
     if (error) throw error;
     const validos = (links || []).filter(l => PAGES_RE.test(l.pages_url));
     const emails = validos.map(l => l.email);
@@ -206,6 +218,7 @@
     jogos = validos.filter(l => porEmail.has(l.email)).map(l => ({
       email: l.email,
       url: l.pages_url,
+      repo: REPO_RE.test(l.repo_url || '') ? l.repo_url : '',
       autor: porEmail.get(l.email).nome || l.email,
       titulo: nomeDoLink(l.pages_url),
       capa: '',
@@ -292,7 +305,7 @@
             <span class="autor">por ${esc(j.autor)}</span>
           </div>
         </button>
-        ${curtidasOk ? `<div class="rodape">${botaoCurtir(j)}</div>` : ''}
+        <div class="rodape">${j.repo ? `<a class="codigo" href='${esc(j.repo)}' target="_blank" rel="noopener noreferrer" title="Ver o código do jogo no GitHub" aria-label="Código de ${esc(j.titulo)} no GitHub">${SVG_GITHUB}Código</a>` : ''}${curtidasOk ? botaoCurtir(j) : ''}</div>
       </article>`;
   }
 
@@ -398,6 +411,8 @@
     $('pTitulo').textContent = j.titulo;
     $('pAutor').textContent = 'por ' + j.autor;
     $('btnNovaAba').href = j.url;
+    $('btnCodigo').hidden = !j.repo;
+    if (j.repo) $('btnCodigo').href = j.repo;
     if (curtidasOk) {
       const t = document.createElement('template');
       t.innerHTML = botaoCurtir(j, 'pCurtir').trim();
@@ -429,6 +444,7 @@
     if (curtir) alternarCurtida(curtir.dataset.email);
   });
   $('ordem').addEventListener('change', desenhar);
+  $('pIconeGithub').outerHTML = SVG_GITHUB;
   $('pFrame').addEventListener('load', () => { if (atual) $('pFrame').focus(); });
   $('btnVoltar').addEventListener('click', fechar);
   $('btnRecarregar').addEventListener('click', () => { if (atual) { $('pFrame').src = 'about:blank'; setTimeout(() => { $('pFrame').src = atual.url; }, 50); } });
