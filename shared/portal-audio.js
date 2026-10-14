@@ -1,5 +1,5 @@
-// Som do portal (shared/platform-core.js, 🎨 Personalizar → Som): música
-// ambiente + som de clique combinando com o cursor escolhido. Tudo
+// Som do portal (shared/platform-core.js, 🎨 Personalizar → Som): som de
+// clique combinando com o cursor escolhido. Tudo
 // SINTETIZADO na hora via Web Audio API (osciladores/ruído gerados por
 // código) — sem nenhum arquivo de áudio/CDN externo, mesmo espírito do
 // beep()/playCorrect()/playWrong() já usados em games/quizrush.html, só
@@ -8,11 +8,8 @@
 // shared/platform-core.js injeta — ver applyA11yToIframe/pfClickRelay).
 //
 // Autoplay: navegador só deixa criar/tocar áudio depois de um gesto real
-// do usuário (clique/tecla) — shared/platform-core.js cuida de só chamar
-// startAmbient() dentro de um clique de verdade (o próprio toggle na
-// modal, ou o 1º clique/tecla da sessão se a preferência já vinha
-// ligada). playClick() nunca tem esse problema: só é chamado DENTRO de um
-// clique, que já é o gesto exigido.
+// do usuário (clique/tecla). playClick() nunca tem esse problema: só é
+// chamado DENTRO de um clique, que já é o gesto exigido.
 window.PortalAudio = (function () {
   let ctx = null;
   let masterGain = null;
@@ -171,58 +168,5 @@ window.PortalAudio = (function () {
     try { fn(); } catch (e) { /* best-effort, nunca trava a UI por causa de som */ }
   }
 
-  // ---------- Música ambiente — pad generativo em loop ----------
-  // 4 acordes tocando devagar (~4s cada, com uma pequena sobreposição pra
-  // não ter silêncio entre um e outro), cada um com 3 osciladores por nota
-  // levemente destafinados entre si (efeito "chorus" simples) — sem
-  // nenhum arquivo de música, só osciladores.
-  const CHORDS = [
-    [220.00, 261.63, 329.63], // Am
-    [174.61, 220.00, 261.63], // F
-    [196.00, 246.94, 293.66], // C
-    [164.81, 207.65, 261.63], // G (com a 3ª emprestada, fecha o ciclo suave)
-  ];
-  const CHORD_DUR = 4.2;
-  const CHORD_INTERVAL_MS = 4000;
-  let ambientTimer = null;
-
-  function playChord(freqs) {
-    const c = ensureCtx();
-    if (!c) return;
-    const chordGain = c.createGain();
-    chordGain.gain.setValueAtTime(0, c.currentTime);
-    chordGain.gain.linearRampToValueAtTime(0.05, c.currentTime + CHORD_DUR * 0.3);
-    chordGain.gain.linearRampToValueAtTime(0, c.currentTime + CHORD_DUR);
-    const filter = c.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 900;
-    chordGain.connect(filter).connect(masterGain);
-    freqs.forEach(f => {
-      [1, 1.004, 0.996].forEach(detune => {
-        const osc = c.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.value = f * detune;
-        osc.connect(chordGain);
-        osc.start();
-        osc.stop(c.currentTime + CHORD_DUR + 0.1);
-      });
-    });
-  }
-
-  function ambientStep(i) {
-    playChord(CHORDS[i % CHORDS.length]);
-    ambientTimer = setTimeout(() => ambientStep(i + 1), CHORD_INTERVAL_MS);
-  }
-
-  // Idempotente: chamar de novo com o ambiente já tocando não duplica nada.
-  function startAmbient() {
-    if (!ensureCtx() || ambientTimer) return;
-    ambientStep(0);
-  }
-  function stopAmbient() {
-    if (ambientTimer) { clearTimeout(ambientTimer); ambientTimer = null; }
-  }
-  function isAmbientPlaying() { return !!ambientTimer; }
-
-  return { ensureCtx, playClick, startAmbient, stopAmbient, isAmbientPlaying };
+  return { ensureCtx, playClick };
 })();

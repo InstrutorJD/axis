@@ -119,7 +119,7 @@ test.describe('Personalização do portal (botão de perfil)', () => {
   });
 });
 
-// Música ambiente e som de clique (shared/portal-audio.js) — sintetizados
+// Som de clique (shared/portal-audio.js) — sintetizado
 // na hora via Web Audio API, sem nenhum arquivo/CDN de áudio. Os testes
 // substituem window.PortalAudio.* por espiões (não dá pra "ouvir" som num
 // teste automatizado) pra confirmar SÓ a integração: o toggle certo chama
@@ -128,35 +128,6 @@ test.describe('Personalização do portal (botão de perfil)', () => {
 test.describe('Personalização do portal — som', () => {
   test.beforeEach(async ({ page }) => {
     await stubSupabaseFake(page, {});
-  });
-
-  test('ligar "Música ambiente" chama PortalAudio.startAmbient() e salva a preferência', async ({ page }) => {
-    await page.goto(ALUNO_URL);
-    await page.evaluate(() => {
-      window.__ambientCalls = 0;
-      window.PortalAudio.startAmbient = () => { window.__ambientCalls++; };
-    });
-    await page.click('#btnPerfilTab');
-    await page.click('#btnAbrirPersonalizacao');
-    await page.check('#psAmbientMusic');
-
-    await expect.poll(() => page.evaluate(() => window.__ambientCalls)).toBe(1);
-    const saved = await page.evaluate(() => (window.__FAKE_DB__.user_preferences || [])[0]);
-    expect(saved).toMatchObject({ ambient_music: true });
-  });
-
-  test('desligar "Música ambiente" chama PortalAudio.stopAmbient()', async ({ page }) => {
-    await page.goto(ALUNO_URL);
-    await page.evaluate(() => {
-      window.__stopCalls = 0;
-      window.PortalAudio.stopAmbient = () => { window.__stopCalls++; };
-    });
-    await page.click('#btnPerfilTab');
-    await page.click('#btnAbrirPersonalizacao');
-    await page.check('#psAmbientMusic');
-    await page.uncheck('#psAmbientMusic');
-
-    await expect.poll(() => page.evaluate(() => window.__stopCalls)).toBe(1);
   });
 
   test('ligar "Som de clique" toca uma prévia com o cursor já escolhido, e passa a tocar em qualquer clique do portal', async ({ page }) => {

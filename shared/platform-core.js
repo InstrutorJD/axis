@@ -53,7 +53,7 @@
   // Uma linha por usuário em user_preferences (Supabase), self-service via
   // RLS (ver sql/user-preferences.sql) — carregada uma vez em init() e
   // reaplicada a cada mudança de controle na modal (ver openPersonalizacao).
-  let prefs = { fontFamily: 'pixel', accentKey: 'padrao', theme: 'dark', avatarEmoji: '👤', bgPattern: false, cursorKey: 'default', ambientMusic: false, clickSound: false };
+  let prefs = { fontFamily: 'pixel', accentKey: 'padrao', theme: 'dark', avatarEmoji: '👤', bgPattern: false, cursorKey: 'default', clickSound: false };
 
   const FONT_PRESETS = {
     pixel:       { label: 'Pixel/Terminal', body: "'JetBrains Mono', monospace", display: "'VT323', monospace" },
@@ -5091,26 +5091,15 @@
     applyA11yToOpenIframes();
   }
 
-  // Som do portal (shared/portal-audio.js) — chamado uma vez em init().
-  // Dois cuidados por causa da política de autoplay do navegador (só deixa
-  // criar/tocar áudio depois de um gesto real do usuário):
-  //   1) Clique no documento PRINCIPAL toca o som na hora (o próprio clique
-  //      já É o gesto) — cobre toda a barra/abas/cards fora de um iframe.
-  //   2) Se a preferência de música ambiente já vinha LIGADA (carregada do
-  //      banco em fetchUserPreferences, antes de renderShell), só começa a
-  //      tocar de verdade no 1º clique/tecla da sessão — chamar
-  //      startAmbient() direto aqui em init() falharia silenciosamente
-  //      (nenhum gesto ainda aconteceu nesta página).
+  // Som de clique do portal (shared/portal-audio.js) — chamado uma vez em
+  // init(). Clique no documento PRINCIPAL toca o som na hora (o próprio
+  // clique já É o gesto que o navegador exige pra tocar áudio) — cobre toda
+  // a barra/abas/cards fora de um iframe.
   function setupPortalAudio() {
     if (!window.PortalAudio) return;
     document.addEventListener('click', () => {
       if (prefs.clickSound) window.PortalAudio.playClick(prefs.cursorKey);
     });
-    if (prefs.ambientMusic) {
-      const unlock = () => { window.PortalAudio.startAmbient(); };
-      document.addEventListener('click', unlock, { once: true });
-      document.addEventListener('keydown', unlock, { once: true });
-    }
   }
 
   // Busca a linha salva do usuário (se existir) uma vez, em init() — antes
@@ -5128,7 +5117,6 @@
         avatarEmoji: data.avatar_emoji || '👤',
         bgPattern: !!data.bg_pattern,
         cursorKey: data.cursor_key || 'default',
-        ambientMusic: !!data.ambient_music,
         clickSound: !!data.click_sound,
       };
     }
@@ -5156,7 +5144,6 @@
       avatar_emoji: prefs.avatarEmoji,
       bg_pattern: prefs.bgPattern,
       cursor_key: prefs.cursorKey,
-      ambient_music: prefs.ambientMusic,
       click_sound: prefs.clickSound,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'email' });
@@ -5230,10 +5217,6 @@
             <input type="checkbox" id="psBgPattern" ${prefs.bgPattern ? 'checked' : ''}>
           </label>
           <label class="pf-perso-opcao">
-            <span><b>🎵 Música ambiente</b><small>Baixinha e sintetizada, sem baixar nada.</small></span>
-            <input type="checkbox" id="psAmbientMusic" ${prefs.ambientMusic ? 'checked' : ''}>
-          </label>
-          <label class="pf-perso-opcao">
             <span><b>🔊 Som de clique</b><small>O timbre muda de acordo com o cursor escolhido.</small></span>
             <input type="checkbox" id="psClickSound" ${prefs.clickSound ? 'checked' : ''}>
           </label>
@@ -5304,18 +5287,6 @@
       if (bgCb) bgCb.addEventListener('change', () => {
         prefs.bgPattern = bgCb.checked;
         applyPrefsVisuals();
-        saveUserPreferences();
-      });
-      // Ligar aqui dentro é um clique de verdade — o gesto que o navegador
-      // exige pra deixar criar/tocar áudio (ver shared/portal-audio.js).
-      // Só startAmbient/stopAmbient ao vivo; NÃO é assim que o áudio começa
-      // a tocar de novo num carregamento de página com a preferência já
-      // ligada — isso é o listener de "1º clique/tecla da sessão" (ver
-      // setupAmbientAudioUnlock, chamado em init()).
-      const ambientCb = overlay.querySelector('#psAmbientMusic');
-      if (ambientCb) ambientCb.addEventListener('change', () => {
-        prefs.ambientMusic = ambientCb.checked;
-        if (window.PortalAudio) { ambientCb.checked ? window.PortalAudio.startAmbient() : window.PortalAudio.stopAmbient(); }
         saveUserPreferences();
       });
       const clickCb = overlay.querySelector('#psClickSound');
