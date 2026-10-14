@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arcade da Turma</title>
+<!-- Arcade da Turma: vitrine estilo site de joguinhos com os jogos que os
+     alunos publicaram no GitHub Pages (link cadastrado no ícone do GitHub
+     da barra do portal — shared/github-links.js, tabela
+     student_github_links). Clicou no card, o jogo carrega aqui mesmo, num
+     <iframe> isolado (sandbox, sem poder navegar a página de cima).
+     Página própria, separada dos jogos do portal: aberta pelo botão 🕹️ da
+     barra de abas (shared/platform-core.js, numa aba nova), que passa
+     ?turma=. Aluno vê os jogos da própria turma (RLS em
+     sql/arcade-turma.sql); professor escolhe a turma nos botões do topo. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --bg:#0a0c14; --card:#141827; --card-2:#1b2034; --borda:#262c44;
+    --texto:#eef1fa; --texto-2:#a3abc4; --texto-3:#6b7391;
+    --destaque:#ffcc33; --destaque-2:#ff4f8b;
+  }
+  *{ box-sizing:border-box; }
+  html, body{ margin:0; min-height:100%; }
+  body{
+    background:
+      radial-gradient(900px 500px at 10% -10%, #2a1f5c55 0%, transparent 60%),
+      radial-gradient(800px 500px at 100% 0%, #5c1f4a44 0%, transparent 60%),
+      var(--bg);
+    color:var(--texto); font-family:Inter, system-ui, sans-serif;
+  }
+
+  /* Cabeçalho */
+  .topo{ max-width:1280px; margin:0 auto; padding:22px 20px 8px; display:flex; flex-wrap:wrap; align-items:center; gap:14px 20px; }
+  .marca{ display:flex; align-items:center; gap:12px; margin-right:auto; }
+  .marca .logo{ font-size:34px; line-height:1; filter:drop-shadow(0 0 12px #ffcc3355); }
+  .marca h1{ margin:0; font:400 clamp(14px, 2.2vw, 20px)/1.3 'Press Start 2P', monospace; letter-spacing:.02em;
+    background:linear-gradient(90deg, var(--destaque), var(--destaque-2)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .marca p{ margin:4px 0 0; font-size:13px; color:var(--texto-3); }
+  .busca{ position:relative; flex:0 1 320px; min-width:200px; }
+  .busca input{ width:100%; padding:11px 14px 11px 38px; border-radius:12px; border:1px solid var(--borda); background:var(--card);
+    color:var(--texto); font:500 14px Inter, system-ui, sans-serif; outline:none; transition:border-color .2s, box-shadow .2s; }
+  .busca input:focus{ border-color:var(--destaque); box-shadow:0 0 0 3px #ffcc3326; }
+  .busca::before{ content:'🔍'; position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; opacity:.7; }
+  .turmas{ max-width:1280px; margin:0 auto; padding:0 20px 10px; display:flex; flex-wrap:wrap; gap:8px; }
+  .turmas[hidden]{ display:none; }
+  .turmas button{ padding:7px 14px; border-radius:99px; border:1px solid var(--borda); background:var(--card); color:var(--texto-2);
+    font:600 13px Inter, sans-serif; cursor:pointer; transition:border-color .2s, color .2s, background .2s; }
+  .turmas button:hover{ color:var(--texto); border-color:var(--texto-3); }
+  .turmas button[aria-pressed="true"]{ color:#1a1300; background:var(--destaque); border-color:var(--destaque); }
+  .turmas button:focus-visible{ outline:2px solid var(--destaque); outline-offset:2px; }
+  .contagem{ max-width:1280px; margin:0 auto; padding:0 20px 14px; font-size:13px; color:var(--texto-3); }
+
+  /* Grade de jogos */
+  .grade{ max-width:1280px; margin:0 auto; padding:0 20px 40px; display:grid; gap:18px;
+    grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); }
+  .jogo{ all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; border-radius:16px; overflow:hidden;
+    background:var(--card); border:1px solid var(--borda); transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+  .jogo:hover, .jogo:focus-visible{ transform:translateY(-4px) scale(1.02); border-color:var(--destaque);
+    box-shadow:0 14px 34px #0009, 0 0 0 1px var(--destaque), 0 0 26px #ffcc3333; }
+  .jogo:focus-visible{ outline:none; }
+  .capa{ position:relative; aspect-ratio:16/10; display:grid; place-items:center; overflow:hidden;
+    background:linear-gradient(135deg, hsl(var(--h) 70% 45%), hsl(calc(var(--h) + 50) 75% 30%)); }
+  .capa::after{ content:''; position:absolute; inset:0; background:repeating-linear-gradient(0deg, #0000 0 3px, #0000001a 3px 4px); pointer-events:none; }
+  .capa .emoji{ font-size:56px; filter:drop-shadow(0 6px 10px #0006); transition:transform .3s ease; }
+  .capa img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .capa .jogar{ position:absolute; inset:0; display:grid; place-items:center; background:#000a; opacity:0; transition:opacity .2s ease; z-index:1; }
+  .capa .jogar span{ padding:10px 18px; border-radius:99px; background:var(--destaque); color:#1a1300; font:800 14px Inter, sans-serif; letter-spacing:.04em; }
+  .jogo:hover .jogar, .jogo:focus-visible .jogar{ opacity:1; }
+  .jogo:hover .emoji{ transform:scale(1.12) rotate(-6deg); }
+  .info{ padding:12px 14px 14px; display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .info h2{ margin:0; font-size:15px; font-weight:700; line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .info .autor{ font-size:12.5px; color:var(--texto-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .vazio{ grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--texto-2); }
+  .vazio .grande{ font-size:48px; display:block; margin-bottom:12px; }
+  .vazio b{ color:var(--texto); }
+
+  /* Esqueleto enquanto carrega */
+  .esqueleto{ height:228px; border-radius:16px; background:linear-gradient(100deg, var(--card) 40%, var(--card-2) 50%, var(--card) 60%) 0 0/200% 100%;
+    animation:brilho 1.2s linear infinite; border:1px solid var(--borda); }
+  @keyframes brilho{ to{ background-position:-200% 0; } }
+
+  /* Jogador (abre por cima da grade) */
+  .player{ position:fixed; inset:0; z-index:10; display:none; flex-direction:column; background:#000; }
+  .player.aberto{ display:flex; }
+  .player-barra{ display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--card); border-bottom:1px solid var(--borda); flex:none; }
+  .player-titulo{ min-width:0; margin-right:auto; }
+  .player-titulo b{ display:block; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .player-titulo span{ display:block; font-size:12px; color:var(--texto-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pbtn{ flex:none; display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:10px; border:1px solid var(--borda);
+    background:var(--card-2); color:var(--texto); font:600 13px Inter, sans-serif; cursor:pointer; text-decoration:none; transition:border-color .2s, background .2s; }
+  .pbtn:hover{ border-color:var(--destaque); }
+  .pbtn:focus-visible{ outline:2px solid var(--destaque); outline-offset:2px; }
+  .pbtn.voltar{ background:var(--destaque); color:#1a1300; border-color:var(--destaque); }
+  .player iframe{ flex:1; width:100%; border:0; background:#000; }
+  @media (max-width:600px){ .pbtn .txt{ display:none; } }
+
+  @media (prefers-reduced-motion: reduce){
+    .jogo, .capa .emoji, .esqueleto{ transition:none; animation:none; }
+    .jogo:hover, .jogo:focus-visible{ transform:none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <div class="marca">
+    <span class="logo" aria-hidden="true">🕹️</span>
+    <div>
+      <h1>Arcade da Turma</h1>
+      <p>Os jogos que a turma publicou no GitHub Pages</p>
+    </div>
+  </div>
+  <label class="busca">
+    <input type="search" id="busca" placeholder="Buscar jogo ou aluno" aria-label="Buscar jogo ou aluno" autocomplete="off">
+  </label>
+</header>
+<!-- Só pro professor: escolhe de qual turma ver os jogos. -->
+<nav class="turmas" id="turmas" hidden aria-label="Turma"></nav>
+<div class="contagem" id="contagem" aria-live="polite"></div>
+<main class="grade" id="grade">
+  <div class="esqueleto"></div><div class="esqueleto"></div><div class="esqueleto"></div><div class="esqueleto"></div>
+</main>
+
+<section class="player" id="player" aria-hidden="true">
+  <div class="player-barra">
+    <button type="button" class="pbtn voltar" id="btnVoltar">← <span class="txt">Voltar</span></button>
+    <div class="player-titulo"><b id="pTitulo"></b><span id="pAutor"></span></div>
+    <button type="button" class="pbtn" id="btnRecarregar" title="Recomeçar o jogo">⟳ <span class="txt">Recomeçar</span></button>
+    <button type="button" class="pbtn" id="btnTelaCheia" title="Tela cheia">⛶ <span class="txt">Tela cheia</span></button>
+    <a class="pbtn" id="btnNovaAba" target="_blank" rel="noopener noreferrer" title="Abrir numa aba nova">↗ <span class="txt">Nova aba</span></a>
+  </div>
+  <!-- sandbox: o jogo roda scripts e usa o próprio github.io, mas não
+       consegue navegar/redirecionar o portal. -->
+  <iframe id="pFrame" title="Jogo" src="about:blank"
+    sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox"
+    allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope" allowfullscreen></iframe>
+</section>
+
+<script src="shared/supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared/session.js"></script>
+<script>
+(async function () {
+  // Mesma regra do CHECK de sql/github-links.sql: só https://<usuario>.github.io/...
+  const PAGES_RE = /^https:\/\/[a-z0-9](?:-?[a-z0-9]){0,38}\.github\.io(\/\S*)?$/i;
+  const EMOJIS = ['🎮', '👾', '🕹️', '🚀', '🐉', '⚔️', '🏎️', '🧩', '🏰', '🤖', '🦖', '💎', '🧟', '🛸', '⚽', '🐸'];
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const hash = s => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+
+  const user = await window.PortalSession.requireUser('index.html');
+  if (!user) return;
+  const sb = window.PortalSession.client();
+  const professor = user.role === 'professor' || user.role === 'admin';
+  // Aluno: só a própria turma (a RLS já garante). Professor: escolhe nos
+  // botões do topo; começa pela do portal que abriu a página (?turma=).
+  const TURMAS = [['jogos', 'Jogos Digitais'], ['sistemas', 'Desenvolvimento de Sistemas'], ['', 'Todas']];
+  let turma = professor ? (new URLSearchParams(location.search).get('turma') || '') : user.turma;
+  if (!TURMAS.some(([id]) => id === turma)) turma = '';
+
+  // Nome provisório do jogo: o nome do repositório no caminho do link
+  // (usuario.github.io/meu-jogo → "Meu Jogo"); sem caminho, o usuário.
+  function nomeDoLink(url) {
+    const u = new URL(url);
+    const parte = u.pathname.split('/').filter(Boolean)[0] || u.hostname.split('.')[0];
+    return decodeURIComponent(parte).replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  let jogos = [];
+  try {
+    const { data: links, error } = await sb.from('student_github_links').select('email, pages_url').not('pages_url', 'is', null);
+    if (error) throw error;
+    const validos = (links || []).filter(l => PAGES_RE.test(l.pages_url));
+    const emails = validos.map(l => l.email);
+    let perfis = [];
+    if (emails.length) {
+      const r = await sb.from('profiles').select('email, nome, turma, role, archived_at').in('email', emails);
+      if (r.error) throw r.error;
+      perfis = r.data || [];
+    }
+    const porEmail = new Map(perfis.filter(p => !p.archived_at && p.role === 'aluno').map(p => [p.email, p]));
+    jogos = validos.filter(l => porEmail.has(l.email)).map(l => ({
+      email: l.email,
+      url: l.pages_url,
+      autor: porEmail.get(l.email).nome || l.email,
+      turma: porEmail.get(l.email).turma,
+      titulo: nomeDoLink(l.pages_url),
+      capa: '',
+      h: hash(l.email) % 360,
+      emoji: EMOJIS[hash(l.pages_url) % EMOJIS.length],
+    })).sort((a, b) => a.autor.localeCompare(b.autor, 'pt-BR'));
+  } catch (e) {
+    $('grade').innerHTML = `<div class="vazio"><span class="grande">⚠️</span>Não foi possível carregar os jogos agora. Tente de novo em instantes.</div>`;
+    return;
+  }
+
+  function card(j, i) {
+    return `
+      <button type="button" class="jogo" data-i="${i}" aria-label="Jogar ${esc(j.titulo)}, de ${esc(j.autor)}">
+        <div class="capa" style="--h:${j.h}">
+          <span class="emoji" aria-hidden="true">${j.emoji}</span>
+          ${j.capa ? `<img src="${esc(j.capa)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
+          <div class="jogar" aria-hidden="true"><span>▶ JOGAR</span></div>
+        </div>
+        <div class="info">
+          <h2>${esc(j.titulo)}</h2>
+          <span class="autor">por ${esc(j.autor)}</span>
+        </div>
+      </button>`;
+  }
+
+  function desenhar() {
+    const termo = $('busca').value.trim().toLowerCase();
+    const daTurma = jogos.filter(j => !turma || j.turma === turma);
+    const lista = jogos.map((j, i) => [j, i])
+      .filter(([j]) => (!turma || j.turma === turma) && (!termo || `${j.titulo} ${j.autor}`.toLowerCase().includes(termo)));
+    if (!daTurma.length) {
+      $('grade').innerHTML = `<div class="vazio"><span class="grande">🎮</span><b>Nenhum jogo publicado ainda.</b><br>Cadastre o link do seu GitHub Pages no ícone do <b>GitHub</b>, na barra do portal, e ele aparece aqui.</div>`;
+      $('contagem').textContent = '';
+      return;
+    }
+    $('contagem').textContent = termo ? `${lista.length} de ${daTurma.length} jogo(s)` : `${daTurma.length} jogo(s)`;
+    $('grade').innerHTML = lista.length ? lista.map(([j, i]) => card(j, i)).join('')
+      : `<div class="vazio"><span class="grande">🔍</span>Nenhum jogo com “${esc(termo)}”.</div>`;
+  }
+  if (professor) {
+    const nav = $('turmas');
+    const marcar = () => nav.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.turma === turma)));
+    nav.innerHTML = TURMAS.map(([id, nome]) => `<button type="button" data-turma="${id}">${nome}</button>`).join('');
+    nav.hidden = false;
+    nav.addEventListener('click', e => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      turma = b.dataset.turma;
+      marcar();
+      desenhar();
+    });
+    marcar();
+  }
+  desenhar();
+  $('busca').addEventListener('input', desenhar);
+
+  // Título e capa de verdade: lê o <title> e o og:image da própria página
+  // (o GitHub Pages libera CORS). Sem rede/sem CORS, fica o nome do link.
+  // Guardado na sessão pra não buscar de novo a cada abertura.
+  async function detalhes(j) {
+    const chave = 'arcade.meta.' + j.url;
+    try { const c = JSON.parse(sessionStorage.getItem(chave) || 'null'); if (c) return c; } catch (e) { /* sem storage */ }
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 6000);
+    try {
+      const r = await fetch(j.url, { signal: ctrl.signal });
+      if (!r.ok) return null;
+      const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
+      const titulo = (doc.querySelector('meta[property="og:title"]')?.content || doc.title || '').trim().slice(0, 80);
+      let capa = doc.querySelector('meta[property="og:image"]')?.content || '';
+      if (capa) { try { capa = new URL(capa, r.url).href; } catch (e) { capa = ''; } }
+      if (!/^https:\/\//i.test(capa)) capa = '';
+      const meta = { titulo, capa };
+      try { sessionStorage.setItem(chave, JSON.stringify(meta)); } catch (e) { /* cheio */ }
+      return meta;
+    } catch (e) { return null; } finally { clearTimeout(t); }
+  }
+  Promise.all(jogos.map(async j => {
+    const m = await detalhes(j);
+    if (!m) return;
+    if (m.titulo) j.titulo = m.titulo;
+    if (m.capa) j.capa = m.capa;
+  })).then(desenhar);
+
+  // ---------- Jogador ----------
+  let atual = null;
+  function abrir(j) {
+    atual = j;
+    $('pTitulo').textContent = j.titulo;
+    $('pAutor').textContent = 'por ' + j.autor;
+    $('btnNovaAba').href = j.url;
+    $('pFrame').src = j.url;
+    $('player').classList.add('aberto');
+    $('player').setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    $('pFrame').focus();
+  }
+  function fechar() {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    atual = null;
+    $('pFrame').src = 'about:blank';
+    $('player').classList.remove('aberto');
+    $('player').setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+  $('grade').addEventListener('click', e => {
+    const b = e.target.closest('.jogo');
+    if (b) abrir(jogos[Number(b.dataset.i)]);
+  });
+  $('pFrame').addEventListener('load', () => { if (atual) $('pFrame').focus(); });
+  $('btnVoltar').addEventListener('click', fechar);
+  $('btnRecarregar').addEventListener('click', () => { if (atual) { $('pFrame').src = 'about:blank'; setTimeout(() => { $('pFrame').src = atual.url; }, 50); } });
+  $('btnTelaCheia').addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else $('player').requestFullscreen?.().catch(() => { if (atual) window.open(atual.url, '_blank', 'noopener'); });
+  });
+  // Esc só chega aqui quando o foco está fora do jogo (as teclas dentro do
+  // <iframe> ficam com o jogo).
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && atual && !document.fullscreenElement) fechar(); });
+})();
+</script>
+</body>
+</html>

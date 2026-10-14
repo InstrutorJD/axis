@@ -289,6 +289,7 @@
           <button class="tab-btn active" data-tab="aulas">Aulas & Atividades</button>
           <button class="tab-btn disabled" id="tabBtnJogos" data-tab="jogos">Jogos 🔒</button>
           <button class="quick-action-btn" id="btnOpenPixelCode" title="Abrir o PixelCode (editor de HTML, CSS e JavaScript, com navegador) numa aba nova">💻 PixelCode</button>
+          <button class="quick-action-btn" id="btnOpenArcade" title="Abrir o Arcade da Turma (os jogos que a turma publicou no GitHub Pages) numa aba nova">🕹️ Arcade</button>
           ${currentUser.role === 'professor' ? `<button class="tab-btn" data-tab="gestao">Gestão 🛠️</button>` : ''}
           <div class="nav-right-group">
             <button type="button" class="quick-token-btn github-btn" id="btnGithubLinks" title="GitHub" aria-label="GitHub">${window.PortalGithub ? window.PortalGithub.SVG : 'GH'}</button>
@@ -5483,6 +5484,11 @@
 
     document.getElementById('btnOpenPixelCode').addEventListener('click', () => {
       window.open('../../pixelcode.html', '_blank');
+    });
+
+    // Arcade da Turma (arcade.html na raiz): página separada, numa aba nova.
+    document.getElementById('btnOpenArcade').addEventListener('click', () => {
+      window.PortalSession.abrirPagina(`../../arcade.html?turma=${encodeURIComponent(cfg.id)}`);
     });
 
     document.getElementById('btnLogout').addEventListener('click', async () => {
