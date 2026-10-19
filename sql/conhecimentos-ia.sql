@@ -79,6 +79,43 @@ Cria texto, código, imagem, áudio e vídeo a partir de um [[Prompt]].
 
 Na escola: [[IA na Sala de Aula]]. Visão geral da área: [[Mapa de TI]].
 
+---
+## Aprofundando
+
+### Linha do tempo
+| Ano | Marco |
+|---|---|
+| 1950 | Alan Turing propõe o "jogo da imitação" (teste de Turing) |
+| 1956 | o termo "Inteligência Artificial" nasce na conferência de Dartmouth |
+| 1997 | Deep Blue (IBM) vence Kasparov no xadrez |
+| 2012 | redes neurais profundas disparam no reconhecimento de imagem |
+| 2016 | AlphaGo vence o campeão mundial de Go |
+| 2017 | artigo "Attention Is All You Need" cria o Transformer (base dos [[LLM]]) |
+| 2022 | lançamento do [[ChatGPT]] populariza a IA generativa |
+| 2024+ | [[Agentes de IA]] passam a executar tarefas de ponta a ponta |
+
+### IA fraca × IA geral
+- **IA estreita (fraca)**: boa em uma tarefa (traduzir, recomendar, jogar) — é tudo que existe hoje
+- **IA geral (AGI)**: faria qualquer tarefa intelectual humana — ainda é objetivo de pesquisa e debate
+
+### Áreas da IA
+| Área | Faz | Exemplo |
+|---|---|---|
+| **Processamento de linguagem (PLN)** | entende e gera texto | chatbot, tradutor |
+| **Visão computacional** | entende imagem e vídeo | desbloqueio por rosto, carro autônomo |
+| **Fala** | voz ↔ texto | assistente de voz, legenda automática |
+| **Sistemas de recomendação** | sugere o que você vai gostar | Netflix, YouTube, Spotify |
+| **Robótica** | age no mundo físico | robô de armazém |
+| **IA em jogos** | comportamento de NPC, geração de fase | fantasmas do Pacman, Minecraft |
+
+### IA no dia a dia (que nem parece IA)
+Filtro de spam · corretor do teclado · rota no GPS · detecção de fraude no cartão · feed das redes sociais · sugestão de resposta no e-mail.
+
+### Pra testar com a turma
+- **Teachable Machine** (Google): treina um modelo de imagem/som com a webcam, sem código
+- **Quick, Draw!**: a IA tenta adivinhar o desenho
+- Comparar a mesma pergunta em [[ChatGPT]] e [[Claude]] e discutir as diferenças
+
 #ia #conceito$md$),
 
 -- ------------------------------------------------------------------ LLM
@@ -117,6 +154,50 @@ Fechados (só pela nuvem): [[ChatGPT]], [[Claude]], Gemini. Abertos: [[Modelos A
 
 Ver [[IA]], [[Prompt]] e [[RAG]].
 
+---
+## Aprofundando
+
+### Tokens na prática
+- Em português, 1 palavra ≈ 1,5 a 2 tokens (mais que em inglês)
+- "Inteligência" pode virar `Int` + `elig` + `ência`
+- Limites de uso e preço da API são contados em tokens de **entrada** (o que você manda) e **saída** (o que ele escreve)
+
+### Janela de contexto
+Tudo que o modelo "vê" numa conversa: suas mensagens, as respostas, arquivos e instruções. Passou do limite, o mais antigo some ou é resumido. Por isso o modelo "esquece" o começo de conversa muito longa.
+
+### O que um LLM faz bem
+- Resumir, reescrever, traduzir, mudar o tom
+- Explicar de vários jeitos
+- Gerar código e achar erro
+- Classificar e extrair informação de texto
+- Brainstorm
+
+### O que faz mal (sem ajuda)
+- Conta exata e números grandes (use calculadora/código)
+- Fatos recentes ou muito específicos ([[Alucinação]])
+- Contar letras ("quantos r tem em morango?") — ele vê tokens, não letras
+- Saber o que não está no contexto (use [[RAG]])
+
+### Chat × API
+| Chat (site/app) | API |
+|---|---|
+| conversa com interface pronta | o seu programa chama o modelo |
+| assinatura mensal | paga por token usado |
+| pra pessoas | pra sistemas (bot, app, automação) |
+
+```js
+// esquema de uma chamada de API (genérico)
+const resposta = await fetch(URL_DA_API, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'x-api-key': CHAVE },
+  body: JSON.stringify({ model: 'nome-do-modelo', messages: [{ role: 'user', content: 'Olá' }] }),
+});
+```
+A chave nunca fica no front-end (ver [[API REST]]).
+
+### Mensagem de sistema
+Instrução fixa que vem antes da conversa ("Você é um tutor de SQL, responda em português, curto"). É o que os [[Arquivos de instrução]] e os "Projetos" dos chats fazem por trás.
+
 #ia #conceito$md$),
 
 -- ------------------------------------------------------------------ Prompt
@@ -154,6 +235,50 @@ Ver [[IA]], [[Prompt]] e [[RAG]].
 > Não cole nome completo, nota ou CPF de aluno no chat. Ver [[Ética e Vieses na IA]].
 
 No [[Claude Code]] e no [[Codex]], instruções fixas vão nos [[Arquivos de instrução]].
+
+---
+## Aprofundando
+
+### Modelo de prompt pronto (copie e preencha)
+```text
+Papel: Você é [quem].
+Contexto: [pra quem é, nível, o que já foi visto, restrições].
+Tarefa: [verbo + o que fazer].
+Formato: [lista / tabela / código / quantas palavras].
+Exemplo: [um exemplo do resultado, se tiver].
+Regras: [o que evitar]. Se faltar informação, pergunte antes.
+```
+
+### Prompts úteis pra programação
+```text
+Explique o que este código faz, linha por linha, pra um iniciante.
+Este erro aparece quando eu clico em X: [erro]. Liste 3 causas prováveis, da mais para a menos provável.
+Revise este código procurando bugs e problemas de segurança. Não reescreva tudo; aponte e explique.
+Escreva testes para esta função cobrindo casos de borda.
+```
+
+### Prompts úteis pro professor
+```text
+Crie uma rubrica de 4 níveis para avaliar [projeto] com os critérios [A, B, C].
+Transforme este texto em 10 flashcards (pergunta e resposta curta).
+Adapte esta explicação para um aluno com dificuldade de leitura: frases curtas e um exemplo concreto.
+Sugira 3 atividades práticas de 15 minutos sobre [tema] que funcionem sem computador.
+```
+
+### Iterar
+1. Primeira resposta → leia criticamente
+2. Diga **o que mudar**: "mais curto", "sem jargão", "com exemplo de jogo"
+3. Peça **variações**: "me dê 3 versões diferentes"
+4. Guarde os prompts que funcionaram (numa nota aqui!)
+
+### Imagem
+Prompt de imagem funciona por **descrição visual**: assunto + estilo + cenário + luz + enquadramento.
+"Robô simpático regando uma horta escolar, estilo ilustração plana, cores vivas, fundo de escola, luz da manhã."
+
+### Erros comuns
+- Pedir tudo numa mensagem gigante e confusa
+- Não dar contexto ("faz um resumo" — de quê, pra quem, de que tamanho?)
+- Aceitar a primeira resposta sem conferir
 
 #ia #conceito$md$),
 
@@ -196,6 +321,41 @@ objetivo → planeja → usa uma ferramenta → olha o resultado → decide o pr
 
 Ferramentas externas chegam pelo [[MCP]].
 
+---
+## Aprofundando
+
+### Níveis de autonomia
+| Nível | Como funciona | Exemplo |
+|---|---|---|
+| **Assistente** | sugere, você executa | chat comum |
+| **Copiloto** | executa com sua aprovação a cada passo | agente em modo "pedir permissão" |
+| **Autônomo** | executa sozinho até o fim e relata | tarefa em segundo plano na nuvem |
+
+Comece no nível com mais controle e libere aos poucos.
+
+### O que é "ferramenta" (tool use)
+O modelo não roda nada sozinho: ele **pede** pra chamar uma ferramenta ("ler arquivo X", "pesquisar Y"), o programa executa e devolve o resultado, e o modelo decide o próximo passo.
+
+### Exemplo de tarefa bem pedida
+```text
+Objetivo: adicionar um botão "Exportar CSV" na tela de notas.
+Contexto: a tabela é montada em notas.js; siga o estilo dos outros botões.
+Pronto quando: o botão baixa um CSV com nome e nota de cada aluno, e nada mais mudou.
+Antes de editar, me mostre o plano.
+```
+
+### Multiagentes
+Vários agentes com papéis diferentes: um **planeja**, outros **executam** partes em paralelo, um **revisa**. Bom pra tarefa grande; gasta mais.
+
+### Riscos
+- Fazer algo irreversível (apagar arquivo, mandar e-mail, publicar)
+- Entrar em laço (tenta, erra, tenta igual)
+- "Inventar" que terminou ([[Alucinação]]) — confira sempre
+- Seguir instrução escondida ([[Prompt Injection]])
+
+### Onde os agentes já estão
+Programação ([[Claude Code]], [[Codex]], Copilot) · navegador (fazer compras, preencher formulários) · atendimento · análise de dados · pesquisa longa (Deep Research).
+
 #ia #conceito$md$),
 
 -- ------------------------------------------------------------------ MCP
@@ -231,6 +391,42 @@ codex mcp add nome -- npx -y pacote-do-servidor
 > O servidor MCP vê e faz o que a ferramenta permitir. O que ele devolve pode trazer [[Prompt Injection]].
 
 Ver [[Agentes de IA]] e [[API REST]].
+
+---
+## Aprofundando
+
+### Por que surgiu
+Antes, cada app de IA precisava de uma integração própria pra cada ferramenta (N apps × M ferramentas). Com o MCP, cada ferramenta faz **um** servidor e qualquer app compatível usa. Parecido com o que o USB fez com periféricos.
+
+### Servidores populares
+| Servidor | Dá à IA |
+|---|---|
+| GitHub | issues, PRs, código dos repositórios |
+| Sistema de arquivos | ler/escrever numa pasta liberada |
+| Banco de dados (Postgres, [[Supabase]]) | consultar tabelas |
+| Navegador (Playwright) | abrir páginas, clicar, tirar print |
+| Google Drive / Gmail / Calendar | documentos, e-mails, agenda |
+| Slack / Notion | mensagens e páginas |
+
+### No Claude Code
+```bash
+claude mcp list                 # o que está ligado
+claude mcp remove nome          # tirar
+```
+Dentro da sessão, `/mcp` mostra o status e faz login nos servidores que pedem.
+
+### Escopos
+- **Local**: só você, só este projeto
+- **Projeto**: arquivo `.mcp.json` na raiz (vai pro [[Git]], o time todo usa)
+- **Usuário**: todos os seus projetos
+
+### Criar um servidor
+SDKs oficiais em TypeScript, Python, C#, Java e outras. Um servidor simples expõe uma função (ex.: "consultar_nota(aluno)") com descrição e parâmetros; a IA decide quando chamar.
+
+### Boas práticas
+- Dê ao servidor só o acesso necessário (somente leitura quando der)
+- Prefira servidores oficiais das empresas
+- Revise o que cada ferramenta faz antes de aprovar
 
 #ia #conceito$md$),
 
@@ -275,6 +471,40 @@ Ver [[Agentes de IA]] e [[API REST]].
 
 Ver [[Prompt]].
 
+---
+## Aprofundando
+
+### O que NÃO colocar
+- Coisa que o agente descobre lendo o código (lista de arquivos, o que cada função faz)
+- Texto longo e genérico ("escreva código limpo e bem documentado")
+- Segredos (senhas, chaves)
+- Regras que mudam toda semana
+
+### Bons exemplos de regra
+- "Testes rodam no CI; não rode localmente."
+- "Scripts SQL são idempotentes (`if not exists`)."
+- "Interface e mensagens de commit em português."
+- "Antes de mudar o arquivo X, avise: ele é compartilhado."
+
+### Imports e organização
+Dá pra apontar pra outro arquivo em vez de copiar: `Veja docs/padrao.md antes de criar uma trilha.` Mantém o arquivo principal curto.
+
+### Manter vivo
+- Corrigiu o agente duas vezes pela mesma coisa? Vira regra no arquivo
+- Regra que ninguém precisa mais? Apague
+- Revise junto com o README de tempos em tempos
+
+### Outras ferramentas
+| Ferramenta | Arquivo |
+|---|---|
+| GitHub Copilot | `.github/copilot-instructions.md` |
+| Cursor | `.cursor/rules/` |
+| Gemini CLI | `GEMINI.md` |
+| Vários agentes | `AGENTS.md` virou padrão aberto aceito por muitos |
+
+### Memória × instrução
+Alguns agentes guardam **memórias** automáticas (preferências que você falou). O arquivo de instrução é o que **você** decide e versiona no [[Git]].
+
 #ia #conceito$md$),
 
 -- ------------------------------------------------------------------ ChatGPT
@@ -305,6 +535,32 @@ Free · Plus · Pro · Business · Enterprise
 > Configurações → Personalização: diga quem você é e como quer as respostas. Vale pra toda conversa.
 
 Para programar no terminal: [[Codex]]. Concorrente: [[Claude]].
+
+---
+## Aprofundando
+
+### Montando um GPT pra turma
+1. Explorar GPTs → **Criar**
+2. Instruções: papel, público, regras ("não dê a resposta pronta, dê pistas")
+3. Conhecimento: suba o material da aula (PDF, slides)
+4. Ações/ferramentas: pesquisa na web, imagem, análise de dados
+5. Compartilhe por link
+
+Exemplo de instrução: "Você é monitor de lógica de programação de alunos do ensino técnico. Responda em português simples. Nunca entregue o código completo do exercício; faça perguntas que levem o aluno à resposta."
+
+### Análise de dados (exemplo)
+"Aqui está a planilha de notas (sem nomes). Calcule média por atividade, mostre um gráfico de barras e aponte as 2 atividades com pior desempenho."
+
+### Modo de voz
+Conversa falada em tempo real — bom pra treinar inglês ou ensaiar apresentação.
+
+### Privacidade
+- Configurações → Controles de dados: dá pra desligar o uso das conversas para treino
+- **Chat temporário**: não fica no histórico nem na memória
+- Contas de empresa/escola (Business/Enterprise/Edu) não usam os dados pra treino por padrão
+
+### Limites
+Plano grátis tem limite de mensagens nos modelos mais fortes; quando acaba, cai pra um modelo menor até liberar.
 
 #ia #ferramenta$md$),
 
@@ -338,6 +594,35 @@ Free · Pro · Max · Team · Enterprise
 > Crie um Projeto com o plano de ensino e as instruções da turma: toda conversa ali já começa sabendo o contexto.
 
 Para programar: [[Claude Code]]. Concorrente: [[ChatGPT]].
+
+---
+## Aprofundando
+
+### Artifacts na sala de aula
+Peça e ele monta uma página interativa ao lado do chat:
+- "Crie um quiz de 10 perguntas sobre redes com pontuação no final"
+- "Faça um simulador de juros compostos com controles deslizantes"
+- "Monte um jogo da forca com palavras de programação"
+Dá pra publicar e mandar o link pros alunos.
+
+### Projetos
+Cada Projeto tem **conhecimento** (arquivos) + **instruções** fixas. Ideias:
+- Projeto "Jogos Digitais": plano de curso, capacidades MSEP, padrão de atividades
+- Projeto "Correção": rubrica e exemplos de respostas boas e ruins
+
+### Estilos
+Escolha como ele escreve (conciso, explicativo, formal) ou crie um estilo a partir de um texto seu.
+
+### Conectores e Claude no navegador
+Com conectores ([[MCP]]) ele busca no Drive, lê e-mails ou consulta o GitHub. A extensão no Chrome deixa ele navegar e preencher páginas (ver [[Agentes de IA]]).
+
+### Dicas pra ele responder melhor
+- Use tags pra separar material: `<texto>…</texto>`, `<regras>…</regras>`
+- Peça raciocínio estendido em problema difícil
+- Mande o arquivo em vez de colar pedaços
+
+### Privacidade
+Configurações de privacidade controlam se as conversas ajudam a melhorar os modelos; planos Team/Enterprise não usam os dados pra treino por padrão. Mesmo assim, não cole dado pessoal de aluno.
 
 #ia #ferramenta$md$),
 
@@ -400,6 +685,34 @@ $skill-installer nome-da-skill     # instalar do catálogo
 Onde ficam: `~/.codex/skills/` (suas) · `.codex/skills/` (do projeto). Reinicie o Codex depois de instalar.
 
 Atualizar: `npm install -g @openai/codex@latest`. Equivalente da Anthropic: [[Claude Code]].
+
+---
+## Aprofundando
+
+### Codex na nuvem
+Em chatgpt.com/codex você conecta o [[GitHub]], descreve a tarefa e ele trabalha numa cópia do repositório na nuvem. No fim, mostra o diff e abre um Pull Request. Dá pra mandar várias tarefas em paralelo.
+
+### Revisão de PR
+Ligado ao GitHub, ele comenta nos Pull Requests apontando bugs (dá pra pedir com `@codex review` num comentário).
+
+### Modos de aprovação (resumo)
+| Modo | Ele pode |
+|---|---|
+| Somente leitura | ler e sugerir |
+| Automático no projeto | editar e rodar comandos dentro da pasta |
+| Acesso total | tudo, inclusive rede — só em ambiente isolado |
+
+### Fluxo recomendado
+1. `codex` na pasta do projeto
+2. `/init` pra gerar o `AGENTS.md` (ver [[Arquivos de instrução]])
+3. Peça um plano antes de mudanças grandes
+4. Confira com `/diff` e `/review`
+5. Commit pelo [[Git]]
+
+### Dicas
+- Cite arquivos com `@` pra dar contexto
+- `codex exec` em scripts e no CI (ex.: gerar changelog)
+- Mantenha tarefas pequenas: uma funcionalidade por vez
 
 #ia #ferramenta$md$),
 
@@ -508,6 +821,54 @@ Do usuário: `~/.claude/settings.json` · do projeto: `.claude/settings.json` ·
 
 Equivalente da OpenAI: [[Codex]].
 
+---
+## Aprofundando
+
+### Primeiros pedidos que valem a pena num projeto novo
+```text
+Me dê uma visão geral deste projeto: pastas, tecnologias e como rodar.
+Onde fica a lógica de login? Me explique o fluxo.
+Liste 5 melhorias de baixo risco que você faria aqui.
+```
+
+### Subagente de exemplo (`.claude/agents/revisor.md`)
+```markdown
+---
+name: revisor
+description: Revisa mudanças procurando bugs e problemas de segurança. Use depois de editar código.
+tools: Read, Grep, Glob
+---
+Você é um revisor exigente. Leia o diff, aponte bugs e riscos com arquivo e linha.
+Não edite nada.
+```
+
+### Hook de exemplo
+Formatar sempre depois de editar (em `.claude/settings.json`):
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      { "matcher": "Edit|Write", "hooks": [{ "type": "command", "command": "npx prettier --write ." }] }
+    ]
+  }
+}
+```
+
+### Comandos personalizados
+Um arquivo em `.claude/commands/nome.md` vira `/nome`. Ex.: `/nova-atividade` com o passo a passo de criar uma atividade no padrão do projeto.
+
+### Economizar contexto
+- `/clear` ao trocar de assunto
+- `/compact` em conversa longa
+- Peça pra subagentes pesquisarem (o resultado volta resumido)
+- Aponte o arquivo certo em vez de "procure no projeto"
+
+### Erros comuns
+- Pedido vago ("melhora o site")
+- Aceitar tudo sem ler o diff
+- Conversa enorme misturando 5 tarefas
+- Não ter `CLAUDE.md` e repetir as mesmas regras toda vez
+
 #ia #ferramenta$md$),
 
 -- ------------------------------------------------------------------ Alucinação
@@ -534,6 +895,36 @@ O [[LLM]] gera o texto **mais provável**, não o verdadeiro. Se não sabe, ele 
 
 Ver [[Ética e Vieses na IA]].
 
+---
+## Aprofundando
+
+### Exemplos reais de problema
+- Advogados nos EUA multados por citar **processos que não existiam**, inventados por IA
+- Referências bibliográficas com autor real e título inventado
+- Código que chama uma função de biblioteca que **nunca existiu** — e há quem publique pacotes maliciosos com esses nomes inventados pra pegar quem instala sem conferir
+
+### Como checar rápido
+| O que veio | Como conferir |
+|---|---|
+| fato / data | buscar em 2 fontes confiáveis |
+| citação | achar o texto original |
+| link | abrir o link |
+| lei / artigo | site oficial (planalto.gov.br) |
+| código | rodar e testar |
+| cálculo | refazer na calculadora ou planilha |
+
+### Prompt que ajuda
+```text
+Responda só com base no texto abaixo. Se a resposta não estiver no texto, diga "não encontrei".
+Ao final, cite o trecho que usou.
+<texto>
+...
+</texto>
+```
+
+### Atividade de aula
+Peça à turma pra fazer à IA uma pergunta sobre um assunto **local** (história da cidade, nome do diretor da escola). Comparem as respostas com a realidade e discutam por que a IA errou com tanta confiança.
+
 #ia #risco$md$),
 
 -- ------------------------------------------------------------------ RAG
@@ -559,6 +950,32 @@ Ver [[Ética e Vieses na IA]].
 
 Ver [[Prompt]] e [[Banco de Dados]].
 
+---
+## Aprofundando
+
+### Exemplo de uso na escola
+"Assistente do regimento": o aluno pergunta "quantas faltas posso ter?" e o sistema busca o trecho do regimento, responde e mostra de onde tirou.
+
+### Partes de um sistema RAG
+| Parte | Faz | Ferramentas |
+|---|---|---|
+| **Ingestão** | lê PDFs, páginas, planilhas e quebra em pedaços | bibliotecas de leitura de PDF |
+| **Indexação** | gera [[Embeddings]] e guarda | pgvector, Chroma, Pinecone |
+| **Busca** | acha os pedaços mais parecidos com a pergunta | busca vetorial (+ busca por palavra) |
+| **Geração** | o [[LLM]] responde com os pedaços | API do modelo |
+
+### Detalhes que fazem diferença
+- **Tamanho do pedaço**: pequeno demais perde contexto; grande demais traz ruído
+- **Sobreposição**: pedaços com um trecho em comum evitam cortar uma ideia ao meio
+- **Busca híbrida**: vetor (significado) + palavra-chave (nomes, códigos)
+- **Citar a fonte**: mostrar o trecho aumenta a confiança e facilita conferir
+
+### Quando NÃO precisa de RAG
+Se o material cabe inteiro no contexto (algumas dezenas de páginas), é só mandar o arquivo junto com a pergunta.
+
+### Limites
+Se a busca trouxer o trecho errado, a resposta sai errada com confiança. Documentos desatualizados geram respostas desatualizadas.
+
 #ia #conceito$md$),
 
 -- ------------------------------------------------------------------ Embeddings
@@ -580,6 +997,40 @@ Ver [[Prompt]] e [[Banco de Dados]].
 Banco vetorial: pgvector (extensão do Postgres, tem no [[Supabase]]), Pinecone, Chroma.
 
 Ver [[LLM]].
+
+---
+## Aprofundando
+
+### Medindo a semelhança
+A **similaridade de cosseno** compara a direção de dois vetores: perto de 1 = significado parecido; perto de 0 = nada a ver.
+```js
+function cosseno(a, b) {
+  let dot = 0, na = 0, nb = 0;
+  for (let i = 0; i < a.length; i++) { dot += a[i] * b[i]; na += a[i] ** 2; nb += b[i] ** 2; }
+  return dot / (Math.sqrt(na) * Math.sqrt(nb));
+}
+```
+
+### Quantos números?
+Cada modelo de embedding gera vetores de tamanho fixo — algumas centenas a alguns milhares de números. Mais dimensões captam mais nuances, mas ocupam mais espaço.
+
+### pgvector no Supabase (esquema)
+```sql
+create extension if not exists vector;
+create table documentos (
+  id bigint generated always as identity primary key,
+  conteudo text,
+  embedding vector(1536)   -- tamanho do modelo usado
+);
+-- os 5 mais parecidos com o vetor da pergunta
+select conteudo from documentos order by embedding <=> '[...]' limit 5;
+```
+
+### Curiosidade
+Embeddings capturam relações: o vetor de "rei" − "homem" + "mulher" fica perto de "rainha". Também capturam **vieses** dos textos de treino (ver [[Ética e Vieses na IA]]).
+
+### Multimodal
+Há embeddings que colocam **imagem e texto** no mesmo espaço: dá pra buscar fotos escrevendo "cachorro na praia".
 
 #ia #conceito$md$),
 
@@ -603,6 +1054,40 @@ Fica pior em [[Agentes de IA]]: eles **agem** (rodam comando, mandam e-mail, mex
 - Segredos (senhas, chaves) fora do alcance do agente
 
 Parente da [[Engenharia Social]] — só que a vítima enganada é a IA. Ver [[Cibersegurança]].
+
+---
+## Aprofundando
+
+### Direta × indireta
+| Tipo | Como chega |
+|---|---|
+| **Direta** | o próprio usuário digita ("ignore suas regras e…") — o famoso *jailbreak* |
+| **Indireta** | escondida em conteúdo que a IA lê: página web, PDF, e-mail, comentário de código, resposta de ferramenta |
+
+A indireta é a mais perigosa, porque você nem vê.
+
+### Onde costuma se esconder
+- Texto branco em fundo branco ou fonte minúscula
+- Comentário HTML (`<!-- -->`) e metadados
+- Texto alternativo de imagem
+- Arquivo README de um repositório desconhecido
+- Assinatura de e-mail
+
+### Sinais de que aconteceu
+- O agente começa a fazer algo que você não pediu
+- Tenta acessar arquivos de senha/configuração
+- Quer enviar dados pra um endereço externo
+- Muda o tom ou ignora suas instruções de repente
+
+### Defesa em camadas
+1. **Menor privilégio**: o agente só acessa o necessário
+2. **Confirmação humana** em ações sensíveis
+3. **Isolamento**: rodar em contêiner/máquina separada quando tiver acesso total ([[Docker]])
+4. **Sem segredos à vista**: `.env` bloqueado nas permissões
+5. **Desconfiar** de conteúdo de fonte desconhecida
+
+### Pra discutir com a turma
+É possível resolver de vez? Ainda não: o modelo lê instrução e dado no mesmo "canal" (texto). Por isso as defesas são em camadas.
 
 #ia #seguranca #risco$md$),
 
@@ -629,6 +1114,37 @@ Parente da [[Engenharia Social]] — só que a vítima enganada é a IA. Ver [[C
 > Se a IA errou numa decisão (nota, empréstimo, diagnóstico), de quem é a responsabilidade?
 
 Ver [[IA na Sala de Aula]].
+
+---
+## Aprofundando
+
+### De onde vem o viés
+- **Dados de treino** desequilibrados (mais fotos de um grupo que de outro)
+- **Histórico** com discriminação (contratações, empréstimos)
+- **Quem rotula** os dados e com que critérios
+- **Como a pergunta é feita** (o prompt também carrega viés)
+
+### Casos conhecidos
+- Reconhecimento facial com mais erro em pessoas negras — prisões injustas em alguns países
+- Ferramenta de recrutamento descartada por penalizar currículos de mulheres
+- Gerador de imagem que, para "médico", mostrava quase só homens
+
+### Direito autoral
+- Debate aberto: treinar com obras protegidas é permitido? Há processos de autores, artistas e jornais contra empresas de IA
+- Conteúdo gerado só por IA, sem contribuição humana relevante, tem proteção autoral discutível em vários países
+- Na escola: cite quando usar IA e não entregue como seu o que não fez
+
+### Meio ambiente
+Treinar e rodar modelos grandes gasta muita energia e água (resfriamento de data centers). Usar com propósito também é ética.
+
+### Regulação
+- **União Europeia**: AI Act, regras por nível de risco
+- **Brasil**: projeto de lei de IA (PL 2338/2023) em tramitação; [[LGPD]] já vale pra dados pessoais usados por IA
+
+### Perguntas pra debate
+1. Uma IA pode corrigir redação? Quem confere?
+2. Deepfake de colega como "brincadeira": onde está o limite? (pode ser crime)
+3. Se todos usam IA, o que passa a valer mais num profissional?
 
 #ia #etica$md$),
 
@@ -659,6 +1175,45 @@ Este é meu código e o erro que aparece. Não me dê o código certo; me dê um
 
 Ver [[Prompt]] e [[Ética e Vieses na IA]].
 
+---
+## Aprofundando
+
+### Atividades com IA (prontas pra aplicar)
+| Atividade | Como |
+|---|---|
+| **Caça ao erro** | a IA gera uma explicação com 3 erros escondidos; a turma acha |
+| **IA × turma** | resolvem o mesmo problema; comparam e discutem quem acertou e por quê |
+| **Prompt battle** | grupos competem pra obter a melhor resposta com o mesmo objetivo |
+| **Explique pra IA** | o aluno ensina um conceito pra IA "aluna" e ela faz perguntas |
+| **Revisor de código** | aluno pede revisão, mas tem que justificar cada mudança que aceitar |
+| **Entrevista** | a IA interpreta um personagem histórico da computação (Ada Lovelace, Turing) |
+
+### Avaliação na era da IA
+- Valorize o **processo**: rascunhos, commits, diário de bordo
+- **Apresentação oral** do projeto e perguntas sobre o código
+- Atividades em sala, com o professor por perto
+- Peça a **reflexão**: "o que a IA errou e como você percebeu?"
+
+### Política de uso (modelo de semáforo)
+| Cor | Significa |
+|---|---|
+| 🟢 Liberado | pode usar à vontade (pesquisa, ideias) |
+| 🟡 Com registro | pode usar, mas indica onde e como |
+| 🔴 Proibido | avaliação individual sem consulta |
+
+Deixe a cor de cada atividade clara no enunciado.
+
+### Economia de tempo pro professor
+- Primeiro rascunho de plano de aula e de slides
+- Banco de questões a partir do conteúdo dado
+- Feedback inicial em texto, que você revisa
+- Mensagens para famílias e comunicados (sem dado sensível)
+
+### Cuidados
+- Conta pessoal × institucional: prefira a da escola quando houver
+- Alunos menores: veja a idade mínima de cada ferramenta (muitas pedem 13+ ou 18+ com autorização)
+- Sempre revise antes de usar com a turma ([[Alucinação]])
+
 #ia #aula$md$),
 
 -- ------------------------------------------------------------------ Modelos abertos
@@ -684,6 +1239,41 @@ Llama (Meta) · Mistral · Qwen (Alibaba) · DeepSeek · Gemma (Google) · gpt-o
 > O número no nome (7B, 70B) é a quantidade de parâmetros em bilhões. Pra notebook comum, comece com modelos de 1B a 8B.
 
 Ver [[IA]].
+
+---
+## Aprofundando
+
+### Quanto de máquina precisa (aproximado)
+| Tamanho | Memória (RAM/vídeo) | Roda em |
+|---|---|---|
+| 1B–3B | 2–4 GB | notebook comum, até celular |
+| 7B–8B | 6–8 GB | notebook bom ou placa de vídeo de entrada |
+| 13B–14B | 10–16 GB | placa de vídeo intermediária |
+| 70B | 40 GB ou mais | estação de trabalho / servidor |
+
+Valores pra versões **quantizadas** (comprimidas, ex.: 4 bits), que é como a maioria roda em casa.
+
+### Quantização
+Guardar os pesos com menos precisão (16 → 8 → 4 bits). O modelo fica bem menor e mais rápido, perdendo um pouco de qualidade.
+
+### Ollama na prática
+```bash
+ollama pull llama3.2      # baixa
+ollama run llama3.2       # conversa no terminal
+ollama list               # modelos baixados
+```
+Ele também abre uma API local em `http://localhost:11434`, que seu programa pode chamar.
+
+### "Aberto" tem níveis
+- **Pesos abertos**: dá pra baixar e rodar, mas os dados e o código de treino não são públicos (a maioria)
+- **Totalmente aberto**: pesos + dados + código de treino
+- Leia a **licença**: algumas limitam uso comercial
+
+### Onde achar modelos
+**Hugging Face** (huggingface.co): o "GitHub dos modelos", com milhares de modelos, datasets e demonstrações.
+
+### Bom pra
+Dados sensíveis que não podem sair da máquina · uso offline · aprender como os modelos funcionam · projetos sem custo de API.
 
 #ia #ferramenta$md$)
 
