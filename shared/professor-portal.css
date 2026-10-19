@@ -14,7 +14,8 @@
    🎨 Personalizar do professor (ver o fim deste arquivo). As atividades
    abertas em iframe continuam com o visual que o aluno vê. */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Fontes: carregadas por <link> no <head> de cada página (não por @import,
+   que só começa a baixar depois deste CSS chegar e atrasa a tela). */
 
 html[data-visual-professor]{
   --bg:#f6f7f9 !important;

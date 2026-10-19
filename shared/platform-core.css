@@ -4,7 +4,8 @@
    carregar este arquivo. Mudar este CSS afeta todas as turmas; para mudar
    a cara de uma turma específica, edite o tema dela, não este arquivo. */
 
-@import url('https://fonts.googleapis.com/css2?family=VT323&family=JetBrains+Mono:wght@400;500;600;800&family=Quicksand:wght@400;600;700&family=Bitter:wght@400;600;700&display=swap');
+/* Fontes: carregadas por <link> no <head> de cada página (não por @import,
+   que só começa a baixar depois deste CSS chegar e atrasa a tela). */
 
 :root{
   --user-font: 'JetBrains Mono', monospace;

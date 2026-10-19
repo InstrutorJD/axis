@@ -8,7 +8,8 @@
    (pf-alert-*, pf-perso-*, btn, status-msg, audit-table), pra o modal
    funcionar aqui sem carregar o platform-core.css. */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Fontes: carregadas por <link> no <head> de cada página (não por @import,
+   que só começa a baixar depois deste CSS chegar e atrasa a tela). */
 
 :root{
   --pr-bg:#f6f7f9;

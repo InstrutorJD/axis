@@ -1,7 +1,8 @@
 const path = require('node:path');
 
 const FAKE_CLIENT_PATH = path.join(__dirname, 'fixtures', 'fake-supabase-client.js');
-const SUPABASE_JS_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+// Cópia local da lib (shared/vendor/supabase.js), servida pelo próprio site.
+const SUPABASE_JS_URL = '**/shared/vendor/supabase.js';
 const VLIBRAS_URL = 'https://vlibras.gov.br/app/vlibras-plugin.js';
 
 /** Bloqueia ruído externo (Libras, Google Fonts) que não afeta a lógica

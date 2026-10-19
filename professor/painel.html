@@ -16,6 +16,9 @@
      jogos e bloqueio de Ctrl+C/V vivem dentro do portal de cada turma
      (aba "Gestão", só visível pro professor) — ver shared/platform-core.js.
      Visual: shared/professor.css (moderno, sem tema de jogo). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="../shared/professor.css">
 <link rel="stylesheet" href="../shared/professor-agenda.css">
 <link rel="stylesheet" href="../shared/painel-layout.css">
@@ -44,7 +47,7 @@
 </style>
 
 <script src="../shared/supabase-config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../shared/vendor/supabase.js"></script>
 <script src="../shared/session.js"></script>
 <!-- Só pelo campo codigoTurma, usado no arquivo de lançamento. -->
 <script src="../turmas/jogos/config.js"></script>
