@@ -293,6 +293,7 @@
           ${currentUser.role === 'professor' ? `<button class="tab-btn" data-tab="gestao">Gestão 🛠️</button>` : ''}
           <div class="nav-right-group">
             <button type="button" class="quick-token-btn github-btn" id="btnGithubLinks" title="GitHub" aria-label="GitHub">${window.PortalGithub ? window.PortalGithub.SVG : 'GH'}</button>
+            <button type="button" class="quick-token-btn" id="btnCanvaLinks" title="Apresentação no Canva (link temporário, some em 72 h)" aria-label="Apresentação no Canva">🎨</button>
             ${currentUser.role === 'professor' ? `<button class="quick-token-btn" id="btnQuickToken" title="Ver/gerar o token de Dar Visto e Pular Etapa">🔑</button>` : ''}
             <button class="tab-btn profile-tab-btn" data-tab="perfil" id="btnPerfilTab" title="Meu perfil e personalização do portal">
               <span id="perfilTabEmoji">${prefs.avatarEmoji || '👤'}</span>
@@ -5553,6 +5554,12 @@
     document.getElementById('btnGithubLinks').addEventListener('click', () => {
       if (!window.PortalGithub) return;
       window.PortalGithub.abrir({ client: sbClient, user: currentUser, alunos: turmaStudents(), turmaLabel: cfg.label });
+    });
+    // Botão 🎨 (todos): aluno envia o link do Canva (some em 72 h); professor
+    // vê as apresentações da turma aberta. Ver shared/canva-links.js.
+    document.getElementById('btnCanvaLinks').addEventListener('click', () => {
+      if (!window.PortalCanva) return;
+      window.PortalCanva.abrir({ client: sbClient, user: currentUser, alunos: turmaStudents(), turmaLabel: cfg.label });
     });
     document.getElementById('btnFontBigger').addEventListener('click', () => {
       a11y.fontScale = Math.min(1.6, Math.round((a11y.fontScale + 0.1) * 10) / 10);
