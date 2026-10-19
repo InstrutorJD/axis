@@ -704,7 +704,9 @@ window.Conhecimentos = (function () {
     const animar = () => !calmo.matches;
 
     const cor = nome => getComputedStyle(raiz).getPropertyValue(nome).trim() || '#888';
-    const raio = n => (n.fantasma ? 4 : 5) + Math.sqrt(n.grau) * (opcoes.local ? 2 : 2.4);
+    const raio = n => opcoes.local
+      ? (n.fantasma ? 4 : 5) + Math.sqrt(n.grau) * 2
+      : (n.fantasma ? 3 : 4) + Math.sqrt(n.grau) * 1.8;
     const tela = n => ({ x: largura / 2 + vista.x + n.x * vista.k, y: altura / 2 + vista.y + n.y * vista.k });
     const limitar = (v, a, b) => Math.max(a, Math.min(b, v));
     const visivel = () => largura > 0 && canvas.offsetParent !== null && document.visibilityState !== 'hidden';
