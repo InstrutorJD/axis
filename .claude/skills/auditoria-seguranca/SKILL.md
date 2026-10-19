@@ -175,6 +175,6 @@ Resumo: X críticos, Y altos, Z médios, W baixos.
 ```
 
 No fim, pergunte se o usuário quer que algum item seja corrigido (a
-correção segue o fluxo normal do CLAUDE.md: worktree, commit, push).
+correção segue o fluxo normal do CLAUDE.md: commit, push).
 Se o relatório for longo ou o usuário for compartilhar, ofereça
 publicá-lo como página.
