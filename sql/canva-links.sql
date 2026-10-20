@@ -15,6 +15,8 @@
 --     (o recorte da turma vem do roster, na tela).
 --     Os CHECKs repetem a validação da tela, pra ninguém gravar outro tipo
 --     de link chamando a API direto.
+--   • apresentado_em + marcar_canva_apresentado() — a caixinha "já
+--     apresentou" que o professor/substituto marca na lista.
 
 create table if not exists public.student_canva_links (
   email text primary key,
@@ -22,6 +24,11 @@ create table if not exists public.student_canva_links (
   titulo text,
   enviado_em timestamptz not null default now()
 );
+
+-- Caixinha "já apresentou" da lista do professor: a hora em que o professor
+-- ou o substituto marcou. Só vale se for depois do último envio
+-- (enviado_em) — mandar um link novo desmarca sozinho.
+alter table public.student_canva_links add column if not exists apresentado_em timestamptz;
 
 alter table public.student_canva_links drop constraint if exists student_canva_links_url_valida;
 alter table public.student_canva_links add constraint student_canva_links_url_valida
@@ -86,3 +93,26 @@ $$;
 
 revoke all on function public.limpar_canva_expirados() from public;
 grant execute on function public.limpar_canva_expirados() to authenticated;
+
+-- Marca/desmarca "já apresentou". security definer porque a linha é do
+-- aluno (a RLS só deixa ele mesmo gravar); a função só mexe em
+-- apresentado_em e só para professor ou substituto.
+create or replace function public.marcar_canva_apresentado(p_email text, p_apresentado boolean)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not (public.is_professor()
+          or exists (select 1 from public.profiles where id = auth.uid() and role = 'substituto')) then
+    raise exception 'Só o professor ou o substituto marca apresentação.';
+  end if;
+  update public.student_canva_links
+     set apresentado_em = case when p_apresentado then now() else null end
+   where email = p_email;
+end;
+$$;
+
+revoke all on function public.marcar_canva_apresentado(text, boolean) from public;
+grant execute on function public.marcar_canva_apresentado(text, boolean) to authenticated;

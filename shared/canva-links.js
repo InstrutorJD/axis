@@ -5,7 +5,8 @@
 //     opcional), pra apresentar no computador do professor sem precisar
 //     mandar o link por mensagem.
 //   • Professor/substituto: o mesmo botão abre a lista das apresentações
-//     enviadas pelos alunos da turma aberta, com o link clicável.
+//     enviadas pelos alunos da turma aberta, com o link clicável e uma
+//     caixinha pra marcar quem já apresentou (marcar_canva_apresentado()).
 //
 // É TEMPORÁRIO: o link vale 72 horas a partir do último "Salvar". Grava em
 // public.student_canva_links (sql/canva-links.sql); a RLS esconde do
@@ -210,7 +211,14 @@
     if (!client) { lista.innerHTML = '<p class="status-msg">Sem conexão com o servidor.</p>'; return; }
     await limpar(client);
     // A RLS já filtra o que passou de 72 h; o recorte da turma vem do roster.
-    const { data, error } = await client.from('student_canva_links').select('email, canva_url, titulo, enviado_em');
+    // Sem a coluna apresentado_em (SQL novo ainda não rodado), a lista
+    // aparece igual, só sem a caixinha de "apresentou".
+    let comTick = true;
+    let { data, error } = await client.from('student_canva_links').select('email, canva_url, titulo, enviado_em, apresentado_em');
+    if (error) {
+      comTick = false;
+      ({ data, error } = await client.from('student_canva_links').select('email, canva_url, titulo, enviado_em'));
+    }
     if (!overlay.isConnected) return;
     if (error) {
       lista.innerHTML = '<p class="status-msg">Não foi possível carregar. Confira se o script sql/canva-links.sql já foi rodado no Supabase.</p>';
@@ -225,20 +233,58 @@
       lista.innerHTML = '<p class="status-msg">Nenhuma apresentação enviada nas últimas 72 horas.</p>';
       return;
     }
-    const linhas = enviados.map(r => `
-      <tr>
-        <td class="gh-nome">${esc(nomePorEmail.get(r.email))}</td>
+    const linhas = enviados.map(r => {
+      const feito = apresentou(r);
+      const nome = nomePorEmail.get(r.email);
+      const tick = comTick
+        ? `<td class="cv-tick"><input type="checkbox" data-email="${esc(r.email)}" ${feito ? 'checked' : ''} aria-label="${esc(nome)} já apresentou" title="Já apresentou"></td>`
+        : '';
+      return `
+      <tr class="${feito ? 'cv-apresentado' : ''}">
+        ${tick}
+        <td class="gh-nome">${esc(nome)}</td>
         <td>${linkHtml(r.canva_url, r.titulo || 'Abrir apresentação')}</td>
         <td class="gh-vazio">${esc(tempoRestante(r.enviado_em))}</td>
-      </tr>`).join('');
+      </tr>`;
+    }).join('');
     lista.innerHTML = `
       <div class="gh-tabela-wrap">
         <table class="gh-tabela">
-          <thead><tr><th>Aluno</th><th>Apresentação</th><th>Validade</th></tr></thead>
+          <thead><tr>${comTick ? '<th>✓</th>' : ''}<th>Aluno</th><th>Apresentação</th><th>Validade</th></tr></thead>
           <tbody>${linhas}</tbody>
         </table>
       </div>`;
-    overlay.querySelector('#cvResumo').textContent = `${enviados.length} apresentação(ões) enviada(s).`;
+    if (!comTick) lista.insertAdjacentHTML('beforeend', '<p class="status-msg">Para marcar quem já apresentou, rode o script sql/canva-links.sql no Supabase.</p>');
+
+    const resumo = overlay.querySelector('#cvResumo');
+    function atualizarResumo() {
+      const feitos = lista.querySelectorAll('.cv-tick input:checked').length;
+      resumo.textContent = comTick
+        ? `${feitos} de ${enviados.length} já apresentaram.`
+        : `${enviados.length} apresentação(ões) enviada(s).`;
+    }
+    atualizarResumo();
+
+    lista.querySelectorAll('.cv-tick input').forEach(caixa => caixa.addEventListener('change', async () => {
+      const marcado = caixa.checked;
+      caixa.closest('tr').classList.toggle('cv-apresentado', marcado);
+      atualizarResumo();
+      caixa.disabled = true;
+      const { error: erroTick } = await client.rpc('marcar_canva_apresentado', { p_email: caixa.dataset.email, p_apresentado: marcado });
+      caixa.disabled = false;
+      if (erroTick) {
+        caixa.checked = !marcado;
+        caixa.closest('tr').classList.toggle('cv-apresentado', !marcado);
+        atualizarResumo();
+        resumo.textContent = 'Não foi possível salvar — tente de novo.';
+      }
+    }));
+  }
+
+  // Apresentou se foi marcado DEPOIS do último envio: se o aluno mandar um
+  // link novo (outro trabalho), a marcação cai sozinha.
+  function apresentou(r) {
+    return !!r.apresentado_em && new Date(r.apresentado_em) >= new Date(r.enviado_em);
   }
 
   // opts: { client, user, alunos, turmaLabel }

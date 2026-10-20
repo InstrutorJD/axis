@@ -168,6 +168,9 @@ html[data-theme="light"] body{
 .gh-tabela td{ padding:8px; border-bottom:1px solid var(--line); vertical-align:top; }
 .gh-tabela .gh-nome{ font-weight:700; white-space:nowrap; }
 .gh-vazio{ color:var(--ink-dim); }
+.gh-tabela .cv-tick{ width:1%; text-align:center; }
+.gh-tabela .cv-tick input{ width:18px; height:18px; cursor:pointer; accent-color:var(--green); }
+.gh-tabela tr.cv-apresentado td:not(.cv-tick){ opacity:.55; }
 
 /* Botões de atalho (só professor) — mesma barra dos tabs, mas são AÇÕES
    (abrem uma seção específica, ou ligam/desligam algo na hora), não
