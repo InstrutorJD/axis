@@ -165,6 +165,29 @@
   .caso .autor-caso span{ font-size:11.5px; color:var(--texto-3); }
   .caso .bug{ margin:6px 0 8px; padding:8px 10px; border-radius:10px; border:1px solid #8a2a3a; background:#3a1520; }
   .caso .bug strong{ display:block; font-size:11.5px; color:#ffc2cc; text-transform:uppercase; letter-spacing:.04em; margin-bottom:2px; }
+  /* Relatório do professor: testes por aluno */
+  .btn-topo{ display:inline-flex; align-items:center; gap:6px; padding:10px 14px; border-radius:12px; border:1px solid var(--borda); background:var(--card);
+    color:var(--texto); font:600 14px Inter, sans-serif; cursor:pointer; }
+  .btn-topo:hover{ border-color:var(--destaque); }
+  .btn-topo:focus-visible{ outline:2px solid var(--destaque); outline-offset:2px; }
+  .btn-topo[hidden]{ display:none; }
+  .relatorio{ position:fixed; inset:0; z-index:20; display:grid; place-items:center; padding:16px; background:#000b; }
+  .relatorio[hidden]{ display:none; }
+  .rel-caixa{ width:min(760px, 100%); max-height:100%; display:flex; flex-direction:column; border-radius:16px; background:var(--card); border:1px solid var(--borda); overflow:hidden; }
+  .rel-topo{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--borda); }
+  .rel-topo h2{ margin:0 auto 0 0; font-size:16px; }
+  .rel-topo select{ padding:8px 10px; border-radius:10px; border:1px solid var(--borda); background:var(--card-2); color:var(--texto); font:500 13.5px Inter, sans-serif; max-width:100%; }
+  .rel-corpo{ overflow:auto; padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
+  .rel-tabela{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  .rel-tabela th{ text-align:left; font-size:11.5px; color:var(--texto-2); text-transform:uppercase; letter-spacing:.04em; padding:6px 8px; border-bottom:1px solid var(--borda); }
+  .rel-tabela td{ padding:8px; border-bottom:1px solid var(--borda); font-variant-numeric:tabular-nums; }
+  .rel-tabela th.num, .rel-tabela td.num{ text-align:right; }
+  .rel-tabela tr.zero td{ color:var(--texto-3); }
+  .rel-tabela .ver{ all:unset; cursor:pointer; color:var(--texto); font-weight:600; }
+  .rel-tabela .zero .ver{ color:var(--texto-3); font-weight:500; }
+  .rel-tabela .ver:hover{ color:var(--destaque); }
+  .rel-tabela .ver:focus-visible{ outline:2px solid var(--destaque); outline-offset:2px; }
+  .caso .no-jogo{ font-size:12px; color:var(--texto-2); margin-top:2px; }
   .caso .bug p{ margin:0; white-space:pre-wrap; overflow-wrap:anywhere; }
   .caso dl{ margin:0; display:grid; gap:4px; }
   .caso dt{ font-size:11.5px; font-weight:700; color:var(--texto-2); text-transform:uppercase; letter-spacing:.04em; }
@@ -192,6 +215,7 @@
   <label class="busca">
     <input type="search" id="busca" placeholder="Buscar jogo ou aluno" aria-label="Buscar jogo ou aluno" autocomplete="off">
   </label>
+  <button type="button" class="btn-topo" id="btnTestesAlunos" hidden>🧪 Testes por aluno</button>
   <label class="ordem" id="ordemWrap" hidden>
     <select id="ordem" aria-label="Ordem dos jogos">
       <option value="az">A–Z</option>
@@ -203,6 +227,18 @@
 <main class="grade" id="grade">
   <div class="esqueleto"></div><div class="esqueleto"></div><div class="esqueleto"></div><div class="esqueleto"></div>
 </main>
+
+<!-- Só o professor: quantos casos de teste cada aluno fez, com filtro por aluno. -->
+<section class="relatorio" id="relTestes" role="dialog" aria-modal="true" aria-labelledby="relTitulo" hidden>
+  <div class="rel-caixa">
+    <div class="rel-topo">
+      <h2 id="relTitulo">🧪 Testes por aluno</h2>
+      <select id="relAluno" aria-label="Filtrar por aluno"></select>
+      <button type="button" class="pbtn" id="btnFecharRel" title="Fechar">✕</button>
+    </div>
+    <div class="rel-corpo" id="relCorpo"></div>
+  </div>
+</section>
 
 <section class="player" id="player" aria-hidden="true">
   <div class="player-barra">
@@ -421,9 +457,17 @@
     const bugs = doJogo.filter(c => c.status === 'falhou').length;
     $('testeResumo').innerHTML = doJogo.length
       ? `<b>${doJogo.length}</b> caso(s) de teste · <b>${bugs}</b> bug(s) encontrado(s)` : '';
-    $('testeLista').innerHTML = doJogo.length ? doJogo.map(c => `
+    $('testeLista').innerHTML = doJogo.length ? doJogo.map(c => htmlCaso(c)).join('')
+      : `<div class="vazio-testes">Nenhum caso de teste pra este jogo ainda. Seja o primeiro!</div>`;
+  }
+
+  // HTML de um caso de teste. comJogo: diz em qual jogo foi (relatório do professor).
+  function htmlCaso(c, comJogo) {
+    const jogo = jogos.find(j => j.email === c.game_email);
+    return `
       <article class="caso">
         <div class="caso-topo"><b>${esc(c.titulo)}</b><span class="selo ${c.status === 'passou' ? 'passou' : 'falhou'}">${c.status === 'passou' ? '✅ Passou' : '❌ Falhou'}</span></div>
+        ${comJogo ? `<div class="no-jogo">🎮 No jogo <b>${esc(jogo ? jogo.titulo : 'fora do Arcade')}</b>, de ${esc(nomeDe(c.game_email))}</div>` : ''}
         <div class="autor-caso">
           <span class="avatar" style="--h:${hash(c.autor_email) % 360}" aria-hidden="true">${esc((nomes.get(c.autor_email) || c.autor_email).trim().charAt(0).toUpperCase())}</span>
           <div><b>Criado por ${esc(nomeDe(c.autor_email))}</b>
@@ -435,8 +479,7 @@
           <dt>Esperado</dt><dd>${esc(c.esperado)}</dd>
           ${c.obtido ? `<dt>Obtido</dt><dd>${esc(c.obtido)}</dd>` : ''}
         </dl>
-      </article>`).join('')
-      : `<div class="vazio-testes">Nenhum caso de teste pra este jogo ainda. Seja o primeiro!</div>`;
+      </article>`;
   }
 
   function abrirTestes(sim) {
@@ -487,7 +530,7 @@
     if (atual === jogo) desenharTestes();
   });
 
-  $('testeLista').addEventListener('click', async e => {
+  async function apagarCaso(e) {
     const b = e.target.closest('.apagar');
     if (!b) return;
     if (b.dataset.confirmar !== '1') { b.dataset.confirmar = '1'; b.textContent = 'Confirmar?'; return; }
@@ -496,6 +539,88 @@
     if (error) { b.textContent = 'Erro ao apagar'; return; }
     casos = casos.filter(c => c.id !== b.dataset.id);
     desenharTestes();
+    if (!$('relTestes').hidden) desenharRelatorio();
+  }
+  $('testeLista').addEventListener('click', apagarCaso);
+  $('relCorpo').addEventListener('click', apagarCaso);
+
+  // ---------- Relatório do professor: testes por aluno ----------
+  // Botão 🧪 Testes por aluno no topo (só professor, e só com a tabela no
+  // banco). Lista todos os alunos de Jogos Digitais com quantos casos cada um
+  // escreveu, quantos bugs encontrou e em quantos jogos — inclusive quem
+  // ainda não fez nenhum. O filtro (ou o clique no nome) mostra os casos
+  // daquele aluno, em todos os jogos.
+  let alunosTurma = null;
+  async function carregarAlunos() {
+    if (alunosTurma) return;
+    const { data, error } = await sb.from('profiles').select('email, nome, role, archived_at').eq('turma', TURMA);
+    if (error) throw error;
+    alunosTurma = (data || []).filter(p => p.role === 'aluno' && !p.archived_at);
+    for (const p of alunosTurma) nomes.set(p.email, p.nome || p.email);
+  }
+  function linhasRelatorio() {
+    const emails = new Set([...(alunosTurma || []).map(p => p.email), ...casos.map(c => c.autor_email)]);
+    return [...emails].map(email => {
+      const deles = casos.filter(c => c.autor_email === email);
+      return {
+        email, nome: nomes.get(email) || email, total: deles.length,
+        bugs: deles.filter(c => c.status === 'falhou').length,
+        jogosTestados: new Set(deles.map(c => c.game_email)).size,
+      };
+    }).sort((a, b) => b.total - a.total || a.nome.localeCompare(b.nome, 'pt-BR'));
+  }
+  function desenharRelatorio() {
+    const linhas = linhasRelatorio();
+    const sel = $('relAluno');
+    const escolhido = sel.value;
+    sel.innerHTML = '<option value="">Todos os alunos</option>' + [...linhas]
+      .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
+      .map(l => `<option value="${esc(l.email)}">${esc(l.nome)} (${l.total})</option>`).join('');
+    sel.value = linhas.some(l => l.email === escolhido) ? escolhido : '';
+    if (!sel.value) {
+      const fizeram = linhas.filter(l => l.total).length;
+      const bugs = casos.filter(c => c.status === 'falhou').length;
+      $('relCorpo').innerHTML = `
+        <div class="teste-resumo"><b>${casos.length}</b> caso(s) de teste · <b>${bugs}</b> bug(s) encontrado(s) · <b>${fizeram}</b> de ${linhas.length} aluno(s) já testaram</div>
+        <table class="rel-tabela">
+          <thead><tr><th>Aluno</th><th class="num">Casos</th><th class="num">Bugs</th><th class="num">Jogos testados</th></tr></thead>
+          <tbody>${linhas.map(l => `
+            <tr class="${l.total ? '' : 'zero'}">
+              <td><button type="button" class="ver" data-email="${esc(l.email)}" title="Ver os casos de ${esc(l.nome)}">${esc(l.nome)}</button></td>
+              <td class="num">${l.total}</td><td class="num">${l.bugs}</td><td class="num">${l.jogosTestados}</td>
+            </tr>`).join('')}</tbody>
+        </table>`;
+      return;
+    }
+    const l = linhas.find(x => x.email === sel.value);
+    const deles = casos.filter(c => c.autor_email === l.email);
+    $('relCorpo').innerHTML = `
+      <div class="teste-resumo"><b>${esc(l.nome)}</b>: <b>${l.total}</b> caso(s) de teste · <b>${l.bugs}</b> bug(s) encontrado(s) · <b>${l.jogosTestados}</b> jogo(s) testado(s)</div>
+      <div class="teste-lista">${deles.length ? deles.map(c => htmlCaso(c, true)).join('')
+        : '<div class="vazio-testes">Este aluno ainda não escreveu nenhum caso de teste.</div>'}</div>`;
+  }
+  async function abrirRelatorio() {
+    $('relCorpo').innerHTML = '<div class="vazio-testes">Carregando…</div>';
+    $('relTestes').hidden = false;
+    document.body.style.overflow = 'hidden';
+    $('relAluno').focus();
+    // Sem a lista da turma, mostra pelo menos quem já escreveu casos.
+    await carregarAlunos().catch(() => {});
+    desenharRelatorio();
+  }
+  function fecharRelatorio() {
+    $('relTestes').hidden = true;
+    document.body.style.overflow = '';
+    $('btnTestesAlunos').focus();
+  }
+  $('btnTestesAlunos').hidden = !(professor && testesOk);
+  $('btnTestesAlunos').addEventListener('click', abrirRelatorio);
+  $('btnFecharRel').addEventListener('click', fecharRelatorio);
+  $('relAluno').addEventListener('change', () => { desenharRelatorio(); $('relCorpo').scrollTop = 0; });
+  $('relTestes').addEventListener('click', e => {
+    if (e.target === $('relTestes')) { fecharRelatorio(); return; }
+    const v = e.target.closest('.ver');
+    if (v) { $('relAluno').value = v.dataset.email; desenharRelatorio(); $('relCorpo').scrollTop = 0; }
   });
 
   function card(j, i) {
@@ -668,6 +793,7 @@
   // <iframe> ficam com o jogo).
   // Com o foco no painel de casos de teste, Esc fecha só o painel.
   document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !$('relTestes').hidden) { fecharRelatorio(); return; }
     if (e.key !== 'Escape' || !atual || document.fullscreenElement) return;
     if ($('testes').contains(document.activeElement)) { abrirTestes(false); $('btnTestes').focus(); return; }
     fechar();
