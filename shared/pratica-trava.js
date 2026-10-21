@@ -15,8 +15,9 @@
 // Só vale pra aluno: professor (e a Gestão gerando gabarito) abre direto.
 // Sem isenção de "prática concluída": cada prática guarda o progresso num
 // formato diferente, então a trava vale enquanto a chave estiver ligada.
-// Desligar a chave com a prática aberta solta a trava na hora; ligar vale
-// a partir da próxima vez que a prática for aberta.
+// Ligar ou desligar a chave com a prática aberta vale na hora (Realtime em
+// classroom_settings): ligada, a tela "Antes de começar" aparece por cima do
+// que o aluno estiver fazendo; desligada, a trava é solta.
 (async function () {
   // Práticas que ficam de fora mesmo com a chave ligada:
   const EXCECOES = new Set([
@@ -56,8 +57,6 @@
     }
   }
 
-  if (!(await travaLigada())) return;
-
   function carregarScript(nome) {
     return new Promise((resolve, reject) => {
       const s = document.createElement('script');
@@ -68,17 +67,8 @@
     });
   }
 
-  try {
-    if (!window.PortalProfessorVisto) await carregarScript('professor-visto.js');
-    await carregarScript('exam-proctor.js');
-  } catch (e) {
-    return;
-  }
-
-  let guard;
-  try { guard = await window.PortalExamGuard.create(activityLocation); } catch (e) { return; }
-  if (guard.disabled) return;
-
+  let guard = null;
+  let ativa = false;
   let overlayEl = null;
 
   function fechar() {
@@ -168,24 +158,55 @@
     });
   }
 
+  // Liga a trava: carrega exam-proctor/professor-visto (só na 1ª vez) e cria
+  // uma guarda nova — create() relê advertência/bloqueio e liga de novo o
+  // bloqueio de copiar/colar e a faixa de regras.
+  async function ativar() {
+    if (ativa) return;
+    try {
+      if (!window.PortalProfessorVisto) await carregarScript('professor-visto.js');
+      if (!window.PortalExamGuard) await carregarScript('exam-proctor.js');
+    } catch (e) {
+      return;
+    }
+    let g;
+    try { g = await window.PortalExamGuard.create(activityLocation); } catch (e) { return; }
+    if (g.disabled) return;
+    guard = g;
+    ativa = true;
+    ajustarFaixa();
+    if (guard.blocked) telaBloqueada();
+    else telaInicio();
+  }
+
   // Professor desligou a chave com a prática aberta: solta tudo na hora
   // (listeners, tela por cima, faixa e o bloqueio de copiar/colar do modo prova).
-  async function conferirChave() {
-    if (await travaLigada()) return;
+  function desativar() {
+    if (!ativa) return;
+    ativa = false;
     window.PortalExamGuard.disarm(guard);
+    if (guard._remoteUnlockChannel) sb.removeChannel(guard._remoteUnlockChannel);
+    guard = null;
     fechar();
     const bar = document.getElementById('__examRulesBar');
     if (bar) bar.remove();
     window.__PORTAL_EXAM_LOCK__ = false;
     window.dispatchEvent(new Event('portal-exam-lock'));
-    sb.removeChannel(canal);
   }
 
-  const canal = sb.channel('realtime_pratica_trava_' + turma)
+  // Uma conferência por vez: ligar e desligar rápido na Gestão não pode
+  // deixar duas ativações correndo juntas.
+  let fila = Promise.resolve();
+  function conferirChave() {
+    fila = fila.then(async () => {
+      if (await travaLigada()) await ativar();
+      else desativar();
+    });
+  }
+
+  sb.channel('realtime_pratica_trava_' + turma)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'classroom_settings', filter: `id=eq.${turma}` }, conferirChave)
     .subscribe();
 
-  ajustarFaixa();
-  if (guard.blocked) telaBloqueada();
-  else telaInicio();
+  conferirChave();
 })();
