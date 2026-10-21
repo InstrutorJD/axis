@@ -116,8 +116,62 @@
   .pbtn:hover{ border-color:var(--destaque); }
   .pbtn:focus-visible{ outline:2px solid var(--destaque); outline-offset:2px; }
   .pbtn.voltar{ background:var(--destaque); color:#1a1300; border-color:var(--destaque); }
+  .player-corpo{ flex:1; display:flex; min-height:0; position:relative; }
   .player iframe{ flex:1; width:100%; border:0; background:#000; }
+  .pbtn[aria-expanded="true"]{ border-color:var(--destaque); background:color-mix(in srgb, var(--destaque) 18%, var(--card-2)); }
+  .pbtn .qtd{ min-width:20px; padding:1px 6px; border-radius:99px; background:var(--borda); font-size:11.5px; font-variant-numeric:tabular-nums; }
   @media (max-width:600px){ .pbtn .txt{ display:none; } }
+
+  /* Casos de teste (painel ao lado do jogo) */
+  .testes{ flex:none; width:min(380px, 100%); display:flex; flex-direction:column; background:var(--card); border-left:1px solid var(--borda); min-height:0; }
+  .testes[hidden]{ display:none; }
+  @media (max-width:760px){ .testes{ position:absolute; inset:0; width:100%; z-index:2; border-left:0; } }
+  .testes-topo{ display:flex; align-items:center; gap:8px; padding:12px 14px; border-bottom:1px solid var(--borda); }
+  .testes-topo h2{ margin:0 auto 0 0; font-size:15px; }
+  .testes-rolagem{ flex:1; overflow:auto; padding:14px; display:flex; flex-direction:column; gap:14px; }
+  .teste-form{ display:flex; flex-direction:column; gap:10px; padding:12px; border:1px solid var(--borda); border-radius:12px; background:var(--card-2); }
+  .teste-form p{ margin:0; font-size:12.5px; color:var(--texto-2); line-height:1.45; }
+  .teste-form label{ display:flex; flex-direction:column; gap:4px; font-size:12.5px; font-weight:600; color:var(--texto-2); }
+  .teste-form input[type=text], .teste-form textarea{ width:100%; padding:8px 10px; border-radius:9px; border:1px solid var(--borda); background:var(--card);
+    color:var(--texto); font:400 13.5px/1.4 Inter, system-ui, sans-serif; outline:none; resize:vertical; }
+  .teste-form input[type=text]:focus, .teste-form textarea:focus{ border-color:var(--destaque); box-shadow:0 0 0 3px #ffcc3326; }
+  .teste-form fieldset{ border:0; margin:0; padding:0; display:flex; gap:8px; flex-wrap:wrap; }
+  .teste-form legend{ padding:0; margin-bottom:4px; font-size:12.5px; font-weight:600; color:var(--texto-2); }
+  .teste-form fieldset label{ flex-direction:row; align-items:center; gap:6px; padding:6px 11px; border-radius:99px; border:1px solid var(--borda); cursor:pointer; color:var(--texto); }
+  .teste-form fieldset label:has(input:checked){ border-color:var(--destaque); background:color-mix(in srgb, var(--destaque) 16%, var(--card)); }
+  .teste-form .acoes{ display:flex; align-items:center; gap:10px; }
+  .teste-form .msg{ font-size:12.5px; color:var(--texto-2); }
+  .teste-form .msg.erro{ color:#ff8a8a; }
+  .teste-form button[type=submit]{ padding:8px 14px; border-radius:10px; border:1px solid var(--destaque); background:var(--destaque); color:#1a1300; font:800 13px Inter, sans-serif; cursor:pointer; }
+  .teste-form button[type=submit]:disabled{ opacity:.6; cursor:default; }
+  .teste-lista{ display:flex; flex-direction:column; gap:10px; }
+  .teste-lista .vazio-testes{ font-size:13px; color:var(--texto-3); text-align:center; padding:8px; }
+  .caso{ border:1px solid var(--borda); border-radius:12px; padding:10px 12px; font-size:13px; line-height:1.45; }
+  .caso-topo{ display:flex; align-items:flex-start; gap:8px; }
+  .caso-topo b{ margin-right:auto; overflow-wrap:anywhere; }
+  .selo{ flex:none; padding:2px 8px; border-radius:99px; font-size:11.5px; font-weight:800; }
+  .selo.passou{ background:#1f5c3a; color:#b8f5cf; }
+  .selo.falhou{ background:#6b1f2c; color:#ffc2cc; }
+  .teste-form .campo-bug[hidden]{ display:none; }
+  .teste-form .campo-bug{ color:#ffc2cc; }
+  .teste-resumo{ font-size:12.5px; color:var(--texto-2); }
+  .teste-resumo b{ color:var(--texto); }
+  /* Quem criou o caso: avatar com a inicial + nome em destaque */
+  .caso .autor-caso{ display:flex; align-items:center; gap:8px; margin:8px 0; }
+  .caso .avatar{ flex:none; width:28px; height:28px; border-radius:50%; display:grid; place-items:center;
+    background:hsl(var(--h) 60% 40%); color:#fff; font:800 13px Inter, sans-serif; }
+  .caso .autor-caso div{ min-width:0; display:flex; flex-direction:column; line-height:1.25; }
+  .caso .autor-caso b{ font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .caso .autor-caso span{ font-size:11.5px; color:var(--texto-3); }
+  .caso .bug{ margin:6px 0 8px; padding:8px 10px; border-radius:10px; border:1px solid #8a2a3a; background:#3a1520; }
+  .caso .bug strong{ display:block; font-size:11.5px; color:#ffc2cc; text-transform:uppercase; letter-spacing:.04em; margin-bottom:2px; }
+  .caso .bug p{ margin:0; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .caso dl{ margin:0; display:grid; gap:4px; }
+  .caso dt{ font-size:11.5px; font-weight:700; color:var(--texto-2); text-transform:uppercase; letter-spacing:.04em; }
+  .caso dd{ margin:0 0 4px; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .caso .apagar{ all:unset; cursor:pointer; font-size:12px; color:var(--texto-3); }
+  .caso .apagar:hover{ color:#ff8a8a; }
+  .caso .apagar:focus-visible{ outline:2px solid var(--destaque); outline-offset:2px; }
 
   @media (prefers-reduced-motion: reduce){
     .jogo, .capa .emoji, .esqueleto{ transition:none; animation:none; }
@@ -155,6 +209,7 @@
     <button type="button" class="pbtn voltar" id="btnVoltar">← <span class="txt">Voltar</span></button>
     <div class="player-titulo"><b id="pTitulo"></b><span id="pAutor"></span></div>
     <button type="button" class="curtir" id="pCurtir" hidden></button>
+    <button type="button" class="pbtn" id="btnTestes" title="Casos de teste deste jogo" aria-expanded="false" aria-controls="testes" hidden>🧪 <span class="txt">Casos de teste</span> <span class="qtd" id="pQtdTestes">0</span></button>
     <button type="button" class="pbtn" id="btnRecarregar" title="Recomeçar o jogo">⟳ <span class="txt">Recomeçar</span></button>
     <button type="button" class="pbtn" id="btnTelaCheia" title="Tela cheia">⛶ <span class="txt">Tela cheia</span></button>
     <a class="pbtn" id="btnCodigo" target="_blank" rel="noopener noreferrer" title="Ver o código do jogo no GitHub" hidden><span id="pIconeGithub"></span> <span class="txt">Código</span></a>
@@ -162,9 +217,48 @@
   </div>
   <!-- sandbox: o jogo roda scripts e usa o próprio github.io, mas não
        consegue navegar/redirecionar o portal. -->
-  <iframe id="pFrame" title="Jogo" src="about:blank"
-    sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox"
-    allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope" allowfullscreen></iframe>
+  <div class="player-corpo">
+    <iframe id="pFrame" title="Jogo" src="about:blank"
+      sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox"
+      allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope" allowfullscreen></iframe>
+    <aside class="testes" id="testes" aria-label="Casos de teste" hidden>
+      <div class="testes-topo">
+        <h2>🧪 Casos de teste</h2>
+        <button type="button" class="pbtn" id="btnFecharTestes" title="Fechar casos de teste">✕</button>
+      </div>
+      <div class="testes-rolagem">
+        <form class="teste-form" id="testeForm" novalidate>
+          <p>Jogue, siga os passos e anote o que aconteceu. Seja específico: alguém precisa conseguir repetir o teste só lendo.</p>
+          <label>Título do caso
+            <input type="text" id="tTitulo" maxlength="100" placeholder="Ex.: Pular encostado na parede" required>
+          </label>
+          <label>Passos (um por linha)
+            <textarea id="tPassos" rows="4" maxlength="1500" placeholder="1. Começar a fase 1&#10;2. Andar até a parede da direita&#10;3. Apertar espaço" required></textarea>
+          </label>
+          <label>Resultado esperado
+            <textarea id="tEsperado" rows="2" maxlength="600" placeholder="O personagem pula normalmente" required></textarea>
+          </label>
+          <label>Resultado obtido
+            <textarea id="tObtido" rows="2" maxlength="600" placeholder="O personagem atravessou a parede"></textarea>
+          </label>
+          <fieldset>
+            <legend>O teste…</legend>
+            <label><input type="radio" name="tStatus" value="passou"> ✅ Passou</label>
+            <label><input type="radio" name="tStatus" value="falhou"> ❌ Falhou</label>
+          </fieldset>
+          <label class="campo-bug" id="tBugCampo" hidden>🐞 Bug encontrado
+            <textarea id="tBug" rows="3" maxlength="800" placeholder="Ex.: Encostado na parede, o pulo faz o personagem atravessá-la e cair fora do mapa"></textarea>
+          </label>
+          <div class="acoes">
+            <button type="submit" id="tSalvar">Salvar caso</button>
+            <span class="msg" id="tMsg" aria-live="polite"></span>
+          </div>
+        </form>
+        <div class="teste-resumo" id="testeResumo" aria-live="polite"></div>
+        <div class="teste-lista" id="testeLista"></div>
+      </div>
+    </aside>
+  </div>
 </section>
 
 <script src="shared/supabase-config.js"></script>
@@ -290,6 +384,119 @@
     if (error && !(error.code === '23505' && !curtiu)) { aplicar(curtiu); atualizarBotoes(email, false); }
     salvando = false;
   }
+
+  // ---------- Casos de teste (tabela arcade_test_cases, sql/arcade-casos-teste.sql) ----------
+  // Com o jogo aberto, o botão 🧪 da barra abre um painel ao lado: o aluno
+  // escreve um caso de teste (título, passos, esperado, obtido, passou ou
+  // falhou e, se falhou, o bug encontrado) e vê os casos que a turma já
+  // registrou pra aquele jogo, cada um com quem criou em destaque. Cada um
+  // apaga só os próprios; o professor apaga qualquer um. Sem a tabela no
+  // banco (SQL ainda não rodado), o botão não aparece.
+  let testesOk = false;
+  let casos = [];
+  const nomes = new Map(jogos.map(j => [j.email, j.autor]));
+  async function carregarNomes(emails) {
+    const faltam = [...new Set(emails)].filter(e => !nomes.has(e));
+    if (!faltam.length) return;
+    const { data } = await sb.from('profiles').select('email, nome').in('email', faltam);
+    for (const p of data || []) nomes.set(p.email, p.nome || p.email);
+  }
+  const COLUNAS_CASO = 'id, game_email, autor_email, titulo, passos, esperado, obtido, status, bug, created_at';
+  try {
+    const { data, error } = await sb.from('arcade_test_cases')
+      .select(COLUNAS_CASO)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    casos = data || [];
+    testesOk = true;
+    await carregarNomes(casos.map(c => c.autor_email)).catch(() => {});
+  } catch (e) { /* sem casos de teste */ }
+  const nomeDe = email => email === user.email ? 'você' : (nomes.get(email) || email.split('@')[0]);
+  const dataCurta = iso => new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+  function desenharTestes() {
+    if (!atual) return;
+    const doJogo = casos.filter(c => c.game_email === atual.email);
+    $('pQtdTestes').textContent = doJogo.length;
+    const bugs = doJogo.filter(c => c.status === 'falhou').length;
+    $('testeResumo').innerHTML = doJogo.length
+      ? `<b>${doJogo.length}</b> caso(s) de teste · <b>${bugs}</b> bug(s) encontrado(s)` : '';
+    $('testeLista').innerHTML = doJogo.length ? doJogo.map(c => `
+      <article class="caso">
+        <div class="caso-topo"><b>${esc(c.titulo)}</b><span class="selo ${c.status === 'passou' ? 'passou' : 'falhou'}">${c.status === 'passou' ? '✅ Passou' : '❌ Falhou'}</span></div>
+        <div class="autor-caso">
+          <span class="avatar" style="--h:${hash(c.autor_email) % 360}" aria-hidden="true">${esc((nomes.get(c.autor_email) || c.autor_email).trim().charAt(0).toUpperCase())}</span>
+          <div><b>Criado por ${esc(nomeDe(c.autor_email))}</b>
+            <span>${esc(dataCurta(c.created_at))}${c.autor_email === user.email || professor ? ` · <button type="button" class="apagar" data-id="${esc(c.id)}">Apagar</button>` : ''}</span></div>
+        </div>
+        ${c.status === 'falhou' && c.bug ? `<div class="bug"><strong>🐞 Bug encontrado</strong><p>${esc(c.bug)}</p></div>` : ''}
+        <dl>
+          <dt>Passos</dt><dd>${esc(c.passos)}</dd>
+          <dt>Esperado</dt><dd>${esc(c.esperado)}</dd>
+          ${c.obtido ? `<dt>Obtido</dt><dd>${esc(c.obtido)}</dd>` : ''}
+        </dl>
+      </article>`).join('')
+      : `<div class="vazio-testes">Nenhum caso de teste pra este jogo ainda. Seja o primeiro!</div>`;
+  }
+
+  function abrirTestes(sim) {
+    $('testes').hidden = !sim;
+    $('btnTestes').setAttribute('aria-expanded', String(sim));
+    if (sim) { desenharTestes(); $('tTitulo').focus(); }
+  }
+
+  // O campo do bug só aparece quando o teste falhou.
+  $('testeForm').addEventListener('change', e => {
+    if (e.target.name === 'tStatus') $('tBugCampo').hidden = e.target.value !== 'falhou';
+  });
+
+  function limparForm() {
+    $('testeForm').reset();
+    $('tBugCampo').hidden = true;
+    $('tMsg').textContent = '';
+    $('tMsg').classList.remove('erro');
+  }
+
+  $('testeForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!atual || !testesOk) return;
+    const titulo = $('tTitulo').value.trim();
+    const passos = $('tPassos').value.trim();
+    const esperado = $('tEsperado').value.trim();
+    const obtido = $('tObtido').value.trim();
+    const status = document.querySelector('input[name="tStatus"]:checked')?.value;
+    const msg = t => { $('tMsg').textContent = t; $('tMsg').classList.add('erro'); };
+    // Mesmos limites dos CHECKs de sql/arcade-casos-teste.sql.
+    if (titulo.length < 3) return msg('Dê um título ao caso (3+ letras).');
+    if (passos.length < 5) return msg('Escreva os passos do teste.');
+    if (esperado.length < 3) return msg('Diga qual era o resultado esperado.');
+    if (!status) return msg('Marque se o teste passou ou falhou.');
+    const bug = status === 'falhou' ? $('tBug').value.trim() : '';
+    if (status === 'falhou' && obtido.length < 3) return msg('Se falhou, conte o que aconteceu de verdade.');
+    if (status === 'falhou' && bug.length < 5) return msg('Descreva o bug encontrado.');
+    $('tSalvar').disabled = true;
+    const jogo = atual;
+    const { data, error } = await sb.from('arcade_test_cases')
+      .insert({ game_email: jogo.email, autor_email: user.email, titulo, passos, esperado, obtido, status, bug })
+      .select(COLUNAS_CASO).single();
+    $('tSalvar').disabled = false;
+    if (error) return msg('Não foi possível salvar agora. Tente de novo.');
+    casos.unshift(data);
+    limparForm();
+    $('tMsg').textContent = 'Caso salvo! ✔';
+    if (atual === jogo) desenharTestes();
+  });
+
+  $('testeLista').addEventListener('click', async e => {
+    const b = e.target.closest('.apagar');
+    if (!b) return;
+    if (b.dataset.confirmar !== '1') { b.dataset.confirmar = '1'; b.textContent = 'Confirmar?'; return; }
+    b.disabled = true;
+    const { error } = await sb.from('arcade_test_cases').delete().eq('id', b.dataset.id);
+    if (error) { b.textContent = 'Erro ao apagar'; return; }
+    casos = casos.filter(c => c.id !== b.dataset.id);
+    desenharTestes();
+  });
 
   function card(j, i) {
     return `
@@ -418,6 +625,8 @@
       t.innerHTML = botaoCurtir(j, 'pCurtir').trim();
       $('pCurtir').replaceWith(t.content.firstChild);
     }
+    $('btnTestes').hidden = !testesOk;
+    if (testesOk) { limparForm(); desenharTestes(); }
     $('pFrame').src = j.url;
     $('player').classList.add('aberto');
     $('player').setAttribute('aria-hidden', 'false');
@@ -427,6 +636,7 @@
   function fechar() {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     atual = null;
+    abrirTestes(false);
     $('pFrame').src = 'about:blank';
     $('player').classList.remove('aberto');
     $('player').setAttribute('aria-hidden', 'true');
@@ -445,8 +655,10 @@
   });
   $('ordem').addEventListener('change', desenhar);
   $('pIconeGithub').outerHTML = SVG_GITHUB;
-  $('pFrame').addEventListener('load', () => { if (atual) $('pFrame').focus(); });
+  $('pFrame').addEventListener('load', () => { if (atual && $('testes').hidden) $('pFrame').focus(); });
   $('btnVoltar').addEventListener('click', fechar);
+  $('btnTestes').addEventListener('click', () => abrirTestes($('testes').hidden));
+  $('btnFecharTestes').addEventListener('click', () => { abrirTestes(false); $('btnTestes').focus(); });
   $('btnRecarregar').addEventListener('click', () => { if (atual) { $('pFrame').src = 'about:blank'; setTimeout(() => { $('pFrame').src = atual.url; }, 50); } });
   $('btnTelaCheia').addEventListener('click', () => {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
@@ -454,7 +666,12 @@
   });
   // Esc só chega aqui quando o foco está fora do jogo (as teclas dentro do
   // <iframe> ficam com o jogo).
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && atual && !document.fullscreenElement) fechar(); });
+  // Com o foco no painel de casos de teste, Esc fecha só o painel.
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape' || !atual || document.fullscreenElement) return;
+    if ($('testes').contains(document.activeElement)) { abrirTestes(false); $('btnTestes').focus(); return; }
+    fechar();
+  });
 })();
 </script>
 </body>
