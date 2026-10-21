@@ -1,4 +1,6 @@
-// Efeitos visuais das telas do professor (estilos em shared/professor.css):
+// Efeitos visuais das telas do professor (estilos em shared/professor.css)
+// — a chuva de emojis também roda no portal das turmas, pros alunos
+// (turmas/*/plataforma.html, estilo em shared/platform-core.css):
 // - emojis de tecnologia caindo no fundo, bem transparentes;
 // - nos cartões .pr-card, inclinação 3D leve seguindo o mouse e um brilho
 //   que acompanha o cursor.
