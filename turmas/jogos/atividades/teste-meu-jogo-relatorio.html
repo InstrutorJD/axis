@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testes de Jogos — Relatório: Testando o Meu Jogo</title>
+<!-- Padrão novo de trilhas (docs/padrao-trilhas.md): visual base compartilhado
+     das práticas. Abaixo, só a cor da trilha e os campos do relatório, que são
+     específicos desta atividade. -->
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<style>
+  :root{ --green:#ff9f68; --green-dim:#b8643a; --yellow:#ffd36b; }
+
+  /* Campos do relatório */
+  .rl-campos{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px 16px; margin-top:14px; }
+  .rl-campos .rl-largo{ grid-column:1 / -1; }
+  .rl-campo{ display:flex; flex-direction:column; gap:6px; font-size:11.5px; font-weight:700; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.5px; }
+  .rl-campo small{ text-transform:none; letter-spacing:0; font-weight:500; }
+  .rl-campo input, .rl-campo textarea, .rl-campo select{
+    font:inherit; font-size:14px; font-weight:500; text-transform:none; letter-spacing:0; color:var(--ink);
+    padding:9px 11px; border-radius:10px; background:var(--panel2); border:1px solid var(--line); width:100%;
+  }
+  .rl-campo textarea{ min-height:74px; resize:vertical; line-height:1.5; }
+  .rl-campo input:focus, .rl-campo textarea:focus, .rl-campo select:focus{ outline:none; border-color:var(--green); box-shadow:0 0 0 3px color-mix(in srgb, var(--green) 20%, transparent); }
+  .rl-item{ margin-top:16px; padding:14px 16px 16px; border:1px solid var(--line); border-radius:14px; background:color-mix(in srgb, var(--ink) 2%, transparent); }
+  .rl-item-topo{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .rl-item-id{ font-family:var(--ab-mono); font-weight:800; color:var(--ab-acento); }
+  .rl-remover{ font:inherit; font-size:12px; cursor:pointer; padding:4px 12px; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--ink-dim); }
+  .rl-remover:hover{ border-color:var(--blood-bright); color:var(--blood-bright); }
+  .rl-acoes{ display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-top:16px; }
+  .rl-salvo{ font-size:12px; color:var(--ink-dim); }
+  .rl-contagem{ font-size:13px; color:var(--ink-dim); }
+  .rl-contagem b{ color:var(--ab-acento); }
+  .rl-marcar{ display:flex; align-items:center; gap:10px; margin-top:14px; font-size:14px; cursor:pointer; }
+  .rl-marcar input{ width:18px; height:18px; accent-color:var(--ab-acento); }
+  .rl-pendencias{ margin:12px 0 0; padding-left:20px; color:var(--blood-bright); font-size:14px; line-height:1.7; }
+  .rl-pendencias button{ font:inherit; color:inherit; background:none; border:none; padding:0; text-decoration:underline; cursor:pointer; }
+
+  /* Documento (pré-visualização, entrega e tela do professor) */
+  .rl-doc{ font-size:14px; line-height:1.6; overflow-x:auto; }
+  .rl-doc h3{ margin:22px 0 8px; font-size:16px; }
+  .rl-doc h3:first-child{ margin-top:0; }
+  .rl-doc table{ width:100%; border-collapse:collapse; margin:0 0 10px; font-size:13px; }
+  .rl-doc th, .rl-doc td{ text-align:left; vertical-align:top; padding:6px 8px; border:1px solid var(--line); white-space:pre-wrap; }
+  .rl-doc th{ background:color-mix(in srgb, var(--green) 12%, transparent); }
+  .rl-doc .rl-vazio{ color:var(--ink-dim); font-style:italic; }
+  .rl-doc .rl-ok{ color:var(--ok); font-weight:700; }
+  .rl-doc .rl-falha{ color:var(--blood-bright); font-weight:700; }
+
+  /* Lista do professor */
+  .rl-turma{ width:100%; border-collapse:collapse; font-size:14px; }
+  .rl-turma th, .rl-turma td{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); }
+  .rl-turma th{ font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-dim); }
+
+  @media (max-width:700px){ .rl-campos{ grid-template-columns:1fr; } }
+  @media print{
+    html, body{ height:auto; background:#fff; color:#000; }
+    .ab-app{ height:auto; display:block; }
+    .ab-topo, .ab-progresso, .ab-nav, .rl-noprint{ display:none !important; }
+    .ab-palco{ overflow:visible; padding:0; }
+    .ab-cartao{ box-shadow:none; border:none; padding:0; background:#fff; }
+    .rl-doc th, .rl-doc td{ border-color:#999; }
+  }
+</style>
+<script>
+  window.ACTIVITY_LOCATION = 'teste_meu_jogo_relatorio';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="../../../shared/vendor/supabase.js"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Testes de Jogos — Relatório: Testando o Meu Jogo</div>
+    <div class="ab-topo-etapa" id="topoEtapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">10</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  // Relatório de testes do jogo que o próprio aluno criou, escrito AQUI
+  // dentro do portal (sem arquivo nem link). Tudo fica no estado de
+  // progresso desta atividade:
+  //   { lastStepIndex, completed, entregueEm, atualizadoEm, relatorio }
+  // que o shared/progress-sync.js espelha em student_activity_state — é de
+  // lá que o professor lê os relatórios da turma (a RLS já deixa o
+  // professor ler essa tabela), abrindo esta mesma página. "Entregar" só
+  // libera com os mínimos preenchidos (ver pendencias()) e marca a
+  // atividade como concluída; o aluno ainda pode corrigir e entregar de novo.
+  const LOC = 'teste_meu_jogo_relatorio';
+  const TURMA = 'jogos';
+  const urlParams = new URLSearchParams(window.location.search);
+  const username = urlParams.get('user') || 'anon';
+  const PROGRESS_KEY = `${LOC}_progress_${username}`;
+
+  // Só casos de teste e sessões exploratórias têm quantidade mínima;
+  // outros testes e bugs/melhorias entram quantos o aluno encontrar.
+  const MIN_CASOS = 5, MIN_SESSOES = 2;
+  const SMOKE_ITENS = ['O jogo abre sem erro', 'Dá para começar uma partida', 'Os controles respondem', 'Dá para ganhar ou perder', 'Dá para reiniciar a partida'];
+  const TIPOS_OUTROS = ['Valores-limite', 'Compatibilidade', 'Usabilidade', 'Desempenho'];
+  const TIPOS_BUG = ['Funcional', 'Visual', 'Desempenho', 'Usabilidade', 'Compatibilidade', 'Melhoria (não é bug)'];
+  const GRAVIDADES = ['Crítica', 'Alta', 'Média', 'Baixa'];
+
+  const novoCaso = () => ({ func: '', pre: '', passos: '', esperado: '', obtido: '', status: '' });
+  const novaSessao = () => ({ missao: '', duracao: '', notas: '', descobertas: '' });
+  const novoOutro = () => ({ tipo: '', oque: '', resultado: '' });
+  const novoBug = () => ({ titulo: '', tipo: '', gravidade: '', passos: '', esperado: '', obtido: '', frequencia: '', onde: '' });
+  const novaRegressao = () => ({ bug: '', correcao: '', resultado: '', entorno: '' });
+  function relatorioVazio() {
+    return {
+      jogo: '', link: '', versao: '', ambiente: '', escopo: '', fora: '',
+      smoke: SMOKE_ITENS.map(() => ({ status: '', obs: '' })),
+      casos: Array.from({ length: MIN_CASOS }, novoCaso),
+      sessoes: Array.from({ length: MIN_SESSOES }, novaSessao),
+      outros: [novoOutro()],
+      bugs: [novoBug()],
+      semCorrecao: false,
+      regressao: [novaRegressao()],
+      conclusao: { resumo: '', pronto: '', motivo: '', proximos: '', aprendi: '' },
+    };
+  }
+
+  // ---------- Estado ----------
+  function carregar() {
+    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || 'null'); } catch (e) { return null; }
+  }
+  const salvo = carregar();
+  const estado = Object.assign({ lastStepIndex: 0, completed: false, entregueEm: null, atualizadoEm: null }, salvo || {});
+  estado.relatorio = Object.assign(relatorioVazio(), (salvo && salvo.relatorio) || {});
+  const R = estado.relatorio;
+
+  let timerSalvar = null;
+  function salvarAgora() {
+    clearTimeout(timerSalvar);
+    timerSalvar = null;
+    estado.lastStepIndex = Math.max(estado.lastStepIndex || 0, currentIndex);
+    if (estado.completed) estado.atualizadoEm = new Date().toISOString();
+    try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(estado)); } catch (e) {}
+    const aviso = document.getElementById('rlSalvo');
+    if (aviso) aviso.textContent = 'Salvo ✓';
+  }
+  // Digitação salva com um pequeno atraso (cada gravação também sobe pro
+  // Supabase pelo progress-sync — não precisa ser a cada tecla).
+  function salvarDepois() {
+    const aviso = document.getElementById('rlSalvo');
+    if (aviso) aviso.textContent = 'Salvando...';
+    clearTimeout(timerSalvar);
+    timerSalvar = setTimeout(salvarAgora, 900);
+  }
+  window.addEventListener('beforeunload', () => { if (timerSalvar) salvarAgora(); });
+
+  // Caminho "casos.2.passos" → valor dentro do relatório.
+  function lerCaminho(caminho) {
+    return caminho.split('.').reduce((o, k) => (o == null ? undefined : o[k]), R);
+  }
+  function gravarCaminho(caminho, valor) {
+    const partes = caminho.split('.');
+    const ultimo = partes.pop();
+    const alvo = partes.reduce((o, k) => o[k], R);
+    alvo[ultimo] = valor;
+  }
+
+  // ---------- Utilidades ----------
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function inline(s) {
+    return esc(s).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/¤([^¤]+)¤/g, '<code>$1</code>');
+  }
+  const preenchido = v => String(v ?? '').trim().length >= 2;
+  const id2 = n => String(n).padStart(2, '0');
+  const dataBr = iso => (iso ? new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '');
+
+  function campo(caminho, rotulo, { tipo = 'input', largo = false, placeholder = '', opcoes = null, ajuda = '' } = {}) {
+    const valor = lerCaminho(caminho) ?? '';
+    let controle;
+    if (opcoes) {
+      controle = `<select data-caminho="${caminho}"><option value="">Escolha...</option>${opcoes.map(o => `<option${o === valor ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select>`;
+    } else if (tipo === 'textarea') {
+      controle = `<textarea data-caminho="${caminho}" placeholder="${esc(placeholder)}">${esc(valor)}</textarea>`;
+    } else {
+      controle = `<input type="text" data-caminho="${caminho}" value="${esc(valor)}" placeholder="${esc(placeholder)}" autocomplete="off">`;
+    }
+    return `<label class="rl-campo${largo ? ' rl-largo' : ''}">${esc(rotulo)}${ajuda ? ` <small>${esc(ajuda)}</small>` : ''}${controle}</label>`;
+  }
+
+  function lista(chave, rotuloId, desenharItem, rotuloAdd, minimo) {
+    const itens = R[chave];
+    return itens.map((item, i) => `
+      <fieldset class="rl-item">
+        <div class="rl-item-topo">
+          <span class="rl-item-id">${rotuloId(i)}</span>
+          ${itens.length > minimo ? `<button type="button" class="rl-remover" data-remover="${chave}.${i}">Remover</button>` : ''}
+        </div>
+        <div class="rl-campos">${desenharItem(i)}</div>
+      </fieldset>`).join('') + `
+      <div class="rl-acoes"><button type="button" class="btn btn-secondary" data-adicionar="${chave}">${rotuloAdd}</button></div>`;
+  }
+
+  // ---------- Etapas ----------
+  const STEPS = [
+    {
+      titulo: 'Apresentação',
+      corpo: `
+Nesta atividade você vai **testar o jogo que você mesmo criou** (o Pacman no Phaser ou outro jogo seu) e escrever o **relatório de testes** aqui mesmo, no portal. A atividade é **individual**.
+
+### O que o relatório precisa ter
+
+1. **Identificação**: jogo, versão, ambiente e escopo
+2. **Smoke test**: os 5 itens básicos
+3. **Casos de teste**: no mínimo ${MIN_CASOS}
+4. **Teste exploratório**: no mínimo ${MIN_SESSOES} sessões com missão e tempo marcado
+5. **Outros testes**: valores-limite, compatibilidade, usabilidade ou desempenho
+6. **Bugs e melhorias**: tudo o que você encontrar
+7. **Regressão**: o reteste do que você corrigiu
+8. **Conclusão**: o jogo está pronto para um jogador?
+
+### Como funciona
+
+- Deixe o seu jogo aberto em outra aba e vá testando e anotando, etapa por etapa.
+- Tudo é **salvo sozinho**, inclusive se você trocar de computador.
+- Na última etapa você revisa o documento inteiro e clica em **Entregar**. Ele vai direto para o professor.
+
+> Dica: use os exemplos da teoria como modelo. Escreva de um jeito que **outra pessoa** consiga repetir o seu teste.`,
+    },
+    {
+      titulo: '1. Identificação',
+      corpo: 'Diga qual jogo você testou e em que condições. O **escopo** deixa claro o que entrou no teste e o que ficou de fora.',
+      campos: () => `<div class="rl-campos">
+        ${campo('jogo', 'Nome do jogo', { placeholder: 'Ex.: Pac-Ana (Pacman no Phaser)' })}
+        ${campo('versao', 'Versão e data do teste', { placeholder: 'Ex.: v1.0 · 21/10/2026' })}
+        ${campo('link', 'Link do jogo', { ajuda: '(opcional)', placeholder: 'Ex.: https://seu-usuario.github.io/seu-jogo' })}
+        ${campo('ambiente', 'Ambiente principal', { placeholder: 'Ex.: Chrome · notebook da escola · Windows 11' })}
+        ${campo('escopo', 'Escopo: o que você vai testar', { tipo: 'textarea', placeholder: 'Ex.: a fase 1 inteira: movimento, moedas, fantasmas, vitória, derrota e reinício' })}
+        ${campo('fora', 'Fora do escopo: o que não vai testar e por quê', { tipo: 'textarea', placeholder: 'Ex.: som, porque o jogo ainda não tem' })}
+      </div>`,
+    },
+    {
+      titulo: '2. Smoke test',
+      corpo: 'Teste **rápido e raso**, antes de todos os outros. Se algum item falhar, registre, corrija e rode o smoke de novo antes de seguir.',
+      campos: () => SMOKE_ITENS.map((item, i) => `
+        <fieldset class="rl-item">
+          <div class="rl-item-topo"><span class="rl-item-id">${esc(item)}</span></div>
+          <div class="rl-campos">
+            ${campo(`smoke.${i}.status`, 'Resultado', { opcoes: ['Passou', 'Falhou'] })}
+            ${campo(`smoke.${i}.obs`, 'Observação', { ajuda: '(opcional)', placeholder: 'Ex.: abriu, mas demorou uns 5 segundos' })}
+          </div>
+        </fieldset>`).join(''),
+    },
+    {
+      titulo: '3. Casos de teste',
+      corpo: `Um caso para cada **regra** do seu jogo (moeda, vida, inimigo, vitória, derrota, reinício...). Execute e compare o **esperado** com o **obtido**. Mínimo: **${MIN_CASOS}**.`,
+      campos: () => lista('casos', i => `CT-${id2(i + 1)}`, i => `
+        ${campo(`casos.${i}.func`, 'Funcionalidade', { placeholder: 'Ex.: Derrota ao encostar no fantasma' })}
+        ${campo(`casos.${i}.pre`, 'Pré-condição', { placeholder: 'Ex.: Fase 1 aberta, 1 vida' })}
+        ${campo(`casos.${i}.passos`, 'Passos', { tipo: 'textarea', largo: true, placeholder: '1. Andar até o fantasma\n2. Encostar nele' })}
+        ${campo(`casos.${i}.esperado`, 'Resultado esperado', { tipo: 'textarea', placeholder: 'Ex.: Aparece "Game Over" e o jogo para' })}
+        ${campo(`casos.${i}.obtido`, 'Resultado obtido', { tipo: 'textarea', placeholder: 'O que aconteceu de verdade' })}
+        ${campo(`casos.${i}.status`, 'Status', { opcoes: ['Aprovado', 'Reprovado'] })}`,
+        '+ Adicionar caso de teste', MIN_CASOS),
+    },
+    {
+      titulo: '4. Teste exploratório',
+      corpo: `Cada sessão tem uma **missão** ("Explorar ___ usando ___ para descobrir ___"), **tempo marcado** e **anotações feitas durante o teste**. Use as heurísticas: faça o contrário, aperte tudo junto, vá para as bordas, interrompa, repita rápido. Mínimo: **${MIN_SESSOES}** sessões.`,
+      campos: () => lista('sessoes', i => `Sessão ${i + 1}`, i => `
+        ${campo(`sessoes.${i}.missao`, 'Missão', { largo: true, placeholder: 'Ex.: Explorar o reinício apertando R em vários momentos para achar travas' })}
+        ${campo(`sessoes.${i}.duracao`, 'Duração', { placeholder: 'Ex.: 15 minutos' })}
+        ${campo(`sessoes.${i}.descobertas`, 'Descobertas', { placeholder: 'Ex.: 1 bug (BUG-02) e 1 melhoria' })}
+        ${campo(`sessoes.${i}.notas`, 'Anotações da sessão: o que você fez e o que viu', { tipo: 'textarea', largo: true, placeholder: 'Ex.: R no meio da partida não faz nada (ok). R logo após vencer: placar volta a zero, mas as moedas não reaparecem.' })}`,
+        '+ Adicionar sessão', MIN_SESSOES),
+    },
+    {
+      titulo: '5. Outros testes',
+      corpo: `Teste os **extremos** (0 vidas, última moeda, beirada do mapa), **outro navegador ou aparelho**, **alguém que nunca jogou** (observe sem ajudar) e o **desempenho**. Registre quantos fizer.`,
+      campos: () => lista('outros', i => `Teste ${i + 1}`, i => `
+        ${campo(`outros.${i}.tipo`, 'Tipo', { opcoes: TIPOS_OUTROS })}
+        ${campo(`outros.${i}.oque`, 'O que você fez', { placeholder: 'Ex.: comi a última moeda encostado num fantasma' })}
+        ${campo(`outros.${i}.resultado`, 'O que aconteceu', { tipo: 'textarea', largo: true, placeholder: 'Ex.: apareceram "Você venceu!" e "Game Over" juntos' })}`,
+        '+ Adicionar teste', 0),
+    },
+    {
+      titulo: '6. Bugs e melhorias',
+      corpo: `Registre cada problema com **passos que outra pessoa consiga repetir**. Achou menos bugs? Registre também **melhorias** (algo que funciona, mas confunde ou atrapalha o jogador). Registre todos os que encontrar.`,
+      campos: () => lista('bugs', i => `BUG-${id2(i + 1)}`, i => `
+        ${campo(`bugs.${i}.titulo`, 'Título', { largo: true, placeholder: 'Ex.: Moedas não reaparecem ao reiniciar após vencer' })}
+        ${campo(`bugs.${i}.tipo`, 'Tipo', { opcoes: TIPOS_BUG })}
+        ${campo(`bugs.${i}.gravidade`, 'Gravidade', { opcoes: GRAVIDADES })}
+        ${campo(`bugs.${i}.passos`, 'Passos para reproduzir', { tipo: 'textarea', largo: true, placeholder: '1. Comer todas as moedas\n2. Apertar R' })}
+        ${campo(`bugs.${i}.esperado`, 'Esperado', { tipo: 'textarea', placeholder: 'Ex.: Fase nova, com todas as moedas' })}
+        ${campo(`bugs.${i}.obtido`, 'Obtido', { tipo: 'textarea', placeholder: 'Ex.: Fase vazia, placar em 0' })}
+        ${campo(`bugs.${i}.frequencia`, 'Frequência', { placeholder: 'Ex.: 5 de 5 tentativas' })}
+        ${campo(`bugs.${i}.onde`, 'Onde você achou', { placeholder: 'Ex.: Sessão 1 / CT-02 / Teste 3' })}`,
+        '+ Adicionar registro', 0),
+    },
+    {
+      titulo: '7. Regressão',
+      corpo: 'Corrigiu algum bug? Teste de novo o caso que falhou, o que fica **perto** do código que você mexeu e rode o smoke outra vez. Se ainda não corrigiu nenhum, marque a caixinha.',
+      campos: () => `
+        <label class="rl-marcar"><input type="checkbox" id="rlSemCorrecao" ${R.semCorrecao ? 'checked' : ''}> Ainda não corrigi nenhum bug</label>
+        ${R.semCorrecao ? '' : lista('regressao', i => `Reteste ${i + 1}`, i => `
+          ${campo(`regressao.${i}.bug`, 'Bug corrigido', { placeholder: 'Ex.: BUG-02' })}
+          ${campo(`regressao.${i}.resultado`, 'Resultado do reteste', { opcoes: ['Corrigido', 'Ainda falha'] })}
+          ${campo(`regressao.${i}.correcao`, 'O que você mudou no jogo', { tipo: 'textarea', placeholder: 'Ex.: chamei a função que cria as moedas também no reinício' })}
+          ${campo(`regressao.${i}.entorno`, 'O que mais você retestou e o resultado', { tipo: 'textarea', placeholder: 'Ex.: CT-01 a CT-05 e o smoke: todos aprovados' })}`,
+          '+ Adicionar reteste', 1)}`,
+    },
+    {
+      titulo: '8. Conclusão',
+      corpo: 'A conclusão toma uma **decisão** e diz o motivo: dá para entregar o jogo para um jogador hoje?',
+      campos: () => `<div class="rl-campos">
+        ${campo('conclusao.resumo', 'Resumo dos testes', { tipo: 'textarea', largo: true, placeholder: 'Ex.: 6 casos (4 aprovados), 2 sessões exploratórias, 3 outros testes, 3 bugs e 1 melhoria' })}
+        ${campo('conclusao.pronto', 'O jogo está pronto para publicar?', { opcoes: ['Sim', 'Sim, com ressalvas', 'Não'] })}
+        ${campo('conclusao.motivo', 'Por quê?', { placeholder: 'Ex.: BUG-02 é alto e impede jogar uma 2ª partida' })}
+        ${campo('conclusao.proximos', 'Próximos passos', { tipo: 'textarea', placeholder: 'Ex.: corrigir BUG-02 e rodar a regressão' })}
+        ${campo('conclusao.aprendi', 'O que você aprendeu testando o próprio jogo', { tipo: 'textarea', placeholder: 'Ex.: eu nunca apertava R depois de vencer' })}
+      </div>`,
+    },
+  ];
+  const TOTAL = STEPS.length + 1; // + revisar e entregar
+
+  // ---------- O que falta para entregar ----------
+  function pendencias() {
+    const p = [];
+    const add = (etapa, texto) => p.push({ etapa, texto });
+    if (!preenchido(R.jogo) || !preenchido(R.versao) || !preenchido(R.ambiente) || !preenchido(R.escopo)) add(1, 'Identificação: preencha nome do jogo, versão, ambiente e escopo.');
+    if (R.smoke.some(s => !s.status)) add(2, 'Smoke test: marque o resultado dos 5 itens.');
+    const casosOk = R.casos.filter(c => preenchido(c.passos) && preenchido(c.esperado) && preenchido(c.obtido) && c.status).length;
+    if (casosOk < MIN_CASOS) add(3, `Casos de teste: ${casosOk} de ${MIN_CASOS} completos (passos, esperado, obtido e status).`);
+    const sessoesOk = R.sessoes.filter(s => preenchido(s.missao) && preenchido(s.duracao) && preenchido(s.notas)).length;
+    if (sessoesOk < MIN_SESSOES) add(4, `Teste exploratório: ${sessoesOk} de ${MIN_SESSOES} sessões completas (missão, duração e anotações).`);
+    const bugsSemGravidade = R.bugs.filter(b => preenchido(b.titulo) && b.tipo && !b.tipo.startsWith('Melhoria') && !b.gravidade).length;
+    if (bugsSemGravidade) add(6, 'Bugs e melhorias: todo bug precisa de gravidade.');
+    if (!R.semCorrecao && !R.regressao.some(r => preenchido(r.bug) && r.resultado && preenchido(r.entorno))) add(7, 'Regressão: registre um reteste ou marque "Ainda não corrigi nenhum bug".');
+    const c = R.conclusao;
+    if (!preenchido(c.resumo) || !c.pronto || !preenchido(c.motivo) || !preenchido(c.aprendi)) add(8, 'Conclusão: preencha resumo, decisão, motivo e o que aprendeu.');
+    return p;
+  }
+
+  // ---------- Documento ----------
+  function celula(v) { return preenchido(v) ? esc(String(v).trim()) : '<span class="rl-vazio">—</span>'; }
+  function selo(v) {
+    if (v === 'Passou' || v === 'Aprovado' || v === 'Corrigido') return `<span class="rl-ok">${esc(v)}</span>`;
+    if (v === 'Falhou' || v === 'Reprovado' || v === 'Ainda falha') return `<span class="rl-falha">${esc(v)}</span>`;
+    return celula(v);
+  }
+  function documentoHtml(r, nomeAluno) {
+    const casos = r.casos.filter(c => Object.values(c).some(preenchido) || c.status);
+    const sessoes = r.sessoes.filter(s => Object.values(s).some(preenchido));
+    const outros = r.outros.filter(o => o.tipo || preenchido(o.oque) || preenchido(o.resultado));
+    const bugs = r.bugs.filter(b => preenchido(b.titulo) || preenchido(b.passos));
+    const reg = r.regressao.filter(x => Object.values(x).some(preenchido) || x.resultado);
+    const linhasCasos = casos.map(c => `<tr><td>CT-${id2(r.casos.indexOf(c) + 1)}</td><td>${celula(c.func)}</td><td>${celula(c.pre)}</td><td>${celula(c.passos)}</td><td>${celula(c.esperado)}</td><td>${celula(c.obtido)}</td><td>${selo(c.status)}</td></tr>`).join('');
+    return `<div class="rl-doc">
+      <h3>1. Identificação</h3>
+      <table><tbody>
+        ${nomeAluno ? `<tr><th>Aluno</th><td>${esc(nomeAluno)}</td></tr>` : ''}
+        <tr><th>Jogo</th><td>${celula(r.jogo)}</td></tr>
+        <tr><th>Versão e data</th><td>${celula(r.versao)}</td></tr>
+        <tr><th>Link</th><td>${celula(r.link)}</td></tr>
+        <tr><th>Ambiente</th><td>${celula(r.ambiente)}</td></tr>
+        <tr><th>Escopo</th><td>${celula(r.escopo)}</td></tr>
+        <tr><th>Fora do escopo</th><td>${celula(r.fora)}</td></tr>
+      </tbody></table>
+      <h3>2. Smoke test</h3>
+      <table><thead><tr><th>Item</th><th>Resultado</th><th>Observação</th></tr></thead><tbody>
+        ${SMOKE_ITENS.map((item, i) => `<tr><td>${esc(item)}</td><td>${selo(r.smoke[i] && r.smoke[i].status)}</td><td>${celula(r.smoke[i] && r.smoke[i].obs)}</td></tr>`).join('')}
+      </tbody></table>
+      <h3>3. Casos de teste</h3>
+      ${casos.length ? `<table><thead><tr><th>ID</th><th>Funcionalidade</th><th>Pré-condição</th><th>Passos</th><th>Esperado</th><th>Obtido</th><th>Status</th></tr></thead><tbody>${linhasCasos}</tbody></table>` : '<p class="rl-vazio">Nenhum caso registrado.</p>'}
+      <h3>4. Teste exploratório</h3>
+      ${sessoes.length ? sessoes.map((s, i) => `<table><tbody>
+        <tr><th colspan="2">Sessão ${i + 1}</th></tr>
+        <tr><th>Missão</th><td>${celula(s.missao)}</td></tr>
+        <tr><th>Duração</th><td>${celula(s.duracao)}</td></tr>
+        <tr><th>Anotações</th><td>${celula(s.notas)}</td></tr>
+        <tr><th>Descobertas</th><td>${celula(s.descobertas)}</td></tr>
+      </tbody></table>`).join('') : '<p class="rl-vazio">Nenhuma sessão registrada.</p>'}
+      <h3>5. Outros testes</h3>
+      ${outros.length ? `<table><thead><tr><th>Tipo</th><th>O que fez</th><th>O que aconteceu</th></tr></thead><tbody>
+        ${outros.map(o => `<tr><td>${celula(o.tipo)}</td><td>${celula(o.oque)}</td><td>${celula(o.resultado)}</td></tr>`).join('')}
+      </tbody></table>` : '<p class="rl-vazio">Nenhum teste registrado.</p>'}
+      <h3>6. Bugs e melhorias</h3>
+      ${bugs.length ? bugs.map(b => `<table><tbody>
+        <tr><th colspan="2">BUG-${id2(r.bugs.indexOf(b) + 1)} · ${celula(b.titulo)}</th></tr>
+        <tr><th>Tipo · gravidade</th><td>${celula(b.tipo)} · ${celula(b.gravidade)}</td></tr>
+        <tr><th>Passos</th><td>${celula(b.passos)}</td></tr>
+        <tr><th>Esperado</th><td>${celula(b.esperado)}</td></tr>
+        <tr><th>Obtido</th><td>${celula(b.obtido)}</td></tr>
+        <tr><th>Frequência</th><td>${celula(b.frequencia)}</td></tr>
+        <tr><th>Onde achou</th><td>${celula(b.onde)}</td></tr>
+      </tbody></table>`).join('') : '<p class="rl-vazio">Nenhum registro.</p>'}
+      <h3>7. Regressão</h3>
+      ${r.semCorrecao ? '<p>Nenhum bug corrigido até a entrega.</p>' : (reg.length ? `<table><thead><tr><th>Bug</th><th>O que mudou</th><th>Reteste</th><th>Entorno retestado</th></tr></thead><tbody>
+        ${reg.map(x => `<tr><td>${celula(x.bug)}</td><td>${celula(x.correcao)}</td><td>${selo(x.resultado)}</td><td>${celula(x.entorno)}</td></tr>`).join('')}
+      </tbody></table>` : '<p class="rl-vazio">Nenhum reteste registrado.</p>')}
+      <h3>8. Conclusão</h3>
+      <table><tbody>
+        <tr><th>Resumo</th><td>${celula(r.conclusao.resumo)}</td></tr>
+        <tr><th>Pronto para publicar?</th><td>${celula(r.conclusao.pronto)}</td></tr>
+        <tr><th>Por quê</th><td>${celula(r.conclusao.motivo)}</td></tr>
+        <tr><th>Próximos passos</th><td>${celula(r.conclusao.proximos)}</td></tr>
+        <tr><th>O que aprendeu</th><td>${celula(r.conclusao.aprendi)}</td></tr>
+      </tbody></table>
+    </div>`;
+  }
+
+  // ---------- Navegação do aluno ----------
+  const stepWrap = document.getElementById('stepWrap');
+  // Buscado na hora: a visão do professor troca o conteúdo do topo.
+  const lblStep = () => document.getElementById('lblStepNum') || {};
+  const progressFill = document.getElementById('progressFill');
+  document.getElementById('lblStepTotal').textContent = TOTAL;
+  let currentIndex = estado.completed ? STEPS.length : Math.min(estado.lastStepIndex || 0, STEPS.length);
+  let direcao = 1;
+
+  function reportStep(label) {
+    if (typeof window.reportActivity === 'function') {
+      window.reportActivity(LOC, label, { step: currentIndex + 1, total: TOTAL });
+    }
+  }
+  function renderNav(voltar, proximo) {
+    return `
+      <div class="ab-nav">
+        ${voltar ? '<button class="btn btn-secondary" id="btnBack">← Voltar</button>' : '<span></span>'}
+        <span class="ab-nav-dica"><span id="rlSalvo" class="rl-salvo"></span></span>
+        ${proximo ? '<button class="btn" id="btnNext">Próximo →</button>' : '<span></span>'}
+      </div>`;
+  }
+  function irPara(i) {
+    if (timerSalvar) salvarAgora();
+    direcao = i < currentIndex ? -1 : 1;
+    currentIndex = Math.max(0, Math.min(i, STEPS.length));
+    renderStep();
+  }
+  function mostrarEtapa() {
+    document.getElementById('palco').scrollTop = 0;
+    window.AulaBase.transicao(stepWrap.querySelector('.ab-cartao'), direcao);
+  }
+  function ligarNav() {
+    const b = document.getElementById('btnBack');
+    if (b) b.addEventListener('click', () => irPara(currentIndex - 1));
+    const n = document.getElementById('btnNext');
+    if (n) n.addEventListener('click', () => irPara(currentIndex + 1));
+  }
+
+  // Mesmo parser enxuto das práticas do padrão novo (cod-phaser-pratica.html),
+  // só com o que este roteiro usa: ###, listas, citação e parágrafos.
+  function mdToHtml(md) {
+    const linhas = md.replace(/\r\n/g, '\n').split('\n');
+    let html = '';
+    let i = 0;
+    while (i < linhas.length) {
+      const l = linhas[i].trim();
+      if (!l) { i++; continue; }
+      const h = l.match(/^###\s+(.*)$/);
+      if (h) { html += `<h3>${inline(h[1])}</h3>`; i++; continue; }
+      if (/^\d+\.\s+/.test(l)) {
+        const itens = [];
+        while (i < linhas.length && /^\d+\.\s+/.test(linhas[i].trim())) { itens.push(linhas[i].trim().replace(/^\d+\.\s+/, '')); i++; }
+        html += '<ol>' + itens.map(t => `<li>${inline(t)}</li>`).join('') + '</ol>';
+        continue;
+      }
+      if (/^-\s+/.test(l)) {
+        const itens = [];
+        while (i < linhas.length && /^-\s+/.test(linhas[i].trim())) { itens.push(linhas[i].trim().replace(/^-\s+/, '')); i++; }
+        html += '<ul>' + itens.map(t => `<li>${inline(t)}</li>`).join('') + '</ul>';
+        continue;
+      }
+      if (l.startsWith('>')) { html += `<blockquote>${inline(l.replace(/^>\s?/, ''))}</blockquote>`; i++; continue; }
+      const par = [];
+      while (i < linhas.length && linhas[i].trim() && !/^(###|>|-\s|\d+\.\s)/.test(linhas[i].trim())) { par.push(linhas[i].trim()); i++; }
+      html += `<p>${inline(par.join(' '))}</p>`;
+    }
+    return html;
+  }
+
+  function renderStep() {
+    if (currentIndex >= STEPS.length) { renderEntrega(); return; }
+    const step = STEPS[currentIndex];
+    progressFill.style.width = Math.round((currentIndex / TOTAL) * 100) + '%';
+    lblStep().textContent = currentIndex + 1;
+    reportStep(`Relatório — ${step.titulo}`);
+    stepWrap.innerHTML = `
+      <article class="ab-cartao">
+        <div class="ab-cartao-etapa">Etapa ${currentIndex + 1} de ${TOTAL}</div>
+        <h2>${esc(step.titulo)}</h2>
+        <div class="ab-conteudo">${mdToHtml(step.corpo)}</div>
+        ${step.campos ? `<form class="rl-form" onsubmit="return false">${step.campos()}</form>` : ''}
+      </article>
+      ${renderNav(currentIndex > 0, true)}`;
+    ligarCampos();
+    mostrarEtapa();
+    ligarNav();
+    if (currentIndex > (estado.lastStepIndex || 0)) salvarAgora();
+  }
+
+  function ligarCampos() {
+    stepWrap.querySelectorAll('[data-caminho]').forEach(el => {
+      const evento = el.tagName === 'SELECT' ? 'change' : 'input';
+      el.addEventListener(evento, () => { gravarCaminho(el.dataset.caminho, el.value); salvarDepois(); });
+    });
+    stepWrap.querySelectorAll('[data-adicionar]').forEach(b => b.addEventListener('click', () => {
+      const chave = b.dataset.adicionar;
+      const novo = { casos: novoCaso, sessoes: novaSessao, outros: novoOutro, bugs: novoBug, regressao: novaRegressao }[chave];
+      R[chave].push(novo());
+      salvarAgora();
+      redesenhar();
+    }));
+    stepWrap.querySelectorAll('[data-remover]').forEach(b => b.addEventListener('click', () => {
+      const [chave, i] = b.dataset.remover.split('.');
+      R[chave].splice(Number(i), 1);
+      salvarAgora();
+      redesenhar();
+    }));
+    const sem = document.getElementById('rlSemCorrecao');
+    if (sem) sem.addEventListener('change', () => { R.semCorrecao = sem.checked; salvarAgora(); redesenhar(); });
+  }
+  // Redesenha a etapa atual sem animar nem voltar o scroll pro topo.
+  function redesenhar() {
+    const palco = document.getElementById('palco');
+    const topo = palco.scrollTop;
+    const form = stepWrap.querySelector('.rl-form');
+    if (!form) return;
+    form.innerHTML = STEPS[currentIndex].campos();
+    ligarCampos();
+    palco.scrollTop = topo;
+  }
+
+  function renderEntrega() {
+    progressFill.style.width = '100%';
+    lblStep().textContent = TOTAL;
+    reportStep('Relatório — Revisar e entregar');
+    const falta = pendencias();
+    const situacao = estado.completed
+      ? `<div class="ab-msg ok">✅ Entregue em ${esc(dataBr(estado.entregueEm))}${estado.atualizadoEm ? ` · última alteração em ${esc(dataBr(estado.atualizadoEm))}` : ''}. O professor já consegue ler. Se mudar alguma coisa, ela chega sozinha.</div>`
+      : '';
+    stepWrap.innerHTML = `
+      <article class="ab-cartao${estado.completed ? ' ab-concluida' : ''}">
+        <div class="ab-cartao-etapa">Etapa ${TOTAL} de ${TOTAL}</div>
+        <h2>${estado.completed ? '✅ Relatório entregue' : '9. Revisar e entregar'}</h2>
+        <div class="rl-noprint">
+          ${situacao}
+          ${falta.length ? `<div class="ab-msg erro">Ainda falta para entregar:</div>
+            <ul class="rl-pendencias">${falta.map(f => `<li><button type="button" data-etapa="${f.etapa}">${esc(f.texto)}</button></li>`).join('')}</ul>` : ''}
+          <div class="rl-acoes">
+            ${estado.completed ? '' : `<button type="button" class="btn" id="btnEntregar" ${falta.length ? 'disabled' : ''}>Entregar ao professor</button>`}
+            <button type="button" class="btn btn-secondary" id="btnImprimir">Imprimir / salvar PDF</button>
+          </div>
+          <p class="rl-contagem">Abaixo está o documento como o professor vai ver.</p>
+        </div>
+        ${documentoHtml(R, '')}
+      </article>
+      ${renderNav(true, false)}`;
+    mostrarEtapa();
+    ligarNav();
+    stepWrap.querySelectorAll('[data-etapa]').forEach(b => b.addEventListener('click', () => irPara(Number(b.dataset.etapa))));
+    document.getElementById('btnImprimir').addEventListener('click', () => window.print());
+    const btn = document.getElementById('btnEntregar');
+    if (btn) btn.addEventListener('click', () => {
+      if (pendencias().length) return;
+      estado.completed = true;
+      estado.entregueEm = estado.entregueEm || new Date().toISOString();
+      estado.atualizadoEm = null;
+      try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(Object.assign(estado, { lastStepIndex: STEPS.length }))); } catch (e) {}
+      renderEntrega();
+    });
+  }
+
+  // ---------- Professor: relatórios da turma ----------
+  async function renderProfessor() {
+    document.getElementById('topoEtapa').textContent = 'Professor';
+    progressFill.style.width = '100%';
+    stepWrap.innerHTML = `
+      <article class="ab-cartao">
+        <div class="ab-cartao-etapa">Visão do professor</div>
+        <h2>Relatórios da turma</h2>
+        <div id="rlTurma"><p class="rl-contagem">Carregando...</p></div>
+        <div class="rl-acoes"><button type="button" class="btn btn-secondary" id="btnComoAluno">Ver a atividade como o aluno vê</button></div>
+      </article>`;
+    document.getElementById('btnComoAluno').addEventListener('click', () => {
+      document.getElementById('topoEtapa').innerHTML = 'Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">' + TOTAL + '</span>';
+      modoAluno();
+    });
+    const box = document.getElementById('rlTurma');
+    const sb = window.PortalSession && window.PortalSession.client();
+    if (!sb) { box.innerHTML = '<p class="rl-contagem">Sem conexão com o servidor.</p>'; return; }
+    const [alunosRes, estadosRes] = await Promise.all([
+      sb.from('profiles').select('email, nome').eq('turma', TURMA).eq('role', 'aluno').order('nome'),
+      sb.from('student_activity_state').select('student_email, state, updated_at').eq('progress_key', LOC),
+    ]);
+    if (alunosRes.error || estadosRes.error) { box.innerHTML = '<p class="rl-contagem">Não foi possível carregar os relatórios agora.</p>'; return; }
+    const porEmail = new Map((estadosRes.data || []).map(e => [e.student_email, e]));
+    const alunos = alunosRes.data || [];
+    const entregues = alunos.filter(a => porEmail.get(a.email) && porEmail.get(a.email).state && porEmail.get(a.email).state.completed).length;
+    box.innerHTML = `
+      <p class="rl-contagem"><b>${entregues}</b> de ${alunos.length} alunos entregaram.</p>
+      <div style="overflow-x:auto"><table class="rl-turma">
+        <thead><tr><th>Aluno</th><th>Situação</th><th>Última alteração</th><th></th></tr></thead>
+        <tbody>${alunos.map(a => {
+          const e = porEmail.get(a.email);
+          const st = e && e.state;
+          const situacao = !st ? '<span class="rl-vazio">Não começou</span>'
+            : st.completed ? `<span class="rl-ok">Entregue</span> em ${esc(dataBr(st.entregueEm))}`
+            : `Rascunho (etapa ${Math.min((st.lastStepIndex || 0) + 1, TOTAL)} de ${TOTAL})`;
+          return `<tr><td>${esc(a.nome || a.email)}</td><td>${situacao}</td><td>${esc(dataBr(st && (st.atualizadoEm || e.updated_at)))}</td>
+            <td>${st && st.relatorio ? `<button type="button" class="btn btn-secondary" data-ver="${esc(a.email)}">Ver</button>` : ''}</td></tr>`;
+        }).join('')}</tbody>
+      </table></div>`;
+    box.querySelectorAll('[data-ver]').forEach(b => b.addEventListener('click', () => {
+      const a = alunos.find(x => x.email === b.dataset.ver);
+      const st = porEmail.get(a.email).state;
+      verRelatorio(a.nome || a.email, st);
+    }));
+  }
+
+  function verRelatorio(nome, st) {
+    const r = Object.assign(relatorioVazio(), st.relatorio || {});
+    stepWrap.innerHTML = `
+      <article class="ab-cartao">
+        <div class="ab-cartao-etapa rl-noprint">${st.completed ? `Entregue em ${esc(dataBr(st.entregueEm))}${st.atualizadoEm ? ` · alterado em ${esc(dataBr(st.atualizadoEm))}` : ''}` : 'Rascunho — ainda não entregue'}</div>
+        <h2>Relatório de testes — ${esc(nome)}</h2>
+        <div class="rl-acoes rl-noprint">
+          <button type="button" class="btn btn-secondary" id="btnVoltarLista">← Voltar à lista</button>
+          <button type="button" class="btn btn-secondary" id="btnImprimir">Imprimir / salvar PDF</button>
+        </div>
+        ${documentoHtml(r, nome)}
+      </article>`;
+    document.getElementById('palco').scrollTop = 0;
+    document.getElementById('btnVoltarLista').addEventListener('click', renderProfessor);
+    document.getElementById('btnImprimir').addEventListener('click', () => window.print());
+  }
+
+  // ---------- Início ----------
+  let alunoIniciado = false;
+  function modoAluno() {
+    if (!alunoIniciado) {
+      alunoIniciado = true;
+      window.AulaBase.teclado({
+        proximo: () => { const b = document.getElementById('btnNext'); if (b) b.click(); },
+        anterior: () => { const b = document.getElementById('btnBack'); if (b) b.click(); },
+      });
+    }
+    renderStep();
+  }
+
+  (async function iniciar() {
+    let user = null;
+    try { user = window.PortalSession ? await window.PortalSession.getUser() : null; } catch (e) {}
+    if (user && (user.role === 'professor' || user.role === 'admin')) renderProfessor();
+    else modoAluno();
+  })();
+
+  // Gabarito = critérios de correção do relatório, pra Gestão.
+  window.generateGabaritoForGestao = function () {
+    return window.PortalGabarito.generate({
+      title: 'Relatório — Testando o Meu Jogo — Critérios de correção',
+      subtitle: 'Relatório de testes individual, escrito no portal (o professor lê os relatórios abrindo esta prática) · Testes de Jogos Digitais · Turma Jogos Digitais',
+      items: [
+        { number: 1, title: 'Identificação e escopo', prompt: 'Jogo, versão, ambiente e escopo estão claros? O "fora do escopo" foi justificado?', answer: 'Ambiente com navegador e aparelho; escopo diz o que foi testado e o que ficou de fora, com motivo.' },
+        { number: 2, title: 'Smoke test', prompt: 'Os 5 itens básicos foram verificados antes dos outros testes?', answer: 'Abre, começa, controla, ganha/perde, reinicia. Se algo falhou, aparece como bug e na regressão.' },
+        { number: 3, title: 'Casos de teste', prompt: `Há pelo menos ${MIN_CASOS} casos, cada um sobre uma regra, com passos repetíveis e esperado conferível?`, answer: 'Passos numerados, esperado objetivo (não "funcionar direito"), obtido descrito e status coerente com a comparação.' },
+        { number: 4, title: 'Teste exploratório', prompt: `Há pelo menos ${MIN_SESSOES} sessões com missão, tempo marcado e anotações feitas durante o teste?`, answer: 'Missão no formato explorar/usando/para descobrir; anotações mostram o caminho seguido, não só "joguei e não achei nada".' },
+        { number: 5, title: 'Outros testes', prompt: 'Os testes de limites, compatibilidade, usabilidade ou desempenho registrados descrevem o que foi feito e o resultado?', answer: 'Limites testam a fronteira da regra (ex.: 99/100/101); compatibilidade cita o ambiente; usabilidade descreve o que o colega fez sem ajuda.' },
+        { number: 6, title: 'Bugs e melhorias', prompt: 'Cada registro tem título claro, passos, esperado × obtido, tipo, gravidade e frequência?', answer: 'Título diz o que falha e em que situação; gravidade coerente com o impacto; "onde achou" liga o bug a um teste.' },
+        { number: 7, title: 'Regressão', prompt: 'Se corrigiu algo, retestou o caso, o entorno e o smoke?', answer: 'Reteste do caso que falhou + testes vizinhos; ou a caixa "ainda não corrigi" marcada.' },
+        { number: 8, title: 'Conclusão', prompt: 'A conclusão toma uma decisão (publicar ou não) e justifica citando registros do relatório?', answer: 'Decisão + motivo ligado a um BUG/CT; próximos passos concretos; reflexão sobre a cegueira do autor.' },
+      ],
+      fileName: 'teste-meu-jogo-relatorio-criterios.txt',
+    });
+  };
+</script>
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

@@ -1148,6 +1148,33 @@ window.TURMA_CONFIG_JOGOS = {
               requires: 'teoria', hasGabarito: true
             }
           ]
+        },
+        {
+          // Individual: cada aluno testa o jogo que ele mesmo criou e escreve
+          // o relatório DENTRO do portal (sem arquivo nem link). O relatório
+          // fica no estado de progresso da prática (student_activity_state) e
+          // o professor lê os da turma abrindo a mesma prática.
+          // Estimativa: teoria ~45 min, relatório ~2 h 30.
+          key: 'teste-meu-jogo',
+          label: 'Testando o Meu Próprio Jogo',
+          desc: 'Monte um roteiro de testes em camadas (smoke, casos de teste, exploratório, limites, compatibilidade, usabilidade e regressão), teste o jogo que você criou e entregue o relatório de testes no portal.',
+          capacidade: 'Definir roteiro de teste para execução, conforme recomendações técnicas / Identificar problemas de sistemas por meio de aplicação de teste.',
+          modules: [
+            {
+              key: 'teoria', title: 'Teoria — Testando o Meu Próprio Jogo',
+              desc: 'Cegueira do autor, roteiro em camadas, smoke test, casos de teste, teste exploratório com missão, valores-limite, compatibilidade, usabilidade, regressão e o modelo do relatório, com exemplo.',
+              icon: '📖', src: 'atividades/teste-meu-jogo-teoria.html', telaCheia: true,
+              progressKey: 'teste_meu_jogo_teoria_progress_', progressMode: 'flag',
+              hasGabarito: true
+            },
+            {
+              key: 'relatorio', title: 'Relatório — Testando o Meu Jogo',
+              desc: 'Teste o seu jogo e escreva aqui o relatório: identificação, smoke, no mínimo 5 casos de teste e 2 sessões exploratórias, outros testes, bugs ou melhorias, regressão e conclusão. Entregue direto pro professor.',
+              icon: '📝', src: 'atividades/teste-meu-jogo-relatorio.html', telaCheia: true,
+              progressKey: 'teste_meu_jogo_relatorio_progress_', progressMode: 'flag',
+              requires: 'teoria', hasGabarito: true
+            }
+          ]
         }
       ]
     },
