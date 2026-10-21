@@ -2651,6 +2651,12 @@ alter table public.arcade_test_cases add column if not exists bug text not null 
 alter table public.arcade_test_cases drop constraint if exists arcade_test_cases_bug;
 alter table public.arcade_test_cases add constraint arcade_test_cases_bug check (char_length(bug) <= 800);
 
+-- Gravidade do bug: true = crítico (trava, fecha ou impede de jogar/terminar),
+-- false = não crítico. Fica nulo quando o teste passou.
+alter table public.arcade_test_cases add column if not exists critico boolean;
+alter table public.arcade_test_cases drop constraint if exists arcade_test_cases_critico;
+alter table public.arcade_test_cases add constraint arcade_test_cases_critico check (status = 'falhou' or critico is null);
+
 create index if not exists arcade_test_cases_game_idx on public.arcade_test_cases (game_email, created_at desc);
 
 alter table public.arcade_test_cases enable row level security;

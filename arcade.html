@@ -83,6 +83,7 @@
   .curtir{ display:inline-flex; align-items:center; gap:6px; padding:6px 11px; border-radius:99px; border:1px solid var(--borda);
     background:var(--card-2); color:var(--texto-2); font:700 13px Inter, sans-serif; cursor:pointer; font-variant-numeric:tabular-nums;
     transition:border-color .2s, color .2s, background .2s; }
+  .curtir[hidden]{ display:none; }
   .curtir .coracao{ font-size:15px; line-height:1; display:inline-block; }
   .curtir:hover:not(:disabled){ border-color:var(--destaque-2); color:var(--texto); }
   .curtir:focus-visible{ outline:2px solid var(--destaque-2); outline-offset:2px; }
@@ -188,6 +189,11 @@
   .rel-tabela .ver:hover{ color:var(--destaque); }
   .rel-tabela .ver:focus-visible{ outline:2px solid var(--destaque); outline-offset:2px; }
   .caso .no-jogo{ font-size:12px; color:var(--texto-2); margin-top:2px; }
+  .caso .bug.critico{ border-color:#ff5a6e; box-shadow:0 0 0 1px #ff5a6e55; }
+  .gravidade{ display:inline-block; margin-left:6px; padding:1px 7px; border-radius:99px; background:#2a2f45; color:var(--texto-2);
+    font-size:11px; letter-spacing:0; text-transform:none; vertical-align:1px; }
+  .gravidade.critico{ background:#ff5a6e; color:#2a0008; font-weight:800; }
+  .teste-form .campo-bug{ display:flex; flex-direction:column; gap:8px; }
   .caso .bug p{ margin:0; white-space:pre-wrap; overflow-wrap:anywhere; }
   .caso dl{ margin:0; display:grid; gap:4px; }
   .caso dt{ font-size:11.5px; font-weight:700; color:var(--texto-2); text-transform:uppercase; letter-spacing:.04em; }
@@ -282,9 +288,17 @@
             <label><input type="radio" name="tStatus" value="passou"> ✅ Passou</label>
             <label><input type="radio" name="tStatus" value="falhou"> ❌ Falhou</label>
           </fieldset>
-          <label class="campo-bug" id="tBugCampo" hidden>🐞 Bug encontrado
-            <textarea id="tBug" rows="3" maxlength="800" placeholder="Ex.: Encostado na parede, o pulo faz o personagem atravessá-la e cair fora do mapa"></textarea>
-          </label>
+          <div class="campo-bug" id="tBugCampo" hidden>
+            <label>🐞 Bug encontrado
+              <textarea id="tBug" rows="3" maxlength="800" placeholder="Ex.: Encostado na parede, o pulo faz o personagem atravessá-la e cair fora do mapa"></textarea>
+            </label>
+            <fieldset>
+              <legend>O bug é crítico?</legend>
+              <label title="Trava, fecha, impede de jogar ou de terminar o jogo"><input type="radio" name="tCritico" value="sim"> 🔥 Crítico</label>
+              <label title="Atrapalha, mas dá pra continuar jogando"><input type="radio" name="tCritico" value="nao"> Não crítico</label>
+            </fieldset>
+            <p>Crítico = trava, fecha ou impede de jogar/terminar o jogo. Não crítico = atrapalha, mas dá pra continuar.</p>
+          </div>
           <div class="acoes">
             <button type="submit" id="tSalvar">Salvar caso</button>
             <span class="msg" id="tMsg" aria-live="polite"></span>
@@ -437,7 +451,10 @@
     const { data } = await sb.from('profiles').select('email, nome').in('email', faltam);
     for (const p of data || []) nomes.set(p.email, p.nome || p.email);
   }
-  const COLUNAS_CASO = 'id, game_email, autor_email, titulo, passos, esperado, obtido, status, bug, created_at';
+  const COLUNAS_CASO = 'id, game_email, autor_email, titulo, passos, esperado, obtido, status, bug, critico, created_at';
+  const ehBug = c => c.status === 'falhou';
+  const ehCritico = c => c.status === 'falhou' && c.critico === true;
+  const textoBugs = lista => `<b>${lista.filter(ehBug).length}</b> bug(s) encontrado(s), <b>${lista.filter(ehCritico).length}</b> crítico(s)`;
   try {
     const { data, error } = await sb.from('arcade_test_cases')
       .select(COLUNAS_CASO)
@@ -454,9 +471,8 @@
     if (!atual) return;
     const doJogo = casos.filter(c => c.game_email === atual.email);
     $('pQtdTestes').textContent = doJogo.length;
-    const bugs = doJogo.filter(c => c.status === 'falhou').length;
     $('testeResumo').innerHTML = doJogo.length
-      ? `<b>${doJogo.length}</b> caso(s) de teste · <b>${bugs}</b> bug(s) encontrado(s)` : '';
+      ? `<b>${doJogo.length}</b> caso(s) de teste · ${textoBugs(doJogo)}` : '';
     $('testeLista').innerHTML = doJogo.length ? doJogo.map(c => htmlCaso(c)).join('')
       : `<div class="vazio-testes">Nenhum caso de teste pra este jogo ainda. Seja o primeiro!</div>`;
   }
@@ -473,7 +489,8 @@
           <div><b>Criado por ${esc(nomeDe(c.autor_email))}</b>
             <span>${esc(dataCurta(c.created_at))}${c.autor_email === user.email || professor ? ` · <button type="button" class="apagar" data-id="${esc(c.id)}">Apagar</button>` : ''}</span></div>
         </div>
-        ${c.status === 'falhou' && c.bug ? `<div class="bug"><strong>🐞 Bug encontrado</strong><p>${esc(c.bug)}</p></div>` : ''}
+        ${c.status === 'falhou' && c.bug ? `<div class="bug${c.critico ? ' critico' : ''}"><strong>🐞 Bug encontrado
+          ${c.critico === true ? '<span class="gravidade critico">🔥 Crítico</span>' : c.critico === false ? '<span class="gravidade">Não crítico</span>' : ''}</strong><p>${esc(c.bug)}</p></div>` : ''}
         <dl>
           <dt>Passos</dt><dd>${esc(c.passos)}</dd>
           <dt>Esperado</dt><dd>${esc(c.esperado)}</dd>
@@ -517,10 +534,13 @@
     const bug = status === 'falhou' ? $('tBug').value.trim() : '';
     if (status === 'falhou' && obtido.length < 3) return msg('Se falhou, conte o que aconteceu de verdade.');
     if (status === 'falhou' && bug.length < 5) return msg('Descreva o bug encontrado.');
+    const marcouCritico = document.querySelector('input[name="tCritico"]:checked')?.value;
+    if (status === 'falhou' && !marcouCritico) return msg('Marque se o bug é crítico ou não.');
+    const critico = status === 'falhou' ? marcouCritico === 'sim' : null;
     $('tSalvar').disabled = true;
     const jogo = atual;
     const { data, error } = await sb.from('arcade_test_cases')
-      .insert({ game_email: jogo.email, autor_email: user.email, titulo, passos, esperado, obtido, status, bug })
+      .insert({ game_email: jogo.email, autor_email: user.email, titulo, passos, esperado, obtido, status, bug, critico })
       .select(COLUNAS_CASO).single();
     $('tSalvar').disabled = false;
     if (error) return msg('Não foi possível salvar agora. Tente de novo.');
@@ -564,7 +584,8 @@
       const deles = casos.filter(c => c.autor_email === email);
       return {
         email, nome: nomes.get(email) || email, total: deles.length,
-        bugs: deles.filter(c => c.status === 'falhou').length,
+        bugs: deles.filter(ehBug).length,
+        criticos: deles.filter(ehCritico).length,
         jogosTestados: new Set(deles.map(c => c.game_email)).size,
       };
     }).sort((a, b) => b.total - a.total || a.nome.localeCompare(b.nome, 'pt-BR'));
@@ -579,15 +600,14 @@
     sel.value = linhas.some(l => l.email === escolhido) ? escolhido : '';
     if (!sel.value) {
       const fizeram = linhas.filter(l => l.total).length;
-      const bugs = casos.filter(c => c.status === 'falhou').length;
       $('relCorpo').innerHTML = `
-        <div class="teste-resumo"><b>${casos.length}</b> caso(s) de teste · <b>${bugs}</b> bug(s) encontrado(s) · <b>${fizeram}</b> de ${linhas.length} aluno(s) já testaram</div>
+        <div class="teste-resumo"><b>${casos.length}</b> caso(s) de teste · ${textoBugs(casos)} · <b>${fizeram}</b> de ${linhas.length} aluno(s) já testaram</div>
         <table class="rel-tabela">
-          <thead><tr><th>Aluno</th><th class="num">Casos</th><th class="num">Bugs</th><th class="num">Jogos testados</th></tr></thead>
+          <thead><tr><th>Aluno</th><th class="num">Casos</th><th class="num">Bugs</th><th class="num">Críticos</th><th class="num">Jogos testados</th></tr></thead>
           <tbody>${linhas.map(l => `
             <tr class="${l.total ? '' : 'zero'}">
               <td><button type="button" class="ver" data-email="${esc(l.email)}" title="Ver os casos de ${esc(l.nome)}">${esc(l.nome)}</button></td>
-              <td class="num">${l.total}</td><td class="num">${l.bugs}</td><td class="num">${l.jogosTestados}</td>
+              <td class="num">${l.total}</td><td class="num">${l.bugs}</td><td class="num">${l.criticos}</td><td class="num">${l.jogosTestados}</td>
             </tr>`).join('')}</tbody>
         </table>`;
       return;
@@ -595,7 +615,7 @@
     const l = linhas.find(x => x.email === sel.value);
     const deles = casos.filter(c => c.autor_email === l.email);
     $('relCorpo').innerHTML = `
-      <div class="teste-resumo"><b>${esc(l.nome)}</b>: <b>${l.total}</b> caso(s) de teste · <b>${l.bugs}</b> bug(s) encontrado(s) · <b>${l.jogosTestados}</b> jogo(s) testado(s)</div>
+      <div class="teste-resumo"><b>${esc(l.nome)}</b>: <b>${l.total}</b> caso(s) de teste · ${textoBugs(deles)} · <b>${l.jogosTestados}</b> jogo(s) testado(s)</div>
       <div class="teste-lista">${deles.length ? deles.map(c => htmlCaso(c, true)).join('')
         : '<div class="vazio-testes">Este aluno ainda não escreveu nenhum caso de teste.</div>'}</div>`;
   }
