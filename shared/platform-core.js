@@ -454,6 +454,13 @@
                   </div>
                   <div class="toggle-row">
                     <div>
+                      <div class="toggle-row-label">Sair da tela nas práticas</div>
+                      <div class="toggle-row-desc" id="toggleTravaPraticasDesc"></div>
+                    </div>
+                    <button class="toggle-switch" id="toggleTravaPraticas" role="switch" aria-checked="false" title="Verde = livre. Vermelho = todas as práticas com a trava das provas (sair da tela = advertência, 2ª vez = bloqueio)."><span class="toggle-switch-knob"></span></button>
+                  </div>
+                  <div class="toggle-row">
+                    <div>
                       <div class="toggle-row-label">Horário de Acesso</div>
                       <div class="toggle-row-desc" id="toggleHorarioDesc"></div>
                       <div class="horario-acesso-campos">
@@ -1567,6 +1574,7 @@
   let gestaoOverridesCache = {};
   let gestaoClipboardBlocked = false;
   let gestaoHorarioAcesso = { restrito: false, inicio: '', fim: '' };
+  let gestaoTravaPraticas = false;
   let gestaoActivityRealtimeStarted = false;
   let gestaoActivityPollStarted = false;
 
@@ -2062,6 +2070,29 @@
     gestaoClipboardBlocked = !!(data && data.clipboard_blocked);
   }
 
+  // "Sair da tela nas práticas" (Gestão → Bloqueios e Liberações): ligada,
+  // todas as práticas da turma ganham a trava das provas (shared/pratica-trava.js).
+  // Busca separada, como a do Horário de Acesso: sem a coluna no Supabase
+  // (sql/pratica-trava.sql) o select dá erro e a chave fica como desligada.
+  async function fetchTravaPraticasGestao() {
+    if (!sbClient) return;
+    const { data, error } = await sbClient.from('classroom_settings').select('trava_praticas').eq('id', cfg.id).maybeSingle();
+    gestaoTravaPraticas = !error && !!(data && data.trava_praticas);
+  }
+
+  async function toggleTravaPraticas() {
+    if (!sbClient) return;
+    const newValue = !gestaoTravaPraticas;
+    const { error } = await sbClient.from('classroom_settings').upsert({
+      id: cfg.id, trava_praticas: newValue, updated_at: new Date().toISOString()
+    }, { onConflict: 'id' });
+    if (error) {
+      showAlert('Não foi possível salvar a trava das práticas (rodou o sql/pratica-trava.sql no Supabase?): ' + error.message);
+      return;
+    }
+    gestaoTravaPraticas = newValue;
+  }
+
   // "Horário de Acesso" (Gestão → Bloqueios e Liberações): fora do horário
   // o aluno vê o portal fechado (shared/horario-acesso.js). Busca separada
   // da do Copiar e Colar: sem as colunas no Supabase (sql/horario-acesso.sql)
@@ -2135,9 +2166,17 @@
   // agregado, bimestre_dates do bimestre atual), mas a UI trata os três do
   // mesmo jeito: uma chave verde (liberado) ou vermelha (bloqueado).
   async function renderGestaoToggles() {
-    await Promise.all([fetchClipboardStateGestao(), fetchHorarioAcessoGestao(), fetchGestaoOverrides(), fetchBimestreDates()]);
+    await Promise.all([fetchClipboardStateGestao(), fetchHorarioAcessoGestao(), fetchTravaPraticasGestao(), fetchGestaoOverrides(), fetchBimestreDates()]);
 
     setToggleState('toggleClipboard', !gestaoClipboardBlocked);
+
+    setToggleState('toggleTravaPraticas', !gestaoTravaPraticas);
+    const travaDesc = document.getElementById('toggleTravaPraticasDesc');
+    if (travaDesc) {
+      travaDesc.textContent = gestaoTravaPraticas
+        ? 'Trava ligada — em todas as práticas, sair da tela conta advertência e, na 2ª, bloqueia (libera com o token ou pelo sino). Copiar/colar também bloqueados.'
+        : 'Livre — o aluno pode sair da tela durante as práticas.';
+    }
 
     setToggleState('toggleHorario', !gestaoHorarioAcesso.restrito);
     const inpInicio = document.getElementById('horarioAcessoInicio');
@@ -4386,6 +4425,10 @@
   function setupGestaoButtons() {
     document.getElementById('toggleClipboard').addEventListener('click', async () => {
       await toggleClipboardBlock();
+      renderGestaoToggles();
+    });
+    document.getElementById('toggleTravaPraticas').addEventListener('click', async () => {
+      await toggleTravaPraticas();
       renderGestaoToggles();
     });
     // Chave verde (livre) → vermelha (só no horário) e vice-versa; "Salvar

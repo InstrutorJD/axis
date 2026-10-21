@@ -1,0 +1,12 @@
+-- "Sair da tela nas práticas" (Gestão → Bloqueios e Liberações): com a chave
+-- ligada, TODAS as práticas da turma ganham a mesma trava das provas
+-- (shared/pratica-trava.js + shared/exam-proctor.js): sair da tela conta
+-- advertência e, na 2ª, a prática fica bloqueada até o professor liberar
+-- (token de 6 dígitos ou "Liberar" no sino). Rode UMA vez no SQL Editor do
+-- Supabase — é seguro rodar de novo (idempotente). É o mesmo trecho que está
+-- em sql/supabase-setup-completo.sql.
+--
+-- Não precisa de tabela nova: advertência/bloqueio vão pra
+-- student_activity_state (`<pratica>__guard`) e os alertas pra
+-- exam_guard_events, as mesmas das provas.
+alter table public.classroom_settings add column if not exists trava_praticas boolean not null default false;

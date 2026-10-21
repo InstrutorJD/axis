@@ -29,13 +29,19 @@
 //
 // Por rodar em toda página, também é quem carrega o shared/horario-acesso.js
 // (portal fechado fora do "Horário de Acesso" da Gestão) — sem precisar pôr
-// mais um <script> em cada atividade.
+// mais um <script> em cada atividade. Nas práticas (`*-pratica.html`,
+// `*-pratica-simples.html`) carrega também o shared/pratica-trava.js (trava
+// "sair da tela" ligada pela Gestão).
 (function () {
   const eu = document.currentScript && document.currentScript.src;
   if (!eu) return;
-  const s = document.createElement('script');
-  s.src = eu.replace(/clipboard-guard\.js(\?.*)?$/, 'horario-acesso.js');
-  (document.head || document.documentElement).appendChild(s);
+  const carregar = (nome) => {
+    const s = document.createElement('script');
+    s.src = eu.replace(/clipboard-guard\.js(\?.*)?$/, nome);
+    (document.head || document.documentElement).appendChild(s);
+  };
+  carregar('horario-acesso.js');
+  if (/-pratica(-simples)?\.html$/.test(location.pathname)) carregar('pratica-trava.js');
 })();
 
 (async function () {

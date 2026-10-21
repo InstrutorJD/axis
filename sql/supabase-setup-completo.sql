@@ -234,6 +234,11 @@ alter table public.classroom_settings add column if not exists acesso_restrito b
 alter table public.classroom_settings add column if not exists acesso_inicio time;
 alter table public.classroom_settings add column if not exists acesso_fim time;
 
+-- "Sair da tela nas práticas" (Gestão → Bloqueios e Liberações,
+-- sql/pratica-trava.sql): ligada, todas as práticas da turma ganham a trava
+-- das provas (shared/pratica-trava.js + shared/exam-proctor.js).
+alter table public.classroom_settings add column if not exists trava_praticas boolean not null default false;
+
 alter table public.classroom_settings enable row level security;
 
 drop policy if exists "classroom_settings_select_all" on public.classroom_settings;
