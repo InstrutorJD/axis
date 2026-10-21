@@ -9,7 +9,7 @@ const { stubSupabaseFake, jogosAlunoProfiles } = require('./helpers');
 const ALUNO_URL = '/turmas/jogos/plataforma.html?user=breno.silva80&ip=192.168.1.10&saldo=1234.80&role=aluno&turma=jogos';
 const PROFESSOR_URL = '/turmas/jogos/plataforma.html?user=admin&ip=192.168.1.254&saldo=9999.00&role=professor&turma=jogos';
 
-// Turma Jogos tem 71 módulos que contam (mesma base de cálculo usada em
+// Turma Jogos tem 73 módulos que contam (mesma base de cálculo usada em
 // ranking.spec.js — 66 + o módulo novo "Prova Final — Turma Jogos
 // Digitais", matéria "Prova", + os 4 módulos de grupo da trilha Cibersegurança
 // do card Projetos; as simulações e o material do professor, semEntrega, não
@@ -64,8 +64,8 @@ test.describe('Aba Perfil (só aluno)', () => {
 
   test('mostra progresso geral, por matéria/trilha, a posição no ranking e desbloqueia insígnias por % de conclusão', async ({ page }) => {
     await stubSupabaseFake(page, SEED);
-    // breno completa só js/basico (10/10) → 1 módulo concluído de 71 na turma
-    // toda (1/71 = 1,41% geral, arredonda pra 1%), mas 5% dentro da matéria
+    // breno completa só js/basico (10/10) → 1 módulo concluído de 73 na turma
+    // toda (1/73 = 1,37% geral, arredonda pra 1%), mas 5% dentro da matéria
     // Fundamentos (1 de 19 módulos: js básico+intermediário, os 4 módulos da
     // trilha csharp, os 5 módulos da trilha gdscript, e mais 4 trilhas
     // teoria+prática de fundamentos gerais de jogos).
@@ -77,7 +77,7 @@ test.describe('Aba Perfil (só aluno)', () => {
 
     const resumo = page.locator('#perfilResumo');
     await expect(resumo).toContainText('1%');
-    await expect(resumo).toContainText('1/71');
+    await expect(resumo).toContainText('1/73');
     await expect(resumo).toContainText('2º'); // atrás só do edward, à frente do resto (0%)
     await expect(resumo).toContainText('Posição de 17');
 
