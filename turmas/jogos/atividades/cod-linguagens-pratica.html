@@ -188,6 +188,7 @@
   const CHALLENGES = [
     {
       id: 1,
+      solution: 'function lerVolume(configJson) {\n  return JSON.parse(configJson).volume;\n}',
       title: 'Ler o volume salvo',
       icon: '🔊',
       fnName: 'lerVolume',
@@ -203,6 +204,7 @@
     },
     {
       id: 2,
+      solution: 'function gddCompleto(gdd) {\n  return \'titulo\' in gdd && \'genero\' in gdd && \'plataforma\' in gdd;\n}',
       title: 'GDD com todos os requisitos',
       icon: '📋',
       fnName: 'gddCompleto',
@@ -218,6 +220,7 @@
     },
     {
       id: 3,
+      solution: 'function salvarConfig(config) {\n  return JSON.stringify(config);\n}',
       title: 'Salvar como JSON',
       icon: '💾',
       fnName: 'salvarConfig',
@@ -233,6 +236,7 @@
     },
     {
       id: 4,
+      solution: 'function assetsValidos(lista) {\n  return lista.filter(a => [\'png\', \'jpg\', \'json\'].includes(a.formato));\n}',
       title: 'Assets em formato válido',
       icon: '🖼️',
       fnName: 'assetsValidos',
@@ -248,6 +252,7 @@
     },
     {
       id: 5,
+      solution: 'function pesoTotalKb(texturas) {\n  return texturas.reduce((soma, t) => soma + t.kb, 0);\n}',
       title: 'Peso total dos assets',
       icon: '⚖️',
       fnName: 'pesoTotalKb',
@@ -263,6 +268,7 @@
     },
     {
       id: 6,
+      solution: 'function temIdDuplicado(ids) {\n  return new Set(ids).size !== ids.length;\n}',
       title: 'IDs de asset duplicados',
       icon: '🔁',
       fnName: 'temIdDuplicado',
@@ -278,6 +284,7 @@
     },
     {
       id: 7,
+      solution: 'function contarFuncionais(requisitos) {\n  return requisitos.filter(r => r.tipo === \'funcional\').length;\n}',
       title: 'Contar requisitos funcionais',
       icon: '✅',
       fnName: 'contarFuncionais',
@@ -293,6 +300,7 @@
     },
     {
       id: 8,
+      solution: 'function ordenarPorPrioridade(assets) {\n  return [...assets].sort((a, b) => a.prioridade - b.prioridade);\n}',
       title: 'Ordenar pipeline por prioridade',
       icon: '🎯',
       fnName: 'ordenarPorPrioridade',
@@ -308,6 +316,7 @@
     },
     {
       id: 9,
+      solution: 'function jsonValido(texto) {\n  try {\n    JSON.parse(texto);\n    return true;\n  } catch (e) {\n    return false;\n  }\n}',
       title: 'JSON malformado',
       icon: '⚠️',
       fnName: 'jsonValido',
@@ -323,6 +332,7 @@
     },
     {
       id: 10,
+      solution: 'function gddValidoDeTexto(textoJson) {\n  try {\n    const gdd = JSON.parse(textoJson);\n    return !!gdd && typeof gdd === \'object\' && \'titulo\' in gdd && \'genero\' in gdd && \'plataforma\' in gdd;\n  } catch (e) {\n    return false;\n  }\n}',
       title: 'BOSS: valide o GDD recebido em texto',
       icon: '🏆',
       fnName: 'gddValidoDeTexto',

@@ -19,13 +19,20 @@
 //   const TIPO nome = expressão;
 //   TIPO nome;                      (declara sem valor inicial)
 //   nome = expressão;               (reatribui uma variável já existente)
+//   nome += expressão;              (também -=, *=, /=, %=)
+//   nome++;  nome--;
 //   Console.WriteLine(expressão);
 //   if (condição) {
 //   } else {
+//   } else if (condição) {
 //   for (int i = inicio; i OP limite; i++) {
-//   static TIPO Nome(TIPO param1, TIPO param2) {
+//   static TIPO Nome(TIPO param1, TIPO param2) {   (`static` opcional)
 //   return expressão;
 //   }
+// A chave `{` sozinha na linha de baixo (estilo que o Visual Studio usa ao
+// formatar) e o `else` numa linha separada do `}` também valem: antes de
+// reconhecer, juntaLinhas() cola esses pedaços na linha de cima. Expressões
+// aceitam o ternário (`cond ? a : b`).
 // Como C# e JS já compartilham a sintaxe de if/else, for e chaves, essas
 // linhas passam quase direto pro JS (só troca `int` do cabeçalho do for por
 // `let`, e a assinatura da função vira `function Nome(param1, param2) {`) —
@@ -58,13 +65,15 @@
   const FUNC_TYPE_KEYWORDS = TYPE_KEYWORDS.filter(t => t !== 'var');
   const DECL_RE = new RegExp(`^(const\\s+)?(${TYPE_KEYWORDS.join('|')})\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(.+);$`);
   const DECL_NOINIT_RE = new RegExp(`^(${TYPE_KEYWORDS.join('|')})\\s+([A-Za-z_][A-Za-z0-9_]*);$`);
-  const ASSIGN_RE = /^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+);$/;
+  const ASSIGN_RE = /^([A-Za-z_][A-Za-z0-9_]*)\s*([+\-*/%]?=)\s*(.+);$/;
+  const INCDEC_RE = /^([A-Za-z_][A-Za-z0-9_]*)\s*(\+\+|--);$/;
   const WRITE_RE = /^Console\.WriteLine\(\s*(.+)\s*\);$/;
-  const FUNC_HEADER_RE = new RegExp(`^static\\s+(${FUNC_TYPE_KEYWORDS.join('|')})\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^)]*)\\)\\s*\\{$`);
+  const FUNC_HEADER_RE = new RegExp(`^(?:static\\s+)?(${FUNC_TYPE_KEYWORDS.join('|')})\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^)]*)\\)\\s*\\{$`);
   const PARAM_RE = new RegExp(`^(${FUNC_TYPE_KEYWORDS.join('|')})\\s+([A-Za-z_][A-Za-z0-9_]*)$`);
   const RETURN_RE = /^return\s+(.+);$/;
   const IF_RE = /^if\s*\((.+)\)\s*\{$/;
   const ELSE_RE = /^\}\s*else\s*\{$/;
+  const ELSE_IF_RE = /^\}\s*else\s+if\s*\((.+)\)\s*\{$/;
   const FOR_RE = /^for\s*\(int\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([^;]+);\s*\1\s*(<=|>=|<|>)\s*([^;]+);\s*\1\+\+\)\s*\{$/;
   const CLOSE_RE = /^\}$/;
 
@@ -86,9 +95,29 @@
     for (const ch of expr) {
       if (ch === '"') { inString = !inString; continue; }
       if (inString) continue;
-      if (!/[A-Za-z0-9_+\-*/%().,\s<>=!&|]/.test(ch)) return false;
+      if (!/[A-Za-z0-9_+\-*/%().,\s<>=!&|?:]/.test(ch)) return false;
     }
     return !inString;
+  }
+
+  // Cola na linha de cima a `{` que veio sozinha na linha de baixo e o
+  // `else` que veio numa linha separada do `}` — assim o reconhecimento
+  // linha a linha só precisa conhecer o formato "if (...) {" / "} else {".
+  function juntaLinhas(code) {
+    const linhas = [];
+    for (const rawLine of code.split('\n')) {
+      const line = stripComment(rawLine).trim();
+      if (line === '') continue;
+      const anterior = linhas.length - 1;
+      if (line === '{' && anterior >= 0) {
+        linhas[anterior] += ' {';
+      } else if (/^else\b/.test(line) && anterior >= 0 && linhas[anterior] === '}') {
+        linhas[anterior] = '} ' + line;
+      } else {
+        linhas.push(line);
+      }
+    }
+    return linhas;
   }
 
   // Converte o C# restrito do aluno pra JS equivalente. Lança Error (com
@@ -99,12 +128,8 @@
   // JS que roda o resultado depois, não este transpile.
   function transpile(code) {
     const jsLines = [];
-    const lines = code.split('\n');
 
-    for (const rawLine of lines) {
-      const line = stripComment(rawLine).trim();
-      if (line === '') continue;
-
+    for (const line of juntaLinhas(code)) {
       const declMatch = line.match(DECL_RE);
       if (declMatch) {
         const isConst = !!declMatch[1];
@@ -178,6 +203,16 @@
         continue;
       }
 
+      const elseIfMatch = line.match(ELSE_IF_RE);
+      if (elseIfMatch) {
+        const cond = elseIfMatch[1].trim();
+        if (!isSafeExpr(cond)) {
+          throw new Error(`condição não reconhecida em "${line}"`);
+        }
+        jsLines.push(`} else if (${cond}) {`);
+        continue;
+      }
+
       const forMatch = line.match(FOR_RE);
       if (forMatch) {
         const varName = forMatch[1];
@@ -199,11 +234,18 @@
       const assignMatch = line.match(ASSIGN_RE);
       if (assignMatch) {
         const name = assignMatch[1];
-        const expr = assignMatch[2].trim();
+        const op = assignMatch[2];
+        const expr = assignMatch[3].trim();
         if (!isSafeExpr(expr)) {
           throw new Error(`expressão não reconhecida em "${line}"`);
         }
-        jsLines.push(`${name} = ${expr};`);
+        jsLines.push(`${name} ${op} ${expr};`);
+        continue;
+      }
+
+      const incDecMatch = line.match(INCDEC_RE);
+      if (incDecMatch) {
+        jsLines.push(`${incDecMatch[1]}${incDecMatch[2]};`);
         continue;
       }
 

@@ -187,6 +187,7 @@
   const CHALLENGES = [
     {
       id: 1,
+      solution: 'function atualizarPosicao(pos, velocidade) {\n  return pos + velocidade;\n}',
       title: 'O ciclo que nunca para',
       icon: '🔁',
       fnName: 'atualizarPosicao',
@@ -202,6 +203,7 @@
     },
     {
       id: 2,
+      solution: 'function moverNoEixoY(y, paraBaixo) {\n  return paraBaixo ? y + 1 : y - 1;\n}',
       title: 'Para onde é "baixo"?',
       icon: '📐',
       fnName: 'moverNoEixoY',
@@ -217,6 +219,7 @@
     },
     {
       id: 3,
+      solution: 'function moverNoEixoX(x, paraDireita) {\n  return paraDireita ? x + 1 : x - 1;\n}',
       title: 'Vira pra direita, anda pra esquerda',
       icon: '↔️',
       fnName: 'moverNoEixoX',
@@ -232,6 +235,7 @@
     },
     {
       id: 4,
+      solution: 'function tileNaMatriz(matriz, linha, coluna) {\n  return matriz[linha][coluna];\n}',
       title: 'Organize o cenário',
       icon: '🗺️',
       fnName: 'tileNaMatriz',
@@ -247,6 +251,7 @@
     },
     {
       id: 5,
+      solution: 'function aplicarAlpha(cor, alpha) {\n  return { r: cor.r, g: cor.g, b: cor.b, a: alpha };\n}',
       title: 'Sprite sumindo aos poucos',
       icon: '🎨',
       fnName: 'aplicarAlpha',
@@ -262,6 +267,7 @@
     },
     {
       id: 6,
+      solution: 'function aplicarGravidade(velocidadeY, gravidade) {\n  return velocidadeY + gravidade;\n}',
       title: 'Por que ele não cai?',
       icon: '🪂',
       fnName: 'aplicarGravidade',
@@ -277,6 +283,7 @@
     },
     {
       id: 7,
+      solution: 'function escalarPorDeltaTime(velocidade, deltaTime) {\n  return velocidade * deltaTime;\n}',
       title: 'Rápido demais no PC do chefe',
       icon: '⏱️',
       fnName: 'escalarPorDeltaTime',
@@ -292,6 +299,7 @@
     },
     {
       id: 8,
+      solution: 'function colideAABB(a, b) {\n  return a.x < b.x + b.w && a.x + a.w > b.x &&\n         a.y < b.y + b.h && a.y + a.h > b.y;\n}',
       title: 'Personagens se atravessando',
       icon: '🚧',
       fnName: 'colideAABB',
@@ -307,6 +315,7 @@
     },
     {
       id: 9,
+      solution: 'function ehAmarelo(cor) {\n  return cor.r >= 200 && cor.g >= 200 && cor.b <= 50;\n}',
       title: 'Encomenda: sprite amarelo',
       icon: '🟡',
       fnName: 'ehAmarelo',
@@ -323,6 +332,7 @@
     },
     {
       id: 10,
+      solution: 'function limitarVelocidade(velocidade, maxVelocidade) {\n  if (velocidade > maxVelocidade) return maxVelocidade;\n  if (velocidade < -maxVelocidade) return -maxVelocidade;\n  return velocidade;\n}',
       title: 'Personagem fora de controle',
       icon: '💨',
       fnName: 'limitarVelocidade',

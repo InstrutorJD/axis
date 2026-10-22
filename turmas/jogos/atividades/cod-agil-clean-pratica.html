@@ -188,6 +188,7 @@
   const CHALLENGES = [
     {
       id: 1,
+      solution: 'function custoTotal(dinheiro, cartao, pix) {\n  return dinheiro + cartao + pix;\n}',
       title: 'Soma copiada em três lugares',
       icon: '♻️',
       explanation: 'O princípio <b>DRY</b> (Don’t Repeat Yourself) diz: se a mesma conta aparece em vários lugares do código, ela deveria virar uma única função reaproveitável.<pre>function metros(cm) {\n  return cm / 100;\n}</pre>Assim, em vez de escrever <code>cm / 100</code> toda vez, você chama <code>metros(cm)</code>.',
@@ -203,6 +204,7 @@
     },
     {
       id: 2,
+      solution: 'const VIDA_MAXIMA = 100;\n\nfunction vidaRestante(dano) {\n  return VIDA_MAXIMA - dano;\n}',
       title: 'O número 100 solto no código',
       icon: '🔢',
       explanation: 'Um <b>"número mágico"</b> é um valor solto no meio do código sem explicação (tipo um <code>100</code> aparecendo do nada). Clean Code prefere dar nome a esse valor com uma <b>constante</b>:<pre>const LIMITE_ESTOQUE = 50;\nfunction faltam(vendidos) {\n  return LIMITE_ESTOQUE - vendidos;\n}</pre>Assim, quem lê o código entende o que aquele número significa, e se o valor mudar um dia, muda num lugar só.',
@@ -218,6 +220,7 @@
     },
     {
       id: 3,
+      solution: 'function nomeValido(nome) {\n  return nome.trim().length >= 3;\n}',
       title: 'Validação copiada em três formulários',
       icon: '🏷️',
       explanation: 'Outro caso clássico de <b>DRY</b>: a mesma regra de validação (nome, apelido, nome de guilda) copiada em vários formulários. Centralizar numa função evita que, se a regra mudar, alguém esqueça de atualizar uma das cópias.<pre>function idadeValida(idade) {\n  return idade >= 0 && idade <= 120;\n}</pre>',
@@ -234,6 +237,7 @@
     },
     {
       id: 4,
+      solution: 'function semItem(lista, id) {\n  return lista.filter(item => item.id !== id);\n}',
       title: 'A lista não pode mudar sozinha',
       icon: '⚠️',
       explanation: 'Uma <b>função pura</b> não altera (não tem "efeito colateral" em) os dados que recebeu — ela devolve um resultado NOVO, sem mexer no original.<pre>function comEconomia(precos, i) {\n  return precos.filter((_, idx) => idx !== i);\n}\n// o array "precos" original continua intacto depois da chamada</pre>Isso evita bugs em que outra parte do jogo ainda esperava a lista antiga intacta.',
@@ -257,6 +261,7 @@
     },
     {
       id: 5,
+      solution: 'function acessoLiberado(nivel, vip) {\n  return nivel >= 10 || vip;\n}',
       title: 'If/else emaranhado pro acesso VIP',
       icon: '🔀',
       explanation: 'Clean Code evita condicionais emaranhadas quando uma comparação simples já resolve. Uma expressão booleana já vale <code>true</code> ou <code>false</code> sozinha — não precisa de <code>if/else</code> pra devolvê-la:<pre>function ehMaiorDeIdade(idade) {\n  return idade >= 18;\n}</pre>',
@@ -273,6 +278,7 @@
     },
     {
       id: 6,
+      solution: 'function formatarPontuacao(pontos) {\n  return pontos + \' pts\';\n}',
       title: 'Pontuação formatada na mão, toda vez',
       icon: '📝',
       explanation: 'Mais um caso de <b>DRY</b>: formatar um texto do mesmo jeito em várias telas (placar, ranking, perfil) é sinal de que essa formatação merece virar uma função só, reaproveitada em todo lugar.<pre>function comSinal(n) {\n  return (n >= 0 ? \'+\' : \'\') + n;\n}</pre>',
@@ -287,6 +293,7 @@
     },
     {
       id: 7,
+      solution: 'function metade(n) {\n  return n / 2;\n}\n\nfunction distanciaCentro(largura) {\n  return metade(largura);\n}',
       title: 'A mesma divisão, de novo',
       icon: '🧩',
       explanation: '<b>Modularização</b> não é só criar funções pequenas — é também REAPROVEITAR as que já existem, em vez de reescrever a mesma lógica na mão de novo.<pre>function dobro(n) { return n * 2; }\nfunction areaDobrada(lado) {\n  return dobro(lado * lado); // reaproveita dobro() em vez de "* 2" solto de novo\n}</pre>',
@@ -301,6 +308,7 @@
     },
     {
       id: 8,
+      solution: 'function contarAtivos(lista) {\n  return lista.filter(item => item.ativo === true).length;\n}',
       title: 'Contando ativos em cada tela',
       icon: '🧮',
       explanation: 'Mais uma repetição comum de contar-e-filtrar espalhada pelo código: centralizar numa função evita que cada tela implemente a própria versão (e talvez com bugs diferentes entre si).<pre>function contarPares(numeros) {\n  return numeros.filter(n => n % 2 === 0).length;\n}</pre>',
@@ -316,6 +324,7 @@
     },
     {
       id: 9,
+      solution: 'function calcularDanoFinal(base, multiplicador) {\n  return base * multiplicador;\n}',
       title: 'A refatoração que mudou o resultado',
       icon: '🔒',
       explanation: 'Refatorar significa melhorar a ESTRUTURA interna do código sem mudar o que ele calcula pra fora. Se o resultado muda pros mesmos valores de entrada, isso não é mais refatoração pura — é uma mudança de comportamento escondida.',
@@ -331,6 +340,7 @@
     },
     {
       id: 10,
+      solution: 'const VIDA_MAXIMA = 100;\n\nfunction resumoPersonagem(vida, dano) {\n  const vidaRestante = vida - dano;\n  return { vidaRestante: vidaRestante, percentual: Math.round((vidaRestante / VIDA_MAXIMA) * 100) };\n}',
       title: 'CHAMADO FINAL: Resumo do Personagem',
       icon: '🏆',
       explanation: 'Este chamado combina o que você já resolveu: usar uma constante nomeada em vez de número mágico (como no chamado 2) e devolver um resultado novo, sem efeitos colaterais (como no chamado 4) — só que agora devolvendo um <b>objeto</b> com mais de um valor calculado.<pre>function resumoPreco(preco, desconto) {\n  return { precoFinal: preco - desconto, percentualPago: Math.round(((preco - desconto) / preco) * 100) };\n}</pre>',

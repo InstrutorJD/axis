@@ -189,6 +189,7 @@
   const CHALLENGES = [
     {
       id: 1,
+      solution: 'function saudacao() {\n  return "Olá!";\n}',
       title: 'Criando uma função',
       givenVars: [],
       starter: 'function saudacao() {\n\n}\n',
@@ -202,6 +203,7 @@
     },
     {
       id: 2,
+      solution: 'function dobro(n) {\n  return n * 2;\n}',
       title: 'Função com um parâmetro',
       givenVars: [],
       starter: 'function dobro(n) {\n\n}\n',
@@ -217,6 +219,7 @@
     },
     {
       id: 3,
+      solution: 'function aumentar(n) {\n  return n + 10;\n}',
       title: 'Outra função com parâmetro',
       givenVars: [],
       starter: 'function aumentar(n) {\n\n}\n',
@@ -232,6 +235,7 @@
     },
     {
       id: 4,
+      solution: 'function soma(a, b) {\n  return a + b;\n}',
       title: 'Função com dois parâmetros',
       givenVars: [],
       starter: 'function soma(a, b) {\n\n}\n',
@@ -247,6 +251,7 @@
     },
     {
       id: 5,
+      solution: 'function multiplica(a, b) {\n  return a * b;\n}',
       title: 'Outra função com dois parâmetros',
       givenVars: [],
       starter: 'function multiplica(a, b) {\n\n}\n',
@@ -262,6 +267,7 @@
     },
     {
       id: 6,
+      solution: 'let resultado;\nif (idade >= 18) {\n  resultado = "maior de idade";\n} else {\n  resultado = "menor de idade";\n}',
       title: 'Maioridade',
       givenVars: ['idade'],
       starter: '// a variável idade já existe\n// crie uma variável chamada resultado usando if/else\n\n',
@@ -277,6 +283,7 @@
     },
     {
       id: 7,
+      solution: 'let resultado;\nif (numero % 2 === 0) {\n  resultado = "par";\n} else {\n  resultado = "ímpar";\n}',
       title: 'Par ou ímpar',
       givenVars: ['numero'],
       starter: '// a variável numero já existe\n// crie uma variável chamada resultado usando if/else\n\n',
@@ -292,6 +299,7 @@
     },
     {
       id: 8,
+      solution: 'let resultado;\nif (nota >= 6) {\n  resultado = "aprovado";\n} else {\n  resultado = "reprovado";\n}',
       title: 'Aprovado ou reprovado',
       givenVars: ['nota'],
       starter: '// a variável nota já existe\n// crie uma variável chamada resultado usando if/else\n\n',
@@ -307,6 +315,7 @@
     },
     {
       id: 9,
+      solution: 'let resultado;\nif (numero > 0) {\n  resultado = "positivo";\n} else {\n  resultado = "não positivo";\n}',
       title: 'Positivo ou não',
       givenVars: ['numero'],
       starter: '// a variável numero já existe\n// crie uma variável chamada resultado usando if/else\n\n',
@@ -322,6 +331,7 @@
     },
     {
       id: 10,
+      solution: 'let resultado;\nif (saldo >= preco) {\n  resultado = "liberado";\n} else {\n  resultado = "insuficiente";\n}',
       title: 'Saldo suficiente',
       givenVars: ['saldo', 'preco'],
       starter: '// as variáveis saldo e preco já existem\n// crie uma variável chamada resultado usando if/else\n\n',
@@ -337,6 +347,7 @@
     },
     {
       id: 11,
+      solution: 'for (let i = 1; i <= 5; i++) {\n  console.log(i);\n}',
       title: 'Repetindo um número de vezes fixo',
       givenVars: [],
       starter: '// use um for para mostrar no console os números de 1 até 5\n\n',
@@ -350,6 +361,7 @@
     },
     {
       id: 12,
+      solution: 'for (let i = 1; i <= limite; i++) {\n  console.log(i);\n}',
       title: 'Repetindo até um valor variável',
       givenVars: ['limite'],
       starter: '// a variável limite já existe\n// use um for para mostrar os números de 1 até limite\n\n',
@@ -365,6 +377,7 @@
     },
     {
       id: 13,
+      solution: 'let resultado = 0;\nfor (let i = 1; i <= n; i++) {\n  resultado = resultado + i;\n}',
       title: 'Somando com um laço',
       givenVars: ['n'],
       starter: '// a variável n já existe\n// use um for para somar os números de 1 até n, guardando em resultado\n\n',
@@ -380,6 +393,7 @@
     },
     {
       id: 14,
+      solution: 'let resultado = 0;\nfor (let i = 1; i <= n; i++) {\n  if (i % 2 === 0) {\n    resultado = resultado + 1;\n  }\n}',
       title: 'Contando com uma condição',
       givenVars: ['n'],
       starter: '// a variável n já existe\n// use um for (com if dentro) para contar os números pares de 1 até n\n\n',
@@ -395,6 +409,7 @@
     },
     {
       id: 15,
+      solution: 'for (let i = 1; i <= 5; i++) {\n  console.log(numero * i);\n}',
       title: 'Tabuada',
       givenVars: ['numero'],
       starter: '// a variável numero já existe\n// use um for para mostrar a tabuada de numero, de 1 até 5\n\n',

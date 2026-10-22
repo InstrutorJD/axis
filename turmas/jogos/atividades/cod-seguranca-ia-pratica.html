@@ -192,6 +192,7 @@
   const CHALLENGES = [
     {
       id: 1,
+      solution: 'function validarNomeUsuario(nome) {\n  return typeof nome === \'string\' && /^[A-Za-z0-9_]{3,20}$/.test(nome);\n}',
       title: 'Nome de usuário suspeito',
       enemyName: 'Chamado: Cadastro sem validação',
       enemyEmoji: '🚫',
@@ -212,6 +213,7 @@
     },
     {
       id: 2,
+      solution: 'function validarIdade(valor) {\n  return typeof valor === \'number\' && Number.isFinite(valor) && valor >= 0;\n}',
       title: 'Idade digitada errada',
       enemyName: 'Chamado: Campo de idade sem checagem de tipo',
       enemyEmoji: '🔢',
@@ -231,6 +233,7 @@
     },
     {
       id: 3,
+      solution: 'function vizinhosDoNo(grafo, no) {\n  return grafo[no] || [];\n}',
       title: 'O guarda de patrulha',
       enemyName: 'Chamado: Mapa de waypoints do NPC',
       enemyEmoji: '🕸️',
@@ -247,6 +250,7 @@
     },
     {
       id: 4,
+      solution: 'function distanciaMinima(grafo, origem, destino) {\n  const fila = [[origem, 0]];\n  const visitado = new Set([origem]);\n  while (fila.length) {\n    const [atual, dist] = fila.shift();\n    if (atual === destino) return dist;\n    for (const vizinho of grafo[atual] || []) {\n      if (!visitado.has(vizinho)) {\n        visitado.add(vizinho);\n        fila.push([vizinho, dist + 1]);\n      }\n    }\n  }\n  return -1;\n}',
       title: 'O caminho mais curto',
       enemyName: 'Chamado: Rota até o jogador',
       enemyEmoji: '🧭',
@@ -264,6 +268,7 @@
     },
     {
       id: 5,
+      solution: 'function custoDoCaminho(grafo, caminho) {\n  let total = 0;\n  for (let i = 0; i < caminho.length - 1; i++) {\n    const aresta = (grafo[caminho[i]] || []).find(a => a.para === caminho[i + 1]);\n    if (!aresta) return -1;\n    total += aresta.peso;\n  }\n  return total;\n}',
       title: 'Lava ou caminho seguro?',
       enemyName: 'Chamado: Custo do caminho',
       enemyEmoji: '🌋',
@@ -281,6 +286,7 @@
     },
     {
       id: 6,
+      solution: 'function decidirAcao(distancia, ouviuBarulho) {\n  if (distancia <= 5) return \'atacar\';\n  if (ouviuBarulho) return \'investigar\';\n  return \'patrulhar\';\n}',
       title: 'Atacar ou patrulhar?',
       enemyName: 'Chamado: Árvore de decisão do inimigo',
       enemyEmoji: '🌳',
@@ -299,6 +305,7 @@
     },
     {
       id: 7,
+      solution: 'function decidirComPrioridade(vida, distancia) {\n  if (vida < 20) return \'fugir\';\n  if (distancia <= 5) return \'atacar\';\n  return \'patrulhar\';\n}',
       title: 'Fugir antes de atacar',
       enemyName: 'Chamado: Prioridade de sobrevivência',
       enemyEmoji: '🥇',
@@ -317,6 +324,7 @@
     },
     {
       id: 8,
+      solution: 'function proximoEstado(estadoAtual, evento) {\n  if (estadoAtual === \'patrulhando\' && evento === \'viuJogador\') return \'perseguindo\';\n  if (estadoAtual === \'perseguindo\' && evento === \'chegouPerto\') return \'atacando\';\n  if (estadoAtual === \'perseguindo\' && evento === \'perdeuJogador\') return \'patrulhando\';\n  if (estadoAtual === \'atacando\' && evento === \'vidaBaixa\') return \'fugindo\';\n  if (estadoAtual === \'fugindo\' && evento === \'seguro\') return \'patrulhando\';\n  return estadoAtual;\n}',
       title: 'Patrulhando, Perseguindo, Atacando',
       enemyName: 'Chamado: Máquina de estado do NPC',
       enemyEmoji: '🔄',
@@ -335,6 +343,7 @@
     },
     {
       id: 9,
+      solution: 'function contemPadraoPerigoso(texto) {\n  if (typeof texto !== \'string\') return true;\n  const proibidos = [\'<script\', \'drop table\', \'--\', "\';", \'<\', \'>\'];\n  const minusculo = texto.toLowerCase();\n  return proibidos.some(p => minusculo.includes(p));\n}',
       title: 'Detector de injeção',
       enemyName: 'Chamado: Filtro de segurança',
       enemyEmoji: '🖥️',
@@ -353,6 +362,7 @@
     },
     {
       id: 10,
+      solution: 'function avaliarNPC(estado) {\n  if (estado.vida < 20) return \'fugir\';\n  if (estado.distancia <= 5) return \'atacar\';\n  if (estado.ouviuBarulho) return \'investigar\';\n  return \'patrulhar\';\n}',
       title: 'CHAMADO CRÍTICO: Decisão completa do NPC',
       enemyName: 'Chamado Crítico: IA completa do inimigo',
       enemyEmoji: '🚨',

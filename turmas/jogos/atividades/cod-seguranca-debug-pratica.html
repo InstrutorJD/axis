@@ -188,6 +188,7 @@
   const CHALLENGES = [
     {
       id: 1,
+      solution: 'function podeVerDados(idSolicitante, idDono) {\n  return idSolicitante === idDono;\n}',
       title: 'Confidencialidade: só o dono vê',
       icon: '🔒',
       fnName: 'podeVerDados',
@@ -204,6 +205,7 @@
     },
     {
       id: 2,
+      solution: 'function pontuacaoIntegra(pontuacaoAntiga, pontuacaoNova) {\n  return pontuacaoNova >= pontuacaoAntiga;\n}',
       title: 'Integridade: pontuação não pode diminuir',
       icon: '🛡️',
       fnName: 'pontuacaoIntegra',
@@ -220,6 +222,7 @@
     },
     {
       id: 3,
+      solution: 'function sistemaDisponivel(tempoRespostaMs) {\n  return tempoRespostaMs < 5000;\n}',
       title: 'Disponibilidade: resposta dentro do prazo',
       icon: '⏱️',
       fnName: 'sistemaDisponivel',
@@ -236,6 +239,7 @@
     },
     {
       id: 4,
+      solution: 'function nivelSuficiente(nivelUsuario, nivelExigido) {\n  return nivelUsuario >= nivelExigido;\n}',
       title: 'Níveis hierárquicos de acesso',
       icon: '🪪',
       fnName: 'nivelSuficiente',
@@ -252,6 +256,7 @@
     },
     {
       id: 5,
+      solution: 'function mensagemDeCarregamento(save) {\n  if (save === null) return \'Nenhum save encontrado, iniciando novo jogo\';\n  return \'Save carregado com sucesso\';\n}',
       title: 'Tratamento de erros: save ausente',
       icon: '💾',
       fnName: 'mensagemDeCarregamento',
@@ -267,6 +272,7 @@
     },
     {
       id: 6,
+      solution: 'function lerItemJSON(texto) {\n  try {\n    return JSON.parse(texto);\n  } catch (e) {\n    return null;\n  }\n}',
       title: 'Validação segura de JSON externo',
       icon: '📄',
       fnName: 'lerItemJSON',
@@ -283,6 +289,7 @@
     },
     {
       id: 7,
+      solution: 'function itemValido(item) {\n  return \'nome\' in item && \'dano\' in item && \'preco\' in item;\n}',
       title: 'Campos obrigatórios do item',
       icon: '📋',
       fnName: 'itemValido',
@@ -299,6 +306,7 @@
     },
     {
       id: 8,
+      solution: 'function somarVidasPositivas(vidas) {\n  return vidas.filter(v => v > 0).reduce((soma, v) => soma + v, 0);\n}',
       title: 'Corrigir o filtro de vidas',
       icon: '❤️',
       fnName: 'somarVidasPositivas',
@@ -315,6 +323,7 @@
     },
     {
       id: 9,
+      solution: 'function estadoNoPasso(historico, indice) {\n  if (indice < 0 || indice >= historico.length) return null;\n  return historico[indice];\n}',
       title: 'Inspecionar o histórico (breakpoint)',
       icon: '🔎',
       fnName: 'estadoNoPasso',
@@ -331,6 +340,7 @@
     },
     {
       id: 10,
+      solution: 'function carregarConfigSegura(autenticado, textoJson) {\n  if (!autenticado) return null;\n  let config;\n  try {\n    config = JSON.parse(textoJson);\n  } catch (e) {\n    return null;\n  }\n  if (!config || typeof config !== \'object\' || !(\'versao\' in config)) return null;\n  return config;\n}',
       title: 'BOSS: liberar configuração com segurança',
       icon: '🏆',
       fnName: 'carregarConfigSegura',

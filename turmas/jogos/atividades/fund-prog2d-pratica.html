@@ -196,6 +196,7 @@
   const CHALLENGES = [
     {
       id: 1,
+      solution: 'function moverComTeclado(pos, teclas) {\n  let x = pos.x, y = pos.y;\n  if (teclas.cima) y--;\n  if (teclas.baixo) y++;\n  if (teclas.esquerda) x--;\n  if (teclas.direita) x++;\n  return { x: x, y: y };\n}',
       title: 'Movimento Travado',
       enemyName: 'Movimento Travado',
       enemyEmoji: '⌨️',
@@ -213,6 +214,7 @@
     },
     {
       id: 2,
+      solution: 'function passoAteClique(pos, alvo) {\n  return { x: pos.x + Math.sign(alvo.x - pos.x), y: pos.y + Math.sign(alvo.y - pos.y) };\n}',
       title: 'Clique para Mover',
       enemyName: 'Clique para Mover',
       enemyEmoji: '🖱️',
@@ -230,6 +232,7 @@
     },
     {
       id: 3,
+      solution: 'function colisaoAABB(a, b) {\n  return a.x < b.x + b.largura && a.x + a.largura > b.x &&\n         a.y < b.y + b.altura && a.y + a.altura > b.y;\n}',
       title: 'Colisão Fantasma',
       enemyName: 'Colisão Fantasma',
       enemyEmoji: '💥',
@@ -247,6 +250,7 @@
     },
     {
       id: 4,
+      solution: 'function dentroDoRaio(pos, alvo, raio) {\n  const dx = alvo.x - pos.x, dy = alvo.y - pos.y;\n  return Math.sqrt(dx * dx + dy * dy) <= raio;\n}',
       title: 'Raio de Detecção',
       enemyName: 'Raio de Detecção',
       enemyEmoji: '👾',
@@ -264,6 +268,7 @@
     },
     {
       id: 5,
+      solution: 'function criarInimigo(tipo, x, y) {\n  return { tipo: tipo, x: x, y: y, vivo: true, vida: 100 };\n}',
       title: 'Spawn de Inimigo',
       enemyName: 'Spawn de Inimigo',
       enemyEmoji: '🧟',
@@ -279,6 +284,7 @@
     },
     {
       id: 6,
+      solution: 'function atualizarPosicoes(lista) {\n  return lista.map(o => ({ ...o, x: o.x + o.vx, y: o.y + o.vy }));\n}',
       title: 'Atualização por Frame',
       enemyName: 'Atualização por Frame',
       enemyEmoji: '🎞️',
@@ -295,6 +301,7 @@
     },
     {
       id: 7,
+      solution: 'function removerMortos(lista) {\n  return lista.filter(o => o.vivo);\n}',
       title: 'Fantasmas na Lista',
       enemyName: 'Fantasmas na Lista',
       enemyEmoji: '👻',
@@ -311,6 +318,7 @@
     },
     {
       id: 8,
+      solution: 'function buscarPorId(lista, id) {\n  return lista.find(o => o.id === id) || null;\n}',
       title: 'Busca no Inventário',
       enemyName: 'Busca no Inventário',
       enemyEmoji: '🔍',
@@ -327,6 +335,7 @@
     },
     {
       id: 9,
+      solution: 'function contarAtivos(lista) {\n  return lista.filter(o => o.ativo).length;\n}',
       title: 'Contagem de Ativos',
       enemyName: 'Contagem de Ativos',
       enemyEmoji: '📊',
@@ -343,6 +352,7 @@
     },
     {
       id: 10,
+      solution: 'function processarFrame(teclas, mouseAlvo) {\n  let x = 0, y = 0;\n  if (teclas.cima) y--;\n  if (teclas.baixo) y++;\n  if (teclas.esquerda) x--;\n  if (teclas.direita) x++;\n  return { posicao: { x: x, y: y }, mira: mouseAlvo };\n}',
       title: 'Teclado + Mouse Juntos',
       enemyName: 'Teclado + Mouse Juntos',
       enemyEmoji: '🕹️',

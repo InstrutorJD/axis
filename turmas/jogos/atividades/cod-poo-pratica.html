@@ -187,6 +187,7 @@
   const CHALLENGES = [
     {
       id: 1,
+      solution: 'class Inimigo {\n  constructor(vida) {\n    this.vida = vida;\n  }\n}\n\nfunction criarInimigo(vidaInicial) {\n  return new Inimigo(vidaInicial);\n}',
       title: 'Três inimigos, um molde',
       icon: '👾',
       fnName: 'criarInimigo',
@@ -202,6 +203,7 @@
     },
     {
       id: 2,
+      solution: 'class Inimigo {\n  #vida;\n  constructor(vida) {\n    this.#vida = vida;\n  }\n  receberDano(dano) {\n    this.#vida -= dano;\n  }\n  getVida() {\n    return this.#vida;\n  }\n}\n\nfunction criarInimigoComReceberDano(vidaInicial) {\n  return new Inimigo(vidaInicial);\n}',
       title: 'Só um jeito de mudar a vida',
       icon: '🔒',
       fnName: 'criarInimigoComReceberDano',
@@ -217,6 +219,7 @@
     },
     {
       id: 3,
+      solution: 'function criarComponenteMovimento(x, y) {\n  return {\n    x: x,\n    y: y,\n    mover(dx, dy) {\n      this.x += dx;\n      this.y += dy;\n    }\n  };\n}',
       title: 'Componente de Movimento',
       icon: '🏃',
       fnName: 'criarComponenteMovimento',
@@ -232,6 +235,7 @@
     },
     {
       id: 4,
+      solution: 'function criarObjetoComponentizado(vida, x, y) {\n  const componenteVida = {\n    vida: vida,\n    receberDano(dano) { this.vida -= dano; }\n  };\n  const componenteMovimento = {\n    x: x,\n    y: y,\n    mover(dx, dy) { this.x += dx; this.y += dy; }\n  };\n  return Object.assign({}, componenteVida, componenteMovimento);\n}',
       title: 'Vida e Movimento, sem herança',
       icon: '🧩',
       fnName: 'criarObjetoComponentizado',
@@ -247,6 +251,7 @@
     },
     {
       id: 5,
+      solution: 'function criarSistemaDePulo(aoPular) {\n  return function pular() {\n    aoPular();\n    return true;\n  };\n}',
       title: 'Trigger de pulo',
       icon: '🎬',
       fnName: 'criarSistemaDePulo',
@@ -258,6 +263,7 @@
     },
     {
       id: 6,
+      solution: 'class Inimigo {\n  constructor(vida, velocidade) {\n    this.vida = vida;\n    this.velocidade = velocidade;\n  }\n}\n\nclass InimigoVoador extends Inimigo {\n  voar() {\n    return \'voando\';\n  }\n}\n\nfunction criarInimigoVoador(vida, velocidade) {\n  return new InimigoVoador(vida, velocidade);\n}',
       title: 'Inimigo que também voa',
       icon: '🦅',
       fnName: 'criarInimigoVoador',
@@ -272,6 +278,7 @@
     },
     {
       id: 7,
+      solution: 'function contarMetodos(obj) {\n  return Object.values(obj).filter(v => typeof v === \'function\').length;\n}',
       title: 'Dado ou ação?',
       icon: '🏷️',
       fnName: 'contarMetodos',
@@ -287,6 +294,7 @@
     },
     {
       id: 8,
+      solution: 'function montarEsquadrao(inimigos, indicesQueVoam) {\n  return inimigos.map((inimigo, i) => {\n    if (indicesQueVoam.includes(i)) {\n      return Object.assign({}, inimigo, { voar() { return \'voando\'; } });\n    }\n    return inimigo;\n  });\n}',
       title: 'Só quem voa, ganha asas',
       icon: '🧷',
       fnName: 'montarEsquadrao',
@@ -302,6 +310,7 @@
     },
     {
       id: 9,
+      solution: 'function dispararEfeito(framework, tipo, x, y) {\n  return framework.criarParticula(tipo, x, y);\n}',
       title: 'Antes de disparar, leia a doc',
       icon: '📚',
       fnName: 'dispararEfeito',
@@ -316,6 +325,7 @@
     },
     {
       id: 10,
+      solution: 'function verificarColisaoMoeda(personagem, moeda, aoColetar) {\n  if (personagem.x === moeda.x && personagem.y === moeda.y) {\n    aoColetar();\n    return true;\n  }\n  return false;\n}',
       title: 'BOSS: Moeda coletada',
       icon: '🪙',
       fnName: 'verificarColisaoMoeda',

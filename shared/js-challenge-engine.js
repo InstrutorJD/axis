@@ -190,10 +190,24 @@
       }
     }
 
+    // Array/objeto compara pelo conteúdo — com `===`, `[40, 0] === [40, 0]`
+    // é sempre false e um desafio que devolve array (ex.: [novoX, novoY])
+    // nunca passava, nem com o código certo.
+    function deepEqual(a, b) {
+      if (Array.isArray(a) && Array.isArray(b)) {
+        return a.length === b.length && a.every((v, i) => deepEqual(v, b[i]));
+      }
+      if (a && b && typeof a === 'object' && typeof b === 'object' && !Array.isArray(a) && !Array.isArray(b)) {
+        const keysA = Object.keys(a), keysB = Object.keys(b);
+        return keysA.length === keysB.length && keysA.every(k => deepEqual(a[k], b[k]));
+      }
+      return a === b;
+    }
+
     function testPassed(challenge, result, expected) {
       return challenge.check.type === 'console'
         ? JSON.stringify(result) === JSON.stringify(expected)
-        : result === expected;
+        : deepEqual(result, expected);
     }
 
     function runChallenge() {

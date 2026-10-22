@@ -18,17 +18,20 @@
 // com um nível já visto.
 //
 // Sintaxe GDScript reconhecida (uma linha por vez, SEM `;` no final):
-//   var nome = expressão
+//   var nome = expressão            (também tipada: var nome: int = 5, var nome := 5)
 //   var nome                        (declara sem valor inicial, começa null)
 //   const NOME = expressão
-//   nome = expressão                (reatribuição)
+//   nome = expressão                (reatribuição; também +=, -=, *=, /=, %=)
 //   print(expressão)
 //   if condição:
+//   elif condição:
 //   else:
 //   for i in range(fim):            → para i de 0 até fim-1
 //   for i in range(inicio, fim):
-//   func Nome(param1, param2):
+//   func Nome(param1, param2):      (também tipada: func Nome(a: int) -> int:)
 //   return expressão
+// Nas expressões, `and`/`or`/`not` (o jeito GDScript) viram `&&`/`||`/`!`,
+// e texto pode vir entre aspas duplas ou simples.
 //
 // `check.type`:
 //   'variable' — o código deve criar uma variável chamada check.name;
@@ -43,14 +46,16 @@
 //   #givenVarsLabel #codeInput #btnRun #btnNext #btnHint #hintBox
 //   #consoleOutput #lblProgress
 (function () {
-  const DECL_RE = /^var\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$/;
-  const DECL_NOINIT_RE = /^var\s+([A-Za-z_][A-Za-z0-9_]*)$/;
-  const CONST_RE = /^const\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$/;
-  const ASSIGN_RE = /^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$/;
+  // `(?::\s*TIPO\s*)?:?=` aceita `var x = 5`, `var x: int = 5` e `var x := 5`.
+  const DECL_RE = /^var\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?::\s*[A-Za-z_][A-Za-z0-9_]*\s*)?:?=\s*(.+)$/;
+  const DECL_NOINIT_RE = /^var\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s*:\s*[A-Za-z_][A-Za-z0-9_]*)?$/;
+  const CONST_RE = /^const\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?::\s*[A-Za-z_][A-Za-z0-9_]*\s*)?:?=\s*(.+)$/;
+  const ASSIGN_RE = /^([A-Za-z_][A-Za-z0-9_]*)\s*([+\-*/%]?=)\s*(.+)$/;
   const PRINT_RE = /^print\(\s*(.+)\s*\)$/;
-  const FUNC_HEADER_RE = /^func\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)\s*:$/;
+  const FUNC_HEADER_RE = /^func\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)\s*(?:->\s*[A-Za-z_][A-Za-z0-9_]*\s*)?:$/;
   const RETURN_RE = /^return\s+(.+)$/;
   const IF_RE = /^if\s+(.+):$/;
+  const ELIF_RE = /^elif\s+(.+):$/;
   const ELSE_RE = /^else:$/;
   const FOR_RANGE2_RE = /^for\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+range\(\s*([^,]+?)\s*,\s*([^,)]+?)\s*\):$/;
   const FOR_RANGE1_RE = /^for\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+range\(\s*([^,)]+?)\s*\):$/;
@@ -65,14 +70,27 @@
   // Mesmo alfabeto seguro do motor C# (aritmética, comparação, lógico,
   // vírgula pra argumento de função, aspas pra string) — ver isSafeExpr em
   // shared/csharp-challenge-engine.js pro raciocínio completo.
+  // GDScript aceita texto entre aspas duplas ou simples.
   function isSafeExpr(expr) {
-    let inString = false;
+    let aspa = null;
     for (const ch of expr) {
-      if (ch === '"') { inString = !inString; continue; }
-      if (inString) continue;
+      if (aspa) { if (ch === aspa) aspa = null; continue; }
+      if (ch === '"' || ch === "'") { aspa = ch; continue; }
       if (!/[A-Za-z0-9_+\-*/%().,\s<>=!&|]/.test(ch)) return false;
     }
-    return !inString;
+    return !aspa;
+  }
+
+  // Confere a expressão e troca `and`/`or`/`not` (fora de texto) pelos
+  // operadores do JS. `tipo` só muda a mensagem de erro.
+  function jsExpr(expr, line, tipo = 'expressão') {
+    expr = expr.trim();
+    if (!isSafeExpr(expr)) throw new Error(`${tipo} não reconhecida em "${line}"`);
+    return expr.split(/("[^"]*"|'[^']*')/).map((parte, i) => (i % 2 ? parte : parte
+      .replace(/\band\b/g, '&&')
+      .replace(/\bor\b/g, '||')
+      .replace(/\bnot\b\s*/g, '!')
+    )).join('');
   }
 
   function indentOf(line) {
@@ -104,9 +122,7 @@
 
       const declMatch = line.match(DECL_RE);
       if (declMatch) {
-        const expr = declMatch[2].trim();
-        if (!isSafeExpr(expr)) throw new Error(`expressão não reconhecida em "${line}"`);
-        jsLines.push(`let ${declMatch[1]} = ${expr};`);
+        jsLines.push(`let ${declMatch[1]} = ${jsExpr(declMatch[2], line)};`);
         continue;
       }
 
@@ -118,24 +134,21 @@
 
       const constMatch = line.match(CONST_RE);
       if (constMatch) {
-        const expr = constMatch[2].trim();
-        if (!isSafeExpr(expr)) throw new Error(`expressão não reconhecida em "${line}"`);
-        jsLines.push(`const ${constMatch[1]} = ${expr};`);
+        jsLines.push(`const ${constMatch[1]} = ${jsExpr(constMatch[2], line)};`);
         continue;
       }
 
       const printMatch = line.match(PRINT_RE);
       if (printMatch) {
-        const expr = printMatch[1].trim();
-        if (!isSafeExpr(expr)) throw new Error(`expressão não reconhecida em "${line}"`);
-        jsLines.push(`console.log(${expr});`);
+        jsLines.push(`console.log(${jsExpr(printMatch[1], line)});`);
         continue;
       }
 
       const funcMatch = line.match(FUNC_HEADER_RE);
       if (funcMatch) {
         const rawParams = funcMatch[2].trim();
-        const paramNames = rawParams === '' ? [] : rawParams.split(',').map(p => p.trim());
+        // Parâmetro tipado (`numero: int`) vale — o tipo é descartado.
+        const paramNames = rawParams === '' ? [] : rawParams.split(',').map(p => p.trim().replace(/\s*:\s*[A-Za-z_][A-Za-z0-9_]*$/, ''));
         for (const p of paramNames) {
           if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(p)) {
             throw new Error(`parâmetro não reconhecido em "${line}"`);
@@ -147,17 +160,20 @@
 
       const returnMatch = line.match(RETURN_RE);
       if (returnMatch) {
-        const expr = returnMatch[1].trim();
-        if (!isSafeExpr(expr)) throw new Error(`expressão não reconhecida em "${line}"`);
-        jsLines.push(`return ${expr};`);
+        jsLines.push(`return ${jsExpr(returnMatch[1], line)};`);
         continue;
       }
 
       const ifMatch = line.match(IF_RE);
       if (ifMatch) {
-        const cond = ifMatch[1].trim();
-        if (!isSafeExpr(cond)) throw new Error(`condição não reconhecida em "${line}"`);
-        jsLines.push(`if (${cond}) {`);
+        jsLines.push(`if (${jsExpr(ifMatch[1], line, 'condição')}) {`);
+        continue;
+      }
+
+      const elifMatch = line.match(ELIF_RE);
+      if (elifMatch) {
+        // Igual ao else abaixo: o `}` do bloco anterior já saiu no dedent.
+        jsLines.push(`else if (${jsExpr(elifMatch[1], line, 'condição')}) {`);
         continue;
       }
 
@@ -172,26 +188,20 @@
       const forRange2Match = line.match(FOR_RANGE2_RE);
       if (forRange2Match) {
         const [, varName, start, limit] = forRange2Match;
-        if (!isSafeExpr(start) || !isSafeExpr(limit)) {
-          throw new Error(`expressão não reconhecida em "${line}"`);
-        }
-        jsLines.push(`for (let ${varName} = ${start}; ${varName} < ${limit}; ${varName}++) {`);
+        jsLines.push(`for (let ${varName} = ${jsExpr(start, line)}; ${varName} < ${jsExpr(limit, line)}; ${varName}++) {`);
         continue;
       }
 
       const forRange1Match = line.match(FOR_RANGE1_RE);
       if (forRange1Match) {
         const [, varName, limit] = forRange1Match;
-        if (!isSafeExpr(limit)) throw new Error(`expressão não reconhecida em "${line}"`);
-        jsLines.push(`for (let ${varName} = 0; ${varName} < ${limit}; ${varName}++) {`);
+        jsLines.push(`for (let ${varName} = 0; ${varName} < ${jsExpr(limit, line)}; ${varName}++) {`);
         continue;
       }
 
       const assignMatch = line.match(ASSIGN_RE);
       if (assignMatch) {
-        const expr = assignMatch[2].trim();
-        if (!isSafeExpr(expr)) throw new Error(`expressão não reconhecida em "${line}"`);
-        jsLines.push(`${assignMatch[1]} = ${expr};`);
+        jsLines.push(`${assignMatch[1]} ${assignMatch[2]} ${jsExpr(assignMatch[3], line)};`);
         continue;
       }
 

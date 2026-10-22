@@ -284,6 +284,13 @@ Igual ao de hoje (ver `README.md`, "Hierarquia Matéria → Trilha → Módulo")
 - A **lógica** segue os motores de hoje (ex.: `shared/js-challenge-engine.js`,
   `CHALLENGES` com `tests`, dicas que dão o norte e não a resposta — ver
   README, "Dicas (hints) nas atividades").
+- **Todo desafio de código tem `solution`** (a resposta de referência, como o
+  aluno escreveria). O `tests/solucoes-desafios.spec.js` acha sozinho toda
+  prática com editor (`#codeInput` + `CHALLENGES`), digita a `solution` de
+  cada desafio, clica em Executar e reprova se aparecer ❌ ou se faltar
+  `solution` — o site não publica. Isso pega valor esperado errado e motor
+  que compara errado (já aconteceu: um desafio que devolvia array nunca
+  passava, nem com o código certo).
 - O **visual** vem de `shared/aula-base.css` + `shared/aula-base.js`. A página
   da prática NÃO traz CSS de layout próprio — no máximo a cor de destaque da
   trilha e o que for específico daquele exercício.
@@ -348,6 +355,7 @@ Estrutura da página (os `id` são livres; as classes, não):
 - [ ] Perguntas: 4 alternativas, uma `[x]`, `> Por quê:`, tamanhos parecidos, distratores plausíveis.
 - [ ] Casca `turmas/<turma>/atividades/<trilha>-teoria.html` (seção 5), sem CSS próprio.
 - [ ] Prática(s) com o visual base, `requires: 'teoria'`.
+- [ ] Prática de código: `solution` em todo desafio (seção 8).
 - [ ] Módulos registrados no `config.js` (seção 6), sem `hasSlides`.
 - [ ] Testes: seguir o `CLAUDE.md` (quem roda é o GitHub; testes novos só se o usuário pedir).
 - [ ] `README.md` atualizado se algum comportamento mudou.
