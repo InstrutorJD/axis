@@ -36,6 +36,10 @@ alter table public.student_canva_links add constraint student_canva_links_url_va
     canva_url ~* '^https://(www\.)?canva\.com/design/[a-z0-9_-]+(/[^[:space:]]*)?$'
     or canva_url ~* '^https://canva\.link/[a-z0-9_-]+/?$'
     or canva_url ~* '^https://[a-z0-9-]+\.my\.canva\.site(/[^[:space:]]*)?$'
+    -- Google Slides, PowerPoint Online (OneDrive/SharePoint) e Gamma
+    or canva_url ~* '^https://docs\.google\.com/presentation/d/[a-z0-9_-]+(/[^[:space:]]*)?$'
+    or canva_url ~* '^https://(1drv\.ms|onedrive\.live\.com|[a-z0-9-]+\.sharepoint\.com)/[^[:space:]]+$'
+    or canva_url ~* '^https://gamma\.app/[^[:space:]]+$'
   );
 
 alter table public.student_canva_links drop constraint if exists student_canva_links_titulo_curto;

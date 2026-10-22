@@ -293,7 +293,7 @@
           ${currentUser.role === 'professor' ? `<button class="tab-btn" data-tab="gestao">Gestão 🛠️</button>` : ''}
           <div class="nav-right-group">
             <button type="button" class="quick-token-btn github-btn" id="btnGithubLinks" title="GitHub" aria-label="GitHub">${window.PortalGithub ? window.PortalGithub.SVG : 'GH'}</button>
-            <button type="button" class="quick-token-btn" id="btnCanvaLinks" title="Apresentação no Canva (link temporário, some em 72 h)" aria-label="Apresentação no Canva">🎨</button>
+            <button type="button" class="quick-token-btn" id="btnCanvaLinks" title="Apresentação: Canva, Google Slides, PowerPoint ou Gamma (link temporário, some em 72 h)" aria-label="Apresentação">🎨</button>
             ${currentUser.role === 'professor' ? `<button class="quick-token-btn" id="btnQuickToken" title="Ver/gerar o token de Dar Visto e Pular Etapa">🔑</button>` : ''}
             <button class="tab-btn profile-tab-btn" data-tab="perfil" id="btnPerfilTab" title="Meu perfil e personalização do portal">
               <span id="perfilTabEmoji">${prefs.avatarEmoji || '👤'}</span>

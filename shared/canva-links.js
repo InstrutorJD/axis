@@ -18,22 +18,35 @@
 
   const VALIDADE_MS = 72 * 60 * 60 * 1000;
 
-  // Mesmas regras do CHECK em sql/canva-links.sql: link de design do Canva,
-  // link curto canva.link ou site publicado em *.my.canva.site.
-  const CANVA_RE = /^https:\/\/((www\.)?canva\.com\/design\/[a-z0-9_-]+(\/\S*)?|canva\.link\/[a-z0-9_-]+\/?|[a-z0-9-]+\.my\.canva\.site(\/\S*)?)$/i;
+  // Mesmas regras do CHECK em sql/canva-links.sql. Só endereços conhecidos
+  // de apresentação (o link vira botão clicável na tela do professor):
+  //   Canva — design, link curto canva.link ou site *.my.canva.site;
+  //   Google Slides — docs.google.com/presentation/d/...;
+  //   PowerPoint Online — 1drv.ms, onedrive.live.com ou *.sharepoint.com;
+  //   Gamma — gamma.app/...
+  const CANVA_RE = new RegExp('^https://(' + [
+    '(www\\.)?canva\\.com/design/[a-z0-9_-]+(/\\S*)?',
+    'canva\\.link/[a-z0-9_-]+/?',
+    '[a-z0-9-]+\\.my\\.canva\\.site(/\\S*)?',
+    'docs\\.google\\.com/presentation/d/[a-z0-9_-]+(/\\S*)?',
+    '1drv\\.ms/\\S+',
+    'onedrive\\.live\\.com/\\S+',
+    '[a-z0-9-]+\\.sharepoint\\.com/\\S+',
+    'gamma\\.app/\\S+',
+  ].join('|') + ')$', 'i');
 
   // Aceita o que o aluno costuma colar: sem "https://" ou com "http://".
   function normalizar(valor) {
     let v = String(valor || '').trim();
     if (!v) return '';
     if (/^http:\/\//i.test(v)) v = 'https://' + v.slice(7);
-    if (!/^https?:\/\//i.test(v) && /^((www\.)?canva\.com\/|canva\.link\/|[^/\s]+\.my\.canva\.site)/i.test(v)) v = 'https://' + v;
+    if (!/^https?:\/\//i.test(v) && /^((www\.)?canva\.com\/|canva\.link\/|[^/\s]+\.my\.canva\.site|docs\.google\.com\/|1drv\.ms\/|onedrive\.live\.com\/|[^/\s]+\.sharepoint\.com\/|gamma\.app\/)/i.test(v)) v = 'https://' + v;
     return v;
   }
 
   function validar(v) {
-    if (!v) return 'Cole o link do Canva.';
-    return CANVA_RE.test(v) ? '' : 'Use o link do Canva (Compartilhar → Copiar link), ex.: https://www.canva.com/design/...';
+    if (!v) return 'Cole o link da apresentação.';
+    return CANVA_RE.test(v) ? '' : 'Use o link de compartilhar do Canva, Google Slides, PowerPoint Online ou Gamma.';
   }
 
   function esc(s) {
@@ -103,12 +116,12 @@
 
   // ---------- Aluno: enviar o próprio link ----------
   async function abrirAluno(client, user) {
-    const overlay = abrirOverlay('Apresentação no Canva', `
-      ${cabecalho('Apresentação no Canva', 'Cole o link do seu trabalho no Canva para o professor abrir no computador da sala. <b>O link some sozinho depois de 72 horas.</b>')}
+    const overlay = abrirOverlay('Apresentação', `
+      ${cabecalho('Apresentação', 'Cole o link do seu trabalho (Canva, Google Slides, PowerPoint Online ou Gamma) para o professor abrir no computador da sala. <b>O link some sozinho depois de 72 horas.</b>')}
       <form class="gh-form" id="cvForm" novalidate>
         <div class="pf-perso-section">
-          <label class="pf-perso-label" for="cvUrl">Link do Canva</label>
-          <input type="text" inputmode="url" autocomplete="off" spellcheck="false" id="cvUrl" class="gh-input" placeholder="https://www.canva.com/design/...">
+          <label class="pf-perso-label" for="cvUrl">Link da apresentação</label>
+          <input type="text" inputmode="url" autocomplete="off" spellcheck="false" id="cvUrl" class="gh-input" placeholder="https://www.canva.com/design/... ou docs.google.com/presentation/...">
           <div class="gh-erro" id="cvErro" role="alert"></div>
         </div>
         <div class="pf-perso-section">
@@ -199,8 +212,8 @@
 
   // ---------- Professor/substituto: apresentações da turma ----------
   async function abrirProfessor(client, alunos, turmaLabel) {
-    const overlay = abrirOverlay('Apresentações no Canva', `
-      ${cabecalho('Apresentações no Canva', `Trabalhos enviados pelos alunos${turmaLabel ? ` de <b>${esc(turmaLabel)}</b>` : ''} nas últimas 72 horas. Os links abrem numa aba nova.`)}
+    const overlay = abrirOverlay('Apresentações', `
+      ${cabecalho('Apresentações', `Trabalhos enviados pelos alunos${turmaLabel ? ` de <b>${esc(turmaLabel)}</b>` : ''} nas últimas 72 horas. Os links abrem numa aba nova.`)}
       <div class="pf-perso-section" id="cvLista"><p class="status-msg">Carregando...</p></div>
       <div class="pf-perso-pe">
         <span class="status-msg" id="cvResumo"></span>
