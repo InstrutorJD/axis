@@ -30,16 +30,6 @@ A equipe guardou os dados do projeto numa planilha assim:
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca ouvi falar, 3 = sei explicar):
-
-- **Chave primária** e **chave estrangeira**
-- As **formas normais** (1FN, 2FN, 3FN)
-- Resolver um relacionamento **muitos para muitos**
-- Escrever `CREATE TABLE` com restrições
-
----
-
 ## Os padrões de estrutura
 - Cada **entidade** do projeto vira uma **tabela** (usuário, produto, fase, pontuação)
 - Cada **atributo** vira uma **coluna**, com tipo definido
@@ -213,18 +203,6 @@ O script rodou sem erro no SQL Fiddle. O que ainda falta para dizer que a estrut
 + 1FN, 2FN e 3FN revelam grupos repetidos e dados fora do lugar
 + N para N sempre vira tabela associativa
 + Sintoma → causa → hipótese → teste → validação
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- Chave **primária** e **estrangeira**
-- **Formas normais**
-- **Muitos para muitos**
-- `CREATE TABLE` com restrições
-
-> Volte ao aquecimento: como ficaria a planilha da Ana em tabelas?
 
 ---
 

@@ -33,17 +33,6 @@ Olhe com calma. Você consegue dizer o que aconteceu com o caminhão?
 
 ---
 
-## Termômetro: levante os dedos
-**0** nunca ouvi · **1** já ouvi · **2** sei explicar · **3** já usei
-
-+ JSON
-+ REST e métodos HTTP
-+ GitHub
-+ Terminal e git (commit, push, pull)
-+ Webhook, upload e streaming
-
----
-
 ## ⚡ Responde Aí: revisão da Aula 1
 8 perguntas rápidas sobre **tipos de IA**, **métodos HTTP** e **algoritmo**, respondidas no **celular**. Sem login.
 
@@ -1322,17 +1311,6 @@ O seu colega mudou o README pelo site. O que você roda no Codespace para recebe
 - [x] `git pull`
 - [ ] `git commit`
 - [ ] `git status`
-
----
-
-## Termômetro de novo
-Levante os dedos outra vez e compare com o começo.
-
-+ JSON
-+ REST e métodos HTTP
-+ GitHub
-+ Terminal e git (commit, push, pull)
-+ Webhook, upload e streaming
 
 ---
 

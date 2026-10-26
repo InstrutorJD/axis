@@ -27,16 +27,6 @@ A equipe recebeu o pedido de um sistema para uma clínica veterinária. No prime
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca ouvi falar, 3 = sei explicar):
-
-- O que é uma **regra de negócio**
-- A diferença entre **regra de negócio** e **requisito**
-- O que é um **roteiro de trabalho**
-- O que é um **critério de pronto**
-
----
-
 ## Regra de negócio
 - É uma **política, restrição ou cálculo do negócio**, que existe mesmo sem sistema
 - Vem de quem conhece o negócio: cliente, lei, norma da empresa
@@ -207,18 +197,6 @@ Qual é um bom **critério de pronto** para a etapa "Identificar entidades, atri
 + Defeitos: ambígua, composta, conflitante e "não é regra de negócio"
 + Roteiro: etapas em sequência, cada uma com artefato
 + Responsável, prazo e critério de pronto tornam o roteiro controlável
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- **Regra de negócio**
-- **Regra de negócio** × **requisito**
-- **Roteiro de trabalho**
-- **Critério de pronto**
-
-> Volte ao aquecimento: por onde a equipe da clínica deveria ter começado?
 
 ---
 

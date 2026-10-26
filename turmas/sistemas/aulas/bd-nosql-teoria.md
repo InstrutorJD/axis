@@ -27,16 +27,6 @@ Seu app de fotos viralizou: **50 mil cadastros por hora** e cada usuário tem um
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca ouvi falar, 3 = sei explicar):
-
-- O que é um banco **NoSQL**
-- Diferença entre **escalar na vertical** e **na horizontal**
-- Um banco de **documentos** (ex.: MongoDB)
-- O **teorema CAP**
-
----
-
 ## Relembrando o modelo relacional
 - Dados em **tabelas** com linhas e colunas
 - **Esquema fixo**: toda linha tem as mesmas colunas
@@ -335,18 +325,6 @@ Num jogo online, o perfil do jogador (inventário, conquistas, configurações) 
 + NoSQL tem 4 famílias: chave-valor, documento, colunar e grafo
 + No CAP, quando a rede cai, escolhe-se entre consistência e disponibilidade
 + A arquitetura certa depende da **aplicação**, e dá para combinar modelos
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- O que é um banco **NoSQL**
-- **Escalar na vertical** × **na horizontal**
-- Um banco de **documentos**
-- O **teorema CAP**
-
-> Volte ao aquecimento: agora você sabe responder às três perguntas do app de fotos?
 
 ---
 

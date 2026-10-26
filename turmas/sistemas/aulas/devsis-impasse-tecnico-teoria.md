@@ -27,16 +27,6 @@ Sua equipe tem **3 semanas** para entregar o app. Na primeira reunião:
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca ouvi falar, 3 = sei explicar):
-
-- O que é o **escopo** de um projeto
-- Usar um **quadro de tarefas** (Kanban)
-- Priorizar tarefas quando não dá tempo de fazer tudo
-- Resolver uma discordância na equipe sem briga
-
----
-
 ## Escopo: o que o software precisa entregar
 - **Escopo** = o que está dentro (e fora) do projeto
 - **Objetivo do software** = o problema que ele resolve para o usuário
@@ -219,18 +209,6 @@ Uma semana depois, alguém pergunta: "por que a gente não usou o framework novo
 + Quadro de atividades com dono e prazo em cada tarefa
 + Mediar com ética: ouvir, respeitar, ser transparente e decidir por critérios
 + Criatividade e registro transformam impasse em decisão
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- O que é o **escopo** de um projeto
-- Usar um **quadro de tarefas**
-- Priorizar tarefas
-- Resolver uma discordância sem briga
-
-> Volte ao aquecimento: o que faltou na reunião da Ana e do Bruno?
 
 ---
 

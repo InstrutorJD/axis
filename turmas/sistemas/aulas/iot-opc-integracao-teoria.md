@@ -25,16 +25,6 @@ Uma fábrica tem **3 máquinas de fabricantes diferentes**. Cada uma "fala" um p
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca ouvi falar, 3 = sei explicar):
-
-- O que é **OPC** e para que serve
-- Diferença entre **servidor** e **cliente** OPC UA
-- O que é uma **tag** (ou nó) de uma máquina
-- Como saber se um dado coletado é **bom** ou **ruim**
-
----
-
 ## O problema da integração
 - Sensores e CLPs de fabricantes diferentes usam protocolos diferentes
 - Sem padrão, cada software (supervisório, MES, app) precisa de um **driver** para cada máquina
@@ -223,16 +213,6 @@ Na tabela de tags da câmara fria, qual informação permite transformar um valo
 + Servidor expõe tags; clientes assinam e recebem as mudanças
 + Cada valor traz timestamp e StatusCode: qualidade é parte da coleta
 + Segurança com SignAndEncrypt, certificados e usuários
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- O que é **OPC** e para que serve
-- **Servidor** × **cliente** OPC UA
-- **Tag** (nó) de uma máquina
-- Dado **bom** ou **ruim**
 
 ---
 

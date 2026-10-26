@@ -27,16 +27,6 @@ O vídeo da aula não carrega no laboratório. Três colegas dão palpites:
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca ouvi falar, 3 = sei explicar):
-
-- As 7 camadas do modelo **OSI**
-- A diferença entre **quadro**, **pacote** e **segmento**
-- Em que camada trabalham o **switch** e o **roteador**
-- Onde o armazenamento em **nuvem** entra nos modelos
-
----
-
 ## OSI × TCP/IP
 
 | OSI (7 camadas) | TCP/IP (4 camadas) | Exemplo |
@@ -213,18 +203,6 @@ A escola vai trocar os access points por modelos **Wi-Fi 7**. Em quais camadas O
 + Bit, quadro, pacote, segmento e dados: cada camada com sua unidade
 + Hub na 1, switch e access point na 2, roteador na 3
 + Local fica fora do modelo; NAS e nuvem usam protocolos de aplicação
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- As camadas do **OSI**
-- **Quadro**, **pacote** e **segmento**
-- **Switch** e **roteador**
-- Armazenamento em **nuvem** nos modelos
-
-> Volte ao aquecimento: em que camada está cada um dos três palpites?
 
 ---
 

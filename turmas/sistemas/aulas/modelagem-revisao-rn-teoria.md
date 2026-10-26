@@ -25,16 +25,6 @@ Na aula passada, sua equipe marcou os defeitos das regras da **VetAgenda**. Marc
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca ouvi falar, 3 = sei explicar):
-
-- Fazer uma **revisão técnica** com checklist
-- **Reescrever** uma regra ambígua
-- Montar uma **matriz de rastreabilidade**
-- Registrar o **histórico de versões** de um documento
-
----
-
 ## Por que revisar cedo
 - Um erro de regra encontrado na **modelagem** custa uma conversa e uma correção no texto
 - O mesmo erro encontrado depois do **código pronto** custa refazer tela, banco e testes
@@ -199,16 +189,6 @@ Um mês depois, o cliente pergunta por que a RN03 virou duas regras. Onde a equi
 + Ambígua ganha números; composta divide; conflito vira exceção explícita
 + O que não é regra de negócio vai para os RNF
 + Rastreabilidade e histórico ligam as regras ao roteiro
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- **Revisão técnica** com checklist
-- **Reescrever** uma regra ambígua
-- **Matriz de rastreabilidade**
-- **Histórico de versões**
 
 ---
 

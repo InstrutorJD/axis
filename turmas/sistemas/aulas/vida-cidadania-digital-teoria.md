@@ -27,16 +27,6 @@ No grupo da turma, alguém posta:
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca ouvi falar, 3 = sei explicar):
-
-- O que é **urbanidade**
-- O que é a **LGPD**
-- A diferença entre dado **pessoal** e dado **sensível**
-- Como **checar** uma notícia antes de compartilhar
-
----
-
 ## Urbanidade, também online
 - **Urbanidade** é tratar os outros com cortesia, respeito e educação
 - Online, as mesmas normas valem: atrás de cada perfil há uma **pessoa**
@@ -201,18 +191,6 @@ Chega no grupo: *"URGENTE! Vão cancelar o CPF de quem não clicar neste link ho
 + LGPD: dado pessoal identifica; dado sensível exige cuidado extra
 + Proteção: senhas, duas etapas, privacidade e nada de dados de terceiros
 + Cidadão ativo checa antes de compartilhar, apoia e denuncia
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- **Urbanidade**
-- **LGPD**
-- Dado **pessoal** × **sensível**
-- **Checar** antes de compartilhar
-
-> Volte ao aquecimento: o que você faria com cada uma daquelas postagens?
 
 ---
 

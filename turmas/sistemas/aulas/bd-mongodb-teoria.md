@@ -25,16 +25,6 @@ Na aula passada você escreveu o catálogo da **MegaShop** em JSON, no editor do
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca ouvi falar, 3 = sei explicar):
-
-- Coleção e documento no MongoDB
-- Diferença entre **JSON** e **BSON**
-- Inserir um documento (`insertOne`)
-- Buscar com filtro (`find`)
-
----
-
 ## Do SQL para o MongoDB
 
 | Relacional | MongoDB |
@@ -242,16 +232,6 @@ No Mongo Playground, você roda um `update` que muda o preço do notebook e o Re
 + Você escreve JSON; o MongoDB guarda BSON, com `_id` sempre presente
 + A coleção nasce no primeiro insert e aceita campos diferentes
 + `insertOne`, `find` e `updateOne` com `$set` fazem o básico do dia a dia
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- Coleção e documento no MongoDB
-- **JSON** × **BSON**
-- Inserir um documento
-- Buscar com filtro
 
 ---
 

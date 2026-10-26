@@ -27,16 +27,6 @@ Você está no meio de um código difícil. Em 10 minutos:
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca pensei nisso, 3 = sei explicar e aplico):
-
-- O que atrapalha o meu **foco**
-- Como eu reajo quando o **código dá erro**
-- A técnica **Pomodoro**
-- Como **pedir ajuda** sem atrapalhar a turma
-
----
-
 ## Foco
 - **Foco** é manter a atenção numa tarefa por um tempo, mesmo com coisas chamando você
 - **Multitarefa** é, na verdade, trocar de uma tarefa para outra o tempo todo
@@ -191,16 +181,6 @@ Você está travado há 15 minutos no mesmo erro. Qual é a forma mais adequada 
 + Distrações se resolvem antes: celular guardado, notificações desligadas
 + Autocontrole: perceber, pausar e escolher o próximo passo
 + Normas de convivência protegem o foco de todos
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- O que atrapalha o meu **foco**
-- Minha reação ao **erro**
-- **Pomodoro**
-- **Pedir ajuda** do jeito certo
 
 ---
 

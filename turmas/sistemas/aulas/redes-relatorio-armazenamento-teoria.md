@@ -27,16 +27,6 @@ Uma loja com **8 computadores** guarda tudo no HD de um único PC. Numa segunda-
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca ouvi falar, 3 = sei explicar):
-
-- Diferenças entre armazenamento **local**, **em rede** e **em nuvem**
-- Converter **Mbps** em **MB/s**
-- A regra de backup **3-2-1**
-- Escrever um **relatório técnico**
-
----
-
 ## As três tecnologias
 
 | | Local | Em rede (NAS) | Em nuvem |
@@ -209,16 +199,6 @@ Para a loja do aquecimento, qual proposta junta melhor **velocidade**, **acesso 
 + Bits × bytes: divida os Mbps por 8 para ter MB/s
 + RAID não é backup; a regra 3-2-1 continua valendo
 + Relatório técnico: comparar com critérios, sintetizar e recomendar
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- **Local**, **em rede** e **em nuvem**
-- **Mbps** em **MB/s**
-- Regra **3-2-1**
-- **Relatório técnico**
 
 ---
 

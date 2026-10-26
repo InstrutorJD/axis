@@ -25,16 +25,6 @@ Você entra no elevador com a gerente de uma empresa de software. Ela pergunta: 
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca ouvi falar, 3 = sei explicar):
-
-- O que é um **pitch**
-- Como um app de celular e um site usam os **mesmos dados**
-- Escrever uma **meta** que dá para medir
-- Quebrar uma ideia em **tarefas** com prazo
-
----
-
 ## O que é um pitch
 - Apresentação **curta** (3 a 5 minutos) para convencer alguém de uma ideia
 - Foco em **quem ganha** com ela, não em quanto código ela tem
@@ -232,16 +222,6 @@ Qual frase mostra melhor um **resultado diferenciado** no pitch?
 + Integração multiplataforma: site e app falam com a mesma API em JSON
 + Metas SMART e comportamento proativo, que antecipa riscos
 + A meta vira tarefas com dono e prazo no controle de atividades
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- O que é um **pitch**
-- Site e app usando os **mesmos dados**
-- Meta que dá para **medir**
-- Ideia quebrada em **tarefas**
 
 ---
 

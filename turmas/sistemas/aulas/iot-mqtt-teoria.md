@@ -25,16 +25,6 @@ O sensor da **câmara fria** mede a temperatura a cada 5 segundos. Três sistema
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca ouvi falar, 3 = sei explicar):
-
-- O que é um **broker** MQTT
-- Diferença entre **publicar** e **assinar**
-- Os curingas **+** e **#**
-- O que é **QoS**
-
----
-
 ## Publicar e assinar
 - **Publicador** (*publisher*): envia mensagens para um **tópico**
 - **Assinante** (*subscriber*): recebe as mensagens dos tópicos que assinou
@@ -220,16 +210,6 @@ Uma empresa tem **500 sensores** simples espalhados em fazendas, com internet fr
 + Tópicos em níveis e curingas `+` (um nível) e `#` (o resto)
 + QoS 0/1/2, retain para o último valor, last will para queda
 + Broker configurado com usuários, ACL, porta e persistência
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- **Broker** MQTT
-- **Publicar** × **assinar**
-- Curingas **+** e **#**
-- **QoS**
 
 ---
 

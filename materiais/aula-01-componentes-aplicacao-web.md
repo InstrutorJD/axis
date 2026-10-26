@@ -68,20 +68,8 @@ Fonte: Stanford AI Index 2025. No relatório de 2026, a China já quase empatou 
 
 ---
 
-# Termômetro da turma
+# Aquecimento
 O que você já sabe? Sem nota, só para a gente se conhecer
-
----
-
-## Termômetro: levante os dedos
-**0** nunca ouvi · **1** já ouvi · **2** sei explicar · **3** já usei
-
-+ Binário (bit e byte)
-+ Linguagem de programação
-+ Usos da IA (preditiva, generativa...)
-+ Frontend e backend
-+ API
-+ HTTP
 
 ---
 
@@ -117,8 +105,6 @@ Uma IA como o ChatGPT **sempre** acerta quando responde com segurança?
 
 ## Placar da turma
 Anote no quadro quantos acertaram cada pergunta.
-
-> No fim da aula, a gente faz o termômetro de novo e compara. 📈
 
 ---
 
@@ -961,18 +947,6 @@ Em qual peça fica guardado o histórico de todas as inspeções?
 - [ ] API
 - [ ] Backend
 - [x] Banco de dados
-
----
-
-## Termômetro de novo
-Levante os dedos outra vez e compare com o placar do começo.
-
-+ Binário (bit e byte)
-+ Linguagem de programação
-+ Usos da IA (preditiva, generativa...)
-+ Frontend e backend
-+ API
-+ HTTP
 
 ---
 

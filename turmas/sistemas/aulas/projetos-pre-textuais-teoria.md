@@ -27,16 +27,6 @@ Um avaliador recebe dois documentos de projeto com o mesmo conteúdo:
 
 ---
 
-## Termômetro: o que você já sabe?
-Dê uma nota de **0 a 3** para cada item (0 = nunca ouvi falar, 3 = sei explicar):
-
-- Quais são os elementos **pré-textuais**
-- Escrever um **resumo** técnico
-- A diferença entre **sumário** e **índice**
-- Montar uma **lista de ilustrações**
-
----
-
 ## O que são e em que ordem vêm
 A norma **ABNT NBR 14724** define a ordem:
 
@@ -213,16 +203,6 @@ No draft em Markdown, como marcar **RESUMO** como título de seção?
 + Resumo: um parágrafo com objetivo, método, resultados e conclusão
 + Palavras-chave separadas por ponto e vírgula, com ponto no final
 + Sumário com numeração progressiva e páginas; lista de ilustrações na ordem do texto
-
----
-
-## Termômetro de novo
-Dê de novo a nota de **0 a 3** e compare com o começo da aula:
-
-- Elementos **pré-textuais**
-- **Resumo** técnico
-- **Sumário** × **índice**
-- **Lista de ilustrações**
 
 ---
 
