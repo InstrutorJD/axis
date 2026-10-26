@@ -9,11 +9,13 @@
 
 <!-- Telão da sala: tela pra projetar na TV (monitor estendido) enquanto a
      turma faz atividade. Relógio, link do portal, se o banheiro está
-     liberado e o horário do intervalo e do almoço. Aberta pelo botão
+     liberado, o horário do intervalo e do almoço e os objetivos do dia
+     (lista que o professor marca; tudo concluído = fogos). Aberta pelo botão
      "Telão" do painel (professor/painel.html), numa janela separada pra
      arrastar pra TV. Não precisa de login: não mostra nenhum dado de aluno.
      Horários do banheiro: HORARIOS_BANHEIRO abaixo. Intervalo e almoço:
-     PAUSAS abaixo. -->
+     PAUSAS abaixo. Objetivos: guardados neste navegador (localStorage),
+     zeram no dia seguinte. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
@@ -37,6 +39,41 @@
   .hora .pisca{ animation:pisca 1s steps(1) infinite; }
   @keyframes pisca{ 50%{ opacity:.25; } }
   .data{ margin-top:2vmin; font-size:clamp(15px, 1.8vw, 36px); font-weight:500; color:var(--texto-2); text-transform:capitalize; }
+
+  /* Objetivos do dia: embaixo do relógio. Some quando a lista está vazia
+     (a não ser editando). */
+  .objetivos{ margin-top:4vmin; display:flex; flex-direction:column; gap:1.4vmin; min-height:0; transition:border-color .6s ease; }
+  .objetivos[hidden]{ display:none; }
+  .objetivos.concluido{ border-color:color-mix(in srgb, var(--ok) 55%, var(--borda)); }
+  .obj-topo{ display:flex; align-items:baseline; justify-content:space-between; gap:2vmin; }
+  .obj-placar{ font-size:clamp(12px, 1.15vw, 22px); font-weight:700; color:var(--texto-3); font-variant-numeric:tabular-nums; }
+  .objetivos.concluido .obj-placar{ color:var(--ok); }
+  .obj-lista{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:1vmin; }
+  .obj-item{ display:flex; align-items:center; gap:1.6vmin; font-size:clamp(16px, 1.9vw, 38px); font-weight:600; line-height:1.15; cursor:pointer; user-select:none; }
+  .obj-caixa{ flex:none; width:1.05em; height:1.05em; border:.12em solid var(--texto-3); border-radius:.25em; display:grid; place-items:center; color:var(--bg); transition:background .2s ease, border-color .2s ease; }
+  .obj-item.feito .obj-caixa{ background:var(--ok); border-color:var(--ok); }
+  .obj-item.feito .obj-caixa::after{ content:'✓'; font-size:.75em; font-weight:800; }
+  .obj-item.feito .obj-texto{ color:var(--texto-3); text-decoration:line-through; text-decoration-thickness:.08em; }
+  .obj-texto{ flex:1; min-width:0; word-break:break-word; }
+  .obj-remover{ display:none; flex:none; border:1px solid var(--borda); border-radius:8px; background:transparent; color:var(--texto-2); font:600 14px Inter, system-ui, sans-serif; padding:4px 10px; cursor:pointer; }
+  .obj-form{ display:none; gap:1vmin; }
+  .obj-form input{ flex:1; min-width:0; padding:10px 12px; border:1px solid var(--borda); border-radius:10px; background:var(--bg); color:var(--texto); font:500 16px Inter, system-ui, sans-serif; }
+  .obj-form button{ padding:10px 16px; border:1px solid var(--borda); border-radius:10px; background:var(--card); color:var(--texto); font:600 14px Inter, system-ui, sans-serif; cursor:pointer; }
+  .obj-dica{ display:none; font-size:14px; color:var(--texto-3); }
+  body.editando .obj-remover{ display:block; }
+  body.editando .obj-form{ display:flex; }
+  body.editando .obj-dica{ display:block; }
+
+  /* Comemoração: fogos num canvas por cima de tudo + faixa no meio. */
+  .fogos{ position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:10; }
+  .parabens{
+    position:fixed; left:50%; top:50%; z-index:11; transform:translate(-50%, -50%) scale(.6); opacity:0; pointer-events:none;
+    padding:3vmin 6vmin; border-radius:4vmin; background:color-mix(in srgb, var(--bg) 82%, transparent); border:2px solid var(--ok);
+    text-align:center; font-size:clamp(26px, 4.4vw, 88px); font-weight:800; line-height:1.05; letter-spacing:-.02em;
+    transition:opacity .5s ease, transform .5s cubic-bezier(.2, 1.4, .4, 1);
+  }
+  .parabens small{ display:block; margin-top:1.2vmin; font-size:.38em; font-weight:600; color:var(--texto-2); letter-spacing:0; }
+  .parabens.mostrar{ opacity:1; transform:translate(-50%, -50%) scale(1); }
 
   /* Coluna da direita */
   .lado{ display:flex; flex-direction:column; gap:2.4vmin; min-height:0; }
@@ -80,6 +117,8 @@
     background:var(--card); color:var(--texto-2); font:600 14px Inter, system-ui, sans-serif; cursor:pointer;
     transition:opacity .4s ease;
   }
+  .editar-obj{ right:auto; left:2vmin; }
+  body.editando .editar-obj{ color:var(--texto); border-color:var(--ok); }
   body.sem-cursor .tela-cheia{ opacity:0; pointer-events:none; }
 
   @media (max-aspect-ratio: 1/1){
@@ -96,6 +135,19 @@
 <section class="relogio">
   <div class="hora" id="hora">--<span class="pisca">:</span>--<span class="seg" id="seg">--</span></div>
   <div class="data" id="data"></div>
+
+  <div class="cartao objetivos" id="objetivos" hidden>
+    <div class="obj-topo">
+      <div class="rotulo">Objetivos do dia</div>
+      <div class="obj-placar" id="objPlacar"></div>
+    </div>
+    <ul class="obj-lista" id="objLista"></ul>
+    <form class="obj-form" id="objForm" autocomplete="off">
+      <input id="objNovo" maxlength="80" placeholder="Novo objetivo (ex.: Terminar a prática do MongoDB)">
+      <button type="submit">Adicionar</button>
+    </form>
+    <div class="obj-dica">Clique num objetivo para marcar como concluído. Feche com ✓ Pronto.</div>
+  </div>
 </section>
 
 <section class="lado">
@@ -120,6 +172,10 @@
 </section>
 
 <button type="button" class="tela-cheia" id="btnTelaCheia">⛶ Tela cheia</button>
+<button type="button" class="tela-cheia editar-obj" id="btnObjetivos">✎ Objetivos</button>
+
+<canvas class="fogos" id="fogos" hidden></canvas>
+<div class="parabens" id="parabens" aria-live="polite">🎉 Objetivos do dia concluídos!<small>Mandou bem, turma!</small></div>
 
 <script>
 (function () {
@@ -226,14 +282,150 @@
   atualizar();
   setTimeout(() => { atualizar(); setInterval(atualizar, 1000); }, 1000 - new Date().getMilliseconds());
 
-  // Tela cheia: botão, duplo clique ou F.
+  // Objetivos do dia: lista que o professor monta e marca aqui no telão.
+  // Fica no localStorage com a data; num dia novo a lista começa vazia.
+  // Quando o último item é marcado, solta os fogos. Sem tudo marcado, nada.
+  const CHAVE_OBJ = 'axis-telao-objetivos';
+  const hoje = () => { const d = new Date(); return `${d.getFullYear()}-${dois(d.getMonth() + 1)}-${dois(d.getDate())}`; };
+  let objetivos = [];
+  function carregarObjetivos() {
+    try {
+      const salvo = JSON.parse(localStorage.getItem(CHAVE_OBJ) || 'null');
+      objetivos = salvo && salvo.data === hoje() && Array.isArray(salvo.itens) ? salvo.itens : [];
+    } catch (e) { objetivos = []; }
+  }
+  function salvarObjetivos() {
+    try { localStorage.setItem(CHAVE_OBJ, JSON.stringify({ data: hoje(), itens: objetivos })); } catch (e) { /* sem storage */ }
+  }
+  const tudoFeito = () => objetivos.length > 0 && objetivos.every(o => o.feito);
+  function desenharObjetivos() {
+    const editando = document.body.classList.contains('editando');
+    const feitos = objetivos.filter(o => o.feito).length;
+    $('objetivos').hidden = !objetivos.length && !editando;
+    $('objetivos').classList.toggle('concluido', tudoFeito());
+    $('objPlacar').textContent = objetivos.length ? (tudoFeito() ? '✓ Tudo concluído' : `${feitos} de ${objetivos.length}`) : '';
+    const lista = $('objLista');
+    lista.innerHTML = '';
+    objetivos.forEach((o, i) => {
+      const li = document.createElement('li');
+      li.className = 'obj-item' + (o.feito ? ' feito' : '');
+      li.innerHTML = '<span class="obj-caixa"></span><span class="obj-texto"></span><button type="button" class="obj-remover" title="Remover">✕</button>';
+      li.querySelector('.obj-texto').textContent = o.texto;
+      li.addEventListener('click', e => {
+        if (e.target.closest('.obj-remover')) { objetivos.splice(i, 1); salvarObjetivos(); desenharObjetivos(); return; }
+        const antes = tudoFeito();
+        o.feito = !o.feito;
+        salvarObjetivos();
+        desenharObjetivos();
+        if (!antes && tudoFeito()) comemorar();
+      });
+      lista.appendChild(li);
+    });
+  }
+  $('objForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const texto = $('objNovo').value.trim();
+    if (!texto) return;
+    objetivos.push({ texto, feito: false });
+    $('objNovo').value = '';
+    salvarObjetivos();
+    desenharObjetivos();
+  });
+  $('btnObjetivos').addEventListener('click', () => {
+    const editando = document.body.classList.toggle('editando');
+    $('btnObjetivos').textContent = editando ? '✓ Pronto' : '✎ Objetivos';
+    desenharObjetivos();
+    if (editando) $('objNovo').focus();
+  });
+  // Outra janela do telão mudou a lista: acompanha.
+  window.addEventListener('storage', e => { if (e.key === CHAVE_OBJ) { carregarObjetivos(); desenharObjetivos(); } });
+  // Virou o dia com o telão aberto: zera a lista.
+  let diaObj = hoje();
+  setInterval(() => { if (hoje() !== diaObj) { diaObj = hoje(); carregarObjetivos(); desenharObjetivos(); } }, 60000);
+  carregarObjetivos();
+  desenharObjetivos();
+
+  // Comemoração: faixa no meio da tela e fogos de artifício por ~8 s
+  // (só a faixa se o sistema pede menos animação).
+  let fimComemoracao;
+  function comemorar() {
+    $('parabens').classList.add('mostrar');
+    clearTimeout(fimComemoracao);
+    fimComemoracao = setTimeout(() => $('parabens').classList.remove('mostrar'), 8000);
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) soltarFogos(8000);
+  }
+  let animandoFogos = false, acabaFogos = 0;
+  function soltarFogos(duracao) {
+    acabaFogos = performance.now() + duracao;
+    if (animandoFogos) return;
+    animandoFogos = true;
+    const tela = $('fogos'), ctx = tela.getContext('2d');
+    const cores = ['#22c55e', '#60a5fa', '#f59e0b', '#ef4444', '#a855f7', '#f472b6', '#facc15', '#ffffff'];
+    const foguetes = [], faiscas = [];
+    let ultimo = 0, proximoFoguete = 0;
+    tela.width = innerWidth * devicePixelRatio;
+    tela.height = innerHeight * devicePixelRatio;
+    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    tela.hidden = false;
+    function explodir(x, y) {
+      const cor = cores[Math.floor(Math.random() * cores.length)];
+      const n = 70 + Math.floor(Math.random() * 40);
+      for (let i = 0; i < n; i++) {
+        const ang = (Math.PI * 2 * i) / n, vel = 2 + Math.random() * 4.5;
+        faiscas.push({ x, y, vx: Math.cos(ang) * vel, vy: Math.sin(ang) * vel, vida: 1, cor: Math.random() < .2 ? '#ffffff' : cor });
+      }
+    }
+    function quadro(t) {
+      const dt = Math.min((t - (ultimo || t)) / 16.7, 3);
+      ultimo = t;
+      if (t < acabaFogos && t >= proximoFoguete) {
+        foguetes.push({ x: innerWidth * (.15 + Math.random() * .7), y: innerHeight, vy: -(innerHeight / 55) * (.8 + Math.random() * .35), alvo: innerHeight * (.12 + Math.random() * .35) });
+        proximoFoguete = t + 250 + Math.random() * 450;
+      }
+      // Rastro: apaga o quadro anterior aos poucos.
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = 'rgba(0,0,0,.22)';
+      ctx.fillRect(0, 0, innerWidth, innerHeight);
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = foguetes.length - 1; i >= 0; i--) {
+        const f = foguetes[i];
+        f.y += f.vy * dt;
+        f.vy *= .985;
+        ctx.fillStyle = '#ffe9a8';
+        ctx.fillRect(f.x - 1.5, f.y, 3, 10);
+        if (f.y <= f.alvo) { explodir(f.x, f.y); foguetes.splice(i, 1); }
+      }
+      for (let i = faiscas.length - 1; i >= 0; i--) {
+        const p = faiscas[i];
+        p.vx *= .985; p.vy = p.vy * .985 + .06 * dt;
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        p.vida -= .011 * dt;
+        if (p.vida <= 0) { faiscas.splice(i, 1); continue; }
+        ctx.globalAlpha = p.vida;
+        ctx.fillStyle = p.cor;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      if (t < acabaFogos || foguetes.length || faiscas.length) requestAnimationFrame(quadro);
+      else { ctx.clearRect(0, 0, innerWidth, innerHeight); tela.hidden = true; animandoFogos = false; }
+    }
+    requestAnimationFrame(quadro);
+  }
+
+  // Tela cheia: botão, duplo clique ou F (fora da lista de objetivos, dos
+  // botões e do campo de digitar).
   function alternarTelaCheia() {
     if (document.fullscreenElement) document.exitFullscreen();
     else document.documentElement.requestFullscreen().catch(() => {});
   }
   $('btnTelaCheia').addEventListener('click', alternarTelaCheia);
-  document.addEventListener('dblclick', alternarTelaCheia);
-  document.addEventListener('keydown', e => { if (e.key === 'f' || e.key === 'F') alternarTelaCheia(); });
+  document.addEventListener('dblclick', e => { if (!e.target.closest('.objetivos, button')) alternarTelaCheia(); });
+  document.addEventListener('keydown', e => {
+    if (e.target.closest('input')) return;
+    if (e.key === 'f' || e.key === 'F') alternarTelaCheia();
+  });
   document.addEventListener('fullscreenchange', () => {
     $('btnTelaCheia').textContent = document.fullscreenElement ? '✕ Sair da tela cheia' : '⛶ Tela cheia';
   });
@@ -243,7 +435,7 @@
   function mexeu() {
     document.body.classList.remove('sem-cursor');
     clearTimeout(parado);
-    parado = setTimeout(() => document.body.classList.add('sem-cursor'), 2500);
+    parado = setTimeout(() => { if (!document.body.classList.contains('editando')) document.body.classList.add('sem-cursor'); }, 2500);
   }
   document.addEventListener('mousemove', mexeu);
   mexeu();
