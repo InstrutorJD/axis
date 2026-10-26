@@ -36,21 +36,26 @@
 </div>
 
 <script>
-// Prática sem correção automática: o trabalho acontece no MongoDB Atlas
-// (gratuito, só navegador — sem instalar programa nem abrir porta), fora do
-// portal. O aluno marca o checklist de cada etapa e a
-// última etapa é o "Checklist de desempenho prático" do plano de ensino,
-// conferido pelo professor, que dá o visto (token) para concluir.
+// Prática sem correção automática: o trabalho acontece no Mongo Playground
+// (mongoplayground.net: gratuito, só navegador, SEM criar conta), fora do
+// portal. Lá o "banco" é o painel Database (os documentos em JSON) e cada
+// ▶ run recomeça dele: nada fica gravado no site. Por isso o roteiro manda o
+// aluno guardar o trabalho no painel Database e mostrar pelo link do "share".
+// O comando de atualizar no Playground é `update` (updateOne/insertOne não
+// rodam lá). Todos os comandos deste roteiro foram executados no Playground.
+// O aluno marca o checklist de cada etapa e a última etapa é o "Checklist de
+// desempenho prático" do plano de ensino, conferido pelo professor, que dá o
+// visto (token) para concluir.
 const STEPS = [
   {
     titulo: 'Missão: o catálogo da MegaShop',
     corpo: `
-Na aula passada você **escreveu** o catálogo da MegaShop em JSON. Hoje ele vai para um **banco MongoDB de verdade**.
+Na aula passada você **escreveu** o catálogo da MegaShop em JSON. Hoje ele vai para o **MongoDB de verdade**, rodando no navegador.
 
 ### O que você vai fazer
-1. Abrir o MongoDB Atlas, direto no navegador (gratuito, sem instalar nada)
-2. Criar o banco \`megashop\` e a coleção \`produtos\`
-3. Inserir produtos com **campos diferentes** na mesma coleção
+1. Abrir o **Mongo Playground**: gratuito, no navegador, **sem criar conta**
+2. Montar a coleção \`produtos\`
+3. Colocar produtos com **campos diferentes** na mesma coleção
 4. Buscar e atualizar documentos
 5. Mostrar o resultado ao professor, que confere o **checklist de desempenho**
 
@@ -59,60 +64,56 @@ Na aula passada você **escreveu** o catálogo da MegaShop em JSON. Hoje ele vai
   {
     titulo: 'Preparar o ambiente',
     corpo: `
-Tudo acontece no **MongoDB Atlas**, pelo navegador. Não precisa instalar nada.
+1. Abra [mongoplayground.net](https://mongoplayground.net). Não precisa de conta nem de instalar nada
+2. A tela tem **três painéis**:
 
-1. Entre em [cloud.mongodb.com](https://cloud.mongodb.com) e crie sua conta gratuita (ou entre com a conta Google)
-2. Crie um cluster no plano **gratuito** (Free / M0). A criação leva alguns minutos: enquanto isso, releia o primeiro documento da próxima etapa
-3. Se o Atlas abrir uma janela de **conexão** (usuário, IP, driver), pode fechar: hoje você não vai conectar nenhum programa
-4. No menu lateral, abra o **Data Explorer**
+| Painel | O que é |
+|---|---|
+| **Database** (esquerda) | O banco: as coleções e os documentos, em JSON |
+| **Query** (meio) | O comando que você vai rodar |
+| **Result** (direita) | O que o MongoDB devolveu |
 
-> O Atlas às vezes muda o nome ou o lugar de um botão. Se não achar, procure pelo texto parecido ou chame o professor.
+3. Para rodar, clique em **▶ run** (ou **Ctrl+Enter**)
 
-- [ ] Minha conta está criada e o cluster gratuito está ativo
-- [ ] Estou com o Data Explorer aberto`,
+> **Importante:** o site não grava nada. Cada **▶ run** começa de novo a partir do painel **Database**. O seu banco é o que está escrito ali: não feche a aba sem guardar (no fim da aula você gera um link com o botão **share**).
+
+- [ ] Estou com o Mongo Playground aberto e achei os três painéis`,
   },
   {
-    titulo: 'Criar o banco e a coleção',
+    titulo: 'A coleção e o primeiro documento',
     corpo: `
-No MongoDB não existe \`CREATE TABLE\`. Você cria o banco **junto com a primeira coleção**:
+No MongoDB não existe \`CREATE TABLE\`: a coleção nasce junto com o **primeiro documento**.
 
-1. No Data Explorer, clique em **Create Database**
-2. Nome do banco: \`megashop\`
-3. Nome da coleção: \`produtos\`
-4. Confirme em **Create**
-
-> Por código seria só \`use megashop\` e o primeiro \`insertOne\`: o banco e a coleção nascem junto com o **primeiro documento**.
-
-- [ ] O banco \`megashop\` aparece na lista
-- [ ] A coleção \`produtos\` existe dentro dele (vazia por enquanto)`,
-  },
-  {
-    titulo: 'Primeiro documento',
-    corpo: `
-Abra a coleção \`produtos\`, clique em **Insert Document**, mude para a visão de **JSON** (ícone \`{ }\`) e digite:
+Apague tudo do painel **Database** e digite:
 
 §§§json
-{
-  "nome": "Camiseta Básica",
-  "categoria": "roupa",
-  "preco": 59.9,
-  "tamanho": "M",
-  "cores": ["preta", "branca"],
-  "estoque": { "loja": 12, "online": 30 },
-  "ativo": true
+db={
+  "produtos": [
+    {
+      "nome": "Camiseta Básica",
+      "categoria": "roupa",
+      "preco": 59.9,
+      "tamanho": "M",
+      "cores": ["preta", "branca"],
+      "estoque": { "loja": 12, "online": 30 },
+      "ativo": true
+    }
+  ]
 }
 §§§
 
-Clique em **Insert** e observe o documento na lista.
+No painel **Query**, apague o que tiver e digite \`db.produtos.find()\`. Clique em **▶ run**.
 
-- [ ] O documento foi inserido
+> \`db={ "produtos": [ ... ] }\` quer dizer: o banco tem uma coleção chamada \`produtos\`, e a lista \`[ ]\` são os documentos dela.
+
+- [ ] O documento apareceu no **Result**
 - [ ] Apareceu um campo \`_id\` com um **ObjectId** que eu não digitei
 - [ ] Sei apontar no documento um texto, um número, um booleano, uma lista e um objeto embutido`,
   },
   {
     titulo: 'Sem esquema fixo: dois produtos diferentes',
     corpo: `
-Agora **escreva você** o JSON de mais dois produtos, cada um só com os **seus** campos. Dá para inserir os dois de uma vez: no editor, coloque os documentos dentro de uma lista \`[ { ... }, { ... } ]\`.
+Agora **escreva você** o JSON de mais dois produtos, **dentro da mesma lista** do painel Database (separe os documentos com vírgula: \`[ { ... }, { ... }, { ... } ]\`). Cada um só com os **seus** campos:
 
 | Campo | Notebook Pro | Banco de Dados na Prática |
 |---|---|---|
@@ -122,16 +123,18 @@ Agora **escreva você** o JSON de mais dois produtos, cada um só com os **seus*
 | estoque | loja 3, online 8 | loja 20, online 15 |
 | ativo | true | true |
 
+Rode \`db.produtos.find()\` de novo.
+
 > Não coloque \`tamanho\` no notebook nem \`memoria\` no livro. No MongoDB, campo que não se aplica **não existe**, em vez de ficar vazio.
 
-- [ ] A coleção tem 3 documentos
+- [ ] O Result mostra 3 documentos
 - [ ] Cada produto tem só os próprios campos (nenhum \`null\`)
 - [ ] Os preços estão como **número** (sem aspas, com ponto decimal)`,
   },
   {
     titulo: 'Seus próprios produtos',
     corpo: `
-Invente **dois produtos** de uma categoria nova (games, alimentos, esportes...). Cada um precisa ter:
+Invente **dois produtos** de uma categoria nova (games, alimentos, esportes...) e coloque na lista. Cada um precisa ter:
 
 - \`nome\`, \`categoria\`, \`preco\` (número) e \`ativo\` (booleano)
 - pelo menos **uma lista** (ex.: plataformas, sabores, tamanhos)
@@ -140,61 +143,68 @@ Invente **dois produtos** de uma categoria nova (games, alimentos, esportes...).
 
 > Capriche no formato: nomes de campo **iguais** aos que você já usou (\`preco\`, não \`valor\`), minúsculos e sem acento.
 
-- [ ] Inseri os 2 produtos novos (a coleção tem 5 documentos)
+- [ ] Coloquei os 2 produtos novos (\`db.produtos.find()\` mostra 5 documentos)
 - [ ] Os dois têm lista, objeto embutido e um campo exclusivo
 - [ ] Os nomes dos campos repetidos seguem o mesmo padrão dos outros produtos`,
   },
   {
     titulo: 'Buscar documentos',
     corpo: `
-Digite cada filtro na barra de busca (**Filter**) da coleção e clique em **Apply** (ou **Find**). Anote quantos documentos voltam.
+Rode cada busca no painel **Query** e anote quantos documentos voltam:
 
-| O que buscar | Filtro |
+| O que buscar | Comando |
 |---|---|
-| Só roupas | \`{ categoria: "roupa" }\` |
-| Preço menor que 100 | \`{ preco: { $lt: 100 } }\` |
-| Quem tem o campo memoria | \`{ memoria: { $exists: true } }\` |
-| Mais de 10 no estoque online | \`{ "estoque.online": { $gt: 10 } }\` |
+| Só roupas | \`db.produtos.find({ categoria: "roupa" })\` |
+| Preço menor que 100 | \`db.produtos.find({ preco: { $lt: 100 } })\` |
+| Quem tem o campo memoria | \`db.produtos.find({ memoria: { $exists: true } })\` |
+| Mais de 10 no estoque online | \`db.produtos.find({ "estoque.online": { $gt: 10 } })\` |
 
-Por código, cada linha vira \`db.produtos.find( filtro )\`: o filtro é o mesmo.
+> \`"estoque.online"\` (com ponto e entre aspas) entra **dentro** do objeto embutido. Se nada bater, o Result mostra **no document found**.
 
-> \`"estoque.online"\` (com ponto e entre aspas) entra **dentro** do objeto embutido.
-
-- [ ] Rodei os 4 filtros e anotei quantos documentos cada um trouxe
+- [ ] Rodei as 4 buscas e anotei quantos documentos cada uma trouxe
 - [ ] Sei explicar por que o notebook não aparece na busca de estoque online`,
   },
   {
     titulo: 'Atualizar um documento',
     corpo: `
-O **Notebook Pro** entrou em promoção: agora custa **4299** e ganha o campo \`promocao: true\`.
-
-No Data Explorer: passe o mouse no documento, clique no **lápis** (editar), mude o preço, adicione o campo novo e clique em **Update**.
-
-Por código, o mesmo seria:
+O **Notebook Pro** entrou em promoção: agora custa **4299** e ganha o campo \`promocao: true\`. Rode:
 
 §§§js
-db.produtos.updateOne(
+db.produtos.update(
   { nome: "Notebook Pro" },
   { $set: { preco: 4299, promocao: true } }
 )
 §§§
 
-Depois, busque \`{ promocao: true }\`.
+O Result mostra a coleção **depois** da mudança. Confira o notebook.
 
-- [ ] O Notebook Pro está com preço 4299 e \`promocao: true\`
-- [ ] A busca \`{ promocao: true }\` traz **só** o notebook
-- [ ] Os outros campos do notebook continuam lá (memoria, estoque...)`,
+> No Mongo Playground o comando é \`update\`; num sistema de verdade você escreveria \`updateOne\`, com os mesmos dois objetos (o filtro e o \`$set\`).
+
+Agora rode \`db.produtos.find({ promocao: true })\`: aparece **no document found**, porque o site não grava, e cada **▶ run** recomeça do painel Database. Para a promoção ficar **de vez** no seu banco, edite o notebook no painel **Database** (preço 4299 e \`"promocao": true\`) e rode a busca de novo.
+
+- [ ] O Result do \`update\` mostra o Notebook Pro com 4299 e \`promocao: true\`
+- [ ] Os outros campos do notebook continuaram lá (memoria, estoque...)
+- [ ] Depois de editar o painel Database, \`{ promocao: true }\` traz **só** o notebook`,
   },
   {
     titulo: 'Desafio extra (quem terminar antes)',
     corpo: `
-Crie a coleção \`clientes\` no mesmo banco e insira **3 clientes**, cada um com:
+Crie a coleção \`clientes\` no **mesmo banco**: no painel Database, depois da lista de \`produtos\`, coloque uma vírgula e a nova coleção:
+
+§§§json
+db={
+  "produtos": [ ... ],
+  "clientes": [ ... ]
+}
+§§§
+
+Coloque **3 clientes**, cada um com:
 
 - \`nome\` e \`email\`
 - \`endereco\` **embutido** (\`cidade\` e \`bairro\`)
 - \`interesses\`: uma lista de categorias (ex.: \`["roupa", "livros"]\`)
 
-Depois, encontre os clientes de uma cidade com \`{ "endereco.cidade": "Recife" }\` e quem se interessa por livros com \`{ interesses: "livros" }\`.
+Depois, rode \`db.clientes.find({ "endereco.cidade": "Recife" })\` (use uma cidade dos seus clientes) e \`db.clientes.find({ interesses: "livros" })\`.
 
 > Repare: buscar um valor **dentro de uma lista** é igual a buscar um campo comum.
 
@@ -202,37 +212,48 @@ Depois, encontre os clientes de uma cidade com \`{ "endereco.cidade": "Recife" }
 - [ ] Rodei as duas buscas`,
   },
   {
+    titulo: 'Guardar e mostrar',
+    corpo: `
+1. Rode \`db.produtos.find()\` uma última vez e confira os 5 produtos
+2. Clique em **share** (no topo). O endereço da página vira um link do tipo \`mongoplayground.net/p/...\`
+3. Copie esse link e guarde (no seu caderno ou mande para você mesmo): ele abre o seu banco e o seu comando do jeito que estão agora
+
+> O link é a única forma de recuperar o trabalho depois: o site não tem conta nem "salvar".
+
+- [ ] Gerei o link com o **share** e guardei`,
+  },
+  {
     titulo: 'Checklist de desempenho prático',
     corpo: `
 Revise com calma. É isto que o professor vai conferir **na sua tela**:
 
-- [ ] Criou o banco \`megashop\` e a coleção \`produtos\`
-- [ ] Inseriu documentos em JSON válido, com tipos corretos (texto, número, booleano, lista e objeto embutido)
-- [ ] Inseriu, na mesma coleção, documentos com **campos diferentes** (sem esquema fixo e sem \`null\`)
+- [ ] Montou a coleção \`produtos\` no painel Database e rodou \`find\` nela
+- [ ] Escreveu documentos em JSON válido, com tipos corretos (texto, número, booleano, lista e objeto embutido)
+- [ ] Colocou, na mesma coleção, documentos com **campos diferentes** (sem esquema fixo e sem \`null\`)
 - [ ] Manteve o padrão dos nomes e dos tipos dos campos (\`preco\` sempre número)
 - [ ] Explica o que é o \`_id\` / ObjectId e a diferença entre JSON e BSON
 - [ ] Buscou documentos com filtro, inclusive dentro de um objeto embutido
 - [ ] Atualizou um documento com \`$set\` sem apagar os outros campos
 
-> Tudo marcado? Chame o professor e mostre o banco aberto. A próxima etapa é o visto.`,
+> Tudo marcado? Chame o professor e mostre o Mongo Playground aberto (ou o link do share). A próxima etapa é o visto.`,
   },
 ];
 
 const ITENS_DESEMPENHO = [
-  ['Criou o banco megashop e a coleção produtos', 'Banco e coleção visíveis no Data Explorer do Atlas.'],
-  ['Inseriu documentos em JSON válido com tipos corretos', 'Camiseta com texto, número (59.9), booleano (ativo), lista (cores) e objeto embutido (estoque).'],
+  ['Montou a coleção produtos e rodou find', 'Painel Database do Mongo Playground com db={ "produtos": [ ... ] } e db.produtos.find() mostrando os documentos.'],
+  ['Escreveu documentos em JSON válido com tipos corretos', 'Camiseta com texto, número (59.9), booleano (ativo), lista (cores) e objeto embutido (estoque).'],
   ['Documentos com campos diferentes na mesma coleção', 'Notebook com memoria/processador, livro com autor/paginas, sem tamanho/memoria null.'],
   ['Padrão de nomes e tipos', 'preco sempre número sem aspas; nomes de campo iguais entre os produtos (preco, estoque, ativo).'],
   ['Explica _id/ObjectId e JSON × BSON', '_id único criado automaticamente (ObjectId de 12 bytes, começa com a data/hora); JSON é o texto digitado, BSON é o formato binário com mais tipos que o MongoDB guarda.'],
   ['Buscou com filtro', 'Com os 3 produtos do roteiro: roupa → 1; preco < 100 → 2 (camiseta e livro); memoria existe → 1 (notebook); estoque.online > 10 → 2 (camiseta 30 e livro 15; notebook tem 8). Os produtos inventados pelo aluno podem aumentar essas contagens.'],
-  ['Atualizou com $set', 'Notebook Pro com preco 4299 e promocao: true; { promocao: true } traz só ele; memoria e estoque continuam no documento.'],
+  ['Atualizou com $set', 'db.produtos.update({ nome: "Notebook Pro" }, { $set: { preco: 4299, promocao: true } }) mostra o notebook com 4299 e promocao: true, com memoria e estoque mantidos. No Playground cada run recomeça do painel Database: para { promocao: true } trazer só o notebook, o aluno edita o painel Database.'],
 ];
 
 RoteiroSlides.iniciar({
   activityLocation: 'bd_mongodb_pratica',
   tituloTopo: 'Banco de Dados — Catálogo da MegaShop no MongoDB',
   steps: STEPS,
-  textoVisto: 'Você marcou todo o checklist de desempenho e está com o banco megashop aberto na tela?',
+  textoVisto: 'Você marcou todo o checklist de desempenho e está com o Mongo Playground (ou o link do share) aberto na tela?',
   gabarito: {
     title: 'Banco de Dados — Catálogo da MegaShop no MongoDB',
     subtitle: 'Prática · Checklist de desempenho prático · Trilha MongoDB na Prática · Turma Sistemas',

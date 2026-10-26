@@ -99,7 +99,10 @@ window.RoteiroSlides = (function () {
         continue;
       }
 
-      const para = [];
+      // A 1ª linha entra sempre: uma linha como "2.1 Requisitos" ou "-5 graus"
+      // não é lista nem título, e sem isto o laço nunca avançava (página travada).
+      const para = [line];
+      i++;
       while (i < lines.length && lines[i].trim() !== '' && !/^(```|§§§|#|\||-|\d+\.|>)/.test(lines[i].trim())) {
         para.push(lines[i].trim());
         i++;

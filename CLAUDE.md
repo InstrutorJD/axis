@@ -12,6 +12,15 @@ novo, com layout de slides**, descrito em `docs/padrao-trilhas.md`:
   já construídas (que **não** devem ser alteradas nem migradas).
 - Regras de nota, progresso, capacidade MSEP e qualidade das perguntas não
   mudaram — estão no documento.
+- **Ferramentas: o mais simples possível, online, gratuitas e sem login.**
+  Nada de pedir conta em plataforma usada poucas vezes (GitHub, Google e
+  Canva, de uso frequente, podem). Sem alternativa sem login → avise o
+  professor antes de escrever.
+- **Aula só fica "pronta" depois de testada** (seção 11 do documento): todo
+  código e comando que o aluno vai digitar é executado de verdade, toda
+  ferramenta de fora é aberta num navegador sem login, e a prática é
+  resolvida até o fim. Ao entregar, diga o que foi testado, como, e o que
+  não deu para testar.
 - Se o documento ainda disser **"MOTOR EM CONSTRUÇÃO"**, não crie a trilha:
   avise o usuário e pergunte como seguir.
 
@@ -28,8 +37,14 @@ com *(agente em worktree)* abaixo.
 
 ## Testes: quem roda é o GitHub, não o agente
 
-**Não rode testes localmente**: nem `npx playwright test`, nem `npm test`,
-nem um spec isolado. O usuário não quer gastar tokens com isso.
+**Não rode a suíte de testes localmente**: nem `npx playwright test`, nem
+`npm test`, nem um spec isolado. O usuário não quer gastar tokens com isso.
+
+Isso **não** dispensa testar o **conteúdo de aula** que você criou ou
+mudou (rodar o código que o aluno vai digitar, abrir a ferramenta de fora
+sem login, resolver a prática até o fim): isso é obrigatório, com scripts
+na pasta temporária, nunca no repositório — ver a seção 11 de
+`docs/padrao-trilhas.md`.
 
 Quem testa é o GitHub Actions (`.github/workflows/deploy.yml`): a cada push
 na `main` ele roda a suíte completa (`npm test`) e **só publica o site se

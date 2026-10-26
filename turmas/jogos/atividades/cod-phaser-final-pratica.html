@@ -177,6 +177,7 @@ let textoVidas;
 
 §§§javascript
 function colidirComInimigo() {
+  if (jogoTerminou) return;
   vidas = vidas - 1;
   textoVidas.setText('Vidas: ' + vidas);
 
@@ -190,12 +191,13 @@ function colidirComInimigo() {
 §§§
 
 - O ¤vidas = 3;¤ dentro do ¤criar()¤ faz o R reiniciar também as vidas.
+- O ¤if (jogoTerminou) return;¤ do começo é obrigatório: depois do Game Over o fantasma continua encostado no Pacman e o Phaser chama esta função a cada frame. Sem essa linha, o placar desce para "Vidas: -1", "-2", "-3"...
 - O ¤return¤ encerra a função: com 0 vidas o Pacman não volta para o início.
 - Voltar o Pacman para longe do fantasma evita perder as 3 vidas no mesmo toque.
 
 - [ ] Placar de vidas aparecendo na tela
 - [ ] Encostar num fantasma tira 1 vida e volta o Pacman para o início
-- [ ] Com 0 vidas aparece "Game Over", e o R devolve as 3 vidas`
+- [ ] Com 0 vidas aparece "Game Over", o placar para em "Vidas: 0" e o R devolve as 3 vidas`
     },
   ];
 
@@ -443,7 +445,7 @@ function colidirComInimigo() {
       items: [
         { number: 1, title: 'Jogo completo', prompt: 'O Pacman roda pelo Live Server sem erro no Console e passa nos 7 itens do teste de aceitação (labirinto, movimento, animações, moedas, Game Over/vitória, R)?', answer: 'Mesmo checklist da Prática — Construa o Pacman no Phaser: collider com paredes, overlap com moedas e fantasmas, moeda.destroy(), jogoTerminou e keydown-R com scene.restart().' },
         { number: 2, title: 'Constantes com nome', prompt: 'O game.js declara VELOCIDADE_FANTASMA, TEMPO_TROCA_DIRECAO e PONTOS_POR_MOEDA no topo e usa os nomes no lugar de 90, 1500 e 10?', answer: 'delay: TEMPO_TROCA_DIRECAO no time.addEvent; pontuacao += PONTOS_POR_MOEDA em coletarMoeda; setVelocity(direcao.x * VELOCIDADE_FANTASMA, direcao.y * VELOCIDADE_FANTASMA) em atualizar.' },
-        { number: 3, title: 'Três vidas (opcional)', prompt: 'Encostar num fantasma tira 1 vida e volta o Pacman ao início; com 0 vidas aparece Game Over; o R devolve as 3 vidas?', answer: 'let vidas/textoVidas no topo; vidas = 3 e textoVidas no criar(); colidirComInimigo decrementa, atualiza o texto, chama encerrarJogo com vidas <= 0 e senão jogador.setPosition(tamanhoBloco * 1.5, tamanhoBloco * 1.5).' },
+        { number: 3, title: 'Três vidas (opcional)', prompt: 'Encostar num fantasma tira 1 vida e volta o Pacman ao início; com 0 vidas aparece Game Over; o R devolve as 3 vidas?', answer: 'let vidas/textoVidas no topo; vidas = 3 e textoVidas no criar(); colidirComInimigo começa com if (jogoTerminou) return; (senão as vidas ficam negativas depois do Game Over), decrementa, atualiza o texto, chama encerrarJogo com vidas <= 0 e senão jogador.setPosition(tamanhoBloco * 1.5, tamanhoBloco * 1.5).' },
       ],
       fileName: 'cod-phaser-final-pratica-checklist.txt',
     });

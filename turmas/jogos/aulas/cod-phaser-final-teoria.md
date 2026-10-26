@@ -41,10 +41,10 @@ Abra o seu Pacman (ou lembre de onde parou no roteiro).
 ## Pergunta
 Você colocou o código que lê as setas do teclado dentro de `criar()`. O que acontece?
 
-- [ ] O Pacman anda normalmente, porque criar roda sempre
+- [ ] O Pacman anda normalmente, porque criar roda a cada frame
 - [x] O teclado é lido uma vez só, no início, e o Pacman não anda
-- [ ] O jogo trava, porque criar não aceita ler o teclado
-- [ ] O Pacman anda mais rápido, porque criar roda primeiro
+- [ ] O jogo trava na hora, porque criar não aceita ler o teclado
+- [ ] O Pacman anda mais rápido, porque criar roda antes de tudo
 
 > Por quê: `criar` roda uma única vez ao começar. Ler as setas precisa acontecer a cada frame, e isso é papel do `atualizar`.
 
@@ -82,10 +82,10 @@ function atualizar() {
 ## Pergunta
 Um colega apagou a linha `jogador.setVelocity(0);`. Que comportamento ele vai ver?
 
-- [ ] O Pacman não sai do lugar em nenhuma direção
-- [ ] O Pacman atravessa as paredes do labirinto
+- [ ] O Pacman não sai do lugar em nenhuma das quatro direções
+- [ ] O Pacman passa a atravessar as paredes do labirinto
 - [x] O Pacman continua andando depois que a tecla é solta
-- [ ] O placar para de somar quando come uma moeda
+- [ ] O placar para de somar pontos quando ele come uma moeda
 
 > Por quê: sem zerar a velocidade a cada frame, o último valor fica valendo. Soltar a tecla não muda nada e o Pacman segue andando.
 
@@ -107,7 +107,7 @@ this.physics.add.overlap(jogador, moedas, coletarMoeda);
 ## Pergunta
 O Pacman come a moeda, mas antes ela "empurra" o Pacman para trás como se fosse uma parede. O que provavelmente está errado?
 
-- [ ] A moeda foi criada no grupo de inimigos do jogo
+- [ ] A moeda foi criada dentro do grupo de inimigos, e não de moedas
 - [x] Usaram `collider` entre jogador e moedas, em vez de `overlap`
 - [ ] Faltou chamar `moeda.destroy()` dentro de `coletarMoeda`
 - [ ] A velocidade do jogador está alta demais para a moeda
@@ -196,10 +196,10 @@ Depois do "Game Over", o Pacman ainda anda pelo labirinto vazio. Qual linha est�
 ## Pergunta
 O jogo abre com uma tela preta e o Console mostra `preCarregar is not defined`. Qual é a causa mais provável?
 
-- [ ] O arquivo `pacman_sheet.png` está com o nome errado
-- [ ] Faltou o `collider` entre o jogador e as paredes
+- [ ] O arquivo `pacman_sheet.png` está com o nome errado na pasta
+- [ ] Faltou o `collider` entre o jogador e as paredes do mapa
 - [x] A função `preCarregar` não existe ou foi escrita diferente
-- [ ] O navegador não tem suporte à biblioteca Phaser
+- [ ] O navegador do computador não tem suporte à biblioteca Phaser
 
 > Por quê: "is not defined" quer dizer que o nome usado na `configuracao` não existe no código. Confira se a função foi colada e se o nome é idêntico.
 

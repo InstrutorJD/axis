@@ -15,6 +15,7 @@
   .dr-lista li.ok{ border-color:var(--ok); color:var(--ok); }
   .dr-lista li.falha{ border-color:var(--blood-bright); }
   .dr-lista li.falha b{ color:var(--blood-bright); }
+  .dr-previa{ margin-top:14px; padding:14px 16px; border-radius:12px; border:1px solid var(--line); background:var(--panel2); }
   .dr-acoes{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-top:12px; }
 </style>
 <script>
@@ -45,9 +46,9 @@
 </div>
 
 <script>
-// O aluno escreve os pré-textuais do documento do projeto no VS Code Web
-// (vscode.dev: online, grátis, sem instalar), em Markdown, e cola o draft
-// aqui: o portal confere a estrutura (ordem, resumo, palavras-chave, listas,
+// O aluno escreve os pré-textuais do documento do projeto em Markdown direto
+// aqui, no editor da etapa "Escrever e conferir" (já começa com o MODELO;
+// nenhuma ferramenta de fora, nenhuma conta): o portal confere a estrutura (ordem, resumo, palavras-chave, listas,
 // sumário) e o professor dá o visto — o "Draft do documento técnico" do plano
 // de ensino. O draft fica no progresso ({ completed, draft, ... }), espelhado
 // no Supabase. Compartilhada pelas turmas Sistemas e Jogos.
@@ -157,17 +158,17 @@
       stepWrap.innerHTML = cartao('Missão: o draft dos pré-textuais', `<div class="ab-conteudo">${md(`
 Hoje você começa o **documento técnico** do projeto final pelos **elementos pré-textuais**: folha de rosto, resumo, abstract, lista de ilustrações e sumário.
 
-### A ferramenta: VS Code Web
-1. Abra [vscode.dev](https://vscode.dev) (grátis, no navegador, sem instalar)
-2. **Arquivo → Novo arquivo de texto** e salve como \`documento.md\`
-3. Escreva em Markdown; **Ctrl+Shift+V** mostra a versão formatada
-4. No fim, copie o texto inteiro e cole aqui, na etapa **Conferir o draft**
+### Onde escrever: aqui mesmo
+1. As etapas 2, 3 e 4 explicam cada parte do documento
+2. Você escreve na etapa **Escrever e conferir**: o editor já começa com o modelo, e o texto fica **salvo sozinho**
+3. O texto é em **Markdown**: \`#\` no começo da linha marca um título; o botão **👁 Ver formatado** mostra como fica
+4. Use **← →** para ir e voltar entre as explicações e o editor
 
 > Tempo sugerido: **40 minutos**. O draft é um rascunho: dá para melhorar depois, mas a **estrutura** já precisa estar certa.`)}</div>${nav(false, true)}`);
     } else if (e === 'modelo') {
-      stepWrap.innerHTML = cartao('O modelo do documento (5 min)', `<div class="ab-conteudo">${md('Comece o `documento.md` com esta estrutura e troque os textos de exemplo pelos do **seu** projeto:')}</div>
+      stepWrap.innerHTML = cartao('O modelo do documento (5 min)', `<div class="ab-conteudo">${md('Esta é a estrutura do documento. Na etapa **Escrever e conferir**, o editor já começa com ela: troque os textos de exemplo pelos do **seu** projeto.')}</div>
         <pre><code>${esc(MODELO)}</code></pre>
-        <div class="ab-conteudo">${md('- [ ] Criei o `documento.md` no VS Code Web com as 5 seções\n- [ ] Preenchi a folha de rosto com os dados reais da equipe')}</div>${nav(true, true)}`);
+        <div class="ab-conteudo">${md('- [ ] Entendi as 5 seções e a ordem delas\n- [ ] Já sei os dados reais da equipe para a folha de rosto')}</div>${nav(true, true)}`);
     } else if (e === 'resumo') {
       stepWrap.innerHTML = cartao('Resumo, abstract e palavras-chave (15 min)', `<div class="ab-conteudo">${md(`
 Escreva o resumo em **um parágrafo**, de **150 a 500 palavras**, em terceira pessoa, respondendo:
@@ -216,13 +217,21 @@ As seções do texto, com **numeração progressiva** e a página. Os pré-textu
     return itens.map(i => i.ok ? `<li class="ok">✔ ${esc(i.texto)}</li>` : `<li class="falha"><b>✘ ${esc(i.texto)}</b> — ${esc(i.dica)}</li>`).join('');
   }
   function renderConferir() {
-    stepWrap.innerHTML = cartao('Conferir o draft', `
-      <div class="ab-conteudo">${md('No VS Code Web, selecione todo o texto do `documento.md` (**Ctrl+A**, **Ctrl+C**) e cole abaixo. Clique em **Conferir** quantas vezes quiser.')}</div>
+    if (!estado.draft) { estado.draft = MODELO; salvar(true); }
+    stepWrap.innerHTML = cartao('Escrever e conferir o draft', `
+      <div class="ab-conteudo">${md('Escreva aqui, trocando os textos de exemplo pelos do seu projeto. O texto fica **salvo sozinho**. Clique em **Conferir** quantas vezes quiser.')}</div>
       <textarea class="dr-editor" id="drTexto" spellcheck="true" aria-label="Draft em Markdown" placeholder="# FOLHA DE ROSTO ...">${esc(estado.draft)}</textarea>
-      <div class="dr-acoes"><button class="btn" id="btnConferir">Conferir</button></div>
+      <div class="dr-acoes"><button class="btn" id="btnConferir">Conferir</button><button class="btn btn-secondary" id="btnFormatado">👁 Ver formatado</button></div>
+      <div class="ab-conteudo dr-previa" id="drPrevia" hidden></div>
       <ul class="dr-lista" id="drLista">${estado.draft ? listaHtml(conferir(estado.draft)) : ''}</ul>`) + nav(true, draftOk(), 'Pedir visto →');
     const ta = document.getElementById('drTexto');
     ta.addEventListener('input', () => { estado.draft = ta.value; salvar(); });
+    document.getElementById('btnFormatado').addEventListener('click', ev => {
+      const pv = document.getElementById('drPrevia');
+      pv.hidden = !pv.hidden;
+      if (!pv.hidden) pv.innerHTML = md(ta.value);
+      ev.target.textContent = pv.hidden ? '👁 Ver formatado' : '✕ Fechar formatado';
+    });
     document.getElementById('btnConferir').addEventListener('click', () => {
       estado.draft = ta.value; salvar(true);
       const itens = conferir(ta.value);
@@ -236,11 +245,11 @@ As seções do texto, com **numeração progressiva** e a página. Os pré-textu
     if (!estado.completed && !draftOk()) { atual = ETAPAS.indexOf('conferir'); render(); return; }
     if (estado.completed) {
       const quando = estado.vistoEm ? new Date(estado.vistoEm).toLocaleString('pt-BR') : '';
-      stepWrap.innerHTML = cartao('✅ Draft entregue', `<p>Visto dado por <b>${esc(estado.vistoPor || '')}</b>${quando ? ' em ' + esc(quando) : ''}.</p><div class="ab-conteudo">${md('Continue o documento a partir desse `documento.md`: a introdução é a próxima parte.')}</div>`, 'ab-concluida') + nav(true, false);
+      stepWrap.innerHTML = cartao('✅ Draft entregue', `<p>Visto dado por <b>${esc(estado.vistoPor || '')}</b>${quando ? ' em ' + esc(quando) : ''}.</p><div class="ab-conteudo">${md('Copie o texto da etapa anterior (**Ctrl+A**, **Ctrl+C**) para o documento do projeto da equipe: a introdução é a próxima parte.')}</div>`, 'ab-concluida') + nav(true, false);
       ligar(); return;
     }
     stepWrap.innerHTML = cartao('🧑‍🏫 Visto do professor', `
-      <div class="ab-conteudo"><p>Chame o professor e mostre o draft (no VS Code Web ou na etapa anterior). Quando ele conferir, peça o token de professor (Gestão → "Token — Dar Visto / Pular Etapa") e digite abaixo.</p></div>
+      <div class="ab-conteudo"><p>Chame o professor e mostre o draft (na etapa anterior). Quando ele conferir, peça o token de professor (Gestão → "Token — Dar Visto / Pular Etapa") e digite abaixo.</p></div>
       <div class="ab-form"><label>Token do professor <input type="text" id="vistoToken" inputmode="numeric" maxlength="6" autocomplete="off"></label>
         <button class="btn" id="btnDarVisto">Dar visto</button><div class="ab-msg" id="vistoMsg" style="display:none;"></div></div>`) + nav(true, false);
     ligar();

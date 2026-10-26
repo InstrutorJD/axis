@@ -38,8 +38,8 @@
 <script>
 // Preparação e apresentação do pitch, sobre o projeto que a equipe estiver
 // desenvolvendo. Ferramentas: papel/quadro; opcionais e gratuitas, só no
-// navegador: Google Apresentações ou Canva (slides) e CodePen (prova de
-// conceito). A "Avaliação de Pitch" do plano de ensino é a última etapa, e o
+// navegador: Google Apresentações ou Canva (slides) e JSFiddle, sem conta
+// (prova de conceito, testada lá com o ViaCEP). A "Avaliação de Pitch" do plano de ensino é a última etapa, e o
 // professor dá o visto (token).
 const STEPS = [
   {
@@ -160,17 +160,27 @@ Material: um **cartaz** ou o **quadro**. Se quiser slides, use uma ferramenta gr
   {
     titulo: 'Desafio extra: prova de conceito (quem terminar antes)',
     corpo: `
-Mostre a integração **funcionando**. Abra o [CodePen](https://codepen.io/pen/) (gratuito, no navegador, não precisa de conta para testar) e, no painel **JS**, cole o exemplo abaixo. Ele consulta o ViaCEP, um serviço público de CEP:
+Mostre a integração **funcionando**. Abra o [JSFiddle](https://jsfiddle.net) (gratuito, no navegador, **sem criar conta**), cole o exemplo abaixo no painel **JavaScript** e clique em **Executar**. Ele consulta o ViaCEP, um serviço público de CEP. Teste no painel **Resultado** com \`01001-000\`:
 
 §§§js
 document.body.innerHTML = '<input id="cep" placeholder="CEP"> <button id="ok">Buscar</button><p id="saida"></p>';
 document.getElementById('ok').onclick = async () => {
+  const saida = document.getElementById('saida');
   const cep = document.getElementById('cep').value.replace(/\\D/g, '');
-  const resposta = await fetch('https://viacep.com.br/ws/' + cep + '/json/');
-  const dados = await resposta.json();
-  document.getElementById('saida').textContent = dados.erro
-    ? 'CEP não encontrado'
-    : dados.logradouro + ' - ' + dados.localidade + '/' + dados.uf;
+  if (cep.length !== 8) {
+    saida.textContent = 'Digite os 8 números do CEP';
+    return;
+  }
+  saida.textContent = 'Buscando...';
+  try {
+    const resposta = await fetch('https://viacep.com.br/ws/' + cep + '/json/');
+    const dados = await resposta.json();
+    saida.textContent = dados.erro
+      ? 'CEP não encontrado'
+      : dados.logradouro + ' - ' + dados.localidade + '/' + dados.uf;
+  } catch (e) {
+    saida.textContent = 'Sem conexão com o ViaCEP. Tente de novo.';
+  }
 };
 §§§
 

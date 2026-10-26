@@ -86,10 +86,10 @@ pagina = pagina + 1;
 ## Pergunta
 Qual destes comentários vale a pena manter no código?
 
-- [ ] `// declara a variável total com o valor zero`
-- [ ] `// chama a função calcular passando o valor`
+- [ ] `// declara a variável total e começa ela com o valor zero`
+- [ ] `// chama a função calcular passando o valor da transação`
 - [x] `// arredonda pra cima: o banco cobra fração como dia inteiro`
-- [ ] `// percorre o array de transações com o forEach`
+- [ ] `// percorre o array de transações, uma de cada vez, com o forEach`
 
 > Por quê: os outros três só repetem o que o código já mostra. O terceiro explica uma regra de negócio que ninguém adivinharia lendo o código.
 
@@ -178,10 +178,10 @@ O VS Code mostra a descrição da sua função quando alguém passa o mouse sobr
 ## Pergunta
 A função `buscarTransacoes(mes, ano)` devolve uma lista. Qual JSDoc descreve isso direito?
 
-- [ ] `@param {Array} mes` e `@returns {number} ano`
-- [ ] `@returns {number} mes` e `@returns {number} ano`
+- [ ] `@param {Array} mes`, `@param {Array} ano` e `@returns {number}`
+- [ ] `@returns {number} mes`, `@returns {number} ano` e `@param {Array}`
 - [x] `@param {number} mes`, `@param {number} ano` e `@returns {Array}`
-- [ ] `@param {Array} lista` e `@returns {number} mes e ano`
+- [ ] `@param {Array} lista`, `@param {number} mes` e `@returns {number}`
 
 > Por quê: cada entrada vira um `@param` com seu tipo, e o que sai da função vira um único `@returns`, aqui uma lista (Array).
 
@@ -215,9 +215,9 @@ Você notou que o gráfico do FinancApp quebra com valores negativos, mas não d
 O cliente pediu exportar as transações em PDF, mas isso fica para a próxima semana. O que deixar no lugar onde a função vai entrar?
 
 - [x] `// TODO: exportar transações em PDF (pedido do cliente)`
-- [ ] `// FIXME: exportar transações em PDF está quebrado`
-- [ ] `/** @returns {PDF} arquivo com as transações */`
-- [ ] `// exporta as transações do usuário para PDF`
+- [ ] `// FIXME: exportar transações em PDF está quebrado no app`
+- [ ] `/** @returns {PDF} arquivo com as transações do mês */`
+- [ ] `// exporta as transações do usuário para um arquivo PDF`
 
 > Por quê: é algo que ainda não existe, então o marcador é `TODO`. `FIXME` indicaria um defeito, e as outras opções descrevem uma função que não foi escrita.
 ---

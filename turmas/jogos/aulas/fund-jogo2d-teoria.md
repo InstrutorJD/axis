@@ -103,10 +103,10 @@ limitar(700, 0, 608); // 608
 ## Pergunta
 A tela tem 480 de altura e o personagem tem 40 de altura. Qual é o maior `y` permitido para ele não sair por baixo?
 
-- [ ] 480, que é a altura total da tela do jogo
-- [ ] 520, somando a altura do personagem à tela
+- [ ] 480, que é a altura total da tela onde o jogo roda
+- [ ] 520, somando a altura do personagem à altura da tela
 - [x] 440, que é a altura da tela menos a do personagem
-- [ ] 40, que é exatamente a altura do personagem
+- [ ] 40, que é exatamente a mesma altura do personagem
 
 > Por quê: o y marca o topo do personagem. Para ele caber inteiro, o topo pode ir no máximo até 480 - 40 = 440.
 
@@ -129,8 +129,8 @@ function colidiu(a, b) {
 ## Pergunta
 Pacman em `x 0` com largura 32; moeda em `x 40` com largura 10, na mesma altura. Eles colidem?
 
-- [ ] Sim, porque estão na mesma altura da tela
-- [ ] Sim, porque a moeda é menor que o Pacman
+- [ ] Sim, porque estão na mesma altura e bem perto um do outro
+- [ ] Sim, porque a moeda é menor e cabe dentro do Pacman
 - [x] Não, porque o Pacman termina em 32 e a moeda começa em 40
 - [ ] Não, porque a colisão só vale quando os x são iguais
 
@@ -141,10 +141,10 @@ Pacman em `x 0` com largura 32; moeda em `x 40` com largura 10, na mesma altura.
 ## Pergunta
 Jogador em `y 100` com altura 32 e moeda em `y 140`, no mesmo `x`. Pela regra dos retângulos, eles colidem?
 
-- [ ] Sim, porque estão alinhados no eixo x da tela
+- [ ] Sim, porque estão alinhados no mesmo x e bem próximos na tela
 - [x] Não, porque o jogador termina em 132 e a moeda começa em 140
-- [ ] Sim, porque a diferença de 40 é menor que a tela
-- [ ] Não, porque a colisão só é testada no eixo x
+- [ ] Sim, porque a diferença de 40 é pequena perto do tamanho da tela
+- [ ] Não, porque a colisão só é testada no eixo x, e não no y
 
 > Por quê: no eixo y o jogador vai de 100 a 132 e a moeda começa em 140. Sem sobreposição em um dos eixos, não há colisão.
 ---

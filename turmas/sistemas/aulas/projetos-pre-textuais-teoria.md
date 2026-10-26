@@ -12,7 +12,7 @@ Resumo, sumário e listas: a porta de entrada do documento técnico
 + Conhecer os elementos pré-textuais e a ordem deles
 + Escrever um resumo técnico com palavras-chave
 + Montar o sumário e a lista de ilustrações
-+ Produzir o draft do documento do projeto no VS Code Web
++ Produzir o draft do documento do projeto em Markdown
 
 ---
 
@@ -181,11 +181,11 @@ Qual trecho de sumário segue a numeração progressiva?
 
 ---
 
-## Escrevendo no VS Code Web
-- Abra [vscode.dev](https://vscode.dev): o editor no navegador, grátis e **sem instalar**
-- Crie o arquivo `documento.md` e escreva em **Markdown**: `#` para títulos, `-` para listas
-- **Ctrl+Shift+V** abre a visualização formatada
-- Salve no computador (Arquivo → Salvar como) ou copie o texto para o portal no fim da aula
+## Escrevendo em Markdown
+- Na prática, você escreve o draft **no próprio portal**: o editor já começa com o modelo
+- O texto é em **Markdown**: `#` para títulos, `-` para listas
+- O botão **👁 Ver formatado** mostra como o texto fica
+- O texto fica salvo sozinho; no fim, copie para o documento do projeto da equipe
 
 ```md
 # RESUMO
@@ -197,7 +197,7 @@ Este projeto desenvolve...
 ---
 
 ## Pergunta
-No `documento.md`, como marcar **RESUMO** como título de seção?
+No draft em Markdown, como marcar **RESUMO** como título de seção?
 
 - [x] `# RESUMO`
 - [ ] `**RESUMO**`

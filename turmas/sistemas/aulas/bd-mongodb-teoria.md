@@ -67,12 +67,12 @@ A tabela `clientes` do MySQL da MegaShop vai para o MongoDB. O que cada **linha*
 - O BSON tem **mais tipos** que o JSON: `ObjectId`, `Date`, inteiro, `Decimal128`
 - Cada documento pode ter até **16 MB**
 
-> Na tela você vê JSON; no disco, é BSON. Por isso o Atlas mostra tipos como `ObjectId(...)` e `Date(...)`.
+> Na tela você vê JSON; no disco, é BSON. Por isso as ferramentas do MongoDB mostram tipos como `ObjectId(...)` e `Date(...)`.
 
 ---
 
 ## Pergunta
-Você digita um documento JSON no Data Explorer do Atlas e clica em **Insert**. Como o MongoDB guarda esse documento?
+Você digita um documento em JSON e manda o MongoDB inserir. Como o MongoDB guarda esse documento?
 
 - [x] Em BSON, um formato binário com mais tipos que o JSON
 - [ ] Em JSON puro, exatamente como foi digitado no editor
@@ -171,7 +171,7 @@ db.produtos.find({ memoria: { $exists: true } })
 ```
 
 - `$lt` = menor que; `$gt` = maior que
-- No Atlas, você cola **só o filtro** (`{ preco: { $lt: 100 } }`) na barra de busca
+- O **filtro** é o objeto dentro do `find`: `{ preco: { $lt: 100 } }`
 
 ---
 
@@ -214,25 +214,26 @@ O Notebook Pro entrou em promoção. Com `F = { nome: "Notebook Pro" }`, qual co
 
 ---
 
-## Onde você vai trabalhar: MongoDB Atlas
-- O **MongoDB na nuvem**, com um plano **gratuito** (cluster Free / M0)
-- Tudo pelo **navegador**: não instala nada no computador
-- **Data Explorer**: a tela do Atlas para criar coleções e inserir, buscar e editar documentos
-- Os comandos que você viu (`insertOne`, `find`, `$set`) são os mesmos que um sistema usa por código
+## Onde você vai trabalhar: Mongo Playground
+- Um **MongoDB de verdade** no navegador: [mongoplayground.net](https://mongoplayground.net)
+- **Gratuito** e **sem criar conta**: não instala nada
+- Painel **Database**: os documentos da coleção, em JSON
+- Painel **Query**: o comando (`db.produtos.find(...)`); **▶ run** mostra o **Result**
+- O site **não grava**: cada ▶ run recomeça do painel Database
 
-> O banco fica num servidor do Atlas; você só precisa de uma conta e da internet.
+> Lá, atualizar é `db.produtos.update(filtro, { $set: ... })`: o mesmo filtro e o mesmo `$set` do `updateOne`.
 
 ---
 
 ## Pergunta
-Na prática de hoje, onde os documentos do catálogo da MegaShop vão ficar guardados?
+No Mongo Playground, você roda um `update` que muda o preço do notebook e o Result mostra o preço novo. Depois roda `find` e o preço antigo volta. Por quê?
 
-- [ ] No computador do laboratório, num servidor local
-- [x] Num cluster gratuito do Atlas, na nuvem
-- [ ] Dentro do portal, no editor da aula passada
-- [ ] Numa planilha online ligada ao MongoDB
+- [ ] O `update` só vale quando o filtro usa o `_id`
+- [x] Cada ▶ run recomeça dos dados do painel Database
+- [ ] O `find` sempre mostra a versão anterior do dado
+- [ ] O `$set` desfaz a mudança depois de alguns segundos
 
-> Por quê: o Atlas guarda o banco num servidor na nuvem, e você trabalha nele pelo navegador, com o Data Explorer.
+> Por quê: o Playground não guarda nada entre uma execução e outra. Para a mudança ficar, você edita o documento no painel Database.
 
 ---
 

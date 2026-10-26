@@ -63,11 +63,19 @@ professor projetar**, e é escrito no mesmo formato do "Criar Material"
    prática travada até a teoria ser concluída (`requires`).
 4. **Não copie** nenhuma atividade de `turmas/*/atividades/` como ponto de
    partida — elas estão no padrão antigo.
-5. **Ferramentas online e gratuitas.** Prática que usa ferramenta de fora do
-   portal usa uma que roda **só no navegador** (HTTPS) e tem plano
-   gratuito. Nada de instalar programa nem de depender de porta (27017,
-   3306...). Se o plano de ensino citar uma ferramenta instalável, use a
-   alternativa online (ex.: MongoDB Compass → Data Explorer do MongoDB Atlas).
+5. **O mais simples possível: de preferência, nada fora do portal.** Se a
+   prática precisa de ferramenta de fora, ela tem que ser **online,
+   gratuita e sem login**: roda só no navegador (HTTPS), sem instalar
+   programa, sem depender de porta (27017, 3306...) e **sem pedir conta**.
+   - Conta só em plataforma que a turma **já usa sempre** (GitHub/Codespaces,
+     Google, Canva). Nunca peça para criar conta numa plataforma que vai ser
+     usada uma ou poucas vezes.
+   - Se o plano de ensino citar uma ferramenta instalável ou com conta, use a
+     alternativa sem login (ex.: MongoDB Atlas/Compass → Mongo Playground;
+     CodePen → JSFiddle).
+   - **Não achou alternativa sem login e sem instalar? Pare e avise o
+     professor** antes de escrever a prática. Não decida sozinho.
+6. **Tudo testado antes de dizer "pronto".** Ver a seção 11.
 
 ---
 
@@ -357,5 +365,50 @@ Estrutura da página (os `id` são livres; as classes, não):
 - [ ] Prática(s) com o visual base, `requires: 'teoria'`.
 - [ ] Prática de código: `solution` em todo desafio (seção 8).
 - [ ] Módulos registrados no `config.js` (seção 6), sem `hasSlides`.
+- [ ] Ferramentas de fora: online, gratuitas e **sem login** (ou de uso frequente da turma); sem alternativa → professor avisado.
+- [ ] **Seção 11 cumprida:** cada código, comando e ferramenta da aula executado de verdade, com o relatório do que foi testado.
 - [ ] Testes: seguir o `CLAUDE.md` (quem roda é o GitHub; testes novos só se o usuário pedir).
 - [ ] `README.md` atualizado se algum comportamento mudou.
+
+---
+
+## 11. Teste antes de entregar (obrigatório)
+
+Uma aula **só está pronta depois de testada pelo agente**, do jeito que o
+aluno vai fazer. Escrever "deve funcionar" não vale. A suíte do GitHub
+(`npm test`) continua sendo do GitHub (ver `CLAUDE.md`); o que esta seção
+pede é outra coisa: **rodar o conteúdo da aula**. Os scripts de teste ficam
+na pasta temporária (scratchpad) do agente, não no repositório.
+
+### 11.1 O que testar e como
+
+| O que a aula pede | Como testar |
+|---|---|
+| **Ferramenta de fora** (site) | Abrir num navegador **com perfil limpo** (Playwright/Chromium, sem nenhum login) e fazer **o mesmo passo** que o aluno vai fazer: colar, clicar em executar, ver o resultado. Se aparecer tela de login/cadastro antes do passo, a ferramenta não serve. |
+| **Nome de botão, menu, painel** | Conferir na página aberta (texto ou print). Se a interface tiver outro idioma, escreva o nome que aparece de verdade. |
+| **Código que o aluno digita ou cola** (JS, SQL, Mongo, C++...) | Executar **exatamente o texto da página** (extraído dos `STEPS`/`.md`, não reescrito de memória) no ambiente que o aluno vai usar: JSFiddle, SQL Fiddle (SQLite), Mongo Playground, Wokwi... ou numa página local para JS de navegador. |
+| **Etapa que altera um projeto de aula anterior** | Montar o projeto **etapa por etapa** a partir da prática anterior, aplicar as mudanças da nova e **usar** o resultado (ex.: jogar o Pacman: mover, colidir, perder, reiniciar, vencer). Testar também o que acontece **depois** do fim (Game Over, lista vazia, campo em branco). |
+| **Prática com correção automática** (desafios, JSON, quiz) | Abrir a página como aluno (servidor local + `stubSupabaseFake` de `tests/helpers.js`) e resolver **até o fim** pela tela: a resposta certa passa, uma resposta certa **escrita de outro jeito** (outra ordem de chaves, outro nome de variável, espaço a mais) também passa, e uma resposta errada típica reprova. |
+| **Entrada livre do aluno** (texto, Markdown, JSON) | Testar com texto de verdade e com casos estranhos (linha começando com `2.1`, `-`, `#`, campo vazio, texto enorme): a página não pode travar. |
+| **Teoria (`.md`)** | Formato das perguntas (4 alternativas, 1 `[x]`, `> Por quê:`); a certa **não** pode ser sistematicamente a mais longa; todo código de exemplo roda e o valor dos comentários (`// 105`) confere. |
+| **Toda página nova ou alterada** | Abrir como aluno e confirmar **zero erro de JavaScript** no console. |
+
+### 11.2 Simplicidade (antes de testar, simplifique)
+
+- Prefira fazer **dentro do portal** (editor, simulador, formulário próprio)
+  a mandar o aluno para outro site.
+- Uma ferramenta de fora por prática, no máximo, e com o menor número de
+  passos. Se um passo não dá para testar (diálogo do sistema, "salvar
+  como", instalação), troque por um que dê.
+- Instrução que depende de algo que o aluno não tem (conta, programa,
+  permissão de administrador) é instrução quebrada.
+
+### 11.3 Como entregar
+
+Só diga que a aula está pronta depois de tudo acima. Na resposta ao
+professor, inclua um **relatório curto**:
+
+- o que foi testado, **como** (ferramenta/ambiente) e o resultado;
+- o que foi corrigido por causa do teste;
+- o que **não** deu para testar e por quê (dito com todas as letras, nunca
+  escondido).

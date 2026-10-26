@@ -138,13 +138,21 @@ Exemplo: \`classificar([{ casa: "Azul", fora: "Verde", golsCasa: 2, golsFora: 1 
   ];
 
   // ---------- Execução dos testes num Web Worker ----------
-  const WORKER_SRC = `self.onmessage = function (e) {
+  // `canon` ignora a ordem das chaves dos objetos ({ time, saldo } === { saldo, time }),
+  // mas mantém a ordem das listas (a ordem da tabela faz parte da resposta).
+  const WORKER_SRC = `function canon(v) {
+    return JSON.stringify(v, function (k, x) {
+      if (!x || typeof x !== 'object' || Array.isArray(x)) return x;
+      return Object.keys(x).sort().reduce(function (o, c) { o[c] = x[c]; return o; }, {});
+    });
+  }
+  self.onmessage = function (e) {
     var d = e.data, out = [];
     try {
       var fn = new Function(d.codigo + '\\n;return typeof ' + d.funcao + ' === "function" ? ' + d.funcao + ' : null;')();
       if (!fn) { self.postMessage({ erro: 'A função ' + d.funcao + ' não foi encontrada. Confira o nome.' }); return; }
       d.testes.forEach(function (t) {
-        try { var got = fn.apply(null, JSON.parse(JSON.stringify(t.args))); out.push({ ok: JSON.stringify(got) === JSON.stringify(t.esperado), got: JSON.stringify(got) }); }
+        try { var got = fn.apply(null, JSON.parse(JSON.stringify(t.args))); out.push({ ok: canon(got) === canon(t.esperado), got: JSON.stringify(got) }); }
         catch (err) { out.push({ ok: false, got: 'erro: ' + err.message }); }
       });
       self.postMessage({ resultados: out });

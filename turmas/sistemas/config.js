@@ -150,15 +150,15 @@ window.TURMA_CONFIG_SISTEMAS = {
         },
         {
           // Plano de ensino: Aula 33 (19/10/2026), 1h, atividade prática no
-          // MongoDB (o plano cita Atlas/Compass; usamos só o Atlas, pelo
-          // navegador — nada de instalar programa nem abrir porta) —
+          // MongoDB (o plano cita Atlas/Compass; usamos o Mongo Playground,
+          // pelo navegador e sem criar conta — o Atlas exige conta) —
           // teoria curta ~15 min + roteiro ~45 min.
           // A prática acontece fora do portal: checklist de desempenho
           // prático + visto do professor (RoteiroSlides, professor-visto.js).
           key: 'bd-mongodb',
           label: 'MongoDB na Prática: Coleções e Documentos',
           aula: 33, dataAula: '2026-10-19',
-          desc: 'Crie coleções e insira documentos JSON sem esquema fixo num banco MongoDB de verdade, no Atlas (gratuito, pelo navegador).',
+          desc: 'Crie coleções e insira documentos JSON sem esquema fixo num banco MongoDB de verdade, no Mongo Playground (gratuito, pelo navegador, sem conta).',
           capacidade: 'Distinguir arquitetura de banco de dados de acordo com aplicação.',
           modules: [
             {
@@ -170,7 +170,7 @@ window.TURMA_CONFIG_SISTEMAS = {
             },
             {
               key: 'pratica', title: 'Prática — Catálogo da MegaShop no MongoDB',
-              desc: 'Roteiro no MongoDB Atlas, pelo navegador: banco megashop, coleção produtos, documentos com campos diferentes, buscas e atualização. Na última etapa, o professor confere o checklist e dá o visto.',
+              desc: 'Roteiro no Mongo Playground (navegador, sem conta): coleção produtos, documentos com campos diferentes, buscas e atualização. Na última etapa, o professor confere o checklist e dá o visto.',
               icon: '🍃', src: 'atividades/bd-mongodb-pratica.html', telaCheia: true,
               progressKey: 'bd_mongodb_pratica_progress_', progressMode: 'flag',
               requires: 'teoria', hasGabarito: true
@@ -308,7 +308,7 @@ window.TURMA_CONFIG_SISTEMAS = {
         {
           // Padrão novo. Plano de ensino: Aula 34 (19/10/2026), 2h — teoria
           // ~25 min + preparação e pitches ~95 min. Ferramentas opcionais só
-          // online e gratuitas (Google Apresentações/Canva, CodePen + ViaCEP).
+          // online e gratuitas (Google Apresentações/Canva, JSFiddle sem conta + ViaCEP).
           // Avaliação: avaliação de pitch + visto.
           key: 'devsis-pitch-inovacao',
           label: 'Pitch de Inovação Profissional',
@@ -606,24 +606,24 @@ window.TURMA_CONFIG_SISTEMAS = {
         },
         {
           // Padrão novo. Aula 33 (19/10/2026), 1h — teoria ~15 min + escrita
-          // ~40 min no VS Code Web (vscode.dev), com o draft conferido no
-          // portal e o visto do professor.
+          // ~40 min escrevendo o draft no próprio portal (sem ferramenta de
+          // fora nem conta), com a conferência automática e o visto do professor.
           key: 'projetos-pre-textuais',
           label: 'Elementos Pré-textuais do Projeto',
           aula: 33, dataAula: '2026-10-19',
-          desc: 'Escrita técnica: folha de rosto, resumo, abstract, lista de ilustrações e sumário do documento do projeto, no VS Code Web.',
+          desc: 'Escrita técnica: folha de rosto, resumo, abstract, lista de ilustrações e sumário do documento do projeto, em Markdown.',
           capacidade: 'Reconhecer os padrões de estrutura estabelecidos para a elaboração de projetos.',
           modules: [
             {
               key: 'teoria', title: 'Teoria — Elementos Pré-textuais',
-              desc: 'Ordem da NBR 14724, obrigatórios e opcionais, resumo e palavras-chave (NBR 6028), lista de ilustrações, sumário (NBR 6027) e Markdown no VS Code Web.',
+              desc: 'Ordem da NBR 14724, obrigatórios e opcionais, resumo e palavras-chave (NBR 6028), lista de ilustrações, sumário (NBR 6027) e Markdown.',
               icon: '📖', src: 'atividades/projetos-pre-textuais-teoria.html', telaCheia: true,
               progressKey: 'projetos_pre_textuais_teoria_progress_', progressMode: 'flag',
               hasGabarito: true
             },
             {
               key: 'pratica', title: 'Prática — Draft dos Pré-textuais',
-              desc: 'Escreva no VS Code Web a folha de rosto, o resumo, o abstract, a lista de ilustrações e o sumário, confira a estrutura no portal e peça o visto do professor.',
+              desc: 'Escreva no portal, em Markdown, a folha de rosto, o resumo, o abstract, a lista de ilustrações e o sumário, confira a estrutura no portal e peça o visto do professor.',
               icon: '📝', src: 'atividades/projetos-pre-textuais-pratica.html', telaCheia: true,
               progressKey: 'projetos_pre_textuais_pratica_progress_', progressMode: 'flag',
               requires: 'teoria', hasGabarito: true
