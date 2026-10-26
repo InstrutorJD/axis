@@ -343,7 +343,7 @@
     },
     {
       id: 9,
-      solution: 'function contemPadraoPerigoso(texto) {\n  if (typeof texto !== \'string\') return true;\n  const proibidos = [\'<script\', \'drop table\', \'--\', "\';", \'<\', \'>\'];\n  const minusculo = texto.toLowerCase();\n  return proibidos.some(p => minusculo.includes(p));\n}',
+      solution: 'function contemPadraoPerigoso(texto) {\n  if (typeof texto !== \'string\') return true;\n  const proibidos = [\'drop table\', \'--\', "\';", \'<\', \'>\'];\n  const minusculo = texto.toLowerCase();\n  return proibidos.some(p => minusculo.includes(p));\n}',
       title: 'Detector de injeção',
       enemyName: 'Chamado: Filtro de segurança',
       enemyEmoji: '🖥️',
