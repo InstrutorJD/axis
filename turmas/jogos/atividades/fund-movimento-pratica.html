@@ -72,9 +72,9 @@ Hoje você cria o **seu próprio personagem**: desenha a arte, coloca no jogo e 
     {
       titulo: '1. Desenhe o personagem no Piskel',
       corpo: `
-1. Abra ¤piskelapp.com¤ numa aba nova e clique em **Create Sprite**.
+1. Abra ¤piskelapp.com¤ numa aba nova e clique em **Create Sprite** (em português: **Criar Sprite**).
 2. O editor já abre com uma tela de **32×32 pixels** (confira embaixo, à direita: ¤[32x32]¤). Não mude o tamanho.
-3. Escolha a cor clicando no **quadrado grande de cor**, embaixo das ferramentas, à esquerda.
+3. Escolha a cor clicando no **quadrado grande de cor**, embaixo das ferramentas, à esquerda. Digitou a cor em código (ex.: ¤#3a7bd5¤)? **Clique fora** da janela de cor antes de pintar, senão a cor nova não vale.
 4. Desenhe com o **lápis** (primeira ferramenta). O **balde** pinta uma área inteira e a **borracha** apaga. Errou? **Ctrl+Z** desfaz.
 
 ### Regras da arte
@@ -90,7 +90,7 @@ Hoje você cria o **seu próprio personagem**: desenha a arte, coloca no jogo e 
       corpo: `
 1. Na coluna de botões da direita, clique em **EXPORT** (o ícone de **imagem**, o 4º de cima para baixo).
 2. O painel abre na aba **GIF**. Clique na aba **PNG**: GIF não serve para o nosso jogo.
-3. Em **Spritesheet file export**, clique no primeiro botão **Download**.
+3. Em **Spritesheet file export** (em português: **Exportação de arquivo spritesheet**), clique no primeiro botão **Download**.
 4. O arquivo baixado se chama ¤New Piskel.png¤ e fica na pasta **Downloads**. O nome você troca no PixelCode, na próxima etapa.
 
 > Não feche a aba do Piskel ainda: se precisar mudar o desenho, é só exportar de novo.
@@ -102,7 +102,7 @@ Hoje você cria o **seu próprio personagem**: desenha a arte, coloca no jogo e 
       corpo: `
 1. Abra o **PixelCode** (botão **💻 PixelCode** do portal). À esquerda fica o painel **ARQUIVOS**.
 2. No topo desse painel, clique em **⤒** (importar) e escolha o ¤New Piskel.png¤ da pasta Downloads. Você também pode **arrastar** o arquivo para cima do painel.
-3. Ele entra como ¤New-Piskel.png¤ (o espaço vira traço). Dê **duplo clique** no nome (ou passe o mouse e clique em **✎**), troque para ¤personagem.png¤ e aperte **Enter**.
+3. Ele entra como ¤New-Piskel.png¤ (o espaço vira traço). Dê **duplo clique** no nome (ou passe o mouse e clique em **✎**), apague o nome e digite só ¤personagem¤ (o ¤.png¤ já fica). Aperte **Enter**.
 4. Clique em ¤personagem.png¤: o PixelCode mostra o seu desenho ampliado e o tamanho, **32×32 pixels**.
 
 > O código vai procurar a imagem pelo nome. Ele precisa ser **exatamente** ¤personagem.png¤, tudo minúsculo.
@@ -331,7 +331,7 @@ new Phaser.Game(configuracao);
       corpo: `
 Faça quantos conseguir. Teste cada um antes de ir para o próximo.
 
-**A. Virar para o lado em que anda.** Dentro do ¤if (teclas.left.isDown)¤, acrescente ¤heroi.setFlipX(true);¤ e, dentro do ¤else if (teclas.right.isDown)¤, ¤heroi.setFlipX(false);¤. O desenho espelha ao trocar de lado.
+**A. Virar para o lado em que anda.** Dentro do ¤if (teclas.left.isDown)¤, acrescente ¤heroi.setFlipX(true);¤ e, dentro do ¤else if (teclas.right.isDown)¤, ¤heroi.setFlipX(false);¤. O desenho espelha ao trocar de lado. Só funciona se o personagem foi **desenhado de lado**: de frente, ele não muda nada.
 
 **B. Velocidade.** Mude a constante ¤VELOCIDADE¤ para ¤100¤ e depois para ¤350¤. Qual combina mais com o seu jogo?
 
@@ -341,6 +341,7 @@ Faça quantos conseguir. Teste cada um antes de ir para o próximo.
 
 | Sintoma | O que conferir |
 |---|---|
+| ¤Unexpected token '}'¤ no Console | Sobrou uma ¤}¤: apague a ¤}¤ a mais no fim do bloco |
 | Tela preta, nada aparece | Mensagem vermelha do Console; o Phaser vem antes do ¤jogo.js¤ no ¤jogo.html¤ |
 | Quadrado com um risco no lugar do desenho | O nome ¤personagem.png¤ igual no painel e no ¤this.load.image¤ |
 | As setas não fazem nada | Clicar em cima do jogo; ¤createCursorKeys¤ dentro do ¤criar()¤ |
@@ -424,8 +425,10 @@ Faça quantos conseguir. Teste cada um antes de ir para o próximo.
 
       if (/^\d+\.\s+/.test(line)) {
         const items = [];
+        // Lista que continua depois de um bloco de código começa no número escrito.
+        const inicio = parseInt(line, 10);
         while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) { items.push(lines[i].trim().replace(/^\d+\.\s+/, '')); i++; }
-        html += '<ol class="md-list">' + items.map(it => `<li>${inline(it)}</li>`).join('') + '</ol>';
+        html += `<ol class="md-list"${inicio > 1 ? ` start="${inicio}"` : ''}>` + items.map(it => `<li>${inline(it)}</li>`).join('') + '</ol>';
         continue;
       }
 

@@ -846,7 +846,9 @@
       if (nomes().some(n => n.toLowerCase() === nome.toLowerCase() && n !== atual)) return 'Já existe um arquivo com esse nome.';
       return '';
     }
-    const comExtensao = nome => (/\.[^.]+$/.test(nome) ? nome : nome + '.js');
+    // "personagem.png.png" vira "personagem.png": ao renomear, a seleção deixa
+    // a extensão de fora e muita gente digita o nome com ela por cima.
+    const comExtensao = nome => (/\.[^.]+$/.test(nome) ? nome.replace(/(\.[^.]+)\1+$/i, '$1') : nome + '.js');
 
     // Campo de nome dentro da lista (novo arquivo ou renomear).
     function pedirNome(li, inicial, aoConfirmar) {
@@ -1098,6 +1100,33 @@
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Semicolon, comentar);
     // Alt+N: novo arquivo.
     editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyN, novoArquivo);
+    // Depois de "{" + Enter o Monaco já põe a "}" na linha de baixo, e quem
+    // digita a própria "}" ficava com uma sobrando ("Unexpected token '}'").
+    // Se as chaves já estão fechadas e a próxima linha começa com "}", digitar
+    // "}" numa linha em branco só pula para a que já existe.
+    editor.onKeyDown(e => {
+      if (e.browserEvent.key !== '}' || e.ctrlKey || e.altKey || e.metaKey) return;
+      const sel = editor.getSelections();
+      const model = editor.getModel();
+      if (!model || sel.length !== 1 || !sel[0].isEmpty()) return;
+      const { lineNumber: l, column: c } = sel[0].getPosition();
+      const linha = model.getLineContent(l);
+      if (l === 1 || linha.trim() !== '' || c <= linha.length) return;
+      let n = l + 1;
+      while (n <= model.getLineCount() && model.getLineContent(n).trim() === '') n++;
+      if (n > model.getLineCount()) return;
+      const prox = model.getLineContent(n);
+      const recuo = prox.length - prox.trimStart().length;
+      if (!prox.trimStart().startsWith('}') || recuo > linha.length) return;
+      const texto = model.getValue();
+      if ((texto.match(/{/g) || []).length !== (texto.match(/}/g) || []).length) return;
+      e.preventDefault(); e.stopPropagation();
+      const fimAnt = model.getLineMaxColumn(l - 1);
+      editor.pushUndoStop();
+      editor.executeEdits('pula-chave', [{ range: new monaco.Range(l - 1, fimAnt, n - 1, model.getLineMaxColumn(n - 1)), text: '' }],
+        [new monaco.Selection(l, recuo + 2, l, recuo + 2)]);
+      editor.pushUndoStop();
+    });
     window.addEventListener('beforeunload', gravar);
 
     aplicarExplorador();
