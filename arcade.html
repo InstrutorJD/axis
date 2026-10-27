@@ -675,6 +675,13 @@
     if ($('ordem').value === 'curtidos') {
       lista.sort(([a], [b]) => (totalCurtidas.get(b.email) || 0) - (totalCurtidas.get(a.email) || 0) || a.autor.localeCompare(b.autor, 'pt-BR'));
     }
+    if (!jogos.length && convidado) {
+      // Turma convidada não publica jogo aqui: lista vazia = o banco ainda
+      // não liberou os jogos de Jogos pra ela (sql/arcade-sistemas-temporario.sql).
+      $('grade').innerHTML = `<div class="vazio"><span class="grande">🎮</span><b>Os jogos da turma de Jogos Digitais ainda não foram liberados para a sua turma.</b><br>Avise o professor.</div>`;
+      $('contagem').textContent = '';
+      return;
+    }
     if (!jogos.length) {
       $('grade').innerHTML = `<div class="vazio"><span class="grande">🎮</span><b>Nenhum jogo publicado ainda.</b><br>Cadastre o link do seu GitHub Pages no ícone do <b>GitHub</b>, na barra do portal, e ele aparece aqui.</div>`;
       $('contagem').textContent = '';
