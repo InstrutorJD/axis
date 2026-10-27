@@ -13,11 +13,14 @@
   const semAnimacao = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const sorteio = (min, max) => min + Math.random() * (max - min);
 
-  // A queda é feita aqui, quadro a quadro (requestAnimationFrame), e não
-  // com @keyframes no CSS: a animação CSS roda na placa de vídeo e, depois
-  // do PC bloquear/dormir ou do painel ficar muito tempo aberto, o
-  // navegador às vezes deixava os emojis congelados no meio da tela até
-  // recarregar. A posição sai do relógio, então nunca fica presa.
+  // A queda usa element.animate() só com transform: roda na placa de vídeo,
+  // sem trabalho nenhum do JavaScript por quadro. A versão anterior mexia no
+  // style de cada emoji 60 vezes por segundo (requestAnimationFrame) e, nos
+  // Chromebooks dos alunos, isso sozinho ocupava a CPU e travava o portal.
+  // Pra não repetir o problema antigo dos @keyframes (emojis congelados no
+  // meio da tela depois do PC bloquear/dormir), as animações são recriadas
+  // a partir do relógio quando a aba volta a aparecer e quando a janela muda
+  // de tamanho, então nunca ficam presas.
   function montarChuva() {
     const chuva = document.createElement('div');
     chuva.className = 'pr-chuva';
@@ -42,15 +45,25 @@
     }
     document.body.prepend(chuva);
 
-    function quadro(agora) {
-      const altura = window.innerHeight * 1.2;
+    function animar() {
+      const altura = Math.round(window.innerHeight * 1.2);
+      const agora = performance.now();
       for (const g of gotas) {
-        const p = (agora / g.dur + g.fase) % 1;
-        g.el.style.transform = `translate(${(g.deriva * p).toFixed(1)}px, ${(altura * p).toFixed(1)}px) rotate(${(g.giro * p).toFixed(1)}deg)`;
+        if (g.anim) g.anim.cancel();
+        g.anim = g.el.animate([
+          { transform: 'translate(0px, 0px) rotate(0deg)' },
+          { transform: `translate(${g.deriva.toFixed(1)}px, ${altura}px) rotate(${g.giro.toFixed(1)}deg)` },
+        ], { duration: g.dur, iterations: Infinity, easing: 'linear' });
+        g.anim.currentTime = ((agora / g.dur + g.fase) % 1) * g.dur;
       }
-      requestAnimationFrame(quadro);
     }
-    requestAnimationFrame(quadro);
+    animar();
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) gotas.forEach(g => g.anim && g.anim.pause());
+      else animar();
+    });
+    let espera = null;
+    window.addEventListener('resize', () => { clearTimeout(espera); espera = setTimeout(animar, 300); });
   }
 
   function ligarCartoes() {

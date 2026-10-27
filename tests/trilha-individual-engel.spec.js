@@ -80,7 +80,8 @@ test.describe('Trilha individual "JavaScript Básico (Engel)"', () => {
         'csharp_teoria', 'csharp_comparacao', 'gdscript_teoria', 'gdscript_comparacao',
         'teste_fundamentos_teoria', 'teste_planejamento_teoria', 'teste_execucao_teoria',
         'teste_roteiros_trabalho', 'teste_roteiros_questionario',
-        'teste_meu_jogo_teoria', 'teste_meu_jogo_relatorio'
+        'teste_meu_jogo_teoria', 'teste_meu_jogo_relatorio',
+        'fund_movimento_teoria', 'fund_movimento_pratica'
       ];
       teoriaFlag.forEach(k => localStorage.setItem(`${k}_progress_${user}`, JSON.stringify({ completed: true })));
       localStorage.setItem(`cobrinha_construcao_progress_${user}`, JSON.stringify({ completed: true }));
