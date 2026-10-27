@@ -15,6 +15,11 @@
 window.TURMA_CONFIG_SISTEMAS = {
   id: 'sistemas',
   label: 'Sistemas',
+  // TEMPORÁRIO: mostra o botão 🕹️ Arcade (os jogos da turma de Jogos) no
+  // portal de Sistemas, só pra jogar e curtir. Pra encerrar, apague esta
+  // linha, tire 'sistemas' de TURMAS_CONVIDADAS em arcade.html e rode o
+  // trecho "FECHAR" de sql/arcade-sistemas-temporario.sql.
+  arcadeConvidada: true,
   // Código oficial da turma no SIAP/SENAI. É o valor da coluna `turma` em
   // professor/data/conteudos.csv (e entra no cálculo da `chave`), então
   // precisa bater letra por letra com o CSV — ver shared/lancamento.js.

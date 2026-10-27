@@ -13,7 +13,9 @@
      barra de abas do portal de Jogos Digitais (shared/platform-core.js,
      numa aba nova). Só da turma de Jogos Digitais: aluno de outra turma vê
      um aviso, e o banco também só libera os links dos colegas pra turma
-     'jogos' (RLS em sql/arcade-turma.sql). -->
+     'jogos' (RLS em sql/arcade-turma.sql). TEMPORÁRIO: a turma Sistemas
+     entra como convidada (só jogar e curtir) — TURMAS_CONVIDADAS abaixo e
+     sql/arcade-sistemas-temporario.sql. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
@@ -332,7 +334,12 @@
   const professor = user.role === 'professor' || user.role === 'admin';
   // Só a turma de Jogos Digitais tem Arcade. Professor vê os jogos dela.
   const TURMA = 'jogos';
-  if (!professor && user.turma !== TURMA) {
+  // TEMPORÁRIO: turmas convidadas só jogam e curtem (sem casos de teste).
+  // O banco libera pela sql/arcade-sistemas-temporario.sql; o botão no
+  // portal vem de arcadeConvidada em turmas/sistemas/config.js.
+  const TURMAS_CONVIDADAS = ['sistemas'];
+  const convidado = !professor && user.turma !== TURMA && TURMAS_CONVIDADAS.includes(user.turma);
+  if (!professor && user.turma !== TURMA && !convidado) {
     $('busca').closest('.busca').hidden = true;
     $('grade').innerHTML = '<div class="vazio"><span class="grande">🕹️</span><b>O Arcade é da turma de Jogos Digitais.</b><br>Sua turma não tem acesso a esta página.</div>';
     return;
@@ -455,7 +462,7 @@
   const ehBug = c => c.status === 'falhou';
   const ehCritico = c => c.status === 'falhou' && c.critico === true;
   const textoBugs = lista => `<b>${lista.filter(ehBug).length}</b> bug(s) encontrado(s), <b>${lista.filter(ehCritico).length}</b> crítico(s)`;
-  try {
+  if (!convidado) try {
     const { data, error } = await sb.from('arcade_test_cases')
       .select(COLUNAS_CASO)
       .order('created_at', { ascending: false });
