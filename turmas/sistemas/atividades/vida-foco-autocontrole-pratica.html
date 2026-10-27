@@ -3,23 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Projeto de Vida — Sprint de Foco</title>
+<title>Projeto de Vida — Combinado de Foco</title>
 <link rel="stylesheet" href="../../../shared/aula-base.css">
 <style>
   :root{ --green:#5ec8ff; --green-dim:#2f7aa8; --yellow:#ffd166; }
-  /* Específico deste exercício: cronômetro do sprint, editor e testes. */
-  .sp-relogio{ font-family:var(--ab-mono); font-size:13px; font-weight:800; padding:4px 12px; border-radius:999px; border:1px solid var(--line); color:var(--ink-dim); }
-  .sp-relogio.ativo{ color:var(--ab-acento); border-color:var(--green-dim); }
-  .sp-editor{ width:100%; min-height:260px; resize:vertical; margin-top:10px; padding:14px 16px; border-radius:12px; font-family:var(--ab-mono); font-size:13.5px; line-height:1.55; tab-size:2; background:var(--panel2); color:var(--ink); border:1px solid var(--line); }
-  .sp-editor:focus{ outline:none; border-color:var(--green); }
-  .sp-acoes{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-top:12px; }
-  .sp-testes{ list-style:none; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:6px; }
-  .sp-testes li{ padding:8px 12px; border-radius:10px; border:1px solid var(--line); font-family:var(--ab-mono); font-size:12.5px; word-break:break-word; }
-  .sp-testes li.ok{ border-color:var(--ok); color:var(--ok); } .sp-testes li.falha{ border-color:var(--blood-bright); }
-  .sp-lista{ list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:6px; }
-  .sp-lista li{ padding:8px 12px; border-radius:10px; border:1px solid var(--line); font-size:13px; }
-  .sp-lista li.ok{ border-color:var(--ok); color:var(--ok); } .sp-lista li.falha{ border-color:var(--blood-bright); } .sp-lista li.falha b{ color:var(--blood-bright); }
-  .sp-lista li.info{ border-color:var(--yellow); }
+  /* Específico deste exercício: casos de convivência, normas × valores e o combinado da turma. */
+  .cf-campo{ display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+  .cf-campo > span{ font-size:11.5px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--ab-acento); }
+  .cf-campo small{ color:var(--ink-dim); font-size:12px; }
+  .cf-campo input, .cf-campo textarea, .cf-campo select{ width:100%; font:inherit; font-size:14px; padding:9px 11px; border-radius:10px; background:var(--panel2); color:var(--ink); border:1px solid var(--line); }
+  .cf-campo textarea{ min-height:80px; resize:vertical; }
+  .cf-caso{ margin-top:12px; padding:12px 14px; border:1px solid var(--line); border-radius:12px; }
+  .cf-caso.ok{ border-color:var(--ok); } .cf-caso.erro{ border-color:var(--blood-bright); }
+  .cf-caso > p{ margin:0 0 4px; }
+  .cf-dica{ margin-top:8px; font-size:13px; } .cf-dica:empty{ display:none; }
+  .cf-acoes{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-top:14px; }
+  .cf-acoes .ab-msg{ flex:1; min-width:200px; }
+  .cf-lista{ list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  .cf-lista li{ padding:8px 12px; border-radius:10px; border:1px solid var(--line); font-size:13px; }
+  .cf-lista li.ok{ border-color:var(--ok); color:var(--ok); } .cf-lista li.falha{ border-color:var(--blood-bright); } .cf-lista li.falha b{ color:var(--blood-bright); }
+  .cf-radio{ display:inline-flex; margin-right:8px; }
 </style>
 <script>
   window.ACTIVITY_LOCATION = 'vida_foco_autocontrole_pratica';
@@ -33,17 +36,13 @@
 <script src="../../../shared/professor-visto.js"></script>
 <script src="../../../shared/gabarito-generator.js"></script>
 <script src="../../../shared/aula-base.js"></script>
-<script src="../../../shared/roteiro-slides.js"></script>
 </head>
 <body>
 
 <div class="ab-app">
   <header class="ab-topo">
-    <div class="ab-topo-titulo">Projeto de Vida — Sprint de Foco</div>
-    <div style="display:flex; gap:10px; align-items:center;">
-      <span class="sp-relogio" id="spRelogio">⏱ sprint não iniciado</span>
-      <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">6</span></div>
-    </div>
+    <div class="ab-topo-titulo">Projeto de Vida — Combinado de Foco</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">7</span></div>
   </header>
   <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
   <main class="ab-palco" id="palco">
@@ -52,159 +51,136 @@
 </div>
 
 <script>
-// Sprint de foco: dois desafios de lógica resolvidos NESTA tela (sair para
-// outra aba é justamente a distração que a aula trabalha), com testes
-// automáticos rodando num Web Worker (um laço infinito não trava a página).
-// Durante o sprint, o portal conta as saídas da tela (visibilitychange) só
-// como informação para a autoavaliação e para o professor. A "Checklist de
-// entrega de código" do plano de ensino fecha com o visto. Compartilhada
-// pelas turmas Sistemas e Jogos.
+// Combinado de Foco: o aluno julga situações de convivência no laboratório,
+// liga cada norma ao valor que ela protege, escreve 3 normas para o combinado
+// da turma e faz a autoavaliação da própria conduta na aula. Fecha com o
+// visto. Progresso: { completed, casos, valores, normas, auto, ... }.
+// Compartilhada pelas turmas Sistemas e Jogos.
 (function () {
   const LOC = 'vida_foco_autocontrole_pratica';
   const user = new URLSearchParams(location.search).get('user') || 'anon';
   const PROGRESS_KEY = `${LOC}_progress_${user}`;
-  const md = s => window.RoteiroSlides.mdToHtml(s);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const ler = () => { try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || 'null') || {}; } catch (e) { return {}; } };
-  const estado = Object.assign({ completed: false, codigo: {}, passou: {}, inicio: null, fim: null, saidas: 0, foraMs: 0, auto: {}, lastStepIndex: 0 }, ler());
-  ['codigo', 'passou', 'auto'].forEach(k => { if (!estado[k] || typeof estado[k] !== 'object') estado[k] = {}; });
+  const estado = Object.assign({ completed: false, casos: {}, valores: {}, normas: [], auto: {}, lastStepIndex: 0 }, ler());
+  ['casos', 'valores', 'auto'].forEach(k => { if (!estado[k] || typeof estado[k] !== 'object' || Array.isArray(estado[k])) estado[k] = {}; });
+  if (!Array.isArray(estado.normas)) estado.normas = [];
+  while (estado.normas.length < 3) estado.normas.push({ texto: '', valor: '' });
   let timer = 0;
   function salvar(agora) { clearTimeout(timer); const f = () => { try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(estado)); } catch (e) {} }; if (agora) f(); else timer = setTimeout(f, 800); }
   function reportar(r) { if (typeof window.reportActivity === 'function') window.reportActivity(LOC, r, { step: atual + 1, total: TOTAL }); }
-  const SPRINT_MIN = 35;
+  const palavras = s => (String(s || '').trim().match(/\S+/g) || []).length;
 
-  const DESAFIOS = [
+  const VALORES = [
+    ['respeito', 'Respeito'],
+    ['responsabilidade', 'Responsabilidade'],
+    ['honestidade', 'Honestidade'],
+    ['cooperacao', 'Cooperação'],
+  ];
+  const nomeValor = k => (VALORES.find(v => v[0] === k) || [, ''])[1];
+
+  // Cada caso: a atitude certa (a) e três atitudes que parecem razoáveis na hora.
+  const CASOS = [
     {
-      id: 'senha', funcao: 'validarSenha', titulo: 'Desafio 1 — Validador de senha forte',
-      enunciado: `
-Escreva a função \`validarSenha(senha)\`. Ela devolve uma **lista com os problemas** da senha, **nesta ordem**, ou uma lista vazia \`[]\` se a senha estiver boa:
-
-| Código | Quando entra na lista |
-|---|---|
-| \`"tamanho"\` | menos de 8 caracteres |
-| \`"maiuscula"\` | nenhuma letra maiúscula (A-Z) |
-| \`"minuscula"\` | nenhuma letra minúscula (a-z) |
-| \`"numero"\` | nenhum número (0-9) |
-| \`"especial"\` | nenhum caractere que não seja letra, número ou espaço (ex.: ! @ #) |
-| \`"espaco"\` | tem espaço em algum lugar |
-
-Exemplo: \`validarSenha("abc")\` devolve \`["tamanho", "maiuscula", "numero", "especial"]\`.`,
-      inicial: 'function validarSenha(senha) {\n  const problemas = [];\n  // Dica: teste uma regra de cada vez, na ordem da tabela.\n\n  return problemas;\n}\n',
-      testes: [
-        { args: ['Abc12345!'], esperado: [] },
-        { args: ['abc'], esperado: ['tamanho', 'maiuscula', 'numero', 'especial'] },
-        { args: ['ABCDEFGH1!'], esperado: ['minuscula'] },
-        { args: ['SenhaForte!'], esperado: ['numero'] },
-        { args: ['Senha1234'], esperado: ['especial'] },
-        { args: ['Senha Forte1!'], esperado: ['espaco'] },
-        { args: ['a b'], esperado: ['tamanho', 'maiuscula', 'numero', 'especial', 'espaco'] },
+      id: 'celular', texto: 'Durante a atividade, o celular da Júlia vibra várias vezes com mensagens do grupo da família.',
+      opcoes: [
+        ['a', 'Deixar no silencioso, guardado, e ler as mensagens no intervalo'],
+        ['b', 'Responder rapidinho por baixo da mesa e voltar para a atividade'],
+        ['c', 'Deixar o celular na mesa com o som ligado, para não perder nada'],
+        ['d', 'Sair da sala para responder com calma, sem avisar o professor'],
       ],
+      norma: 'Celular guardado durante a atividade', valor: 'Responsabilidade com a própria tarefa',
+      dica: 'Se for urgente, a família liga. Dá para esperar o intervalo?',
     },
     {
-      id: 'tabela', funcao: 'classificar', titulo: 'Desafio 2 — Tabela do campeonato',
-      enunciado: `
-Escreva a função \`classificar(partidas)\`. Cada partida é \`{ casa, fora, golsCasa, golsFora }\`. Devolva a **tabela** como uma lista de objetos \`{ time, pontos, saldo, golsPro }\`:
-
-- Vitória vale **3** pontos, empate **1**, derrota **0**
-- \`saldo\` = gols marcados − gols sofridos; \`golsPro\` = gols marcados
-- Ordem: mais **pontos**; empatou, maior **saldo**; empatou, mais **golsPro**; empatou, **nome** em ordem alfabética
-
-Exemplo: \`classificar([{ casa: "Azul", fora: "Verde", golsCasa: 2, golsFora: 1 }])\` devolve
-\`[{ time: "Azul", pontos: 3, saldo: 1, golsPro: 2 }, { time: "Verde", pontos: 0, saldo: -1, golsPro: 1 }]\`.`,
-      inicial: 'function classificar(partidas) {\n  const times = {};\n  // 1) Some pontos, saldo e gols de cada time.\n  // 2) Transforme em lista e ordene pelos critérios.\n\n  return [];\n}\n',
-      testes: [
-        { args: [[{ casa: 'Azul', fora: 'Verde', golsCasa: 2, golsFora: 1 }]], esperado: [{ time: 'Azul', pontos: 3, saldo: 1, golsPro: 2 }, { time: 'Verde', pontos: 0, saldo: -1, golsPro: 1 }] },
-        { args: [[{ casa: 'Azul', fora: 'Verde', golsCasa: 1, golsFora: 1 }]], esperado: [{ time: 'Azul', pontos: 1, saldo: 0, golsPro: 1 }, { time: 'Verde', pontos: 1, saldo: 0, golsPro: 1 }] },
-        { args: [[
-          { casa: 'Azul', fora: 'Verde', golsCasa: 3, golsFora: 0 },
-          { casa: 'Verde', fora: 'Roxo', golsCasa: 2, golsFora: 1 },
-          { casa: 'Roxo', fora: 'Azul', golsCasa: 1, golsFora: 0 },
-        ]], esperado: [
-          { time: 'Azul', pontos: 3, saldo: 2, golsPro: 3 },
-          { time: 'Roxo', pontos: 3, saldo: 0, golsPro: 2 },
-          { time: 'Verde', pontos: 3, saldo: -2, golsPro: 2 },
-        ] },
-        { args: [[
-          { casa: 'Laranja', fora: 'Cinza', golsCasa: 2, golsFora: 2 },
-          { casa: 'Cinza', fora: 'Branco', golsCasa: 1, golsFora: 0 },
-          { casa: 'Branco', fora: 'Laranja', golsCasa: 0, golsFora: 1 },
-        ]], esperado: [
-          { time: 'Cinza', pontos: 4, saldo: 1, golsPro: 3 },
-          { time: 'Laranja', pontos: 4, saldo: 1, golsPro: 3 },
-          { time: 'Branco', pontos: 0, saldo: -2, golsPro: 0 },
-        ] },
+      id: 'video', texto: 'O Gustavo achou um vídeo engraçado e quer mostrar para o colega ao lado, que está concentrado na atividade.',
+      opcoes: [
+        ['b', 'Mostrar rapidinho, com o volume baixo, porque é só um minuto'],
+        ['a', 'Guardar o vídeo para mostrar no intervalo, sem interromper o colega'],
+        ['c', 'Mandar o link para o celular do colega ver quando ele quiser'],
+        ['d', 'Chamar o colega só quando o vídeo chegar na parte engraçada'],
       ],
+      norma: 'Não interromper quem está concentrado', valor: 'Respeito ao foco e ao tempo do colega',
+      dica: 'Um minuto de vídeo custa ao colega bem mais que um minuto: ele perde o fio.',
+    },
+    {
+      id: 'ajuda', texto: 'A Lara está travada há 15 minutos na mesma questão. O professor está atendendo outro aluno do outro lado da sala.',
+      opcoes: [
+        ['b', 'Chamar o professor em voz alta para ele vir logo até a mesa dela'],
+        ['c', 'Ir até o professor e interromper o atendimento do colega'],
+        ['a', 'Levantar a mão e, enquanto espera, anotar o que já tentou'],
+        ['d', 'Desistir da questão e esperar a aula acabar sem perguntar'],
+      ],
+      norma: 'Pedir ajuda do jeito combinado', valor: 'Respeito à vez de cada um',
+      dica: 'O colega que está sendo atendido também precisa de ajuda. Como esperar sem perder tempo?',
+    },
+    {
+      id: 'ideia', texto: 'Num trabalho em grupo, a ideia da Bia é recusada pela equipe e ela fica muito irritada.',
+      opcoes: [
+        ['b', 'Parar de participar até o grupo mudar de opinião'],
+        ['c', 'Dizer que a ideia dos outros também é ruim, para ficar quite'],
+        ['d', 'Fazer a parte dela do jeito que queria, sem contar ao grupo'],
+        ['a', 'Respirar, ouvir os motivos do grupo e propor um ajuste na ideia'],
+      ],
+      norma: 'Discordar sem ofender e sem abandonar o grupo', valor: 'Cooperação',
+      dica: 'Autocontrole é perceber a raiva, pausar e escolher uma resposta que ajude o grupo.',
+    },
+    {
+      id: 'terminou', texto: 'O Rafa terminou a atividade individual antes de todos. A turma ainda está concentrada.',
+      opcoes: [
+        ['b', 'Conversar com o colega do lado, já que a parte dele acabou'],
+        ['a', 'Revisar o que fez ou adiantar o desafio extra, em silêncio'],
+        ['c', 'Passar as respostas para quem ainda não terminou a atividade'],
+        ['d', 'Colocar um vídeo no computador, com o volume bem baixinho'],
+      ],
+      norma: 'Atividade individual é feita por cada um, em silêncio', valor: 'Honestidade e respeito ao foco da turma',
+      dica: 'Terminar antes não muda as normas para quem ainda está trabalhando.',
+    },
+    {
+      id: 'barulho', texto: 'Duas colegas conversam alto sobre um jogo ao lado do Vítor, que está tentando se concentrar.',
+      opcoes: [
+        ['b', 'Gritar para a sala inteira fazer silêncio de uma vez'],
+        ['c', 'Ficar calado e reclamar delas depois no grupo da turma'],
+        ['a', 'Pedir com educação para as colegas falarem mais baixo'],
+        ['d', 'Colocar o fone no volume máximo para abafar a conversa'],
+      ],
+      norma: 'Resolver o incômodo conversando, com educação', valor: 'Respeito',
+      dica: 'Qual atitude resolve o problema sem criar outro (barulho, exposição ou dano aos ouvidos)?',
     },
   ];
 
-  // ---------- Execução dos testes num Web Worker ----------
-  // `canon` ignora a ordem das chaves dos objetos ({ time, saldo } === { saldo, time }),
-  // mas mantém a ordem das listas (a ordem da tabela faz parte da resposta).
-  const WORKER_SRC = `function canon(v) {
-    return JSON.stringify(v, function (k, x) {
-      if (!x || typeof x !== 'object' || Array.isArray(x)) return x;
-      return Object.keys(x).sort().reduce(function (o, c) { o[c] = x[c]; return o; }, {});
-    });
-  }
-  self.onmessage = function (e) {
-    var d = e.data, out = [];
-    try {
-      var fn = new Function(d.codigo + '\\n;return typeof ' + d.funcao + ' === "function" ? ' + d.funcao + ' : null;')();
-      if (!fn) { self.postMessage({ erro: 'A função ' + d.funcao + ' não foi encontrada. Confira o nome.' }); return; }
-      d.testes.forEach(function (t) {
-        try { var got = fn.apply(null, JSON.parse(JSON.stringify(t.args))); out.push({ ok: canon(got) === canon(t.esperado), got: JSON.stringify(got) }); }
-        catch (err) { out.push({ ok: false, got: 'erro: ' + err.message }); }
-      });
-      self.postMessage({ resultados: out });
-    } catch (err) { self.postMessage({ erro: 'O código não roda: ' + err.message }); }
-  };`;
-  const workerUrl = URL.createObjectURL(new Blob([WORKER_SRC], { type: 'application/javascript' }));
-  function rodar(ds, codigo) {
-    return new Promise(resolve => {
-      const w = new Worker(workerUrl);
-      const t = setTimeout(() => { w.terminate(); resolve({ erro: 'O código demorou demais (laço infinito?). Confira as condições dos seus laços.' }); }, 3000);
-      w.onmessage = e => { clearTimeout(t); w.terminate(); resolve(e.data); };
-      w.onerror = e => { clearTimeout(t); w.terminate(); resolve({ erro: `O código não roda: ${e.message}` }); e.preventDefault(); };
-      w.postMessage({ codigo, funcao: ds.funcao, testes: ds.testes });
-    });
-  }
+  const NORMAS = [
+    { id: 'copia', texto: 'Não copiar nem passar respostas nas atividades individuais', certa: 'honestidade' },
+    { id: 'prazo', texto: 'Entregar a sua parte do trabalho em grupo no prazo combinado', certa: 'responsabilidade' },
+    { id: 'silencio', texto: 'Falar baixo e não interromper quem está concentrado', certa: 'respeito' },
+    { id: 'explicar', texto: 'Quem termina antes ajuda o colega a entender, sem fazer por ele', certa: 'cooperacao' },
+  ];
 
-  // ---------- Sprint: tempo e saídas da tela ----------
-  let saiuEm = null;
-  const sprintAtivo = () => estado.inicio && !estado.fim;
-  document.addEventListener('visibilitychange', () => {
-    if (!sprintAtivo()) return;
-    if (document.hidden) { estado.saidas++; saiuEm = Date.now(); }
-    else if (saiuEm) { estado.foraMs += Date.now() - saiuEm; saiuEm = null; }
-    salvar(true);
-  });
-  const mmss = ms => { const s = Math.max(0, Math.round(ms / 1000)); return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; };
-  function relogio() {
-    const el = document.getElementById('spRelogio');
-    if (!estado.inicio) { el.textContent = '⏱ sprint não iniciado'; el.classList.remove('ativo'); return; }
-    const fim = estado.fim || Date.now();
-    el.textContent = `⏱ ${mmss(fim - estado.inicio)} · saídas da tela: ${estado.saidas}`;
-    el.classList.toggle('ativo', sprintAtivo());
-  }
-  setInterval(relogio, 1000);
+  const AUTO = [
+    ['celular', 'Mantive o celular guardado durante as atividades da aula?'],
+    ['abas', 'Fiquei só no que a atividade pedia, sem abrir jogos, vídeos ou redes sociais?'],
+    ['calma', 'Quando algo deu errado ou eu não entendi, mantive a calma?'],
+    ['ajuda', 'Pedi ajuda do jeito combinado (mão levantada, mostrando o que tentei)?'],
+    ['colegas', 'Respeitei o foco dos colegas (sem conversa alta, vídeos ou barulho)?'],
+  ];
 
+  const casosOk = () => CASOS.every(c => estado.casos[c.id] === 'a');
+  const valoresOk = () => NORMAS.every(n => estado.valores[n.id] === n.certa);
+  const normaOk = n => palavras(n.texto) >= 5 && !!n.valor;
+  const normasOk = () => estado.normas.slice(0, 3).every(normaOk);
+  const autoOk = () => AUTO.every(([k]) => estado.auto[k] !== undefined) && palavras(estado.auto.melhoria) >= 4;
   function checklist() {
-    const min = estado.inicio && estado.fim ? (estado.fim - estado.inicio) / 60000 : null;
-    const semLog = DESAFIOS.every(d => !/console\.log/.test(estado.codigo[d.id] || ''));
     return [
-      { ok: !!estado.passou.senha, t: 'Desafio 1 passa em todos os testes', d: 'Volte ao desafio 1.' },
-      { ok: !!estado.passou.tabela, t: 'Desafio 2 passa em todos os testes', d: 'Volte ao desafio 2.' },
-      { ok: semLog && DESAFIOS.every(d => (estado.codigo[d.id] || '').includes(`function ${d.funcao}`)), t: 'Código entregue limpo: funções com o nome pedido e sem console.log sobrando', d: 'Apague os console.log de teste antes de entregar.' },
-      { ok: min !== null && min <= SPRINT_MIN, info: true, t: `Entregue dentro do tempo do sprint (${SPRINT_MIN} min)${min !== null ? ` — levou ${Math.round(min)} min` : ''}`, d: 'Informação para o professor.' },
-      { ok: estado.inicio && estado.saidas <= 2, info: true, t: `Foco: no máximo 2 saídas da tela durante o sprint (${estado.saidas})`, d: 'Informação para a sua autoavaliação e para o professor.' },
-      { ok: ['celular', 'notificacoes', 'frustracao', 'ajuda', 'colegas'].every(k => estado.auto[k] !== undefined), t: 'Autoavaliação respondida', d: 'Responda as 5 perguntas da etapa anterior.' },
+      { ok: casosOk(), t: 'As 6 situações do laboratório resolvidas com a atitude certa', d: 'Volte à etapa 2.' },
+      { ok: valoresOk(), t: 'Cada norma ligada ao valor que ela protege', d: 'Volte à etapa 3.' },
+      { ok: normasOk(), t: '3 normas escritas para o combinado da turma, cada uma com o seu valor', d: 'Volte à etapa 4: cada norma com pelo menos 5 palavras.' },
+      { ok: autoOk(), t: 'Autoavaliação respondida, com o que você vai fazer diferente', d: 'Volte à etapa 5.' },
     ];
   }
-  // O visto depende só da entrega do código e da autoavaliação; tempo e saídas são informação.
-  const podeVisto = () => checklist().filter(c => !c.info).every(c => c.ok);
+  const podeVisto = () => checklist().every(c => c.ok);
 
   // ---------- Telas ----------
-  const ETAPAS = ['preparar', 'senha', 'tabela', 'autoavaliacao', 'checklist', 'visto'];
+  const ETAPAS = ['intro', 'casos', 'valores', 'combinado', 'autoavaliacao', 'checklist', 'visto'];
   const TOTAL = ETAPAS.length;
   let atual = Math.min(estado.completed ? TOTAL - 1 : (estado.lastStepIndex || 0), TOTAL - 1);
   let direcao = 1;
@@ -215,88 +191,128 @@ Exemplo: \`classificar([{ casa: "Azul", fora: "Verde", golsCasa: 2, golsFora: 1 
     const b = document.getElementById('btnBack'); if (b) b.addEventListener('click', () => irPara(atual - 1));
     const n = document.getElementById('btnNext'); if (n) n.addEventListener('click', () => irPara(atual + 1));
     document.getElementById('palco').scrollTop = 0;
-    window.AulaBase.decorar(stepWrap, { chaveChecklist: `${LOC}_check_${user}_${atual}` });
     window.AulaBase.transicao(stepWrap.querySelector('.ab-cartao'), direcao);
   }
   const cartao = (t, corpo, extra) => `<article class="ab-cartao ${extra || ''}"><div class="ab-cartao-etapa">Etapa ${atual + 1} de ${TOTAL}</div><h2>${t}</h2>${corpo}</article>`;
+  const opcoes = (lista, v) => '<option value="">Escolha…</option>' + lista.map(([k, t]) => `<option value="${esc(k)}" ${v === k ? 'selected' : ''}>${esc(t)}</option>`).join('');
+  const listaChecklist = cl => `<ul class="cf-lista">${cl.map(c => c.ok ? `<li class="ok">✔ ${esc(c.t)}</li>` : `<li class="falha"><b>✘ ${esc(c.t)}</b> — ${esc(c.d)}</li>`).join('')}</ul>`;
 
   function render() {
     document.getElementById('lblStepNum').textContent = atual + 1;
     document.getElementById('lblStepTotal').textContent = TOTAL;
-    const cl = checklist().filter(c => !c.info);
+    const cl = checklist();
     document.getElementById('progressFill').style.width = (estado.completed ? 100 : Math.round(cl.filter(c => c.ok).length / cl.length * 90)) + '%';
-    relogio();
     const e = ETAPAS[atual];
-    reportar(`Sprint de foco — ${e}`);
-    if (e === 'preparar') {
-      stepWrap.innerHTML = cartao('Preparar o sprint', `<div class="ab-conteudo">${md(`
-Você vai resolver **dois desafios de lógica** num sprint de até **${SPRINT_MIN} minutos**, **sem distrações**. Tudo acontece **nesta tela**: editor, testes e entrega.
-
-### Antes de começar
-- [ ] Celular guardado (na mochila, com a tela para baixo ou desligado)
-- [ ] Notificações do computador desligadas e outras abas fechadas
-- [ ] Água por perto; papel para anotar ideias que surgirem ("estacionamento de ideias")
-- [ ] Combinado: dúvida = mão levantada, sem chamar em voz alta
-
-> Durante o sprint, o portal conta quantas vezes você **sai desta tela**. Não é punição: é um retrato do seu foco para você comparar depois. Na metade, faça uma **pausa de 2 minutos** (Pomodoro).`)}</div>
-      <div class="sp-acoes">${estado.inicio ? `<span class="ab-msg ok">Sprint iniciado às ${new Date(estado.inicio).toLocaleTimeString('pt-BR')}.</span>` : '<button class="btn" id="btnIniciar">▶ Iniciar o sprint</button>'}</div>`) + nav(false, !!estado.inicio);
-      const bi = document.getElementById('btnIniciar');
-      if (bi) bi.addEventListener('click', () => { estado.inicio = Date.now(); estado.saidas = 0; estado.foraMs = 0; salvar(true); reportar('Sprint de foco — iniciado'); irPara(1); });
-    } else if (e === 'senha' || e === 'tabela') {
-      renderDesafio(DESAFIOS.find(d => d.id === e)); return;
+    reportar(`Combinado de foco — ${e}`);
+    if (e === 'intro') {
+      stepWrap.innerHTML = cartao('O combinado de foco da turma', `<div class="ab-conteudo">
+        <p>O laboratório funciona melhor quando todo mundo segue as mesmas <b>normas</b>. Cada norma existe para proteger um <b>valor</b>: respeito, responsabilidade, honestidade ou cooperação. Hoje você vai reconhecer essas normas e ajudar a escrever o combinado da turma. Tempo sugerido: <b>35 minutos</b>.</p>
+        <ol><li>Decidir a atitude certa em 6 situações do laboratório</li><li>Ligar cada norma ao valor que ela protege</li><li>Escrever 3 normas para o combinado da turma</li><li>Avaliar o seu próprio foco nesta aula</li><li>Conferir a checklist e pedir o visto</li></ol>
+        <blockquote>Antes de começar: celular guardado e só esta aba aberta. É o primeiro item do combinado.</blockquote>
+      </div>${nav(false, true)}`);
+    } else if (e === 'casos') {
+      renderCasos(); return;
+    } else if (e === 'valores') {
+      renderValores(); return;
+    } else if (e === 'combinado') {
+      renderCombinado(); return;
     } else if (e === 'autoavaliacao') {
-      if (sprintAtivo() && estado.passou.senha && estado.passou.tabela) { estado.fim = Date.now(); salvar(true); relogio(); }
-      const PERG = [
-        ['celular', 'Deixei o celular guardado durante todo o sprint?'],
-        ['notificacoes', 'Evitei abrir outras abas, jogos ou redes sociais?'],
-        ['frustracao', 'Quando o código deu erro, respirei e testei com calma?'],
-        ['ajuda', 'Pedi ajuda do jeito combinado (mão levantada, mostrando o que tentei)?'],
-        ['colegas', 'Respeitei o foco dos colegas (sem conversa, vídeos ou barulho)?'],
-      ];
-      const opc = (k, v, t) => `<label class="ab-check" style="display:inline-flex; margin-right:8px;"><input type="radio" name="auto_${k}" value="${v}" ${estado.auto[k] === v ? 'checked' : ''}> <span>${t}</span></label>`;
-      stepWrap.innerHTML = cartao('Autoavaliação: como foi o meu foco?', `
-        <div class="ab-conteudo"><p>Responda com sinceridade: é para você se conhecer, não para ganhar nota. Tempo do sprint: <b>${estado.inicio ? mmss((estado.fim || Date.now()) - estado.inicio) : '—'}</b> · saídas da tela: <b>${estado.saidas}</b>${estado.foraMs ? ` (${mmss(estado.foraMs)} fora)` : ''}.</p></div>
-        ${PERG.map(([k, t]) => `<div class="cl-caso" style="margin-top:12px; padding:12px 14px; border:1px solid var(--line); border-radius:12px;"><p style="margin:0 0 8px;">${t}</p>${opc(k, 'sim', 'Sim')}${opc(k, 'parcial', 'Em parte')}${opc(k, 'nao', 'Não')}</div>`).join('')}
-        <div class="ab-conteudo" style="margin-top:14px;"><label style="display:flex; flex-direction:column; gap:6px; font-weight:700;">O que eu faço diferente no próximo sprint?<textarea id="spMelhoria" class="sp-editor" style="min-height:80px; font-family:inherit;">${esc(estado.auto.melhoria || '')}</textarea></label></div>`) + nav(true, true);
-      stepWrap.querySelectorAll('input[type="radio"]').forEach(r => r.addEventListener('change', () => { estado.auto[r.name.slice(5)] = r.value; salvar(); }));
-      document.getElementById('spMelhoria').addEventListener('input', ev => { estado.auto.melhoria = ev.target.value; salvar(); });
+      renderAuto(); return;
     } else if (e === 'checklist') {
-      const cl2 = checklist();
-      stepWrap.innerHTML = cartao('Checklist de entrega de código', `
-        <ul class="sp-lista">${cl2.map(c => c.ok ? `<li class="ok">✔ ${esc(c.t)}</li>` : `<li class="${c.info ? 'info' : 'falha'}"><b>${c.info ? '•' : '✘'} ${esc(c.t)}</b> — ${esc(c.d)}</li>`).join('')}</ul>
-        <div class="ab-conteudo" style="margin-top:14px;">${md(podeVisto() ? '> Tudo entregue. Chame o professor: a próxima etapa é o visto.' : '> Complete os itens com ✘ antes de pedir o visto.')}</div>`) + nav(true, podeVisto(), 'Pedir visto →');
+      stepWrap.innerHTML = cartao('Checklist', `${listaChecklist(cl)}
+        <div class="ab-conteudo" style="margin-top:14px;"><blockquote>${podeVisto() ? 'Tudo pronto. Chame o professor: a próxima etapa é o visto.' : 'Complete os itens com ✘ antes de pedir o visto.'}</blockquote></div>`) + nav(true, podeVisto(), 'Pedir visto →');
     } else {
       renderVisto(); return;
     }
     ligar();
   }
 
-  function renderDesafio(ds) {
-    const cod = estado.codigo[ds.id] != null ? estado.codigo[ds.id] : ds.inicial;
-    stepWrap.innerHTML = cartao(ds.titulo, `<div class="ab-conteudo">${md(ds.enunciado)}</div>
-      <textarea class="sp-editor" id="spCodigo" spellcheck="false" aria-label="Seu código">${esc(cod)}</textarea>
-      <div class="sp-acoes"><button class="btn" id="btnTestar">▶ Rodar os testes</button><button class="btn btn-secondary" id="btnRecomecar">↺ Recomeçar</button><span class="ab-nav-dica" id="spStatus"></span></div>
-      <ul class="sp-testes" id="spTestes">${estado.passou[ds.id] ? '<li class="ok">✅ Todos os testes passaram.</li>' : ''}</ul>`) + nav(true, true);
-    const ta = document.getElementById('spCodigo');
-    ta.addEventListener('input', () => { estado.codigo[ds.id] = ta.value; salvar(); });
-    ta.addEventListener('keydown', ev => { if (ev.key === 'Tab' && !ev.shiftKey) { ev.preventDefault(); ta.setRangeText('  ', ta.selectionStart, ta.selectionEnd, 'end'); ta.dispatchEvent(new Event('input')); } });
-    document.getElementById('btnRecomecar').addEventListener('click', () => { ta.value = ds.inicial; ta.dispatchEvent(new Event('input')); });
-    document.getElementById('btnTestar').addEventListener('click', async () => {
-      estado.codigo[ds.id] = ta.value; salvar(true);
-      document.getElementById('spStatus').textContent = 'Rodando...';
-      const r = await rodar(ds, ta.value);
-      document.getElementById('spStatus').textContent = '';
-      const lista = document.getElementById('spTestes');
-      if (r.erro) { lista.innerHTML = `<li class="falha">✘ ${esc(r.erro)}</li>`; estado.passou[ds.id] = false; salvar(true); return; }
-      lista.innerHTML = r.resultados.map((x, i) => x.ok
-        ? `<li class="ok">✔ ${esc(ds.funcao)}(${esc(JSON.stringify(ds.testes[i].args).slice(1, -1).slice(0, 120))})</li>`
-        : `<li class="falha">✘ ${esc(ds.funcao)}(${esc(JSON.stringify(ds.testes[i].args).slice(1, -1).slice(0, 120))})<br>esperado: ${esc(JSON.stringify(ds.testes[i].esperado))}<br>recebido: ${esc(x.got)}</li>`).join('');
-      const tudo = r.resultados.every(x => x.ok);
-      estado.passou[ds.id] = tudo;
-      if (tudo) lista.insertAdjacentHTML('beforeend', '<li class="ok">✅ Todos os testes passaram.</li>');
-      salvar(true);
-      reportar(`Sprint de foco — ${ds.id} (${r.resultados.filter(x => x.ok).length}/${r.resultados.length})`);
+  function renderCasos() {
+    stepWrap.innerHTML = cartao('Situações do laboratório', `
+      <div class="ab-conteudo"><p>Para cada situação, escolha a atitude que respeita as normas de convivência e protege o foco de todos.</p></div>
+      ${CASOS.map((c, i) => `<div class="cf-caso" data-caso="${c.id}"><p><b>${i + 1}.</b> ${esc(c.texto)}</p>
+        <label class="cf-campo"><span>O que fazer?</span><select data-c="${c.id}">${opcoes(c.opcoes, estado.casos[c.id])}</select></label><div class="cf-dica"></div></div>`).join('')}
+      <div class="cf-acoes"><button class="btn" id="btnConferir">Conferir</button><div class="ab-msg" id="cfMsg" style="display:none;"></div></div>`) + nav(true, true);
+    stepWrap.querySelectorAll('select[data-c]').forEach(s => s.addEventListener('change', () => { estado.casos[s.dataset.c] = s.value; salvar(); }));
+    document.getElementById('btnConferir').addEventListener('click', () => {
+      let n = 0;
+      CASOS.forEach(c => {
+        const box = stepWrap.querySelector(`[data-caso="${c.id}"]`);
+        const ok = estado.casos[c.id] === 'a';
+        box.classList.toggle('ok', ok); box.classList.toggle('erro', !ok);
+        box.querySelector('.cf-dica').innerHTML = ok
+          ? `✅ <b>Norma:</b> ${esc(c.norma)} · <b>Valor:</b> ${esc(c.valor)}`
+          : `💡 ${esc(estado.casos[c.id] ? c.dica : 'Escolha uma atitude.')}`;
+        if (ok) n++;
+      });
+      const m = document.getElementById('cfMsg');
+      m.style.display = 'block'; m.className = `ab-msg ${n === CASOS.length ? 'ok' : 'erro'}`;
+      m.textContent = n === CASOS.length ? '✅ Todas as situações resolvidas com respeito às normas!' : `${n} de ${CASOS.length} certas.`;
+      salvar(true); reportar(`Combinado de foco — situações (${n}/${CASOS.length})`);
     });
+    ligar();
+  }
+
+  function renderValores() {
+    stepWrap.innerHTML = cartao('Que valor cada norma protege?', `
+      <div class="ab-conteudo"><p>Toda norma de convivência protege um valor. Ligue cada norma do laboratório ao valor que ela mais protege. Cada valor aparece uma vez.</p></div>
+      ${NORMAS.map(n => `<div class="cf-caso" data-norma="${n.id}"><p>“${esc(n.texto)}”</p>
+        <label class="cf-campo"><span>Valor</span><select data-v="${n.id}">${opcoes(VALORES, estado.valores[n.id])}</select></label><div class="cf-dica"></div></div>`).join('')}
+      <div class="cf-acoes"><button class="btn" id="btnConferir">Conferir</button><div class="ab-msg" id="cfMsg" style="display:none;"></div></div>`) + nav(true, true);
+    stepWrap.querySelectorAll('select[data-v]').forEach(s => s.addEventListener('change', () => { estado.valores[s.dataset.v] = s.value; salvar(); }));
+    document.getElementById('btnConferir').addEventListener('click', () => {
+      let n = 0;
+      NORMAS.forEach(x => {
+        const box = stepWrap.querySelector(`[data-norma="${x.id}"]`);
+        const ok = estado.valores[x.id] === x.certa;
+        box.classList.toggle('ok', ok); box.classList.toggle('erro', !ok);
+        box.querySelector('.cf-dica').textContent = ok ? '✅ Isso.' : '💡 Pergunte-se: se ninguém seguir essa norma, o que se perde primeiro?';
+        if (ok) n++;
+      });
+      const m = document.getElementById('cfMsg');
+      m.style.display = 'block'; m.className = `ab-msg ${n === NORMAS.length ? 'ok' : 'erro'}`;
+      m.textContent = n === NORMAS.length ? '✅ Cada norma ligada ao seu valor!' : `${n} de ${NORMAS.length} certas.`;
+      salvar(true); reportar(`Combinado de foco — valores (${n}/${NORMAS.length})`);
+    });
+    ligar();
+  }
+
+  function renderCombinado() {
+    stepWrap.innerHTML = cartao('O combinado da turma', `
+      <div class="ab-conteudo"><p>Escreva <b>3 normas</b> que você proporia para o combinado de foco do laboratório. Escreva como uma ação (“Guardar…”, “Pedir…”, “Avisar…”) e diga qual valor cada uma protege. Elas não precisam ser iguais às das etapas anteriores.</p></div>
+      ${estado.normas.slice(0, 3).map((n, i) => `<div class="cf-caso" data-n="${i}"><label class="cf-campo"><span>Norma ${i + 1}</span><input type="text" data-texto="${i}" maxlength="140" value="${esc(n.texto)}" placeholder="Ex.: Usar fone só com volume que o colega do lado não escute"><small></small></label>
+        <label class="cf-campo"><span>Valor que ela protege</span><select data-valor="${i}">${opcoes(VALORES, n.valor)}</select></label></div>`).join('')}
+      <div class="cf-acoes"><button class="btn" id="btnConferir">Conferir</button><div class="ab-msg" id="cfMsg" style="display:none;"></div></div>`) + nav(true, true);
+    const marca = () => estado.normas.slice(0, 3).forEach((n, i) => {
+      stepWrap.querySelector(`[data-n="${i}"] small`).textContent = `${palavras(n.texto)} palavras (mínimo 5)`;
+    });
+    marca();
+    stepWrap.querySelectorAll('[data-texto]').forEach(el => el.addEventListener('input', () => { estado.normas[+el.dataset.texto].texto = el.value; marca(); salvar(); }));
+    stepWrap.querySelectorAll('[data-valor]').forEach(el => el.addEventListener('change', () => { estado.normas[+el.dataset.valor].valor = el.value; salvar(); }));
+    document.getElementById('btnConferir').addEventListener('click', () => {
+      let n = 0;
+      estado.normas.slice(0, 3).forEach((x, i) => {
+        const ok = normaOk(x);
+        const box = stepWrap.querySelector(`[data-n="${i}"]`);
+        box.classList.toggle('ok', ok); box.classList.toggle('erro', !ok);
+        if (ok) n++;
+      });
+      const m = document.getElementById('cfMsg');
+      m.style.display = 'block'; m.className = `ab-msg ${n === 3 ? 'ok' : 'erro'}`;
+      m.textContent = n === 3 ? '✅ Combinado pronto para mostrar ao professor.' : 'Cada norma precisa de pelo menos 5 palavras e de um valor escolhido.';
+      salvar(true); reportar(`Combinado de foco — normas (${n}/3)`);
+    });
+    ligar();
+  }
+
+  function renderAuto() {
+    const opc = (k, v, t) => `<label class="ab-check cf-radio"><input type="radio" name="auto_${k}" value="${v}" ${estado.auto[k] === v ? 'checked' : ''}> <span>${t}</span></label>`;
+    stepWrap.innerHTML = cartao('Autoavaliação: como foi o meu foco hoje?', `
+      <div class="ab-conteudo"><p>Responda com sinceridade sobre esta aula: é para você se conhecer, não para ganhar nota.</p></div>
+      ${AUTO.map(([k, t]) => `<div class="cf-caso"><p style="margin:0 0 8px;">${t}</p>${opc(k, 'sim', 'Sim')}${opc(k, 'parcial', 'Em parte')}${opc(k, 'nao', 'Não')}</div>`).join('')}
+      <label class="cf-campo" style="margin-top:14px;"><span>O que eu faço diferente na próxima aula?</span><textarea id="cfMelhoria" placeholder="Ex.: deixar o celular na mochila desde o começo da aula">${esc(estado.auto.melhoria || '')}</textarea></label>`) + nav(true, true);
+    stepWrap.querySelectorAll('input[type="radio"]').forEach(r => r.addEventListener('change', () => { estado.auto[r.name.slice(5)] = r.value; salvar(); }));
+    document.getElementById('cfMelhoria').addEventListener('input', ev => { estado.auto.melhoria = ev.target.value; salvar(); });
     ligar();
   }
 
@@ -304,11 +320,12 @@ Você vai resolver **dois desafios de lógica** num sprint de até **${SPRINT_MI
     if (!estado.completed && !podeVisto()) { atual = ETAPAS.indexOf('checklist'); render(); return; }
     if (estado.completed) {
       const quando = estado.vistoEm ? new Date(estado.vistoEm).toLocaleString('pt-BR') : '';
-      stepWrap.innerHTML = cartao('✅ Sprint entregue', `<p>Visto dado por <b>${esc(estado.vistoPor || '')}</b>${quando ? ' em ' + esc(quando) : ''}.</p>`, 'ab-concluida') + nav(true, false);
+      stepWrap.innerHTML = cartao('✅ Combinado entregue', `<p>Visto dado por <b>${esc(estado.vistoPor || '')}</b>${quando ? ' em ' + esc(quando) : ''}.</p>`, 'ab-concluida') + nav(true, false);
       ligar(); return;
     }
     stepWrap.innerHTML = cartao('🧑‍🏫 Visto do professor', `
-      <div class="ab-conteudo"><p>Mostre ao professor o código e a checklist. Quando ele conferir, peça o token de professor (Gestão → "Token — Dar Visto / Pular Etapa") e digite abaixo.</p></div>
+      <div class="ab-conteudo"><p>Mostre ao professor as suas 3 normas e a autoavaliação. Quando ele conferir, peça o token de professor (Gestão → "Token — Dar Visto / Pular Etapa") e digite abaixo.</p>
+      <ul>${estado.normas.slice(0, 3).map(n => `<li>${esc(n.texto)} <i>(${esc(nomeValor(n.valor))})</i></li>`).join('')}</ul></div>
       <div class="ab-form"><label>Token do professor <input type="text" id="vistoToken" inputmode="numeric" maxlength="6" autocomplete="off"></label>
         <button class="btn" id="btnDarVisto">Dar visto</button><div class="ab-msg" id="vistoMsg" style="display:none;"></div></div>`) + nav(true, false);
     ligar();
@@ -322,9 +339,8 @@ Você vai resolver **dois desafios de lógica** num sprint de até **${SPRINT_MI
       try {
         const r = window.PortalProfessorVisto ? await window.PortalProfessorVisto.verificarToken(t) : { ok: false, erro: 'Verificação indisponível nesta tela.' };
         if (!r.ok) throw new Error(r.erro);
-        if (!estado.fim) estado.fim = Date.now();
         Object.assign(estado, { completed: true, vistoPor: r.nome, vistoEm: new Date().toISOString() });
-        salvar(true); reportar('Sprint de foco — entregue com visto'); render();
+        salvar(true); reportar('Combinado de foco — entregue com visto'); render();
       } catch (e) {
         m.className = 'ab-msg erro'; m.textContent = e.message || 'Erro inesperado ao verificar. Tente de novo.'; m.style.display = 'block';
         btn.disabled = false; btn.textContent = 'Dar visto';
@@ -333,16 +349,15 @@ Você vai resolver **dois desafios de lógica** num sprint de até **${SPRINT_MI
   }
 
   window.generateGabaritoForGestao = function () {
-    const sol1 = 'const p = []; if (senha.length < 8) p.push("tamanho"); if (!/[A-Z]/.test(senha)) p.push("maiuscula"); if (!/[a-z]/.test(senha)) p.push("minuscula"); if (!/[0-9]/.test(senha)) p.push("numero"); if (!/[^A-Za-z0-9 ]/.test(senha)) p.push("especial"); if (senha.includes(" ")) p.push("espaco"); return p;';
-    const sol2 = 'Acumular {pontos, saldo, golsPro} por time (vitória 3, empate 1), Object.values(...) e sort por pontos desc, saldo desc, golsPro desc e time.localeCompare.';
+    const certa = c => c.opcoes.find(o => o[0] === 'a')[1];
     return window.PortalGabarito.generate({
-      title: 'Projeto de Vida — Sprint de Foco',
-      subtitle: 'Prática · Checklist de entrega de código (O aluno mantém o foco e autocontrole na tarefa?) · Sistemas e Jogos',
-      items: [
-        { number: 1, title: DESAFIOS[0].titulo, prompt: 'validarSenha(senha) → lista de problemas na ordem da tabela.', answer: sol1 },
-        { number: 2, title: DESAFIOS[1].titulo, prompt: 'classificar(partidas) → tabela ordenada.', answer: sol2 },
-        { number: 3, title: 'Observação do professor', prompt: 'Foco e autocontrole durante o sprint.', answer: 'Conferir: tempo do sprint e saídas da tela (mostrados na checklist), celular guardado, reação ao erro, pedido de ajuda do jeito combinado e respeito ao foco dos colegas.' },
-      ],
+      title: 'Projeto de Vida — Combinado de Foco',
+      subtitle: 'Prática · Identificar normas e valores sociais relevantes à convivência cidadã · Sistemas e Jogos',
+      items: CASOS.map((c, i) => ({ number: i + 1, title: `Situação ${i + 1}`, prompt: c.texto, answer: `${certa(c)} (norma: ${c.norma}; valor: ${c.valor})` }))
+        .concat([
+          { number: CASOS.length + 1, title: 'Normas × valores', prompt: 'Ligar cada norma ao valor que ela protege.', answer: NORMAS.map(n => `${n.texto} → ${nomeValor(n.certa)}`).join(' | ') },
+          { number: CASOS.length + 2, title: 'Combinado da turma e autoavaliação', prompt: '3 normas escritas pelo aluno, cada uma com um valor, e autoavaliação do foco na aula.', answer: 'Conferir se cada norma é uma ação concreta de convivência no laboratório e se o valor escolhido faz sentido; ler o que o aluno vai fazer diferente.' },
+        ]),
       fileName: 'vida-foco-autocontrole-gabarito.txt',
     });
   };

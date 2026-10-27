@@ -160,24 +160,24 @@ window.TURMA_CONFIG_JOGOS = {
         // turmas/sistemas/ e o config.js de Jogos aponta para eles.
         {
           // Padrão novo (docs/padrao-trilhas.md). Plano de ensino: Aula 32
-          // (06/10/2026), 1h — teoria ~15 min + sprint de foco ~40 min, tudo
-          // numa tela só (o editor e os testes ficam no portal).
+          // (06/10/2026), 1h — teoria ~15 min + combinado de foco ~35 min
+          // (situações do laboratório, normas × valores, autoavaliação e visto).
           key: 'vida-foco-autocontrole',
           label: 'Autocontrole e Foco',
           aula: 32, dataAula: '2026-10-06',
-          desc: 'Foco, distrações e autocontrole num sprint de programação de lógica, respeitando as normas de convivência do laboratório.',
+          desc: 'Foco, distrações e autocontrole, e as normas de convivência do laboratório com os valores que elas protegem.',
           capacidade: 'Identificar normas e valores sociais relevantes à convivência cidadã.',
           modules: [
             {
               key: 'teoria', title: 'Teoria — Autocontrole e Foco',
-              desc: 'Foco × multitarefa, distrações externas e internas, autocontrole diante do erro, Pomodoro e normas de convivência que protegem o foco da turma.',
+              desc: 'Foco × multitarefa, distrações externas e internas, autocontrole diante da frustração, Pomodoro e normas de convivência ligadas aos valores que protegem.',
               icon: '📖', src: '../sistemas/atividades/vida-foco-autocontrole-teoria.html', telaCheia: true,
               progressKey: 'vida_foco_autocontrole_teoria_progress_', progressMode: 'flag',
               hasGabarito: true
             },
             {
-              key: 'pratica', title: 'Prática — Sprint de Foco',
-              desc: 'Dois desafios de lógica com testes automáticos num sprint cronometrado, com contagem de saídas da tela e autoavaliação. Checklist de entrega de código e visto do professor.',
+              key: 'pratica', title: 'Prática — Combinado de Foco',
+              desc: 'Situações de convivência no laboratório, normas ligadas aos valores que protegem, 3 normas para o combinado da turma e autoavaliação do foco. Visto do professor.',
               icon: '⏱️', src: '../sistemas/atividades/vida-foco-autocontrole-pratica.html', telaCheia: true,
               progressKey: 'vida_foco_autocontrole_pratica_progress_', progressMode: 'flag',
               requires: 'teoria', hasGabarito: true
