@@ -71,7 +71,7 @@
   .arq input.invalido{ border-color:var(--err); }
   .arq-erro{ font-size:10px; color:var(--err); padding:0 10px 4px 12px; white-space:normal; }
   .ico{ flex:0 0 22px; font-size:9px; font-weight:800; text-align:center; }
-  .ico-html{ color:#ff8a4c; } .ico-css{ color:#4ca8ff; } .ico-js{ color:#f0d050; } .ico-json{ color:#c58af9; } .ico-md{ color:#8fd0a8; } .ico-outro{ color:var(--ink-dim); }
+  .ico-html{ color:#ff8a4c; } .ico-css{ color:#4ca8ff; } .ico-js{ color:#f0d050; } .ico-json{ color:#c58af9; } .ico-md{ color:#8fd0a8; } .ico-img{ color:#6fd6c4; } .ico-outro{ color:var(--ink-dim); }
   .exp-rodape{ flex-shrink:0; padding:6px 12px; font-size:10px; color:var(--ink-dim); border-top:1px solid var(--line); line-height:1.4; }
 
   /* ---------- Abas dos arquivos abertos ---------- */
@@ -83,6 +83,15 @@
   .abas .fechar:hover{ opacity:1; background:rgba(255,255,255,0.1); }
   .abas .toggle-exp{ padding:0 12px; font-size:14px; }
   #editor{ flex:1; min-height:0; overflow:hidden; }
+  #editor[hidden]{ display:none; }
+
+  /* ---------- Imagem aberta (aparece no lugar do editor) ---------- */
+  .imagem-vista{ flex:1; min-height:0; overflow:auto; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:20px;
+    background:repeating-conic-gradient(#121c26 0% 25%, #0d1620 0% 50%) 0 0 / 16px 16px; }
+  .imagem-vista[hidden]{ display:none; }
+  .imagem-vista img{ image-rendering:pixelated; max-width:100%; max-height:60vh; object-fit:contain; outline:1px dashed var(--line); }
+  .imagem-vista .info{ font-size:12px; color:var(--ink-dim); text-align:center; line-height:1.7; background:var(--panel2); padding:8px 14px; border-radius:4px; }
+  .imagem-vista code{ color:var(--accent); }
 
   .lado{ flex:1 1 45%; min-width:280px; min-height:0; overflow:hidden; display:flex; flex-direction:column; border-left:1px solid var(--line); }
   .navegador{ flex:1 1 65%; min-height:0; display:flex; flex-direction:column; background:var(--panel); }
@@ -155,10 +164,14 @@
       <ul class="exp-lista" id="expLista"></ul>
       <div class="exp-rodape">Salvo neste navegador.<br>Duplo clique renomeia.</div>
     </aside>
-    <input type="file" id="inputImportar" multiple hidden accept=".html,.htm,.css,.js,.mjs,.json,.md,.txt,.csv,.svg,.xml">
+    <input type="file" id="inputImportar" multiple hidden accept=".html,.htm,.css,.js,.mjs,.json,.md,.txt,.csv,.svg,.xml,.png,.jpg,.jpeg,.gif,.webp">
     <div class="editor-col">
       <div class="abas" id="abas" role="tablist" aria-label="Arquivos abertos"></div>
       <div id="editor"></div>
+      <div class="imagem-vista" id="imagemVista" hidden>
+        <img id="imagemVistaImg" alt="">
+        <div class="info" id="imagemVistaInfo"></div>
+      </div>
     </div>
   </div>
   <div class="lado" id="lado">
@@ -198,6 +211,10 @@
   //  aspas simples ou escapadas, e nada de tag de script solta: o
   //  tests/check-paths.mjs leria como referência de verdade.)
   //  - "Só JavaScript": roda o .js aberto, só com o console.
+  // Imagens (.png, .jpg, .gif, .webp) entram pelo importar e ficam guardadas
+  // como data URL, fora do Monaco. No navegador, o nome do arquivo
+  // ('personagem.png') funciona em img, CSS url(...), new Image(), fetch e
+  // XHR — é assim que o Phaser carrega o sprite com this.load.image.
   // Nos dois, o código roda num <iframe sandbox> SEM allow-same-origin: ele
   // não enxerga o portal (sessão, localStorage, cookies). O console e os
   // erros chegam por postMessage. Os laços do JS ganham uma checagem de
@@ -318,8 +335,12 @@
   const ehHtml = nome => ['html', 'htm'].includes(extensao(nome));
   const ehJs = nome => ['js', 'mjs'].includes(extensao(nome));
   const LINGUAGEM = { html: 'html', htm: 'html', css: 'css', js: 'javascript', mjs: 'javascript', json: 'json', md: 'markdown', svg: 'xml', xml: 'xml' };
-  const ICONE = { html: ['&lt;&gt;', 'html'], htm: ['&lt;&gt;', 'html'], css: ['#', 'css'], js: ['JS', 'js'], mjs: ['JS', 'js'], json: ['{}', 'json'], md: ['M↓', 'md'] };
+  const ICONE = { html: ['&lt;&gt;', 'html'], htm: ['&lt;&gt;', 'html'], css: ['#', 'css'], js: ['JS', 'js'], mjs: ['JS', 'js'], json: ['{}', 'json'], md: ['M↓', 'md'],
+    png: ['IMG', 'img'], jpg: ['IMG', 'img'], jpeg: ['IMG', 'img'], gif: ['IMG', 'img'], webp: ['IMG', 'img'] };
   const TIPO_MIME = { html: 'text/html', htm: 'text/html', css: 'text/css', js: 'text/javascript', mjs: 'text/javascript', json: 'application/json', svg: 'image/svg+xml', xml: 'application/xml', csv: 'text/csv', md: 'text/markdown' };
+  const IMAGEM_MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp' };
+  const ehImagem = nome => Object.prototype.hasOwnProperty.call(IMAGEM_MIME, extensao(nome));
+  const IMAGEM_MAX = 300 * 1024; // o projeto inteiro mora no localStorage (~5 MB)
 
   // ---------- Proteção contra laço infinito ----------
   // Acha cada "for (...) {", "while (...) {" e "do {" fora de strings e
@@ -369,7 +390,14 @@
     function fmt(a){ if (typeof a === 'string') return a; if (a instanceof Error) return a.name + ': ' + a.message;
       if (a && a.nodeType === 1) return a.outerHTML.slice(0, 300);
       try { var s = JSON.stringify(a, null, 2); return s === undefined ? String(a) : s; } catch (e) { return String(a); } }
-    function envia(tipo, args){ try { P.postMessage({ pixelcode: true, tipo: tipo, texto: Array.prototype.map.call(args, fmt).join(' ') }, '*'); } catch (e) {} }
+    function envia(tipo, args){
+      args = Array.prototype.slice.call(args);
+      // console.log('%cTexto', 'color: red'): o estilo não aparece aqui, então sai junto com o %c (o Phaser usa isso no aviso de versão).
+      if (typeof args[0] === 'string' && args[0].indexOf('%c') >= 0) {
+        var n = args[0].split('%c').length - 1;
+        args = [args[0].replace(/%c/g, '').replace(/\\s+/g, ' ').trim()].concat(args.slice(1 + n));
+      }
+      try { P.postMessage({ pixelcode: true, tipo: tipo, texto: args.map(fmt).join(' ') }, '*'); } catch (e) {} }
     ['log','info','warn','error'].forEach(function(t){ console[t] = function(){ envia(t, arguments); }; });
     window.__pcLaco = function(id){ var t = Date.now();
       if (!inicio[id] || t - ultimo[id] > 200) { inicio[id] = t; ultimo[id] = t; return; }
@@ -399,6 +427,32 @@
       var n = limpa(h);
       if (/\\.html?$/i.test(n)) { e.preventDefault(); P.postMessage({ pixelcode: true, tipo: 'navegar', arquivo: n }, '*'); }
     });
+  })();<\/script>`;
+  }
+
+  // Script injetado (depois da ponte) quando o projeto tem imagens: troca o
+  // nome do arquivo ('personagem.png') pela imagem guardada em quem carrega
+  // imagem pelo JS — img.src, setAttribute, fetch e XHR (o loader do Phaser
+  // usa XHR). Também vai na página baixada, que não tem a ponte.
+  function ponteImagens(imagens) {
+    if (!Object.keys(imagens).length) return '';
+    const img = JSON.stringify(imagens).replace(/</g, '\\u003c');
+    return `<script>(function(){
+    var IMG = ${img};
+    function acha(u){
+      if (u instanceof URL) u = u.href;
+      if (typeof u !== 'string' || /^[a-z][\\w+.-]*:|^\\/\\//i.test(u)) return null;
+      u = u.split(/[?#]/)[0].replace(/^\\.?\\//, ''); try { u = decodeURIComponent(u); } catch (e) {}
+      return Object.prototype.hasOwnProperty.call(IMG, u) ? IMG[u] : null; }
+    var d = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+    Object.defineProperty(HTMLImageElement.prototype, 'src', { configurable: true, enumerable: d.enumerable, get: d.get,
+      set: function(v){ d.set.call(this, acha(v) || v); } });
+    var sa = Element.prototype.setAttribute;
+    Element.prototype.setAttribute = function(n, v){ if (/^(src|href)$/i.test(n)) v = acha(v) || v; return sa.call(this, n, v); };
+    var xo = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(){ var a = Array.prototype.slice.call(arguments), x = acha(a[1]); if (x) a[1] = x; return xo.apply(this, a); };
+    var f0 = window.fetch;
+    window.fetch = function(){ var a = Array.prototype.slice.call(arguments), x = acha(a[0]); if (x) a[0] = x; return f0.apply(window, a); };
   })();<\/script>`;
   }
 
@@ -448,18 +502,27 @@
 
   require(['vs/editor/editor.main'], function () {
     const modelos = new Map(); // nome → modelo do Monaco
+    // Imagens ficam fora do Monaco: o base64 viraria sugestão de palavra no editor.
+    const imagens = new Map(); // nome → data URL
     const vistas = {};         // nome → posição do cursor/rolagem
-    const conteudo = nome => (modelos.get(nome) ? modelos.get(nome).getValue() : '');
-    const nomes = () => [...modelos.keys()].sort((a, b) => a.localeCompare(b, 'pt-BR'));
-    const listaArquivos = () => nomes().map(nome => ({ nome, conteudo: conteudo(nome) }));
+    const conteudo = nome => (modelos.get(nome) ? modelos.get(nome).getValue() : (imagens.get(nome) || ''));
+    const existe = nome => modelos.has(nome) || imagens.has(nome);
+    const nomes = () => [...modelos.keys(), ...imagens.keys()].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    const listaArquivos = () => nomes().map(nome => ({ nome, conteudo: imagens.has(nome) ? '' : conteudo(nome) }));
+    const arquivosTexto = () => Object.fromEntries([...modelos.keys()].map(n => [n, conteudo(n)]));
     function criarModelo(nome, texto) {
       const m = monaco.editor.createModel(texto, LINGUAGEM[extensao(nome)] || 'plaintext', monaco.Uri.file('/' + nome));
       modelos.set(nome, m);
       return m;
     }
-    Object.keys(salvo.arquivos).forEach(nome => criarModelo(nome, String(salvo.arquivos[nome] ?? '')));
-    let abertos = (salvo.abertos || []).filter(n => modelos.has(n));
-    let ativo = modelos.has(salvo.ativo) ? salvo.ativo : (abertos[0] || nomes()[0]);
+    Object.keys(salvo.arquivos).forEach(nome => {
+      const texto = String(salvo.arquivos[nome] ?? '');
+      if (ehImagem(nome) && texto.startsWith('data:image/')) imagens.set(nome, texto);
+      else criarModelo(nome, texto);
+    });
+    if (!modelos.size) criarModelo('index.html', EXEMPLO['index.html']);
+    let abertos = (salvo.abertos || []).filter(existe);
+    let ativo = existe(salvo.ativo) ? salvo.ativo : (abertos[0] || nomes()[0]);
     if (!abertos.includes(ativo)) abertos.push(ativo);
 
     // ---------- Autocomplete e documentação ----------
@@ -498,7 +561,7 @@
     }
 
     const editor = monaco.editor.create(document.getElementById('editor'), {
-      model: modelos.get(ativo),
+      model: modelos.get(ativo) || modelos.values().next().value,
       theme: 'vs-dark',
       fontFamily: "'JetBrains Mono', monospace",
       fontSize: 13,
@@ -596,26 +659,27 @@
         return null;
       };
       let pos = 0;
-      if (comPonte) {
+      const pImg = ponteImagens(Object.fromEntries(imagens));
+      if (comPonte || pImg) {
         // A ponte precisa rodar antes de qualquer outro script.
         const m = html.match(/<head\b[^>]*>/i) || html.match(/<html\b[^>]*>/i) || html.match(/<!doctype[^>]*>/i);
         pos = m ? m.index + m[0].length : 0;
-        b.add(html.slice(0, pos), nome, 1);
-        b.add('\n' + ponte(Object.fromEntries(listaArquivos().map(a => [a.nome, a.conteudo]))) + '\n', null);
+        b.add(trocarImagens(html.slice(0, pos)), nome, 1);
+        b.add('\n' + (comPonte ? ponte(arquivosTexto()) + '\n' : '') + (pImg ? pImg + '\n' : ''), null);
       }
       // (o "<!" + "--" vai escapado: escrito junto aqui dentro, ele quebraria o script desta página)
       const re = /<!\-\-[\s\S]*?\-\->|<link\b[^>]*>|<\x73cript\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
       re.lastIndex = pos;
       let m;
       while ((m = re.exec(html))) {
-        b.add(html.slice(pos, m.index), nome, linhaEm(html, pos));
+        b.add(trocarImagens(html.slice(pos, m.index)), nome, linhaEm(html, pos));
         const tag = m[0], aqui = linhaEm(html, m.index);
         pos = re.lastIndex;
         if (tag.startsWith('<!\-\-')) { b.add(tag, nome, aqui); continue; }
         if (/^<link/i.test(tag)) {
           const css = /stylesheet/i.test(lerAttr(tag, 'rel') || '') && deProjeto(lerAttr(tag, 'href'));
-          if (css) b.add(`<style data-arquivo="${css}">\n${conteudo(css)}\n</style>`, null);
-          else b.add(tag, nome, aqui);
+          if (css) b.add(`<style data-arquivo="${css}">\n${trocarImagens(conteudo(css))}\n</style>`, null);
+          else b.add(trocarImagens(tag), nome, aqui);
           continue;
         }
         const abre = '<script' + m[1] + '>';
@@ -633,13 +697,23 @@
           b.add(comPonte && codigoJs ? abre + protegerLacos(m[2]) + '<\/script>' : tag, nome, aqui);
         }
       }
-      b.add(html.slice(pos), nome, linhaEm(html, pos));
+      b.add(trocarImagens(html.slice(pos)), nome, linhaEm(html, pos));
       return Object.assign(b.fim(), { avisos });
+    }
+    // Imagem do projeto escrita direto no HTML/CSS (atributo src/href ou
+    // url(...) do CSS): troca o nome pela imagem guardada. Não muda o número
+    // de linhas.
+    function trocarImagens(texto) {
+      if (!imagens.size || !texto) return texto;
+      const dado = u => (!u || externo(u) ? null : imagens.get(limparUrl(u)) || null);
+      return texto
+        .replace(/(\s(?:src|href)\s*=\s*)(["'])([^"']*)\2/gi, (t, a, q, u) => { const d = dado(u); return d ? a + q + d + q : t; })
+        .replace(/url\(\s*(["']?)([^"')]+)\1\s*\)/gi, (t, q, u) => { const d = dado(u.trim()); return d ? `url("${d}")` : t; });
     }
 
     function montarScript(nome) {
       const b = construtor();
-      b.add(`<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n<meta charset="UTF-8">\n${ponte(Object.fromEntries(listaArquivos().map(a => [a.nome, a.conteudo])))}\n</head>\n<body>\n<script>\n`, null);
+      b.add(`<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n<meta charset="UTF-8">\n${ponte(arquivosTexto())}\n${ponteImagens(Object.fromEntries(imagens))}\n</head>\n<body>\n<script>\n`, null);
       b.add(fecharScript(protegerLacos(conteudo(nome))), nome, 1);
       b.add('\n<\/script>\n</body>\n</html>\n', null);
       return b.fim();
@@ -716,20 +790,45 @@
     }
     function render() { renderExplorador(); renderAbas(); }
 
+    // Imagem aberta: no lugar do editor, mostra a imagem ampliada (pixel art
+    // de 32×32 sumiria na tela) e o nome que vai no código.
+    const imagemVista = document.getElementById('imagemVista');
+    const imagemVistaImg = document.getElementById('imagemVistaImg');
+    const imagemVistaInfo = document.getElementById('imagemVistaInfo');
+    function mostrarVista() {
+      const dado = imagens.get(ativo);
+      document.getElementById('editor').hidden = !!dado;
+      imagemVista.hidden = !dado;
+      if (!dado) return;
+      const nome = ativo;
+      imagemVistaImg.onload = () => {
+        const w = imagemVistaImg.naturalWidth, h = imagemVistaImg.naturalHeight;
+        const zoom = Math.max(1, Math.floor(256 / Math.max(w, h, 1)));
+        imagemVistaImg.style.width = (w * zoom) + 'px';
+        imagemVistaInfo.innerHTML = `<b>${escHtml(nome)}</b> · ${w}×${h} pixels${zoom > 1 ? ` · ampliada ${zoom}×` : ''}<br>`
+          + `No código, use o nome do arquivo: <code>'${escHtml(nome)}'</code>`;
+      };
+      imagemVistaImg.src = dado;
+      imagemVistaImg.alt = nome;
+    }
+
     function abrir(nome) {
-      if (!modelos.has(nome)) return;
+      if (!existe(nome)) return;
       if (modelos.has(ativo)) vistas[ativo] = editor.saveViewState();
       if (!abertos.includes(nome)) abertos.push(nome);
       ativo = nome;
-      editor.setModel(modelos.get(nome));
-      if (vistas[nome]) editor.restoreViewState(vistas[nome]);
+      if (modelos.has(nome)) {
+        editor.setModel(modelos.get(nome));
+        if (vistas[nome]) editor.restoreViewState(vistas[nome]);
+      }
+      mostrarVista();
       const trocouPagina = ehHtml(nome) && estado.pagina !== nome;
       if (ehHtml(nome)) estado.pagina = nome;
       if (ehJs(nome)) estado.scriptJs = nome;
       render();
       salvar();
       if (estado.modo === 'web' && trocouPagina) executar();
-      editor.focus();
+      if (modelos.has(nome)) editor.focus();
     }
     function fecharAba(nome) {
       if (abertos.length <= 1) return;
@@ -782,7 +881,7 @@
       li.className = 'arq';
       expLista.prepend(li);
       pedirNome(li, '', {
-        validar: n => validarNome(n),
+        validar: n => validarNome(n) || (ehImagem(n) ? 'Imagem não se cria aqui: importe o arquivo pelo botão ⤒ (ou arraste para cá).' : ''),
         ok: nome => {
           criarModelo(nome, ehHtml(nome) ? paginaCom('  ') : '');
           abrir(nome);
@@ -794,34 +893,44 @@
     function renomear(antigo) {
       const li = [...expLista.children].find(el => el.dataset.nome === antigo);
       if (!li) return;
+      const img = ehImagem(antigo);
       pedirNome(li, antigo, {
-        validar: n => validarNome(n, antigo),
+        validar: n => validarNome(n, antigo) || (ehImagem(n) === img ? ''
+          : img ? 'A imagem precisa continuar com extensão de imagem (.png, .jpg, .gif ou .webp).'
+            : 'Para ter uma imagem no projeto, importe o arquivo pelo botão ⤒.'),
         ok: novo => {
           if (novo === antigo) { renderExplorador(); return; }
-          const velho = modelos.get(antigo);
-          const m = monaco.editor.createModel(velho.getValue(), LINGUAGEM[extensao(novo)] || 'plaintext', monaco.Uri.file('/' + novo));
-          // Mantém a ordem do mapa (e assim a do arquivo salvo).
-          const entradas = [...modelos].map(([n, mod]) => (n === antigo ? [novo, m] : [n, mod]));
-          modelos.clear(); entradas.forEach(([n, mod]) => modelos.set(n, mod));
           abertos = abertos.map(n => (n === antigo ? novo : n));
-          if (estado.pagina === antigo) estado.pagina = novo;
-          if (estado.scriptJs === antigo) estado.scriptJs = novo;
-          if (vistas[antigo]) { vistas[novo] = vistas[antigo]; delete vistas[antigo]; }
-          if (ativo === antigo) { ativo = novo; editor.setModel(m); if (vistas[novo]) editor.restoreViewState(vistas[novo]); }
-          velho.dispose();
+          if (img) {
+            // Mantém a ordem do mapa (e assim a do arquivo salvo).
+            const entradas = [...imagens].map(([n, d]) => (n === antigo ? [novo, d] : [n, d]));
+            imagens.clear(); entradas.forEach(([n, d]) => imagens.set(n, d));
+            if (ativo === antigo) { ativo = novo; mostrarVista(); }
+          } else {
+            const velho = modelos.get(antigo);
+            const m = monaco.editor.createModel(velho.getValue(), LINGUAGEM[extensao(novo)] || 'plaintext', monaco.Uri.file('/' + novo));
+            const entradas = [...modelos].map(([n, mod]) => (n === antigo ? [novo, m] : [n, mod]));
+            modelos.clear(); entradas.forEach(([n, mod]) => modelos.set(n, mod));
+            if (estado.pagina === antigo) estado.pagina = novo;
+            if (estado.scriptJs === antigo) estado.scriptJs = novo;
+            if (vistas[antigo]) { vistas[novo] = vistas[antigo]; delete vistas[antigo]; }
+            if (ativo === antigo) { ativo = novo; editor.setModel(m); if (vistas[novo]) editor.restoreViewState(vistas[novo]); }
+            velho.dispose();
+          }
           render(); salvar(); autoExecutar();
           // Avisa se outro arquivo ainda aponta para o nome antigo.
-          const usam = nomes().filter(n => n !== novo && conteudo(n).includes(antigo));
+          const usam = [...modelos.keys()].filter(n => n !== novo && conteudo(n).includes(antigo));
           if (usam.length) logLine(`Renomeado para ${novo}. Atenção: ${usam.join(', ')} ainda cita "${antigo}" — troque lá também.`, 'warn');
         },
       });
     }
 
     function apagar(nome) {
-      if (modelos.size <= 1) { logLine('O projeto precisa ter pelo menos um arquivo.', 'warn'); return; }
+      if (modelos.has(nome) && modelos.size <= 1) { logLine('O projeto precisa ter pelo menos um arquivo.', 'warn'); return; }
       if (!confirm(`Apagar "${nome}"? Não dá para desfazer.`)) return;
       const m = modelos.get(nome);
       modelos.delete(nome);
+      imagens.delete(nome);
       abertos = abertos.filter(n => n !== nome);
       delete vistas[nome];
       if (ativo === nome) {
@@ -830,8 +939,16 @@
         ativo = '';
         abrir(prox);
       } else render();
-      m.dispose();
+      if (m) m.dispose();
       salvar(); autoExecutar();
+    }
+
+    function baixarArquivo(nome) {
+      if (!imagens.has(nome)) return baixarTexto(conteudo(nome), nome);
+      const a = document.createElement('a');
+      a.href = imagens.get(nome);
+      a.download = nome;
+      document.body.appendChild(a); a.click(); a.remove();
     }
 
     function baixarTexto(texto, nome) {
@@ -849,19 +966,27 @@
       Promise.all(lista.map(f => new Promise(ok => {
         const nome = f.name.replace(/\s+/g, '-');
         if (validarNome(nome, nome)) { logLine(`"${f.name}" não foi importado: ${validarNome(nome, nome)}`, 'warn'); return ok(); }
+        const img = ehImagem(nome);
+        if (img && f.size > IMAGEM_MAX) { logLine(`"${f.name}" é grande demais para uma imagem do projeto (máx. 300 KB). Exporte num tamanho menor.`, 'warn'); return ok(); }
         if (f.size > 1024 * 1024) { logLine(`"${f.name}" é grande demais (máx. 1 MB).`, 'warn'); return ok(); }
         const leitor = new FileReader();
         leitor.onload = () => {
+          const texto = String(leitor.result);
+          if (img && !texto.startsWith('data:image/')) { logLine(`"${f.name}" não parece ser uma imagem.`, 'warn'); return ok(); }
           const existente = nomes().find(n => n.toLowerCase() === nome.toLowerCase());
           if (existente) {
             if (!confirm(`Já existe "${existente}". Substituir pelo arquivo importado?`)) return ok();
-            modelos.get(existente).setValue(String(leitor.result));
+            if (img) imagens.set(existente, texto);
+            else modelos.get(existente).setValue(texto);
             ultimo = existente;
-          } else { criarModelo(nome, String(leitor.result)); ultimo = nome; }
+          } else {
+            if (img) imagens.set(nome, texto); else criarModelo(nome, texto);
+            ultimo = nome;
+          }
           ok();
         };
         leitor.onerror = () => { logLine(`Não foi possível ler "${f.name}".`, 'warn'); ok(); };
-        leitor.readAsText(f);
+        if (img) leitor.readAsDataURL(f); else leitor.readAsText(f);
       }))).then(() => { if (ultimo) abrir(ultimo); render(); salvar(); autoExecutar(); });
     }
 
@@ -911,11 +1036,14 @@
       const li = e.target.closest('.arq[data-nome]');
       if (!li || e.target.closest('input')) return;
       const nome = li.dataset.nome, acao = e.target.closest('[data-acao]');
-      if (!acao) return abrir(nome);
+      // Clicar no arquivo que já está aberto não redesenha a lista: senão o
+      // 2º clique de um duplo clique cai num item que já saiu da tela e o
+      // dblclick (renomear) nunca chega aqui.
+      if (!acao) { if (nome === ativo) { if (modelos.has(nome)) editor.focus(); } else abrir(nome); return; }
       e.stopPropagation();
       if (acao.dataset.acao === 'renomear') renomear(nome);
       else if (acao.dataset.acao === 'apagar') apagar(nome);
-      else if (acao.dataset.acao === 'baixar') baixarTexto(conteudo(nome), nome);
+      else if (acao.dataset.acao === 'baixar') baixarArquivo(nome);
     });
     expLista.addEventListener('dblclick', e => {
       const li = e.target.closest('.arq[data-nome]');
@@ -973,9 +1101,10 @@
     window.addEventListener('beforeunload', gravar);
 
     aplicarExplorador();
+    mostrarVista();
     trocarModo(estado.modo);
     editor.focus();
-    window.__pixelcode = { editor, modelos, executar, trocarModo, abrir, montarPagina }; // usado só para testes manuais
+    window.__pixelcode = { editor, modelos, imagens, importar, executar, trocarModo, abrir, montarPagina }; // usado só para testes manuais
   });
 </script>
 

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentos — Meu Personagem em Movimento</title>
+<!-- Padrão novo de trilhas (docs/padrao-trilhas.md): visual base
+     compartilhado. Roteiro sem correção automática (o jogo roda no PixelCode
+     do aluno): cada tela só navega, e quem marca como concluída é o
+     professor, no visto da última etapa — mesmo formato de
+     cod-phaser-final-pratica.html. O aluno desenha o personagem no Piskel,
+     importa o PNG no PixelCode e escreve o jogo em Phaser 3 por partes:
+     sprite, movimento pelas setas, limite da tela e área de andar. -->
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<style>
+  :root{ --green:#c9a6ff; --green-dim:#7a58b3; --yellow:#e0b84a; }
+</style>
+<script>
+  window.ACTIVITY_LOCATION = 'fund_movimento_pratica';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="../../../shared/vendor/supabase.js"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/professor-visto.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Fundamentos — Meu Personagem em Movimento</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">10</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  const LOC = 'fund_movimento_pratica';
+  const username = new URLSearchParams(window.location.search).get('user') || 'anon';
+  const PROGRESS_KEY = `${LOC}_progress_${username}`;
+  const STEP_KEY = `${LOC}_step_${username}`;
+
+  // Marcações no texto: ¤código¤, **negrito**, blocos de código entre §§§,
+  // "- [ ]" vira checklist clicável (AulaBase.decorar).
+  const STEPS = [
+    {
+      titulo: 'Missão: seu personagem no jogo',
+      corpo: `
+Hoje você cria o **seu próprio personagem**: desenha a arte, coloca no jogo e faz ele andar pelas setas do teclado, sem sair da área permitida.
+
+### O que entregar no fim da aula
+
+1. O personagem desenhado por você no **Piskel**, salvo em PNG.
+2. O jogo no **PixelCode** mostrando o seu desenho (não um quadrado de "imagem faltando").
+3. O personagem andando nas 4 direções e parando ao soltar a seta.
+4. O personagem preso no **chão**: não sai da tela e não sobe para o céu.
+
+### Ferramentas (as duas sem login)
+
+- **Piskel** (¤piskelapp.com¤): editor de pixel art no navegador.
+- **PixelCode**: o editor do portal, no botão **💻 PixelCode** da tela inicial. Ele abre numa aba nova e salva tudo neste navegador.
+
+> Use sempre o mesmo computador e o mesmo navegador nesta aula: o PixelCode guarda o projeto no navegador.`
+    },
+    {
+      titulo: '1. Desenhe o personagem no Piskel',
+      corpo: `
+1. Abra ¤piskelapp.com¤ numa aba nova e clique em **Create Sprite**.
+2. O editor já abre com uma tela de **32×32 pixels** (confira embaixo, à direita: ¤[32x32]¤). Não mude o tamanho.
+3. Escolha a cor clicando no **quadrado grande de cor**, embaixo das ferramentas, à esquerda.
+4. Desenhe com o **lápis** (primeira ferramenta). O **balde** pinta uma área inteira e a **borracha** apaga. Errou? **Ctrl+Z** desfaz.
+
+### Regras da arte
+
+- **Não pinte o fundo.** O xadrez cinza é transparente e é ele que some no jogo.
+- Desenhe o personagem **de frente ou de lado**, ocupando boa parte dos 32×32.
+- Use poucas cores (3 a 5) e um contorno escuro: fica mais fácil de enxergar.
+
+- [ ] Personagem desenhado, com o fundo sem pintar`
+    },
+    {
+      titulo: '2. Salve a arte em PNG',
+      corpo: `
+1. Na coluna de botões da direita, clique em **EXPORT** (o ícone de **imagem**, o 4º de cima para baixo).
+2. O painel abre na aba **GIF**. Clique na aba **PNG**: GIF não serve para o nosso jogo.
+3. Em **Spritesheet file export**, clique no primeiro botão **Download**.
+4. O arquivo baixado se chama ¤New Piskel.png¤ e fica na pasta **Downloads**. O nome você troca no PixelCode, na próxima etapa.
+
+> Não feche a aba do Piskel ainda: se precisar mudar o desenho, é só exportar de novo.
+
+- [ ] ¤New Piskel.png¤ baixado na pasta Downloads`
+    },
+    {
+      titulo: '3. Leve a imagem para o PixelCode',
+      corpo: `
+1. Abra o **PixelCode** (botão **💻 PixelCode** do portal). À esquerda fica o painel **ARQUIVOS**.
+2. No topo desse painel, clique em **⤒** (importar) e escolha o ¤New Piskel.png¤ da pasta Downloads. Você também pode **arrastar** o arquivo para cima do painel.
+3. Ele entra como ¤New-Piskel.png¤ (o espaço vira traço). Dê **duplo clique** no nome (ou passe o mouse e clique em **✎**), troque para ¤personagem.png¤ e aperte **Enter**.
+4. Clique em ¤personagem.png¤: o PixelCode mostra o seu desenho ampliado e o tamanho, **32×32 pixels**.
+
+> O código vai procurar a imagem pelo nome. Ele precisa ser **exatamente** ¤personagem.png¤, tudo minúsculo.
+
+- [ ] ¤personagem.png¤ aparece no painel ARQUIVOS
+- [ ] Clicando nele, vejo o meu desenho com 32×32 pixels`
+    },
+    {
+      titulo: '4. Crie a página do jogo',
+      corpo: `
+O PixelCode já vem com arquivos de exemplo. Não apague nada: o seu jogo vai em **dois arquivos novos**.
+
+1. No painel ARQUIVOS, clique em **＋**, digite ¤jogo.html¤ e aperte **Enter**.
+2. Apague todo o conteúdo que veio no ¤jogo.html¤ (**Ctrl+A** e **Delete**) e escreva:
+
+§§§html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Meu personagem</title>
+  <style>
+    body { margin: 0; background: #111; }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"><\/script>
+  <script src=\"jogo.js\"><\/script>
+</body>
+</html>
+§§§
+
+3. Clique em **＋** de novo e crie o arquivo ¤jogo.js¤ (por enquanto, vazio).
+
+> Apareceu uma mensagem vermelha no Console logo ao criar o ¤jogo.html¤? É o modelo que vem pronto no arquivo novo. Ela some quando você troca o conteúdo pelo código acima.
+
+- A 1ª tag ¤script¤ carrega a biblioteca **Phaser** da internet.
+- A 2ª carrega o **seu** código. A ordem importa: primeiro o Phaser, depois o jogo.
+
+- [ ] ¤jogo.html¤ escrito, com o Phaser antes do ¤jogo.js¤
+- [ ] ¤jogo.js¤ criado`
+    },
+    {
+      titulo: '5. O personagem aparece na tela',
+      corpo: `
+Abra o ¤jogo.js¤ e escreva:
+
+§§§javascript
+const configuracao = {
+  type: Phaser.AUTO,
+  width: 640,
+  height: 360,
+  backgroundColor: '#1d2b3a',
+  pixelArt: true,
+  physics: { default: 'arcade' },
+  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+  scene: { preload: preCarregar, create: criar, update: atualizar }
+};
+
+const VELOCIDADE = 200;
+let heroi;
+let teclas;
+
+function preCarregar() {
+  this.load.image('heroi', 'personagem.png');
+}
+
+function criar() {
+  heroi = this.physics.add.sprite(320, 180, 'heroi');
+  heroi.setScale(3);
+}
+
+function atualizar() {
+}
+
+new Phaser.Game(configuracao);
+§§§
+
+Clique em ¤jogo.html¤ no painel e depois em **▶ Executar**. O seu desenho aparece **no centro** da tela, 3 vezes maior.
+
+- ¤pixelArt: true¤ deixa os pixels nítidos ao aumentar o desenho.
+- ¤scale: FIT¤ encaixa o jogo de 640×360 no navegador pequeno do PixelCode.
+- ¤atualizar()¤ ainda está vazia: ela ganha código na próxima etapa.
+
+> Apareceu um quadrado com um risco no lugar do desenho? É a marca de **imagem faltando**: o nome em ¤this.load.image¤ não é igual ao nome do arquivo.
+
+- [ ] O meu desenho aparece no centro da tela, sem erro no Console`
+    },
+    {
+      titulo: '6. Movimento pelas setas',
+      corpo: `
+**1.** No ¤criar()¤, logo abaixo de ¤heroi.setScale(3);¤, pegue as setas do teclado:
+
+§§§javascript
+  teclas = this.input.keyboard.createCursorKeys();
+§§§
+
+**2.** Troque a função ¤atualizar()¤ vazia por esta:
+
+§§§javascript
+function atualizar() {
+  heroi.setVelocity(0);
+
+  if (teclas.left.isDown) {
+    heroi.setVelocityX(-VELOCIDADE);
+  } else if (teclas.right.isDown) {
+    heroi.setVelocityX(VELOCIDADE);
+  }
+
+  if (teclas.up.isDown) {
+    heroi.setVelocityY(-VELOCIDADE);
+  } else if (teclas.down.isDown) {
+    heroi.setVelocityY(VELOCIDADE);
+  }
+}
+§§§
+
+**3.** Execute, **clique em cima do jogo** (para o teclado ir para ele) e use as setas.
+
+- ¤setVelocity(0)¤ no começo faz o personagem **parar** quando nenhuma seta está apertada.
+- São dois ¤if¤ separados: um para o x e outro para o y. Por isso dá para andar na **diagonal**.
+
+> Repare no problema: segurando uma seta, o personagem **some** pela borda da tela. A próxima etapa resolve.
+
+- [ ] Anda nas 4 direções e na diagonal
+- [ ] Para na hora em que solto a seta`
+    },
+    {
+      titulo: '7. Limite da tela',
+      corpo: `
+No ¤criar()¤, logo abaixo de ¤heroi.setScale(3);¤, acrescente:
+
+§§§javascript
+  heroi.setCollideWorldBounds(true);
+§§§
+
+Execute e teste **as 4 bordas**: segure cada seta até o fim.
+
+- O "mundo" da física tem o tamanho da tela: 640×360.
+- Com essa linha, o corpo do personagem bate na borda e para, **encostado**, sem cortar o desenho.
+
+- [ ] Não sai pela esquerda nem pela direita
+- [ ] Não sai por cima nem por baixo`
+    },
+    {
+      titulo: '8. Área de andar: só no chão',
+      corpo: `
+Agora o personagem só pode andar no **chão**, a faixa de baixo da tela. O céu fica proibido.
+
+**1.** No começo do ¤criar()¤, **antes** da linha do ¤heroi = this.physics.add.sprite(...)¤, acrescente:
+
+§§§javascript
+  // chão: a área onde o personagem pode andar
+  this.add.rectangle(320, 280, 640, 160, 0x2e6b3f);
+  this.physics.world.setBounds(0, 200, 640, 160);
+§§§
+
+**2.** Na linha do sprite, troque o ¤180¤ por ¤280¤, para ele já começar no chão:
+
+§§§javascript
+  heroi = this.physics.add.sprite(320, 280, 'heroi');
+§§§
+
+- ¤this.add.rectangle(x, y, largura, altura, cor)¤ desenha o chão verde. O x e o y são o **centro** do retângulo: ele vai de y = 200 até y = 360.
+- ¤setBounds(0, 200, 640, 160)¤ muda o mundo da física para essa mesma faixa. O ¤setCollideWorldBounds(true)¤ da etapa anterior agora prende o personagem **nela**.
+- O retângulo vem antes do sprite para ficar **atrás** do personagem.
+
+### Código completo para conferir
+
+§§§javascript
+const configuracao = {
+  type: Phaser.AUTO,
+  width: 640,
+  height: 360,
+  backgroundColor: '#1d2b3a',
+  pixelArt: true,
+  physics: { default: 'arcade' },
+  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+  scene: { preload: preCarregar, create: criar, update: atualizar }
+};
+
+const VELOCIDADE = 200;
+let heroi;
+let teclas;
+
+function preCarregar() {
+  this.load.image('heroi', 'personagem.png');
+}
+
+function criar() {
+  // chão: a área onde o personagem pode andar
+  this.add.rectangle(320, 280, 640, 160, 0x2e6b3f);
+  this.physics.world.setBounds(0, 200, 640, 160);
+
+  heroi = this.physics.add.sprite(320, 280, 'heroi');
+  heroi.setScale(3);
+  heroi.setCollideWorldBounds(true);
+  teclas = this.input.keyboard.createCursorKeys();
+}
+
+function atualizar() {
+  heroi.setVelocity(0);
+
+  if (teclas.left.isDown) {
+    heroi.setVelocityX(-VELOCIDADE);
+  } else if (teclas.right.isDown) {
+    heroi.setVelocityX(VELOCIDADE);
+  }
+
+  if (teclas.up.isDown) {
+    heroi.setVelocityY(-VELOCIDADE);
+  } else if (teclas.down.isDown) {
+    heroi.setVelocityY(VELOCIDADE);
+  }
+}
+
+new Phaser.Game(configuracao);
+§§§
+
+- [ ] O chão verde aparece atrás do personagem
+- [ ] Segurando a seta para cima, ele para na beirada do chão
+- [ ] Continua sem sair pelas laterais nem por baixo`
+    },
+    {
+      titulo: '9. Desafios extras (se der tempo)',
+      corpo: `
+Faça quantos conseguir. Teste cada um antes de ir para o próximo.
+
+**A. Virar para o lado em que anda.** Dentro do ¤if (teclas.left.isDown)¤, acrescente ¤heroi.setFlipX(true);¤ e, dentro do ¤else if (teclas.right.isDown)¤, ¤heroi.setFlipX(false);¤. O desenho espelha ao trocar de lado.
+
+**B. Velocidade.** Mude a constante ¤VELOCIDADE¤ para ¤100¤ e depois para ¤350¤. Qual combina mais com o seu jogo?
+
+**C. Outra área.** Mude o chão e o ¤setBounds¤ para uma **arena** no meio da tela: ¤this.add.rectangle(320, 180, 400, 240, 0x2e6b3f)¤ e ¤this.physics.world.setBounds(120, 60, 400, 240)¤. Confira: o retângulo e o mundo cobrem a mesma área?
+
+### Guia de conserto
+
+| Sintoma | O que conferir |
+|---|---|
+| Tela preta, nada aparece | Mensagem vermelha do Console; o Phaser vem antes do ¤jogo.js¤ no ¤jogo.html¤ |
+| Quadrado com um risco no lugar do desenho | O nome ¤personagem.png¤ igual no painel e no ¤this.load.image¤ |
+| As setas não fazem nada | Clicar em cima do jogo; ¤createCursorKeys¤ dentro do ¤criar()¤ |
+| Continua andando depois de soltar | ¤heroi.setVelocity(0);¤ na 1ª linha do ¤atualizar()¤ |
+| Sai da tela | ¤heroi.setCollideWorldBounds(true);¤ no ¤criar()¤ |
+| Anda no céu | ¤this.physics.world.setBounds(0, 200, 640, 160);¤ no ¤criar()¤ |
+
+- [ ] Fiz pelo menos um desafio extra`
+    },
+  ];
+
+  function loadProgress() {
+    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || 'null'); } catch (e) { return null; }
+  }
+  function saveProgress(data) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(data)); }
+  function loadStepIndex() {
+    try {
+      const n = parseInt(localStorage.getItem(STEP_KEY), 10);
+      return Number.isInteger(n) && n >= 0 && n <= STEPS.length ? n : 0;
+    } catch (e) { return 0; }
+  }
+  function saveStepIndex(i) { try { localStorage.setItem(STEP_KEY, String(i)); } catch (e) {} }
+
+  const savedProgress = loadProgress();
+  let currentIndex = (savedProgress && savedProgress.completed) ? STEPS.length : loadStepIndex();
+
+  const stepWrap = document.getElementById('stepWrap');
+  const lblStepNum = document.getElementById('lblStepNum');
+  const progressFill = document.getElementById('progressFill');
+  document.getElementById('lblStepTotal').textContent = STEPS.length + 1;
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function inline(s) {
+    let t = escapeHtml(s);
+    t = t.replace(/¤([^¤]+)¤/g, '<code>$1</code>');
+    t = t.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    return t;
+  }
+
+  // Mesmo parser markdown-enxuto de cod-phaser-final-pratica.html.
+  function mdToHtml(md) {
+    const lines = md.replace(/\r\n/g, '\n').split('\n');
+    let html = '';
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i].trim();
+      if (line === '') { i++; continue; }
+
+      if (line.startsWith('§§§')) {
+        i++;
+        const codeLines = [];
+        while (i < lines.length && lines[i].trim() !== '§§§') { codeLines.push(lines[i]); i++; }
+        i++;
+        html += `<pre><code>${escapeHtml(codeLines.join('\n'))}</code></pre>`;
+        continue;
+      }
+
+      const hm = line.match(/^(#{1,6})\s+(.*)$/);
+      if (hm) {
+        const level = Math.min(hm[1].length + 2, 6);
+        html += `<h${level}>${inline(hm[2])}</h${level}>`;
+        i++; continue;
+      }
+
+      if (line.startsWith('|') && lines[i + 1] && /^\s*\|[\s:-]+\|/.test(lines[i + 1])) {
+        const headerCells = line.slice(1, -1).split('|').map(s => s.trim());
+        i += 2;
+        const rows = [];
+        while (i < lines.length && lines[i].trim().startsWith('|')) {
+          rows.push(lines[i].trim().slice(1, -1).split('|').map(s => s.trim()));
+          i++;
+        }
+        html += '<div class="md-table-wrap"><table class="md-table"><thead><tr>'
+          + headerCells.map(c => `<th>${inline(c)}</th>`).join('') + '</tr></thead><tbody>'
+          + rows.map(r => '<tr>' + r.map(c => `<td>${inline(c)}</td>`).join('') + '</tr>').join('')
+          + '</tbody></table></div>';
+        continue;
+      }
+
+      if (/^\d+\.\s+/.test(line)) {
+        const items = [];
+        while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) { items.push(lines[i].trim().replace(/^\d+\.\s+/, '')); i++; }
+        html += '<ol class="md-list">' + items.map(it => `<li>${inline(it)}</li>`).join('') + '</ol>';
+        continue;
+      }
+
+      if (/^-\s+/.test(line)) {
+        const items = [];
+        while (i < lines.length && /^-\s+/.test(lines[i].trim())) { items.push(lines[i].trim()); i++; }
+        html += '<ul class="md-list">' + items.map(it => {
+          const cbm = it.match(/^-\s+\[( |x)\]\s*(.*)$/i);
+          if (cbm) return `<li class="md-check">${inline(cbm[2])}</li>`;
+          return `<li>${inline(it.replace(/^-\s+/, ''))}</li>`;
+        }).join('') + '</ul>';
+        continue;
+      }
+
+      if (line.startsWith('>')) {
+        const q = [];
+        while (i < lines.length && lines[i].trim().startsWith('>')) { q.push(lines[i].trim().replace(/^>\s?/, '')); i++; }
+        html += `<blockquote>${inline(q.join(' '))}</blockquote>`;
+        continue;
+      }
+
+      const para = [];
+      while (i < lines.length && lines[i].trim() !== '' && !/^(§§§|#|\||-|\d+\.|>)/.test(lines[i].trim())) {
+        para.push(lines[i].trim());
+        i++;
+      }
+      html += `<p>${inline(para.join(' '))}</p>`;
+    }
+    return html;
+  }
+
+  function reportStep(label) {
+    if (typeof window.reportActivity === 'function') {
+      window.reportActivity(LOC, label, { step: currentIndex + 1, total: STEPS.length + 1 });
+    }
+  }
+
+  function renderNav(showBack, showNext) {
+    return `
+      <div class="ab-nav">
+        ${showBack ? '<button class="btn btn-secondary" id="btnBack">← Voltar</button>' : '<span></span>'}
+        <span class="ab-nav-dica">use ← → do teclado</span>
+        ${showNext ? '<button class="btn" id="btnNext">Próximo →</button>' : '<span></span>'}
+      </div>`;
+  }
+
+  let direcao = 1;
+  function irPara(i) {
+    direcao = i < currentIndex ? -1 : 1;
+    currentIndex = Math.max(0, Math.min(i, STEPS.length));
+    renderStep();
+  }
+  function mostrarEtapa() {
+    document.getElementById('palco').scrollTop = 0;
+    window.AulaBase.transicao(stepWrap.querySelector('.ab-cartao'), direcao);
+  }
+  window.AulaBase.teclado({
+    proximo: () => { const b = document.getElementById('btnNext'); if (b) b.click(); },
+    anterior: () => { const b = document.getElementById('btnBack'); if (b) b.click(); },
+  });
+
+  function renderStep() {
+    if (currentIndex >= STEPS.length) { renderVisto(); return; }
+    saveStepIndex(currentIndex);
+    progressFill.style.width = Math.min(Math.round((currentIndex / STEPS.length) * 100), 100) + '%';
+    lblStepNum.textContent = currentIndex + 1;
+
+    const step = STEPS[currentIndex];
+    reportStep(`Meu personagem — ${step.titulo}`);
+    stepWrap.innerHTML = `
+      <article class="ab-cartao">
+        <div class="ab-cartao-etapa">Etapa ${currentIndex + 1} de ${STEPS.length + 1}</div>
+        <h2>${escapeHtml(step.titulo)}</h2>
+        <div class="ab-conteudo">${mdToHtml(step.corpo)}</div>
+      </article>
+      ${renderNav(currentIndex > 0, true)}
+    `;
+    window.AulaBase.decorar(stepWrap, { chaveChecklist: `${LOC}_check_${username}_${currentIndex}` });
+    mostrarEtapa();
+    const btnBack = document.getElementById('btnBack');
+    if (btnBack) btnBack.addEventListener('click', () => irPara(currentIndex - 1));
+    document.getElementById('btnNext').addEventListener('click', () => irPara(currentIndex + 1));
+  }
+
+  function renderVisto() {
+    progressFill.style.width = '100%';
+    lblStepNum.textContent = STEPS.length + 1;
+    reportStep('Meu personagem — Visto do professor');
+
+    const already = loadProgress();
+    if (already && already.completed) {
+      const quando = already.vistoEm ? new Date(already.vistoEm).toLocaleString('pt-BR') : '';
+      stepWrap.innerHTML = `
+        <div class="ab-cartao ab-concluida">
+          <h2>✅ Personagem em movimento concluído</h2>
+          <p>Visto dado por <b>${escapeHtml(already.vistoPor || '')}</b>${quando ? ' em ' + escapeHtml(quando) : ''}.</p>
+        </div>
+        ${renderNav(true, false)}
+      `;
+      mostrarEtapa();
+      document.getElementById('btnBack').addEventListener('click', () => irPara(STEPS.length - 1));
+      return;
+    }
+
+    stepWrap.innerHTML = `
+      <div class="ab-cartao">
+        <div class="ab-cartao-etapa">Etapa ${STEPS.length + 1} de ${STEPS.length + 1}</div>
+        <h2>🧑‍🏫 Etapa final — Visto do professor</h2>
+        <div class="ab-conteudo">
+          <p>O jogo mostra o <b>seu desenho</b>, o personagem anda pelas setas, para ao soltar e fica <b>preso no chão</b>, sem sair da tela?</p>
+          <p>Chame o professor e mostre o jogo rodando no PixelCode: a imagem <code>personagem.png</code> no painel, o movimento nas 4 direções e as bordas do chão. Se fez desafios extras, mostre também. Quando ele confirmar, peça o token de professor e digite abaixo.</p>
+        </div>
+        <div class="ab-form">
+          <label>Token do professor
+            <input type="text" id="vistoToken" inputmode="numeric" maxlength="6" autocomplete="off">
+          </label>
+          <button class="btn" id="btnDarVisto">Dar visto</button>
+          <div class="ab-msg" id="vistoMsg" style="display:none;"></div>
+        </div>
+      </div>
+      ${renderNav(true, false)}
+    `;
+    mostrarEtapa();
+    document.getElementById('btnBack').addEventListener('click', () => irPara(STEPS.length - 1));
+
+    const btnDarVisto = document.getElementById('btnDarVisto');
+    const vistoMsg = document.getElementById('vistoMsg');
+    btnDarVisto.addEventListener('click', async () => {
+      const t = document.getElementById('vistoToken').value;
+      vistoMsg.style.display = 'none';
+      if (!t) {
+        vistoMsg.className = 'ab-msg erro';
+        vistoMsg.textContent = 'Informe o token do professor.';
+        vistoMsg.style.display = 'block';
+        return;
+      }
+      btnDarVisto.disabled = true;
+      btnDarVisto.textContent = 'Verificando...';
+      try {
+        const result = window.PortalProfessorVisto
+          ? await window.PortalProfessorVisto.verificarToken(t)
+          : { ok: false, erro: 'Verificação indisponível nesta tela.' };
+        if (!result.ok) {
+          vistoMsg.className = 'ab-msg erro';
+          vistoMsg.textContent = result.erro;
+          vistoMsg.style.display = 'block';
+          btnDarVisto.disabled = false;
+          btnDarVisto.textContent = 'Dar visto';
+          return;
+        }
+        saveProgress({ completed: true, vistoPor: result.nome, vistoEm: new Date().toISOString() });
+        renderVisto();
+      } catch (e) {
+        vistoMsg.className = 'ab-msg erro';
+        vistoMsg.textContent = 'Erro inesperado ao verificar. Tente de novo.';
+        vistoMsg.style.display = 'block';
+        btnDarVisto.disabled = false;
+        btnDarVisto.textContent = 'Dar visto';
+      }
+    });
+  }
+
+  // Gabarito = checklist pra o professor conferir o projeto na tela do aluno.
+  window.generateGabaritoForGestao = function () {
+    return window.PortalGabarito.generate({
+      title: 'Fundamentos — Meu Personagem em Movimento — Checklist de correção',
+      subtitle: 'Roteiro prático (Piskel + Phaser no PixelCode, verificado presencialmente) · Fundamentos de Programação de Jogos · Turma Jogos Digitais',
+      items: [
+        { number: 1, title: 'Arte própria', prompt: 'O personagem foi desenhado pelo aluno no Piskel, 32×32, com fundo transparente, e está no PixelCode como personagem.png?', answer: 'Clicar em personagem.png no painel ARQUIVOS do PixelCode mostra o desenho e "32×32 pixels". Fundo sem pintar (sem quadrado em volta no jogo).' },
+        { number: 2, title: 'Sprite no jogo', prompt: 'jogo.html carrega o Phaser (CDN) antes de jogo.js, e o desenho aparece no jogo (não a marca de imagem faltando)?', answer: "preCarregar(): this.load.image('heroi', 'personagem.png'); criar(): heroi = this.physics.add.sprite(320, 280, 'heroi') com setScale(3); pixelArt: true na configuração." },
+        { number: 3, title: 'Movimento', prompt: 'O personagem anda nas 4 direções (e na diagonal) pelas setas e para ao soltar?', answer: 'teclas = this.input.keyboard.createCursorKeys() no criar(); atualizar() começa com heroi.setVelocity(0) e usa dois if/else if (x e y) com setVelocityX/Y(±VELOCIDADE).' },
+        { number: 4, title: 'Limites', prompt: 'O personagem não sai da tela e fica preso no chão verde (não sobe para o céu)?', answer: 'heroi.setCollideWorldBounds(true) + this.physics.world.setBounds(0, 200, 640, 160), com o retângulo do chão this.add.rectangle(320, 280, 640, 160, 0x2e6b3f) criado antes do sprite.' },
+      ],
+      fileName: 'fund-movimento-pratica-checklist.txt',
+    });
+  };
+
+  renderStep();
+</script>
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

@@ -137,7 +137,7 @@ window.PixelCodeAutocomplete = (function () {
         item(monaco, prefixo + k, kind, range, { detail: origem, sortText: '0' + k }));
 
     const deArquivos = (lista, range) => lista.map(a => item(monaco, a.nome, K.File, range, {
-      detail: `arquivo do projeto (${(a.conteudo || '').split('\n').length} linhas)`, sortText: '0' + a.nome,
+      detail: /\.(png|jpe?g|gif|webp)$/i.test(a.nome) ? 'imagem do projeto' : `arquivo do projeto (${(a.conteudo || '').split('\n').length} linhas)`, sortText: '0' + a.nome,
     }));
 
     // ---------- JavaScript ----------
@@ -227,7 +227,7 @@ window.PixelCodeAutocomplete = (function () {
         }
         if (attr === 'for') return { suggestions: deMapa(i.ids, K.Reference, R(pos, valor.length)) };
         if (['href', 'src', 'action', 'data'].includes(attr)) {
-          const filtro = { link: ['css'], script: ['js', 'mjs'], a: ['html', 'htm'], iframe: ['html', 'htm'], form: ['html', 'htm'], img: ['svg'] }[tag];
+          const filtro = { link: ['css'], script: ['js', 'mjs'], a: ['html', 'htm'], iframe: ['html', 'htm'], form: ['html', 'htm'], img: ['svg', 'png', 'jpg', 'jpeg', 'gif', 'webp'] }[tag];
           const lista = naoAtual(model).filter(a => !filtro || filtro.includes(ext(a.nome)));
           return { suggestions: deArquivos(lista, R(pos, valor.length)) };
         }

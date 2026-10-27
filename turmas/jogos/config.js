@@ -978,6 +978,33 @@ window.TURMA_CONFIG_JOGOS = {
               requires: 'teoria', hasGabarito: true
             }
           ]
+        },
+        {
+          // Fundamentos de Programação de Jogos Digitais. O aluno desenha o
+          // personagem no Piskel, importa o PNG no PixelCode (que serve a
+          // imagem pelo nome do arquivo) e escreve em Phaser 3 o movimento
+          // pelas setas e os limites (setCollideWorldBounds + setBounds).
+          // Estimativa: teoria ~40 min, prática ~1h30.
+          key: 'fund-movimento',
+          label: 'Movimento e Limites de Tela no Phaser',
+          desc: 'Desenhe seu personagem no Piskel, carregue no PixelCode e faça ele andar pelas setas, sem sair da área permitida.',
+          capacidade: 'Utilizar linguagem de programação para desenvolvimento de jogos digitais 2D',
+          modules: [
+            {
+              key: 'teoria', title: 'Teoria — Movimento e Limites de Tela',
+              desc: 'Pixel art em PNG, preCarregar/criar/atualizar, sprite com física, setas e velocidade, setCollideWorldBounds, Clamp e setBounds.',
+              icon: '📖', src: 'atividades/fund-movimento-teoria.html', telaCheia: true,
+              progressKey: 'fund_movimento_teoria_progress_', progressMode: 'flag',
+              hasGabarito: true
+            },
+            {
+              key: 'pratica', title: 'Prática — Meu Personagem em Movimento',
+              desc: 'Desenhe no Piskel, importe o PNG no PixelCode, mova o personagem pelas setas e prenda ele no chão. Visto do professor no fim.',
+              icon: '🕹️', src: 'atividades/fund-movimento-pratica.html', telaCheia: true,
+              progressKey: 'fund_movimento_pratica_progress_', progressMode: 'flag',
+              requires: 'teoria', hasGabarito: true
+            }
+          ]
         }
       ]
     },
