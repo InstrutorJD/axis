@@ -1,8 +1,11 @@
 // Punho Lendário — jogo de luta do professor (professor/luta.html).
 //
 // Estilo Street Fighter: o lutador (Kaito) enfrenta ondas de inimigos em 3
-// fases e, no fim da fase 3, o chefão (Imperador Vulcano). Tudo desenhado
-// no canvas (sem imagens), a 60 quadros por segundo com passo fixo.
+// fases e, no fim da fase 3, o chefão (Imperador Vulcano). Lógica a 60
+// passos por segundo com passo fixo. O mundo (cenários, lutadores, brilhos,
+// partículas e câmera) é desenhado pelo Phaser em luta-visual.js (WebGL,
+// sem imagens); o placar, os menus e os textos ficam num canvas 2D por cima
+// (canvas 'hud'), desenhados aqui.
 //
 // Controles:
 //   - celular como joystick (professor/joystick.html), pareado por QR Code:
@@ -24,7 +27,10 @@
 window.LutaJogo = (function () {
   'use strict';
   const W = 960, H = 540, CHAO = 478, GRAV = 0.75, RAD = Math.PI / 180;
-  let cv, ctx, escalaBase = 1;
+  let hud, ctx, escala = 1, Visual = null;
+  // Avisos para o desenho (luta-visual.js): acerto, defesa, queda, ko,
+  // disparo, explosao, superInicio, superSolta, quebra, item, arremesso.
+  let Fx = () => {};
 
   const rnd = (a, b) => a + Math.random() * (b - a);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -169,6 +175,13 @@ window.LutaJogo = (function () {
         else if (tipo === 'carranca') tom(130, 0.4, { tipo: 'sawtooth', vol: 0.07, ate: 75, corte: 900 });
         else { tom(600, 0.12, { vol: 0.09, ate: 1200 }); tom(800, 0.16, { vol: 0.09, ate: 1500, atraso: 0.16 }); }
       },
+      madeira() { tom(230, 0.09, { tipo: 'triangle', ate: 110, vol: 0.35 }); ruido(0.08, { filtro: 'bandpass', freq: 1100, q: 2, vol: 0.4 }); },
+      quebra() {
+        tom(160, 0.2, { tipo: 'triangle', ate: 60, vol: 0.5, eco: true });
+        [0, 0.05, 0.11].forEach(a => ruido(0.1, { filtro: 'bandpass', freq: 1400 - a * 4000, q: 1.5, vol: 0.4, atraso: a }));
+      },
+      item() { [784, 988, 1319].forEach((f, i) => tom(f, 0.12, { tipo: 'triangle', vol: 0.12, atraso: i * 0.07, eco: true })); },
+      agarra() { tom(140, 0.12, { ate: 70, vol: 0.5 }); ruido(0.08, { freq: 700, vol: 0.3 }); },
       menu() { tom(880, 0.08, { tipo: 'square', vol: 0.07 }); tom(1320, 0.12, { tipo: 'square', vol: 0.07, atraso: 0.07 }); },
       fase() { [523, 659, 784, 1047].forEach((f, i) => tom(f, 0.16, { tipo: 'square', vol: 0.08, atraso: i * 0.11, eco: true })); },
     };
@@ -225,6 +238,9 @@ window.LutaJogo = (function () {
       cores: { pele: '#f0cdb2', roupa: '#2a9d8f', calca: '#333333', faixa: '#222222', cabelo: '#000000', bandana: '#f4a261', luva: '#f4a261', pes: '#222222', manga: 'nenhuma', cabeloTipo: 'curto' } },
     ninja: { nome: 'Ninja', hp: 32, vel: 3.0, alcance: 78, cd: [50, 90], bloq: 0.15, pontos: 200, golpes: ['eChute', 'eVoadora'], atira: true,
       cores: { pele: '#f6dcc8', roupa: '#1b1b2f', calca: '#1b1b2f', faixa: '#7b2cbf', cabelo: '#1b1b2f', bandana: '#7b2cbf', luva: '#2a2a40', pes: '#111111', manga: 'longa', mascara: true } },
+    // Monge do bastão: alcance longo e varrida baixa (só se defende agachado ou pulando).
+    monge: { nome: 'Monge', hp: 38, vel: 1.9, alcance: 118, cd: [65, 105], bloq: 0.3, pontos: 250, golpes: ['bGolpe', 'bVarrida'], bastao: true,
+      cores: { pele: '#d9a066', roupa: '#e07a1f', calca: '#c4621a', faixa: '#7a2e0b', cabelo: '#d9a066', luva: '#d9a066', pes: '#3b2a1a', manga: 'curta', gola: true, calcaLarga: true, cabeloTipo: 'careca', colar: '#5a2d0c' } },
     brutamontes: { nome: 'Brutamontes', hp: 85, vel: 1.25, esc: 1.25, alcance: 74, cd: [70, 110], bloq: 0, pontos: 300, golpes: ['socoForte'], armadura: 2,
       cores: { pele: '#f4d2bc', roupa: '#e76f51', calca: '#264653', faixa: '#1d3557', cabelo: '#f4d2bc', luva: '#444444', pes: '#222222', manga: 'nenhuma', colete: true, barba: '#5a3b1e' } },
     chefe: { nome: 'IMPERADOR VULCANO', hp: 440, vel: 2.0, esc: 1.35, alcance: 82, cd: [38, 72], bloq: 0.35, pontos: 5000, chefe: true,
@@ -255,6 +271,10 @@ window.LutaJogo = (function () {
     eChute: { ini: 14, ativo: 5, rec: 20, dano: 9, alc: 84, y0: 70, y1: 122, kb: 5, pose: 'chute', som: 'chute' },
     eVoadora: { ini: 10, ativo: 30, rec: 0, dano: 10, alc: 70, y0: 15, y1: 85, kb: 5, derruba: true, aereo: true, salto: [10, 6], pose: 'voadora', som: 'chute' },
     shuriken: { ini: 16, ativo: 1, rec: 20, pose: 'arremesso', disparo: { z: 112, vel: 7, raio: 10, dano: 6, kb: 3, tipo: 'shuriken' } },
+    // Agarrão (frente + Soco colado no inimigo): segura (ini) e arremessa para a frente.
+    agarrao: { ini: 14, ativo: 1, rec: 16, pose: 'agarra', agarra: true, nomeTela: 'AGARRÃO!' },
+    bGolpe: { ini: 14, ativo: 5, rec: 20, dano: 8, alc: 125, y0: 80, y1: 135, kb: 5, pose: 'estocada', som: 'soco' },
+    bVarrida: { ini: 18, ativo: 6, rec: 22, dano: 7, alc: 122, y0: 0, y1: 32, kb: 4, derruba: true, baixo: true, pose: 'varrida', som: 'chute' },
     socoForte: { ini: 20, ativo: 5, rec: 26, dano: 15, alc: 76, y0: 80, y1: 140, kb: 8, derruba: true, pesado: true, armado: true, pose: 'socoForte', som: 'chute' },
 
     bCombo: { ini: 10, ativo: 4, rec: 6, dano: 8, alc: 72, y0: 90, y1: 145, kb: 3, pose: 'soco', prox: 'bCombo2', sempre: true, som: 'soco' },
@@ -267,11 +287,23 @@ window.LutaJogo = (function () {
   };
   Object.keys(GOLPES).forEach(k => { GOLPES[k].nome = k; });
 
+  // objetos[i]: caixas e barris que aparecem no começo da onda i
+  // ([tipo, o que solta, x]). Só no modo de 1 jogador.
   const FASES = [
-    { nome: 'PORTO AO ENTARDECER', ondas: [['capanga', 'capanga'], ['capanga', 'capanga', 'capanga'], ['capanga', 'brigao', 'capanga', 'capanga']] },
-    { nome: 'MERCADO NOTURNO', ondas: [['brigao', 'ninja'], ['capanga', 'capanga', 'ninja', 'brigao'], ['ninja', 'ninja', 'brigao', 'brigao', 'capanga']] },
-    { nome: 'TELHADO DA TORRE', ondas: [['brutamontes', 'ninja', 'capanga'], ['brutamontes', 'brigao', 'ninja', 'ninja', 'brigao'], ['chefe']] },
+    { nome: 'PORTO AO ENTARDECER', ondas: [['capanga', 'capanga'], ['capanga', 'capanga', 'capanga'], ['capanga', 'brigao', 'capanga', 'capanga']],
+      objetos: [[], [['caixa', 'frango', 720]], [['barril', 'raio', 330]]] },
+    { nome: 'MERCADO NOTURNO', ondas: [['brigao', 'ninja'], ['capanga', 'monge', 'ninja', 'brigao'], ['ninja', 'monge', 'brigao', 'brigao', 'capanga']],
+      objetos: [[['barril', 'raio', 700]], [['caixa', 'frango', 300]], [['caixa', 'frango', 640]]] },
+    { nome: 'TELHADO DA TORRE', ondas: [['brutamontes', 'ninja', 'capanga'], ['brutamontes', 'monge', 'ninja', 'ninja', 'brigao'], ['chefe']],
+      objetos: [[['caixa', 'raio', 680]], [['barril', 'frango', 320]], [['caixa', 'frango', 160], ['barril', 'raio', 820]]] },
   ];
+
+  // Caixas e barris: quebram com 2 golpes (qualquer altura) e soltam o item.
+  const OBJETOS = { caixa: { hp: 2, larg: 54, alt: 50 }, barril: { hp: 2, larg: 44, alt: 60 } };
+  const ITENS = {
+    frango: { txt: '+35 VIDA', cor: '#ffd166', pegar: p => { p.hp = Math.min(p.T.hp, p.hp + 35); } },
+    raio: { txt: '+50 ENERGIA', cor: '#7dd3fc', pegar: p => { p.en = Math.min(100, p.en + 50); } },
+  };
 
   // Provocações (botões pequenos do celular, ou Q/E/V e U/I/O no teclado):
   // pose curta + balão em cima da cabeça. Só saem com o lutador parado no
@@ -288,7 +320,7 @@ window.LutaJogo = (function () {
     tela: 'titulo', tick: 0, tt: 0, fase: 0, onda: 0, fila: [], inis: [], proj: [], parts: [], textos: [],
     jog: null, pontos: 0, pontosFase: 0, congelar: 0, tremor: 0, lento: 0, flash: 0, superT: 0,
     aviso: null, travado: 0, trans: 0, chefe: null, recorde: 0, seq: 0, raio: 0,
-    mortes: 0, voltaFase1: false, confirma: -999,
+    mortes: 0, voltaFase1: false, confirma: -999, objs: [], itens: [], dica: null, vistoMonge: false,
     modo: 'solo', menu: 0, menuDir: 0, p2: null, vit: [0, 0], round: 0, tempo: 0, campeao: 0,
   };
   try { J.recorde = Number(localStorage.getItem('luta_recorde')) || 0; } catch (e) {}
@@ -308,13 +340,22 @@ window.LutaJogo = (function () {
     J.modo = 'solo';
     J.pontos = 0;
     J.mortes = 0;
+    J.vistoMonge = false;
     J.jog = novoLutador('jogador', 200, 1);
     J.jog.controle = 1;
     J.p2 = null;
     comecarFase(0);
   }
+  let seqObj = 0;
+  function colocarObjetos(fase, onda) {
+    (FASES[fase].objetos[onda] || []).forEach(([tipo, item, x]) => {
+      J.objs.push(Object.assign({ id: 'o' + (++seqObj), tipo, item, x, treme: 0 }, { hp: OBJETOS[tipo].hp, larg: OBJETOS[tipo].larg, alt: OBJETOS[tipo].alt }));
+    });
+  }
   function comecarFase(n) {
     J.fase = n; J.onda = 0; J.inis = []; J.proj = []; J.parts = []; J.textos = []; J.chefe = null;
+    J.objs = []; J.itens = []; J.dica = null;
+    colocarObjetos(n, 0);
     J.pontosFase = J.pontos;
     const p = J.jog;
     Object.assign(p, { x: 200, z: 0, vx: 0, vz: 0, face: 1, estado: 'parado', golpe: null, invul: 0, combo: 0 });
@@ -339,10 +380,10 @@ window.LutaJogo = (function () {
   // apanhando (para escapar, só defendendo ou pulando).
   function altura(f) {
     if (f.estado === 'caido' || f.estado === 'ko') return 25;
-    if (!f.controle && (f.estado === 'agachar' || f.estado === 'levantar' || (f.golpe && (f.golpe.pose === 'rasteira' || f.golpe.pose === 'socoBaixo')))) return 88 * f.s;
+    if (!f.controle && (f.estado === 'agachar' || f.estado === 'levantar' || (f.golpe && ['rasteira', 'socoBaixo', 'varrida'].includes(f.golpe.pose)))) return 88 * f.s;
     return 148 * f.s;
   }
-  const intocavel = f => f.invul > 0 || ['caido', 'levantar', 'ko'].includes(f.estado);
+  const intocavel = f => f.invul > 0 || ['caido', 'levantar', 'ko', 'preso'].includes(f.estado);
 
 
   function iniciarGolpe(f, nome) {
@@ -350,7 +391,7 @@ window.LutaJogo = (function () {
     f.estado = 'golpe'; f.golpe = g; f.gt = 0; f.acertou = new Set(); f.encadear = null;
     if (!g.aereo) f.vx = 0;
     if (g.som || g.disparo) Som.vento();
-    if (g.superGolpe) { J.superT = g.ini; f.invul = g.ini + g.rec + 10; Som.super(); }
+    if (g.superGolpe) { J.superT = g.ini; f.invul = g.ini + g.rec + 10; Som.super(); Fx('superInicio', f); }
     if (g.invul) f.invul = Math.max(f.invul, g.invul);
     if (g.nomeTela && f.controle) texto(f.x, CHAO - 175, g.nomeTela, f.controle === 2 ? '#ff8f8f' : '#7dd3fc', 22);
   }
@@ -358,6 +399,7 @@ window.LutaJogo = (function () {
   function atualizarGolpe(f) {
     const g = f.golpe; f.gt++;
     const fimAtivo = g.ini + g.ativo;
+    if (g.agarra && f.gt === g.ini + 1) arremessar(f);
     if (g.salto && f.gt === g.ini) { f.vz = g.salto[0]; f.z = 1; f.vx = f.face * g.salto[1]; }
     if (g.flutua) { // Furacão: gira no ar, avançando, e depois cai
       if (f.gt === g.ini) { f.z = Math.max(f.z, 1); f.vz = 6; }
@@ -404,6 +446,28 @@ window.LutaJogo = (function () {
       f.acertou.add(t.id);
       acertar(t, { x: f.x, atk: f, g, altura: (lo + hi) / 2 });
     }
+    // Caixas e barris: qualquer golpe do lutador controlado, em qualquer altura.
+    if (!f.controle || f.z > 120) return;
+    for (const o of J.objs) {
+      if (f.acertou.has(o.id)) continue;
+      const dx = (o.x - f.x) * f.face;
+      if (dx < -o.larg / 2 || dx > g.alc * f.s + o.larg / 2) continue;
+      f.acertou.add(o.id);
+      baterObjeto(o, f.x);
+    }
+  }
+
+  function baterObjeto(o, deX) {
+    o.hp--; o.treme = 10;
+    J.congelar = Math.max(J.congelar, 2);
+    for (let i = 0; i < 6; i++) J.parts.push({ x: o.x + rnd(-10, 10), y: CHAO - o.alt * 0.6, vx: rnd(-4, 4) + Math.sign(o.x - deX) * 2, vy: rnd(-7, -2), vida: rnd(20, 32), cor: '#b07a40', tam: rnd(2, 4), normal: true, lasca: true });
+    if (o.hp > 0) { Som.madeira(); return; }
+    Som.quebra();
+    J.objs = J.objs.filter(x => x !== o);
+    for (let i = 0; i < 16; i++) J.parts.push({ x: o.x + rnd(-20, 20), y: CHAO - rnd(5, o.alt), vx: rnd(-6, 6), vy: rnd(-9, -2), vida: rnd(26, 44), cor: i % 3 ? '#a86b34' : '#6b4320', tam: rnd(3, 6), normal: true, lasca: true });
+    poeira(o.x, CHAO, 6);
+    J.itens.push({ tipo: o.item, x: o.x, z: 6, vz: 7, vida: 12 * 60, t: 0 });
+    Fx('quebra', o);
   }
 
   // fonte: { x, atk (quem bateu), g (dano, kb, derruba, baixo, pesado), altura }
@@ -422,6 +486,7 @@ window.LutaJogo = (function () {
       faiscas(alvo.x - dir * 16 * alvo.s, yFx, '#7dd3fc', 6);
       J.congelar = 3;
       Som.defesa();
+      Fx('defesa', alvo.x - dir * 22 * alvo.s, yFx, -dir);
       if (alvo.controle) alvo.en = Math.min(100, alvo.en + 2);
       return;
     }
@@ -432,6 +497,7 @@ window.LutaJogo = (function () {
     J.congelar = g.pesado ? 7 : 4;
     J.tremor = Math.max(J.tremor, g.pesado ? 7 : 3);
     (g.pesado ? Som.chute : Som.soco)();
+    Fx('acerto', alvo.x - dir * 14 * alvo.s, yFx, !!g.pesado, dir);
     const atk = fonte.atk;
     if (atk && atk.controle) {
       atk.en = Math.min(100, atk.en + 5);
@@ -467,6 +533,9 @@ window.LutaJogo = (function () {
     f.vz = 9; f.z = Math.max(f.z, 1); f.vx = dir * 6.5;
     J.congelar = 10; J.tremor = 10;
     Som.ko();
+    // A câmera fecha no golpe final: do lutador, do chefe ou do último inimigo da fase.
+    const ultimo = !f.controle && !J.fila.length && !J.inis.some(e => e !== f && e.estado !== 'ko');
+    Fx('ko', f, !!(f.controle || f.T.chefe || (ultimo && J.onda === FASES[J.fase].ondas.length - 1)));
     if (f.controle) { J.lento = 50; Rede.vibrar(f.controle, 400); return; }
     J.pontos += f.T.pontos;
     texto(f.x, CHAO - 160 * f.s, `+${f.T.pontos}`, '#ffd166', 26);
@@ -479,10 +548,39 @@ window.LutaJogo = (function () {
       tipo: d.tipo, derruba: !!d.derruba, dono: f, vida: d.vida || 170, t: 0,
     });
     if (d.tipo !== 'shuriken') Som.fogo(); else Som.vento();
+    Fx('disparo', f.x + f.face * 50 * f.s, CHAO - d.z * (f.T.chefe ? 1 : f.s), d.tipo);
+  }
+
+  // Agarrão: só no chão, colado e de frente; não pega o chefe nem quem está no ar ou caído.
+  function agarravel(p) {
+    const a = maisProximo(p);
+    if (!a || a.T.chefe || a.entrando || intocavel(a) || !noChao(a)) return null;
+    const dx = (a.x - p.x) * p.face;
+    if (dx < 0 || dx > 50 + 22 * a.s) return null;
+    if (!(livre(a) || a.estado === 'dor' || a.estado === 'provoca' || (a.estado === 'golpe' && a.gt <= a.golpe.ini))) return null;
+    return a;
+  }
+  function agarrar(p, a) {
+    iniciarGolpe(p, 'agarrao');
+    p.preso = a; p.invul = Math.max(p.invul, GOLPES.agarrao.ini + 6);
+    Object.assign(a, { estado: 'preso', presoPor: p, golpe: null, vx: 0, vz: 0, et: 0 });
+    Som.agarra();
+  }
+  function arremessar(f) {
+    const t = f.preso; f.preso = null;
+    if (!t || t.estado !== 'preso') return;
+    t.estado = 'parado'; t.presoPor = null;
+    acertar(t, { x: f.x - f.face * 10, atk: f, altura: 90, g: { dano: 12, kb: 9, derruba: true, pesado: true, ignoraDefesa: true } });
+    // Voa mais alto e mais longe que uma queda comum e derruba quem estiver no caminho.
+    if (t.estado === 'caido') { t.vz = 9; t.vx = f.face * 8.5; }
+    t.arremesso = f; t.atingidos = new Set();
+    J.tremor = Math.max(J.tremor, 9);
+    Fx('arremesso', t);
   }
 
   function soltarSuper(f) {
     J.flash = 1; J.tremor = 16; J.congelar = 8;
+    Fx('superSolta', f);
     alvosDe(f).forEach(e => {
       if (intocavel(e) || e.entrando) return;
       acertar(e, { x: f.x, atk: f, altura: 110, g: { dano: e.T.chefe ? 48 : 34, kb: 8, derruba: true, pesado: true, ignoraDefesa: true } });
@@ -502,6 +600,21 @@ window.LutaJogo = (function () {
     if (f.branco > 0) f.branco--;
     if (f.balao && --f.balao.vida <= 0) f.balao = null;
     if (f.armadura < (f.T.armadura || 0) && ++f.semApanhar > 120) f.armadura = f.T.armadura;
+    if (f.estado === 'preso') {
+      // Segurado pelo agarrão: vai junto, um pouco erguido, até ser arremessado.
+      const h = f.presoPor;
+      if (!h || h.estado !== 'golpe' || !h.golpe || !h.golpe.agarra) { f.estado = 'parado'; f.presoPor = null; f.z = 0; f.vz = 0; return; }
+      f.x = h.x + h.face * 44 * h.s; f.z = Math.min(22, h.gt * 2); f.vx = 0; f.vz = 0; f.face = -h.face; f.et++;
+      return;
+    }
+    if (f.arremesso && !noChao(f)) {
+      for (const o of alvosDe(f.arremesso)) {
+        if (o === f || f.atingidos.has(o.id) || intocavel(o) || o.entrando) continue;
+        if (Math.abs(o.x - f.x) > 22 * o.s + 28 || f.z > altura(o)) continue;
+        f.atingidos.add(o.id);
+        acertar(o, { x: f.x - f.vx, atk: f.arremesso, altura: f.z + 40, g: { dano: 10, kb: 6, derruba: true, pesado: true } });
+      }
+    }
     if (f.z > 0 || f.vz > 0) {
       f.vz -= GRAV; f.z += f.vz;
       if (f.z <= 0) { f.z = 0; f.vz = 0; aterrissar(f); }
@@ -525,7 +638,11 @@ window.LutaJogo = (function () {
       else { f.estado = 'parado'; f.golpe = null; f.vx = 0; }
       return;
     }
-    if (f.estado === 'caido' || f.estado === 'ko') { f.et = 0; poeira(f.x, CHAO, 8); Som.queda(); J.tremor = Math.max(J.tremor, 3); }
+    if (f.estado === 'caido' || f.estado === 'ko') {
+      f.et = 0; poeira(f.x, CHAO, 8); Som.queda(); J.tremor = Math.max(J.tremor, f.arremesso ? 8 : 3);
+      Fx('queda', f.x, f.s, !!f.arremesso);
+      f.arremesso = null;
+    }
   }
 
   function impactoPisao(f) {
@@ -533,6 +650,7 @@ window.LutaJogo = (function () {
     J.tremor = 14;
     poeira(f.x, CHAO, 16);
     Som.queda(); Som.chute();
+    Fx('queda', f.x, 2, true);
     const p = J.jog;
     if (!intocavel(p) && Math.abs(p.x - f.x) < 75 && p.z < 40) {
       acertar(p, { x: f.x, atk: f, altura: 60, g: { dano: 18, kb: 8, derruba: true, pesado: true } });
@@ -633,6 +751,10 @@ window.LutaJogo = (function () {
     if (b === 'esp') { especial(p); return; }
     const cmd = (b === 'soco' || b === 'chute') && comandoDe(p, b);
     if (cmd) { iniciarGolpe(p, cmd); return; }
+    if (b === 'soco' && dx * p.face > 0.5 && Math.abs(dy) <= 0.5) {
+      const a = agarravel(p);
+      if (a) { agarrar(p, a); return; }
+    }
     if (b === 'soco') { iniciarGolpe(p, dy > 0.5 ? 'socoBaixo' : 'soco1'); return; }
     if (b === 'chute') { iniciarGolpe(p, dy > 0.5 ? 'rasteira' : 'chute'); return; }
     const prov = en.pegar('risada', 'carranca', 'chamar');
@@ -671,6 +793,10 @@ window.LutaJogo = (function () {
     const e = novoLutador(tipo, lado < 0 ? -60 : W + 60, -lado);
     e.entrando = true;
     J.inis.push(e);
+    if (tipo === 'monge' && !J.vistoMonge) {
+      J.vistoMonge = true;
+      J.dica = { txt: 'NOVO INIMIGO: MONGE DO BASTÃO', sub: 'A varrida dele é baixa: defenda AGACHADO (↓ + trás) ou pule', t: 330 };
+    }
     if (e.T.chefe) {
       J.chefe = e;
       e.x = W + 80; e.face = -1; e.cd = 150;
@@ -768,7 +894,7 @@ window.LutaJogo = (function () {
 
   // Corpos não se atravessam (empurrão suave).
   function empurrar() {
-    const todos = [J.jog, ...J.inis].filter(f => noChao(f) && !['caido', 'ko', 'levantar'].includes(f.estado) && !f.entrando);
+    const todos = [J.jog, ...J.inis].filter(f => noChao(f) && !['caido', 'ko', 'levantar', 'preso'].includes(f.estado) && !f.entrando && !f.preso);
     for (let i = 0; i < todos.length; i++) {
       for (let k = i + 1; k < todos.length; k++) {
         const a = todos[i], b = todos[k];
@@ -797,12 +923,18 @@ window.LutaJogo = (function () {
         if (pr.z + pr.raio < t.z || pr.z - pr.raio > t.z + altura(t)) continue;
         acertar(t, { x: pr.x - pr.vx, atk: pr.dono, altura: pr.z, g: { dano: pr.dano, kb: pr.kb, derruba: pr.derruba, tipo: pr.tipo, pesado: pr.tipo !== 'shuriken' } });
         pr.vida = 0;
+        Fx('explosao', pr.x, CHAO - pr.z, pr.tipo);
+      }
+      // A bola de energia do lutador também quebra caixa e barril.
+      if (pr.vida > 0 && pr.dono.controle) {
+        const o = J.objs.find(o => Math.abs(o.x - pr.x) < o.larg / 2 + pr.raio && pr.z - pr.raio < o.alt);
+        if (o) { baterObjeto(o, pr.x - pr.vx); pr.vida = 0; Fx('explosao', pr.x, CHAO - pr.z, pr.tipo); }
       }
     });
     // Bola de energia de um lutador com controle anula a do adversário.
     J.proj.forEach(a => J.proj.forEach(b => {
       if (a.vida > 0 && b.vida > 0 && a.dono !== b.dono && a.dono.controle && b.tipo !== 'onda' && Math.abs(a.x - b.x) < a.raio + b.raio && Math.abs(a.z - b.z) < a.raio + b.raio) {
-        a.vida = 0; b.vida = 0; faiscas(a.x, CHAO - a.z, '#fff', 14); Som.defesa();
+        a.vida = 0; b.vida = 0; faiscas(a.x, CHAO - a.z, '#fff', 14); Som.defesa(); Fx('explosao', (a.x + b.x) / 2, CHAO - a.z, 'choque');
       }
     }));
     J.proj = J.proj.filter(pr => pr.vida > 0 && pr.x > -80 && pr.x < W + 80);
@@ -820,7 +952,12 @@ window.LutaJogo = (function () {
   function texto(x, y, txt, cor, tam) { J.textos.push({ x, y, txt, cor, tam: tam || 22, vida: 70 }); }
 
   function atualizarEfeitos() {
-    J.parts.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += p.fumaca ? -0.02 : 0.25; p.vx *= 0.95; p.vida--; });
+    J.parts.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += p.fumaca ? -0.02 : 0.25; p.vx *= 0.95; p.vida--;
+      if (p.lasca && p.y > CHAO) { p.y = CHAO; p.vy *= -0.35; p.vx *= 0.6; } // lasca de madeira quica no chão
+    });
+    J.objs.forEach(o => { if (o.treme > 0) o.treme--; });
+    if (J.dica && --J.dica.t <= 0) J.dica = null;
     J.parts = J.parts.filter(p => p.vida > 0);
     J.textos.forEach(t => { t.y -= 0.7; t.vida--; });
     J.textos = J.textos.filter(t => t.vida > 0);
@@ -836,7 +973,7 @@ window.LutaJogo = (function () {
   // de novo em até 3 s volta para a tela inicial, pronta para outro aluno.
   function voltarAoTitulo() {
     J.tela = 'titulo'; J.confirma = -999; J.mortes = 0; J.voltaFase1 = false;
-    J.inis = []; J.proj = []; J.chefe = null; J.p2 = null;
+    J.inis = []; J.proj = []; J.chefe = null; J.p2 = null; J.objs = []; J.itens = []; J.dica = null;
     Som.musica(null);
     Som.menu();
   }
@@ -907,6 +1044,7 @@ window.LutaJogo = (function () {
     atualizarProjeteis();
     empurrar();
     atualizarEfeitos();
+    atualizarItens();
     J.inis = J.inis.filter(e => !(e.estado === 'ko' && e.et > 60));
 
     const p = J.jog;
@@ -935,6 +1073,7 @@ window.LutaJogo = (function () {
       if (J.onda < ondas.length - 1) {
         J.onda++;
         J.fila = ondas[J.onda].slice();
+        colocarObjetos(J.fase, J.onda);
         J.aviso = { txt: `ONDA ${J.onda + 1}`, t: 80 };
       } else if (J.fase < FASES.length - 1) {
         J.trans = 170;
@@ -949,6 +1088,24 @@ window.LutaJogo = (function () {
         p.estado = 'vitoria'; p.vx = 0;
       }
     }
+  }
+
+  // Itens que saem das caixas: pulam, ficam 12 s no chão (piscam no fim) e
+  // valem quando o lutador passa por cima, no chão.
+  function atualizarItens() {
+    const p = J.jog;
+    J.itens.forEach(it => {
+      it.t++; it.vida--;
+      if (it.z > 0 || it.vz > 0) { it.vz -= GRAV; it.z = Math.max(0, it.z + it.vz); if (it.z === 0) it.vz = 0; }
+      if (it.z > 0 || p.estado === 'ko' || !noChao(p) || Math.abs(p.x - it.x) > 34) return;
+      const I = ITENS[it.tipo];
+      I.pegar(p);
+      it.vida = 0;
+      texto(it.x, CHAO - 120, I.txt, I.cor, 22);
+      Som.item();
+      Fx('item', it);
+    });
+    J.itens = J.itens.filter(it => it.vida > 0);
   }
 
   // Super: o tempo para (só quem soltou o golpe se mexe).
@@ -970,7 +1127,7 @@ window.LutaJogo = (function () {
   function comecarRound() {
     J.round++;
     J.fase = (J.round - 1) % FASES.length;
-    J.inis = [J.p2]; J.proj = []; J.parts = []; J.textos = []; J.chefe = null; J.fila = [];
+    J.inis = [J.p2]; J.proj = []; J.parts = []; J.textos = []; J.chefe = null; J.fila = []; J.objs = []; J.itens = []; J.dica = null;
     [J.jog, J.p2].forEach((p, i) => Object.assign(p, {
       x: i ? 700 : 260, z: 0, vx: 0, vz: 0, face: i ? -1 : 1, estado: 'parado', golpe: null,
       invul: 0, combo: 0, comboT: 0, hp: p.T.hp, hpVisto: p.T.hp, giro: 0, pv: null,
@@ -1029,537 +1186,27 @@ window.LutaJogo = (function () {
     Som.fase();
   }
 
-  // ---------- Desenho dos lutadores ----------
-  const POSES = {
-    soco: (f, P) => { if (f === 'prep') P.bF = [60, 95]; else { P.bF = [90, -2]; P.bT = [-20, 120]; P.lean = 8; P.pF = [26, -24]; P.pT = [-30, -8]; } },
-    soco2: (f, P) => { if (f === 'prep') P.bT = [40, 100]; else { P.bT = [92, -2]; P.bF = [50, 110]; P.lean = 12; P.pF = [26, -24]; P.pT = [-30, -8]; } },
-    gancho: (f, P) => { if (f === 'prep') { P.bF = [25, 50]; P.lean = 12; P.pF = [40, -60]; P.pT = [-20, -60]; } else { P.bF = [165, -8]; P.lean = -8; P.pF = [12, -6]; P.pT = [-16, -4]; } },
-    socoBaixo: (f, P) => { Object.assign(P, AGACHADO()); if (f !== 'prep') P.bF = [80, 0]; },
-    chute: (f, P) => { P.bF = [70, 120]; P.bT = [55, 125]; if (f === 'prep') P.pF = [62, -95]; else { P.pF = [98, -4]; P.pT = [-12, -6]; P.lean = -18; } },
-    rasteira: (f, P) => { Object.assign(P, AGACHADO()); P.lean = 22; P.pF = f === 'prep' ? [70, -100] : [55, 38]; },
-    voadora: (f, P) => { P.pF = [100, -8]; P.pT = [35, -115]; P.lean = -18; P.bF = [80, 110]; P.bT = [-30, 90]; },
-    hadouken: (f, P) => { P.pF = [35, -25]; P.pT = [-35, -5]; if (f === 'prep') { P.bF = [-30, 120]; P.bT = [-40, 120]; P.lean = -10; } else { P.bF = [90, 0]; P.bT = [86, 6]; P.lean = 12; } },
-    super: (f, P) => { P.pF = [35, -25]; P.pT = [-35, -5]; if (f === 'prep') { P.bF = [172, 0]; P.bT = [160, 0]; P.lean = -6; } else { P.bF = [90, 0]; P.bT = [86, 6]; P.lean = 14; } },
-    arremesso: (f, P) => { if (f === 'prep') { P.bF = [-60, 120]; P.lean = -8; } else { P.bF = [100, 10]; P.lean = 10; } },
-    socoForte: (f, P) => { if (f === 'prep') { P.bF = [-50, 100]; P.lean = -12; } else { P.bF = [92, 0]; P.lean = 18; P.pF = [30, -20]; P.pT = [-32, -6]; } },
-    investida: (f, P, l) => {
-      if (f === 'prep') { Object.assign(P, AGACHADO()); P.bF = [-20, 90]; P.lean = 25; return; }
-      const ph = J.tick * 0.5;
-      P.lean = 25; P.bF = [95, 0]; P.bT = [-40, 60];
-      P.pF = [20 + 30 * Math.sin(ph), -30 - 30 * Math.max(0, Math.cos(ph))]; P.pT = [20 - 30 * Math.sin(ph), -30 - 30 * Math.max(0, -Math.cos(ph))];
-    },
-    pisao: (f, P, l) => { if (f === 'prep' || noChao(l)) Object.assign(P, AGACHADO()); else { P.pF = [60, -110]; P.pT = [30, -120]; P.bF = [160, 10]; P.bT = [150, 20]; } },
-    agachado: (f, P) => Object.assign(P, AGACHADO()),
-    chuteGiro: (f, P) => { P.bF = [70, 120]; P.bT = [-40, 90]; if (f === 'prep') { P.pF = [40, -110]; P.lean = 15; } else { P.pF = [92, 4]; P.pT = [-18, -4]; P.lean = -28; } },
-    dragao: (f, P) => { if (f === 'prep') { Object.assign(P, AGACHADO()); P.bF = [20, 40]; } else { P.bF = [176, -4]; P.bT = [20, 100]; P.lean = -6; P.pF = [70, -100]; P.pT = [-6, -6]; } },
-    furacao: (f, P) => { P.pF = [92, -2]; P.pT = [-30, -50]; P.bF = [100, 0]; P.bT = [-100, 0]; P.lean = 0; },
-  };
-  function AGACHADO() { return { pF: [75, -115], pT: [-8, -122], lean: 10, bF: [55, 115], bT: [40, 120] }; }
-
-  function poseDe(f) {
-    const P = { lean: 0, cab: 0, bF: [40, 112], bT: [22, 125], pF: [18, -28], pT: [-22, -12] };
-    const b = Math.sin(J.tick * 0.1 + f.id) * 3;
-    switch (f.estado) {
-      case 'parado':
-        P.bF = [40 + b, 112]; P.bT = [22 + b, 125]; P.pF = [18, -28 + b]; P.pT = [-22, -12 + b];
-        if (f.guarda) { P.bF = [72, 125]; P.bT = [62, 130]; P.lean = -6; }
-        break;
-      case 'andar': {
-        const ph = f.passo;
-        P.pF = [8 + 26 * Math.sin(ph), -18 - 30 * Math.max(0, Math.cos(ph))];
-        P.pT = [8 - 26 * Math.sin(ph), -18 - 30 * Math.max(0, -Math.cos(ph))];
-        P.bF = [40 + 8 * Math.sin(ph), 112]; P.lean = 5;
-        if (f.guarda) { P.bF = [72, 125]; P.bT = [62, 130]; P.lean = -6; }
-        break;
-      }
-      case 'guarda': P.bF = [75, 125]; P.bT = [65, 130]; P.lean = -8; P.pF = [22, -30]; P.pT = [-28, -10]; break;
-      case 'agachar': Object.assign(P, AGACHADO()); if (f.guarda) { P.bF = [80, 125]; P.bT = [70, 130]; P.lean = -4; } break;
-      case 'levantar': Object.assign(P, AGACHADO()); break;
-      case 'pulo': P.pF = [60, -105]; P.pT = [20, -115]; P.bF = [60, 110]; P.bT = [40, 120]; break;
-      case 'dor': P.lean = -22; P.cab = -15; P.bF = [30, 50]; P.bT = [-25, 40]; P.pF = [14, -12]; P.pT = [-28, -8]; break;
-      case 'caido': case 'ko': P.bF = [160, 10]; P.bT = [150, 20]; P.pF = [4, 0]; P.pT = [-4, 0]; P.cab = -10; break;
-      case 'vitoria': P.bF = [178, -5]; P.bT = [25, 125]; P.lean = -4; break;
-      case 'provoca': {
-        const o = Math.sin(f.et * 0.7);
-        if (f.prov === 'risada') { P.lean = -14 + o * 4; P.cab = -16; P.bF = [15, 75]; P.bT = [-10, 100]; } // mão na barriga, sacudindo
-        else if (f.prov === 'carranca') { P.lean = 14 + o; P.cab = 12; P.bF = [-15, 30]; P.bT = [-25, 30]; } // peito estufado, punhos para trás
-        else { P.lean = -4; P.bF = [85, 60 + o * 35]; P.bT = [22, 125]; } // braço esticado chamando com a mão
-        break;
-      }
-      case 'golpe': {
-        const g = f.golpe;
-        if (!g) break;
-        const fase = f.gt <= g.ini ? 'prep' : f.gt <= g.ini + g.ativo ? 'ativo' : 'rec';
-        POSES[g.pose](fase, P, f);
-        break;
-      }
-    }
-    return P;
-  }
-
-  // Movimento suave: a pose desenhada persegue a pose-alvo em vez de pular
-  // direto para ela (golpe e dor perseguem mais rápido).
-  function suavizar(f, P) {
-    if (!f.pv) { f.pv = { lean: P.lean, cab: P.cab, bF: P.bF.slice(), bT: P.bT.slice(), pF: P.pF.slice(), pT: P.pT.slice() }; return f.pv; }
-    const k = f.estado === 'golpe' || f.estado === 'dor' ? 0.6 : 0.3, v = f.pv;
-    v.lean += (P.lean - v.lean) * k; v.cab += (P.cab - v.cab) * k;
-    ['bF', 'bT', 'pF', 'pT'].forEach(n => { v[n][0] += (P[n][0] - v[n][0]) * k; v[n][1] += (P[n][1] - v[n][1]) * k; });
-    return v;
-  }
-
+  // ---------- Camada 2D por cima do Phaser (placar, menus e textos) ----------
   const CONTORNO = '#15100d';
-  function escurecer(hex, k) {
-    const n = parseInt(hex.slice(1), 16);
-    return `rgb(${Math.round(((n >> 16) & 255) * k)},${Math.round(((n >> 8) & 255) * k)},${Math.round((n & 255) * k)})`;
-  }
-  // Cápsula afunilada de a (raio ra) até b (raio rb); entra no caminho atual.
-  function capsula(a, b, ra, rb) {
-    const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 0.001, nx = -dy / d, ny = dx / d;
-    ctx.moveTo(a.x + nx * ra, a.y + ny * ra); ctx.lineTo(b.x + nx * rb, b.y + ny * rb);
-    ctx.lineTo(b.x - nx * rb, b.y - ny * rb); ctx.lineTo(a.x - nx * ra, a.y - ny * ra); ctx.closePath();
-    ctx.moveTo(a.x + ra, a.y); ctx.arc(a.x, a.y, ra, 0, Math.PI * 2);
-    ctx.moveTo(b.x + rb, b.y); ctx.arc(b.x, b.y, rb, 0, Math.PI * 2);
-  }
-  // Parte do corpo: contorno escuro, cor, sombra embaixo/direita e brilho
-  // em cima/esquerda (luz vindo de cima).
-  function parte(a, b, ra, rb, cor, s) {
-    const o = 1.8 * s;
-    ctx.fillStyle = CONTORNO; ctx.beginPath(); capsula(a, b, ra + o, rb + o); ctx.fill();
-    ctx.fillStyle = cor; ctx.beginPath(); capsula(a, b, ra, rb); ctx.fill();
-    ctx.save();
-    ctx.beginPath(); capsula(a, b, ra, rb); ctx.clip();
-    ctx.fillStyle = 'rgba(0,0,0,.24)';
-    ctx.beginPath(); capsula({ x: a.x + ra * 0.6, y: a.y + ra * 0.6 }, { x: b.x + rb * 0.6, y: b.y + rb * 0.6 }, ra, rb); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,.17)';
-    ctx.beginPath(); capsula({ x: a.x - ra * 0.45, y: a.y - ra * 0.45 }, { x: b.x - rb * 0.45, y: b.y - rb * 0.45 }, ra * 0.35, rb * 0.35); ctx.fill();
-    ctx.restore();
-  }
-  function circulo(p, r, cor, s) {
-    ctx.fillStyle = CONTORNO; ctx.beginPath(); ctx.arc(p.x, p.y, r + 1.8 * s, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = cor; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.beginPath(); ctx.arc(p.x - r * 0.35, p.y - r * 0.35, r * 0.4, 0, Math.PI * 2); ctx.fill();
-  }
 
-  function desenharLutador(f) {
-    const girando = f.estado === 'golpe' && f.golpe && f.golpe.flutua && f.gt > f.golpe.ini;
-    const s = f.s, fc = girando && Math.floor(f.gt / 4) % 2 ? -f.face : f.face, P = suavizar(f, poseDe(f));
-    let c = f.T.cores;
-    if (f.branco > 0) c = Object.assign({}, c, { pele: '#ffffff', roupa: '#ffffff', calca: '#ffffff', faixa: '#ffffff', cabelo: '#ffffff', bandana: '#ffffff', luva: '#ffffff', capa: '#ffffff', ouro: '#ffffff', pes: '#ffffff', barba: '#ffffff' });
-    const L1 = 33 * s, L2 = 33 * s, TR = 48 * s, A1 = 25 * s, A2 = 25 * s, CAB = 13 * s;
-    const pt = (o, ang, len) => ({ x: o.x + Math.sin(ang * RAD) * len * fc, y: o.y + Math.cos(ang * RAD) * len });
-    const H0 = { x: 0, y: 0 };
-    const jF = pt(H0, P.pF[0], L1), peF = pt(jF, P.pF[0] + P.pF[1], L2);
-    const jT = pt(H0, P.pT[0], L1), peT = pt(jT, P.pT[0] + P.pT[1], L2);
-    const baixo = Math.max(jF.y, peF.y, jT.y, peT.y) + 3 * s;
-    const deitado = f.estado === 'caido' || f.estado === 'ko';
-
-    // sombra no chão
-    ctx.save();
-    ctx.globalAlpha = clamp(0.4 - f.z / 600, 0.1, 0.4);
-    ctx.fillStyle = '#000';
-    ctx.beginPath(); ctx.ellipse(f.x, CHAO + 4, (deitado ? 70 : 34) * s, 8 * s, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
-
-    ctx.save();
-    if (f.invul > 0 && f.estado !== 'golpe' && J.tick % 6 < 3) ctx.globalAlpha = 0.45;
-    if (f.estado === 'ko' && f.et > 30 && !f.controle && J.tick % 4 < 2) ctx.globalAlpha = 0.3;
-    ctx.translate(f.x, CHAO - f.z);
-    if (f.giro > 0) { // cambalhota do pulo duplo, girando em volta da cintura
-      ctx.translate(0, -70 * s);
-      ctx.rotate(fc * Math.PI * 2 * (1 - f.giro / 24));
-      ctx.translate(0, 70 * s);
-    }
-    if (deitado) {
-      // Gira o corpo para trás até deitar (cai de costas).
-      const prog = noChao(f) ? 1 : clamp(1 - f.vz / 9, 0.2, 1);
-      ctx.rotate(-fc * Math.PI / 2 * prog);
-      ctx.translate(0, -12 * s * prog);
-    }
-    ctx.translate(0, -baixo);
-    if (f.furia) {
-      ctx.save();
-      ctx.globalAlpha = 0.35 + Math.sin(J.tick * 0.3) * 0.15;
-      ctx.fillStyle = '#ff2d2d';
-      ctx.shadowColor = '#ff2d2d'; ctx.shadowBlur = 40;
-      ctx.beginPath(); ctx.ellipse(0, -40 * s, 50 * s, 110 * s, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.restore();
-    }
-
-    // Eixo do tronco (u, para cima) e a "frente" do corpo (nf).
-    const u = { x: Math.sin(P.lean * RAD) * fc, y: -Math.cos(P.lean * RAD) };
-    const nf = { x: Math.cos(P.lean * RAD) * fc, y: Math.sin(P.lean * RAD) };
-    const em = (t, k) => ({ x: u.x * TR * t + nf.x * k, y: u.y * TR * t + nf.y * k });
-    const S = em(1, 0);
-    const ac = P.lean + P.cab;
-    const C = { x: S.x + Math.sin(ac * RAD) * (CAB + 9 * s) * fc, y: S.y - Math.cos(ac * RAD) * (CAB + 9 * s) };
-    const cab = (fx, fy) => ({ x: C.x + fx * s * fc, y: C.y + fy * s }); // ponto no rosto (fx > 0 = para a frente)
-    const oF = em(0.93, 2 * s), oT = em(0.93, -5 * s);
-    const cT = pt(oT, P.bT[0], A1), mT = pt(cT, P.bT[0] + P.bT[1], A2);
-    const cF = pt(oF, P.bF[0], A1), mF = pt(cF, P.bF[0] + P.bF[1], A2);
-
-    function braco(o, cot, mao) {
-      const sup = c.manga === 'nenhuma' ? c.pele : c.roupa;
-      const ant = c.manga === 'longa' ? c.roupa : c.pele;
-      parte(o, cot, 7.2 * s, 5.8 * s, sup, s);
-      parte(cot, mao, 6.2 * s, 4.6 * s, ant, s);
-      if (c.ouro) { ctx.strokeStyle = c.ouro; ctx.lineWidth = 3 * s; ctx.beginPath(); ctx.arc(mao.x + (cot.x - mao.x) * 0.25, mao.y + (cot.y - mao.y) * 0.25, 5.5 * s, 0, Math.PI * 2); ctx.stroke(); }
-      circulo(mao, 7 * s, c.luva, s);
-      ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 1.2 * s;
-      ctx.beginPath(); ctx.moveTo(mao.x - 3 * s, mao.y - 1 * s); ctx.lineTo(mao.x + 3 * s, mao.y - 1 * s); ctx.stroke();
-    }
-    function perna(joelho, pe) {
-      const larga = c.calcaLarga;
-      const dedo = { x: pe.x + fc * 12 * s, y: pe.y + 2 * s };
-      parte(pe, dedo, 4.8 * s, 3.6 * s, c.pes, s);
-      parte(H0, joelho, 10.5 * s, 8 * s, c.calca, s);
-      parte(joelho, pe, larga ? 8 * s : 7.2 * s, larga ? 8.6 * s : 5 * s, c.calca, s);
-    }
-
-    // capa do chefe (atrás de tudo)
-    if (c.capa) {
-      const bal = Math.sin(J.tick * 0.08) * 8 * s;
-      ctx.fillStyle = CONTORNO;
-      ctx.beginPath();
-      ctx.moveTo(S.x + 6 * s * fc, S.y - 2 * s);
-      ctx.lineTo(S.x - 18 * s * fc, S.y - 2 * s);
-      ctx.quadraticCurveTo(-46 * s * fc + bal, 20 * s, -40 * s * fc + bal, 62 * s);
-      ctx.lineTo(4 * s * fc, 40 * s);
-      ctx.closePath(); ctx.fill();
-      ctx.fillStyle = c.capa;
-      ctx.beginPath();
-      ctx.moveTo(S.x + 4 * s * fc, S.y);
-      ctx.lineTo(S.x - 16 * s * fc, S.y);
-      ctx.quadraticCurveTo(-43 * s * fc + bal, 20 * s, -37 * s * fc + bal, 58 * s);
-      ctx.lineTo(4 * s * fc, 38 * s);
-      ctx.closePath(); ctx.fill();
-    }
-
-    // rastro do golpe (mão ou pé que está batendo)
-    const g = f.estado === 'golpe' && f.golpe;
-    const ativo = g && g.dano && f.gt > g.ini && f.gt <= g.ini + g.ativo + 2;
-    const ponta = !ativo ? null : ['chute', 'rasteira', 'voadora'].includes(g.pose) ? peF : g.pose === 'soco2' ? mT : mF;
-    if (ponta) { f.rastro = f.rastro || []; f.rastro.push({ x: ponta.x, y: ponta.y }); if (f.rastro.length > 6) f.rastro.shift(); } else f.rastro = [];
-
-    braco(oT, cT, mT);
-    if (c.ouro) circulo(oT, 8 * s, c.ouro, s);
-    perna(jT, peT);
-
-    // tronco
-    const fr = [em(0, 12 * s), em(0.45, 10.5 * s), em(0.8, 16 * s), em(1, 11 * s)];
-    const tr = [em(1, -15 * s), em(0.8, -13 * s), em(0.45, -10 * s), em(0, -12 * s)];
-    const meio = (p, q) => ({ x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 });
-    const caminhoTronco = () => {
-      ctx.beginPath();
-      ctx.moveTo(fr[0].x, fr[0].y);
-      ctx.quadraticCurveTo(fr[1].x, fr[1].y, meio(fr[1], fr[2]).x, meio(fr[1], fr[2]).y);
-      ctx.quadraticCurveTo(fr[2].x, fr[2].y, fr[3].x, fr[3].y);
-      ctx.lineTo(tr[0].x, tr[0].y);
-      ctx.quadraticCurveTo(tr[1].x, tr[1].y, meio(tr[1], tr[2]).x, meio(tr[1], tr[2]).y);
-      ctx.quadraticCurveTo(tr[2].x, tr[2].y, tr[3].x, tr[3].y);
-      ctx.closePath();
-    };
-    caminhoTronco();
-    ctx.lineWidth = 3.6 * s; ctx.strokeStyle = CONTORNO; ctx.stroke();
-    ctx.fillStyle = c.colete ? c.pele : c.roupa; ctx.fill();
-    ctx.save();
-    caminhoTronco(); ctx.clip();
-    const poli = (pts, cor) => { ctx.fillStyle = cor; ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y))); ctx.closePath(); ctx.fill(); };
-    if (c.colete) { // colete aberto: músculos à mostra
-      poli([em(0, -14 * s), em(1.1, -16 * s), em(1.1, -2 * s), em(0, -4 * s)], c.roupa);
-      poli([em(0, 14 * s), em(1.1, 17 * s), em(1.1, 12 * s), em(0, 9 * s)], c.roupa);
-      ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 1.6 * s;
-      const pe1 = em(0.72, 2 * s), pe2 = em(0.72, 13 * s);
-      ctx.beginPath(); ctx.moveTo(pe1.x, pe1.y); ctx.quadraticCurveTo(em(0.62, 8 * s).x, em(0.62, 8 * s).y, pe2.x, pe2.y); ctx.stroke();
-      [0.3, 0.45].forEach(t => { const a1 = em(t, 2 * s), a2 = em(t, 10 * s); ctx.beginPath(); ctx.moveTo(a1.x, a1.y); ctx.lineTo(a2.x, a2.y); ctx.stroke(); });
-    }
-    if (c.gola) { // kimono: abertura em V no peito
-      poli([em(1.05, 9 * s), em(1.05, -3 * s), em(0.5, 6 * s)], c.pele);
-      ctx.strokeStyle = escurecer(c.roupa === '#ffffff' ? '#ffffff' : c.roupa, 0.6); ctx.lineWidth = 2.4 * s;
-      const g1 = em(1.05, -3 * s), g2 = em(0.5, 6 * s), g3 = em(1.05, 10 * s);
-      ctx.beginPath(); ctx.moveTo(g1.x, g1.y); ctx.lineTo(g2.x, g2.y); ctx.lineTo(g3.x, g3.y); ctx.stroke();
-    }
-    poli([em(-0.1, -20 * s), em(1.1, -20 * s), em(1.1, -8 * s), em(-0.1, -6 * s)], 'rgba(0,0,0,.22)');
-    ctx.fillStyle = 'rgba(255,255,255,.12)';
-    const brilho = em(0.72, 6 * s);
-    ctx.beginPath(); ctx.ellipse(brilho.x, brilho.y, 6 * s, 10 * s, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
-
-    // faixa na cintura; nó e pontas balançando só no Kaito (pontasFaixa)
-    const f1 = em(0.07, 13 * s), f2 = em(0.07, -13 * s), no = em(0.07, 10 * s);
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = CONTORNO; ctx.lineWidth = 8.6 * s; ctx.beginPath(); ctx.moveTo(f1.x, f1.y); ctx.lineTo(f2.x, f2.y); ctx.stroke();
-    ctx.strokeStyle = c.faixa; ctx.lineWidth = 5.2 * s; ctx.beginPath(); ctx.moveTo(f1.x, f1.y); ctx.lineTo(f2.x, f2.y); ctx.stroke();
-    if (c.pontasFaixa) {
-      const bal = Math.sin(J.tick * 0.15 + f.id) * 3 * s - f.vx * 1.5 * fc * s;
-      [[4, 17], [8, 15]].forEach(([dx, dy]) => {
-        ctx.strokeStyle = CONTORNO; ctx.lineWidth = 5.6 * s;
-        ctx.beginPath(); ctx.moveTo(no.x, no.y); ctx.quadraticCurveTo(no.x + dx * s * fc, no.y + dy * 0.5 * s, no.x + dx * s * fc + bal, no.y + dy * s); ctx.stroke();
-        ctx.strokeStyle = c.faixa; ctx.lineWidth = 3 * s; ctx.stroke();
-      });
-      circulo(no, 3.4 * s, c.faixa, s);
-    }
-
-    perna(jF, peF);
-
-    // pescoço e cabeça
-    parte(S, { x: S.x + (C.x - S.x) * 0.55, y: S.y + (C.y - S.y) * 0.55 }, 6.2 * s, 5.8 * s, c.pele, s);
-    if (c.cabeloTipo === 'longo') {
-      const bal = Math.sin(J.tick * 0.07 + f.id) * 4 * s;
-      parte(cab(-6, -6), { x: C.x - 20 * s * fc + bal, y: C.y + 26 * s }, 10 * s, 5 * s, c.cabelo, s);
-    }
-    const queixo = cab(4.5, 9.5);
-    const caminhoCabeca = extra => {
-      ctx.beginPath();
-      ctx.ellipse(C.x, C.y, 11.5 * s + extra, 13.2 * s + extra, 0, 0, Math.PI * 2);
-      capsula({ x: C.x + 1 * s * fc, y: C.y + 2 * s }, queixo, 9 * s + extra, 6 * s + extra);
-    };
-    caminhoCabeca(1.8 * s); ctx.fillStyle = CONTORNO; ctx.fill();
-    caminhoCabeca(0); ctx.fillStyle = c.mascara ? c.roupa : c.pele; ctx.fill();
-    ctx.save(); caminhoCabeca(0); ctx.clip();
-    ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(C.x - 6 * s * fc, C.y + 4 * s, 9 * s, 14 * s, 0, 0, Math.PI * 2); ctx.fill();
-    if (c.mascara) { ctx.fillStyle = c.pele; const m = cab(6, -1); ctx.fillRect(m.x - 7 * s, m.y - 4 * s, 14 * s, 7 * s); }
-    ctx.restore();
-    circulo(cab(-2.5, 1.5), 3.2 * s, c.mascara ? c.roupa : escurecer(c.pele, 0.88), s); // orelha
-
-    // cabelo
-    const cor = c.cabelo;
-    if (c.cabeloTipo === 'espetado') {
-      ctx.beginPath();
-      for (let i = 0; i <= 10; i++) {
-        const ang = (150 + i * 17) * RAD, r = (i % 2 ? 19 : 12.5) * s, atras = i % 2 ? -4 * s : 0;
-        const p = { x: C.x + (Math.cos(ang) * r + atras) * fc, y: C.y + Math.sin(ang) * r - 1 * s };
-        if (i) ctx.lineTo(p.x, p.y); else ctx.moveTo(p.x, p.y);
-      }
-      ctx.lineTo(C.x + 6 * s * fc, C.y - 3 * s); ctx.lineTo(C.x - 8 * s * fc, C.y + 6 * s);
-      ctx.closePath();
-      ctx.lineWidth = 3 * s; ctx.strokeStyle = CONTORNO; ctx.stroke();
-      ctx.fillStyle = cor; ctx.fill();
-    } else if (c.cabeloTipo === 'curto' || c.cabeloTipo === 'longo') {
-      ctx.beginPath();
-      ctx.moveTo(C.x - 12 * s * fc, C.y + 5 * s);
-      ctx.quadraticCurveTo(C.x - 14 * s * fc, C.y - 15 * s, C.x + 2 * s * fc, C.y - 15 * s);
-      ctx.quadraticCurveTo(C.x + 12 * s * fc, C.y - 13 * s, C.x + 11 * s * fc, C.y - 5 * s);
-      ctx.lineTo(C.x - 4 * s * fc, C.y - 7 * s);
-      ctx.lineTo(C.x - 6 * s * fc, C.y + 5 * s);
-      ctx.closePath();
-      ctx.lineWidth = 3 * s; ctx.strokeStyle = CONTORNO; ctx.stroke();
-      ctx.fillStyle = cor; ctx.fill();
-    }
-    if (c.barba) {
-      ctx.fillStyle = c.barba;
-      ctx.beginPath(); capsula(cab(0, 7), cab(5, 12 + (c.cabeloTipo === 'longo' ? 6 : 0)), 7 * s, 4.5 * s); ctx.fill();
-    }
-
-    // rosto: olho, sobrancelha, nariz, boca
-    const olho = cab(6.2, -1.5);
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(olho.x, olho.y, 2.7 * s, 2 * s, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(olho.x + 0.9 * s * fc, olho.y, 1.3 * s, 0, Math.PI * 2); ctx.fill();
-    const bravo = !f.controle || f.estado === 'golpe';
-    const sb1 = cab(2.5, bravo ? -6.5 : -5.5), sb2 = cab(9.5, bravo ? -4 : -5.5);
-    ctx.strokeStyle = c.mascara ? c.roupa : CONTORNO; ctx.lineWidth = (f.T.chefe || f.tipo === 'brutamontes' ? 2.6 : 2) * s;
-    ctx.beginPath(); ctx.moveTo(sb1.x, sb1.y); ctx.lineTo(sb2.x, sb2.y); ctx.stroke();
-    if (!c.mascara) {
-      const n1 = cab(10.5, -1), n2 = cab(13, 3.5), n3 = cab(10, 4.5);
-      ctx.strokeStyle = escurecer(c.pele === '#ffffff' ? '#ffffff' : c.pele, 0.7); ctx.lineWidth = 1.4 * s;
-      ctx.beginPath(); ctx.moveTo(n1.x, n1.y); ctx.lineTo(n2.x, n2.y); ctx.lineTo(n3.x, n3.y); ctx.stroke();
-      const grita = f.estado === 'dor' || deitado || (g && f.gt > g.ini - 3 && f.gt <= g.ini + g.ativo + 4);
-      const boca = cab(8, 8.5);
-      if (grita) { ctx.fillStyle = '#3a0d0d'; ctx.beginPath(); ctx.ellipse(boca.x, boca.y, 2.4 * s, 2.8 * s, 0, 0, Math.PI * 2); ctx.fill(); }
-      else { const b2 = cab(11, 8); ctx.strokeStyle = CONTORNO; ctx.lineWidth = 1.4 * s; ctx.beginPath(); ctx.moveTo(boca.x - 2 * s * fc, boca.y); ctx.lineTo(b2.x, b2.y); ctx.stroke(); }
-    }
-    if (f.tipo === 'brutamontes') { // cicatriz
-      const k1 = cab(3, -9), k2 = cab(8, 2);
-      ctx.strokeStyle = '#a0522d'; ctx.lineWidth = 1.4 * s; ctx.beginPath(); ctx.moveTo(k1.x, k1.y); ctx.lineTo(k2.x, k2.y); ctx.stroke();
-    }
-
-    // bandana / diadema
-    if (c.bandana || c.ouro) {
-      const b1 = cab(-12, -4), b2 = cab(11.5, -7.5), corB = c.ouro || c.bandana;
-      ctx.lineCap = 'round';
-      ctx.strokeStyle = CONTORNO; ctx.lineWidth = 7.4 * s; ctx.beginPath(); ctx.moveTo(b1.x, b1.y); ctx.lineTo(b2.x, b2.y); ctx.stroke();
-      ctx.strokeStyle = corB; ctx.lineWidth = 4.4 * s; ctx.beginPath(); ctx.moveTo(b1.x, b1.y); ctx.lineTo(b2.x, b2.y); ctx.stroke();
-      if (c.ouro) {
-        poli([cab(6, -8), cab(9, -17), cab(12, -8)], c.ouro);
-      } else {
-        const onda = Math.sin(J.tick * 0.25 + f.id) * 5 * s - f.vx * 2 * s;
-        [[18, 0], [15, 7]].forEach(([dx, dy]) => {
-          ctx.strokeStyle = CONTORNO; ctx.lineWidth = 5.4 * s;
-          ctx.beginPath(); ctx.moveTo(b1.x, b1.y); ctx.quadraticCurveTo(b1.x - dx * 0.5 * s * fc, b1.y + dy * 0.5 * s, b1.x - dx * s * fc, b1.y + dy * s + onda); ctx.stroke();
-          ctx.strokeStyle = corB; ctx.lineWidth = 3 * s; ctx.stroke();
-        });
-      }
-    }
-
-    braco(oF, cF, mF);
-    if (c.ouro) circulo(oF, 8.5 * s, c.ouro, s);
-
-    if (f.rastro && f.rastro.length > 1) {
-      ctx.lineCap = 'round';
-      for (let i = 1; i < f.rastro.length; i++) {
-        const k = i / f.rastro.length;
-        ctx.strokeStyle = `rgba(255,255,255,${k * 0.5})`; ctx.lineWidth = k * 14 * s;
-        ctx.beginPath(); ctx.moveTo(f.rastro[i - 1].x, f.rastro[i - 1].y); ctx.lineTo(f.rastro[i].x, f.rastro[i].y); ctx.stroke();
-      }
-    }
-    ctx.restore();
-
-    // vida dos inimigos comuns (o chefe tem a barra grande)
-    if (!f.controle && !f.T.chefe && f.estado !== 'ko' && f.hp < f.T.hp) {
-      const w = 46, y = CHAO - f.z - 172 * s;
-      ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(f.x - w / 2 - 1, y - 1, w + 2, 6);
+  // Presos ao mundo (seguem a câmera): textos que sobem, vida dos inimigos
+  // comuns (o chefe tem a barra grande), item piscando e balões.
+  function desenharSobreMundo() {
+    J.inis.forEach(f => {
+      if (f.controle || f.T.chefe || f.estado === 'ko' || f.hp >= f.T.hp) return;
+      const w = 46, y = CHAO - f.z - 178 * f.s;
+      ctx.fillStyle = 'rgba(0,0,0,.65)'; ctx.fillRect(f.x - w / 2 - 1, y - 1, w + 2, 6);
       ctx.fillStyle = '#ff5c5c'; ctx.fillRect(f.x - w / 2, y, w * f.hp / f.T.hp, 4);
-    }
-  }
-
-  // ---------- Cenários ----------
-  function cenario(n) {
-    const t = J.tick;
-    if (n === 0) {
-      let g = ctx.createLinearGradient(0, 0, 0, 360);
-      g.addColorStop(0, '#3b1d5a'); g.addColorStop(0.55, '#c2436b'); g.addColorStop(1, '#ffb15c');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, W, 360);
-      ctx.fillStyle = '#ffe08a'; ctx.globalAlpha = 0.9;
-      ctx.beginPath(); ctx.arc(700, 300, 70, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
-      ctx.fillStyle = '#2a3b63'; ctx.fillRect(0, 300, W, 90);
-      ctx.strokeStyle = 'rgba(255,214,140,.5)'; ctx.lineWidth = 2;
-      for (let i = 0; i < 14; i++) { const y = 310 + i * 6, x = 620 + Math.sin(t * 0.03 + i) * 30; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 160 - i * 6, y); ctx.stroke(); }
-      // guindastes
-      ctx.fillStyle = '#1b1430'; ctx.strokeStyle = '#1b1430'; ctx.lineWidth = 6;
-      [[120, 1], [420, -1]].forEach(([x, d]) => {
-        ctx.fillRect(x, 120, 14, 200);
-        ctx.beginPath(); ctx.moveTo(x - 60 * d, 130); ctx.lineTo(x + 160 * d, 130); ctx.stroke();
-        ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + 120 * d, 130); ctx.lineTo(x + 120 * d, 220); ctx.stroke(); ctx.lineWidth = 6;
-      });
-      // contêineres
-      const cores = ['#b5442f', '#2f6db5', '#3c8c4a', '#c9922c', '#7a3c8c'];
-      for (let i = 0; i < 9; i++) {
-        const x = i * 110 - 20, alto = hash(i) > 0.5;
-        ctx.fillStyle = cores[i % 5]; ctx.fillRect(x, 330, 104, 56);
-        if (alto) { ctx.fillStyle = cores[(i + 2) % 5]; ctx.fillRect(x + 8, 274, 96, 56); }
-        ctx.fillStyle = 'rgba(0,0,0,.25)';
-        for (let k = 0; k < 6; k++) ctx.fillRect(x + 8 + k * 16, 334, 3, 48);
-      }
-      chao('#6b4a32', '#59392a', 'tabuas');
-    } else if (n === 1) {
-      ctx.fillStyle = '#0b1026'; ctx.fillRect(0, 0, W, 400);
-      for (let i = 0; i < 60; i++) { ctx.fillStyle = `rgba(255,255,255,${0.3 + hash(i) * 0.6})`; ctx.fillRect(hash(i + 3) * W, hash(i + 9) * 160, 2, 2); }
-      for (let i = 0; i < 8; i++) {
-        const x = i * 125 - 10, h = 170 + hash(i + 20) * 120, y = 400 - h;
-        ctx.fillStyle = i % 2 ? '#151a3a' : '#1b2148'; ctx.fillRect(x, y, 118, h);
-        for (let r = 0; r < 8; r++) for (let k = 0; k < 4; k++) {
-          if (hash(i * 50 + r * 7 + k) > 0.55) { ctx.fillStyle = hash(i + r + k) > 0.5 ? '#ffd27a' : '#7dd3fc'; ctx.fillRect(x + 12 + k * 26, y + 16 + r * 26, 12, 14); }
-        }
-      }
-      // letreiros neon
-      const pisca = (k) => (Math.sin(t * 0.07 + k) > -0.85) ? 1 : 0.25;
-      [['RAMEN', 140, 250, '#ff4fa3'], ['DOJÔ', 520, 220, '#4fd1c5'], ['LUTA', 800, 260, '#ffd166']].forEach(([txt, x, y, cor], k) => {
-        ctx.save(); ctx.globalAlpha = pisca(k * 3);
-        ctx.font = 'bold 34px "Arial Black", sans-serif'; ctx.fillStyle = cor; ctx.shadowColor = cor; ctx.shadowBlur = 22;
-        ctx.fillText(txt, x, y); ctx.restore();
-      });
-      // lanternas
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(0, 300); ctx.quadraticCurveTo(W / 2, 350, W, 300); ctx.stroke();
-      for (let i = 0; i < 10; i++) {
-        const x = 40 + i * 96, y = 300 + Math.sin((x / W) * Math.PI) * 25 + 10;
-        ctx.save(); ctx.fillStyle = i % 2 ? '#ff5c5c' : '#ffb347'; ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 18;
-        ctx.beginPath(); ctx.ellipse(x, y, 10, 14, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-      }
-      // barracas
-      ['#c0392b', '#2471a3', '#d68910', '#7d3c98'].forEach((cor, i) => {
-        const x = 40 + i * 240;
-        ctx.fillStyle = '#3a2618'; ctx.fillRect(x, 380, 150, 30);
-        for (let k = 0; k < 6; k++) { ctx.fillStyle = k % 2 ? cor : '#f4f4f4'; ctx.fillRect(x - 10 + k * 28, 350, 28, 26); }
-      });
-      chao('#3a3f4b', '#2f333d', 'pedras');
-    } else {
-      const g = ctx.createLinearGradient(0, 0, 0, 400);
-      g.addColorStop(0, '#05030f'); g.addColorStop(1, '#2a1145');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, W, 400);
-      ctx.fillStyle = '#f5f0d8'; ctx.shadowColor = '#f5f0d8'; ctx.shadowBlur = 30;
-      ctx.beginPath(); ctx.arc(160, 90, 42, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
-      for (let i = 0; i < 16; i++) {
-        const x = i * 62, h = 90 + hash(i + 40) * 180;
-        ctx.fillStyle = '#120b26'; ctx.fillRect(x, 400 - h, 58, h);
-        for (let r = 0; r < 10; r++) if (hash(i * 31 + r) > 0.6) { ctx.fillStyle = 'rgba(255,210,120,.7)'; ctx.fillRect(x + 8 + (r % 3) * 16, 410 - h + r * 16, 6, 8); }
-      }
-      // caixa d'água e antena
-      ctx.fillStyle = '#0d0820';
-      ctx.fillRect(760, 230, 120, 90); ctx.fillRect(770, 320, 10, 60); ctx.fillRect(860, 320, 10, 60);
-      ctx.fillRect(80, 200, 6, 180);
-      ctx.fillStyle = J.tick % 60 < 30 ? '#ff3b3b' : '#5a1010'; ctx.beginPath(); ctx.arc(83, 198, 5, 0, Math.PI * 2); ctx.fill();
-      chao('#3d3a4a', '#322f3d', 'laje');
-      // chuva
-      ctx.strokeStyle = 'rgba(170,190,255,.35)'; ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (let i = 0; i < 90; i++) { const x = (hash(i) * W + t * 3) % W, y = (hash(i + 99) * H + t * 14) % H; ctx.moveTo(x, y); ctx.lineTo(x - 4, y + 14); }
-      ctx.stroke();
-      if (J.chefe && J.chefe.estado !== 'ko' && Math.random() < 0.004) J.raio = 1;
-    }
-  }
-
-  function chao(cor, cor2, estilo) {
-    const topo = CHAO - 46;
-    const g = ctx.createLinearGradient(0, topo, 0, H);
-    g.addColorStop(0, cor2); g.addColorStop(1, cor);
-    ctx.fillStyle = g; ctx.fillRect(0, topo, W, H - topo);
-    ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 2;
-    ctx.beginPath();
-    if (estilo === 'tabuas') {
-      for (let y = topo + 12; y < H; y += 16) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
-    } else if (estilo === 'pedras') {
-      for (let y = topo + 14, r = 0; y < H; y += 18, r++) { ctx.moveTo(0, y); ctx.lineTo(W, y); for (let x = (r % 2) * 30; x < W; x += 60) { ctx.moveTo(x, y - 18); ctx.lineTo(x, y); } }
-    } else {
-      for (let x = -400; x < W + 400; x += 80) { ctx.moveTo(W / 2 + (x - W / 2) * 0.6, topo); ctx.lineTo(x, H); }
-      ctx.moveTo(0, topo + 20); ctx.lineTo(W, topo + 20);
-    }
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, topo, W, 4);
-  }
-
-  // ---------- Projéteis, partículas, HUD ----------
-  function desenharProjeteis() {
-    J.proj.forEach(pr => {
-      const y = CHAO - pr.z;
+    });
+    J.textos.forEach(t => {
+      const idade = 70 - t.vida, k = idade < 6 ? 0.6 + idade * 0.1 : 1; // estoura ao aparecer
       ctx.save();
-      if (pr.tipo === 'shuriken') {
-        ctx.translate(pr.x, y); ctx.rotate(pr.t * 0.5);
-        ctx.fillStyle = '#cfd8e3';
-        ctx.beginPath();
-        for (let i = 0; i < 8; i++) { const r = i % 2 ? 4 : 12, a = i * Math.PI / 4; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
-        ctx.closePath(); ctx.fill();
-      } else if (pr.tipo === 'onda') {
-        ctx.fillStyle = '#ff9a3c'; ctx.shadowColor = '#ff5c00'; ctx.shadowBlur = 20;
-        ctx.beginPath(); ctx.ellipse(pr.x, CHAO - 10, 18, 26 + Math.sin(pr.t * 0.6) * 6, 0, Math.PI, Math.PI * 2); ctx.fill();
-      } else {
-        const azul = pr.tipo === 'fogo';
-        ctx.shadowColor = azul ? '#38bdf8' : '#ff3b00'; ctx.shadowBlur = 30;
-        ctx.fillStyle = azul ? '#7dd3fc' : '#ff7b3b';
-        ctx.beginPath(); ctx.arc(pr.x, y, pr.raio + Math.sin(pr.t * 0.8) * 2, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#fff';
-        ctx.beginPath(); ctx.arc(pr.x, y, pr.raio * 0.5, 0, Math.PI * 2); ctx.fill();
-      }
+      ctx.globalAlpha = clamp(t.vida / 25, 0, 1);
+      ctx.translate(t.x, t.y); ctx.scale(k, k);
+      txt(t.txt, 0, 0, t.tam, t.cor, 'center');
       ctx.restore();
     });
-  }
-
-  function desenharParticulas() {
-    J.parts.forEach(p => {
-      ctx.globalAlpha = clamp(p.vida / 20, 0, 1);
-      if (p.risco) {
-        ctx.strokeStyle = p.cor; ctx.lineWidth = p.tam * 0.6;
-        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - p.vx * 2, p.y - p.vy * 2); ctx.stroke();
-      } else {
-        ctx.fillStyle = p.cor;
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.tam, 0, Math.PI * 2); ctx.fill();
-      }
-    });
-    ctx.globalAlpha = 1;
-    J.textos.forEach(t => {
-      ctx.globalAlpha = clamp(t.vida / 25, 0, 1);
-      txt(t.txt, t.x, t.y, t.tam, t.cor, 'center');
-    });
-    ctx.globalAlpha = 1;
+    [...J.inis, J.jog].forEach(f => f && desenharBalao(f));
   }
 
   // Balão da provocação: estoura ao aparecer e some aos poucos.
@@ -1620,7 +1267,7 @@ window.LutaJogo = (function () {
     txt(String(J.pontos).padStart(7, '0'), W - 24, 26, 26, '#fff', 'right');
     txt(`RECORDE ${J.recorde}`, W - 24, 54, 13, '#9fb3c8', 'right');
     txt(Rede.conectado() ? '📱 conectado' : '⌨ teclado', W - 24, 76, 13, Rede.conectado() ? '#4fd1c5' : '#9fb3c8', 'right');
-    if (p.combo >= 2) txt(`${p.combo} GOLPES!`, 24, 120, 30, '#ffd166');
+    textoCombo(p, 24, 120, 30, '#ffd166');
     const ch = J.chefe;
     if (ch && ch.estado !== 'ko' && !ch.entrando) {
       txt(ch.T.nome, W / 2, H - 52, 18, '#ff8fa3', 'center');
@@ -1647,8 +1294,8 @@ window.LutaJogo = (function () {
     }
     energia(a, 24, 92);
     energia(b, W - 24 - 246, 92);
-    if (a.combo >= 2) txt(`${a.combo} GOLPES!`, 24, 132, 26, '#7db4ff');
-    if (b.combo >= 2) txt(`${b.combo} GOLPES!`, W - 24, 132, 26, '#ff8f8f', 'right');
+    textoCombo(a, 24, 132, 26, '#7db4ff');
+    textoCombo(b, W - 24, 132, 26, '#ff8f8f', 'right');
     const c1 = Rede.conectado(1), c2 = Rede.conectado(2);
     txt(`${c1 ? '📱' : '⌨ WASD + Z/X/C'}`, 24, H - 18, 13, c1 ? '#4fd1c5' : '#9fb3c8');
     txt(`${c2 ? '📱' : '⌨ setas + K/L/Ç'}`, W - 24, H - 18, 13, c2 ? '#4fd1c5' : '#9fb3c8', 'right');
@@ -1668,15 +1315,8 @@ window.LutaJogo = (function () {
     ctx.globalAlpha = 1;
   }
 
+  // Título: o cenário, o Kaito e o Vulcano são desenhados pelo Phaser; aqui só os textos.
   function desenharTitulo() {
-    cenario(1);
-    ctx.fillStyle = 'rgba(5,6,20,.55)'; ctx.fillRect(0, 0, W, H);
-    const ex = novoLutador('jogador', 200, 1); ex.id = 1;
-    ex.estado = J.tick % 160 < 30 ? 'golpe' : 'parado';
-    if (ex.estado === 'golpe') { ex.golpe = GOLPES.hadouken; ex.gt = J.tick % 160 < 12 ? 5 : 20; }
-    const ch = novoLutador('chefe', 760, -1); ch.id = 7; ch.furia = true;
-    ctx.save(); ctx.translate(-60, 0); desenharLutador(ex); ctx.restore();
-    desenharLutador(ch);
     ctx.save();
     ctx.shadowColor = '#ff5c00'; ctx.shadowBlur = 30;
     txt('PUNHO', W / 2, 110, 92, '#ffd166', 'center', 12);
@@ -1689,15 +1329,36 @@ window.LutaJogo = (function () {
     });
     if (J.tick % 60 < 40) txt('Escolha com o analógico ou as setas (ou 1 / 2) · SOCO ou ENTER começa', W / 2, 352, 15, '#ffd166', 'center');
     const linhas = [
-      '⌨ Setas: mover · ↑ ou ESPAÇO: pular (2x = pulo duplo) · ↓: agachar',
-      'Z soco (3x = combo) · X chute · ↓ + X rasteira · C especial · energia cheia = SUPER · trás defende',
+      '⌨ Setas: mover · ↑ ou ESPAÇO: pular (2x = pulo duplo) · ↓: agachar · trás defende (agachado: golpe baixo)',
+      'Z soco (3x = combo) · X chute · ↓ + X rasteira · → + Z colado = AGARRÃO · C especial · cheia = SUPER',
       'Combos: ↓↘→ + Soco = bola · →↓↘ + Soco = Punho do Dragão · ↓↙← + Chute = Furacão · Soco, Soco, Chute',
       'X1 no teclado: J1 = WASD + Z/X/C/espaço · J2 = setas + K/L/Ç/0 · provocar: Q/E/V e U/I/O',
-      'X1 no celular: os dois leem o mesmo QR (📱) · P: pausa · R: reiniciar · M: som · F: tela cheia',
+      'Quebre caixas e barris: 🍗 = vida, ⚡ = energia · 📱 QR · P: pausa · R: reiniciar · M: som · F: tela cheia',
     ];
     linhas.forEach((l, i) => txt(l, W / 2, 396 + i * 24, 14, '#cbd5e1', 'center'));
     if (J.recorde) txt(`RECORDE ${J.recorde}`, W - 20, 24, 14, '#ffd166', 'right');
     avisoSom(522);
+  }
+
+  // "N GOLPES!": cresce a cada acerto e volta ao tamanho normal.
+  function textoCombo(p, x, y, tam, cor, alinha) {
+    if (p.combo < 2) return;
+    const k = 1 + Math.max(0, p.comboT - 62) * 0.06;
+    ctx.save(); ctx.translate(x, y); ctx.scale(k, k);
+    txt(`${p.combo} GOLPES!`, 0, 0, tam, cor, alinha);
+    ctx.restore();
+  }
+
+  // Aviso do inimigo novo (aparece uma vez por partida).
+  function desenharDica() {
+    const d = J.dica;
+    if (!d || J.aviso) return;
+    ctx.globalAlpha = clamp(Math.min(d.t, 330 - d.t) / 20, 0, 1);
+    ctx.fillStyle = 'rgba(10,8,4,.72)'; ctx.fillRect(W / 2 - 330, 104, 660, 64);
+    ctx.fillStyle = '#e07a1f'; ctx.fillRect(W / 2 - 330, 104, 6, 64);
+    txt(d.txt, W / 2, 124, 22, '#ffb347', 'center');
+    txt(d.sub, W / 2, 152, 16, '#fff', 'center');
+    ctx.globalAlpha = 1;
   }
 
   // O navegador deixa o jogo mudo até alguém clicar NESTE computador.
@@ -1706,23 +1367,39 @@ window.LutaJogo = (function () {
     txt('🔇 Clique na tela do computador para ligar o som', W / 2, y, 15, J.tick % 60 < 40 ? '#ffd166' : '#9aa6ba', 'center');
   }
 
+  // Escurece os cantos da tela (vinheta), feita uma vez e reaproveitada.
+  let vinheta = null;
+  function desenharVinheta() {
+    if (!vinheta) {
+      vinheta = document.createElement('canvas'); vinheta.width = 480; vinheta.height = 270;
+      const v = vinheta.getContext('2d'), g = v.createRadialGradient(240, 135, 90, 240, 135, 290);
+      g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.55)');
+      v.fillStyle = g; v.fillRect(0, 0, 480, 270);
+    }
+    ctx.drawImage(vinheta, 0, 0, W, H);
+  }
+
   function desenhar() {
-    ctx.setTransform(escalaBase, 0, 0, escalaBase, 0, 0);
-    ctx.clearRect(0, 0, W, H);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, hud.width, hud.height);
+    if (!Visual) { // sem Phaser não há mundo para desenhar
+      ctx.setTransform(escala, 0, 0, escala, 0, 0);
+      ctx.fillStyle = '#05060d'; ctx.fillRect(0, 0, W, H);
+      txt('Não deu para carregar o Phaser (o motor gráfico).', W / 2, H / 2 - 20, 26, '#ffd166', 'center');
+      txt('Confira a internet do computador e recarregue a página (F5).', W / 2, H / 2 + 20, 18, '#fff', 'center');
+      return;
+    }
+    ctx.setTransform(escala, 0, 0, escala, 0, 0);
+    desenharVinheta();
     if (J.tela === 'titulo') { desenharTitulo(); return; }
-    ctx.save();
-    if (J.tremor) ctx.translate(rnd(-J.tremor, J.tremor), rnd(-J.tremor, J.tremor));
-    cenario(J.fase);
-    if (J.superT > 0) { ctx.fillStyle = 'rgba(0,0,30,.65)'; ctx.fillRect(-20, -20, W + 40, H + 40); }
-    const ordem = [...J.inis, J.jog].sort((a, b) => (a.controle ? 1 : 0) - (b.controle ? 1 : 0));
-    ordem.forEach(desenharLutador);
-    ordem.forEach(desenharBalao);
-    desenharProjeteis();
-    desenharParticulas();
-    ctx.restore();
+    const v = Visual.vista(); // mesma câmera do Phaser (zoom e tremida)
+    ctx.setTransform(v.zoom, 0, 0, v.zoom, hud.width / 2 - v.cx * v.zoom, hud.height / 2 - v.cy * v.zoom);
+    desenharSobreMundo();
+    ctx.setTransform(escala, 0, 0, escala, 0, 0);
     if (J.raio > 0) { ctx.fillStyle = `rgba(230,230,255,${J.raio * 0.6})`; ctx.fillRect(0, 0, W, H); J.raio = Math.max(0, J.raio - 0.08); }
     if (J.flash > 0) { ctx.fillStyle = `rgba(255,255,255,${J.flash})`; ctx.fillRect(0, 0, W, H); }
     if (J.modo === 'x1') desenharHudX1(); else desenharHud();
+    desenharDica();
     desenharAviso();
     avisoSom(H - 70);
     if (J.tick - J.confirma < 180) {
@@ -1736,7 +1413,7 @@ window.LutaJogo = (function () {
       txt('Aperte P (ou ⏸ no celular) para continuar', W / 2, H / 2 + 30, 20, '#cbd5e1', 'center');
       txt('R (ou ↺ no celular) reinicia o jogo', W / 2, H / 2 + 72, 16, '#9aa6ba', 'center');
       ['COMBINAÇÕES (de frente para o adversário)', '↓ ↘ → + Soco: Bola de Energia (de graça, 1 por vez)', '→ ↓ ↘ + Soco: Punho do Dragão',
-        '↓ ↙ ← + Chute: Furacão (até 3 acertos)', 'Soco, Soco, Chute: Chute Giratório · Soco, Soco, Soco: Gancho']
+        '↓ ↙ ← + Chute: Furacão (até 3 acertos) · → + Soco colado: Agarrão', 'Soco, Soco, Chute: Chute Giratório · Soco, Soco, Soco: Gancho']
         .forEach((l, i) => txt(l, W / 2, H / 2 + 116 + i * 22, i ? 15 : 16, i ? '#e2e8f0' : '#ffd166', 'center'));
     }
     if (J.tela === 'derrota') {
@@ -1855,21 +1532,42 @@ window.LutaJogo = (function () {
   })();
 
   // ---------- Início ----------
+  // O canvas do Phaser e o do placar têm o mesmo tamanho em pixels: o mundo
+  // (960×540) escala para a janela, com até 2 pixels por ponto em tela fina.
   function ajustar() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const esc = Math.min(innerWidth / W, innerHeight / H);
-    cv.style.width = `${Math.floor(W * esc)}px`;
-    cv.style.height = `${Math.floor(H * esc)}px`;
-    cv.width = Math.floor(W * esc * dpr);
-    cv.height = Math.floor(H * esc * dpr);
-    escalaBase = cv.width / W;
+    const cssW = Math.floor(W * esc), cssH = Math.floor(H * esc);
+    hud.style.width = cssW + 'px'; hud.style.height = cssH + 'px';
+    hud.parentElement.style.width = cssW + 'px'; hud.parentElement.style.height = cssH + 'px';
+    hud.width = Math.floor(cssW * dpr); hud.height = Math.floor(cssH * dpr);
+    escala = hud.width / W;
+    if (Visual) Visual.redimensionar(hud.width, hud.height, cssW, cssH);
   }
 
+  // Um quadro da tela: avança a lógica em passos fixos de 1/60 s.
+  let acc = 0;
+  function quadro(dt) {
+    acc += Math.min(100, dt);
+    while (acc >= 1000 / 60) { passo(); acc -= 1000 / 60; }
+  }
+
+  // palco: elemento onde o Phaser cria o canvas dele; placar: canvas 2D por cima.
   // aoConectarCelular(slot): um celular começou a falar; aoPedirCelular():
   // o X1 começou e o jogador 2 ainda não tem celular (a página mostra o QR).
-  function iniciar({ canvas, aoConectarCelular, aoPedirCelular: pedir }) {
+  function iniciar({ palco, placar, aoConectarCelular, aoPedirCelular: pedir }) {
     aoPedirCelular = pedir || null;
-    cv = canvas; ctx = cv.getContext('2d');
+    hud = placar; ctx = hud.getContext('2d');
+    if (window.Phaser && window.LutaVisual) {
+      try {
+        Visual = window.LutaVisual.criar({
+          palco, W, H, CHAO, J, GOLPES, FASES, OBJETOS, noChao, novoLutador,
+          // chamado pelo Phaser a cada quadro: lógica, depois o mundo, depois o placar
+          quadro, aoDesenhar: desenhar,
+        });
+        Fx = Visual.fx;
+      } catch (e) { console.error(e); Visual = null; }
+    }
     ajustar();
     window.addEventListener('resize', ajustar);
     ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => Som.destravar(), true));
@@ -1887,13 +1585,11 @@ window.LutaJogo = (function () {
     document.addEventListener('keyup', e => { Tecla[e.code] = false; });
     window.addEventListener('blur', () => { Object.keys(Tecla).forEach(k => { Tecla[k] = false; }); if (J.tela === 'jogo') J.tela = 'pausa'; });
     const ligou = Rede.ligar(aoConectarCelular);
-    let acc = 0, ult = performance.now();
-    (function loop(agora) {
-      acc += Math.min(100, agora - ult); ult = agora;
-      while (acc >= 1000 / 60) { passo(); acc -= 1000 / 60; }
-      desenhar();
-      requestAnimationFrame(loop);
-    })(ult);
+    // Sem Phaser, a lógica roda sozinha só para mostrar o aviso.
+    if (!Visual) {
+      let ult = performance.now();
+      (function loop(agora) { quadro(agora - ult); ult = agora; desenhar(); requestAnimationFrame(loop); })(ult);
+    }
     return { sala: Rede.sala(), ligou, conectado: Rede.conectado, modo: () => J.modo };
   }
 

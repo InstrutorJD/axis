@@ -5,14 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Punho Lendário</title>
 <!-- Jogo de luta do professor (card "Punho Lendário" na aba Jogos do portal da turma, só pro professor — buildGames() em shared/platform-core.js).
-     O motor fica em luta-jogo.js; o celular vira joystick em joystick.html,
+     O motor (lógica, som, placar) fica em luta-jogo.js e o desenho do mundo
+     em luta-visual.js (Phaser 3, WebGL); o celular vira joystick em joystick.html,
      pareado pelo QR Code deste painel (canal 'luta_<sala>' do Supabase
      Realtime, sem tabela e sem SQL). -->
 <style>
   :root{ --bg:#05060d; --card:#121a28; --ink:#eef2f8; --dim:#9aa6ba; --accent:#4fd1c5; --line:rgba(255,255,255,.14); }
   html, body{ margin:0; height:100%; background:var(--bg); overflow:hidden; }
   body{ display:flex; align-items:center; justify-content:center; font-family:system-ui, -apple-system, 'Segoe UI', sans-serif; color:var(--ink); }
-  canvas{ display:block; image-rendering:auto; box-shadow:0 0 60px rgba(0,0,0,.8); }
+  #palco{ position:relative; box-shadow:0 0 60px rgba(0,0,0,.8); }
+  #palco canvas{ position:absolute; left:0; top:0; display:block; }
+  #hud{ z-index:1; pointer-events:none; }
   [hidden]{ display:none !important; }
   .cel-btn{ position:fixed; top:12px; right:12px; z-index:5; font-size:22px; width:48px; height:48px; border-radius:50%; border:1px solid var(--line); background:rgba(18,26,40,.85); color:var(--ink); cursor:pointer; }
   .cel{ position:fixed; inset:0; z-index:10; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.6); }
@@ -31,10 +34,12 @@
 <script src="../shared/vendor/supabase.js"></script>
 <script src="../shared/session.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+<script src="luta-visual.js"></script>
 <script src="luta-jogo.js"></script>
 </head>
 <body>
-<canvas id="tela" width="960" height="540"></canvas>
+<div id="palco"><canvas id="hud" width="960" height="540"></canvas></div>
 <button type="button" class="cel-btn" id="celBtn" title="Usar o celular como controle">📱</button>
 <div class="cel" id="cel" hidden>
   <div class="cel-card" role="dialog" aria-label="Celular como controle">
@@ -58,7 +63,8 @@
   const painel = document.getElementById('cel');
   const status = document.getElementById('celStatus');
   const jogo = window.LutaJogo.iniciar({
-    canvas: document.getElementById('tela'),
+    palco: document.getElementById('palco'),
+    placar: document.getElementById('hud'),
     aoConectarCelular() {
       if (painel.hidden) return;
       atualizarStatus();
