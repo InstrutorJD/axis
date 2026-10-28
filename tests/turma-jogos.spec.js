@@ -32,7 +32,8 @@ function seedAllModulesComplete(user) {
     'teste_fundamentos_teoria', 'teste_planejamento_teoria', 'teste_execucao_teoria',
     'teste_roteiros_trabalho', 'teste_roteiros_questionario',
     'teste_meu_jogo_teoria', 'teste_meu_jogo_relatorio',
-        'fund_movimento_teoria', 'fund_movimento_pratica'
+        'fund_movimento_teoria', 'fund_movimento_pratica',
+        'fund_movimento_animado_teoria', 'fund_movimento_animado_pratica'
   ];
   teoriaFlag.forEach(k => localStorage.setItem(`${k}_progress_${user}`, JSON.stringify({ completed: true })));
   localStorage.setItem(`cobrinha_construcao_progress_${user}`, JSON.stringify({ completed: true }));

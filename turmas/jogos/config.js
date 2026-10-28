@@ -1005,6 +1005,34 @@ window.TURMA_CONFIG_JOGOS = {
               requires: 'teoria', hasGabarito: true
             }
           ]
+        },
+        {
+          // Fundamentos de Programação de Jogos Digitais. Continua o projeto
+          // de fund-movimento: o aluno desenha no Piskel os quadros do passo
+          // (parado + 2 passos), exporta a folha andando.png (96×32) e, no
+          // PixelCode, anima o andar (load.spritesheet, anims.create, play/
+          // setFrame), vira com setFlipX, aceita WASD e normaliza a diagonal.
+          // Estimativa: teoria ~40 min, prática ~1h30.
+          key: 'fund-movimento-animado',
+          label: 'Movimentação Animada no Phaser',
+          desc: 'Desenhe os quadros do passo no Piskel e faça o personagem mexer as pernas ao andar, virar para o lado, usar W A S D e andar na diagonal sem acelerar.',
+          capacidade: 'Utilizar linguagem de programação para desenvolvimento de jogos digitais 2D',
+          modules: [
+            {
+              key: 'teoria', title: 'Teoria — Movimentação Animada',
+              desc: 'Quadros e FPS, spritesheet, load.spritesheet, anims.create, play/stop/setFrame, setFlipX, WASD com addKeys e velocidade na diagonal (normalize).',
+              icon: '📖', src: 'atividades/fund-movimento-animado-teoria.html', telaCheia: true,
+              progressKey: 'fund_movimento_animado_teoria_progress_', progressMode: 'flag',
+              hasGabarito: true
+            },
+            {
+              key: 'pratica', title: 'Prática — Meu Personagem Animado',
+              desc: 'Desenhe os quadros do passo no Piskel, carregue a folha no PixelCode e anime o andar, com virada, WASD e diagonal corrigida. Visto do professor no fim.',
+              icon: '🚶', src: 'atividades/fund-movimento-animado-pratica.html', telaCheia: true,
+              progressKey: 'fund_movimento_animado_pratica_progress_', progressMode: 'flag',
+              requires: 'teoria', hasGabarito: true
+            }
+          ]
         }
       ]
     },

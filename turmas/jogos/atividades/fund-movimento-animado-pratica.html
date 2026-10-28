@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentos — Meu Personagem Animado</title>
+<!-- Padrão novo de trilhas (docs/padrao-trilhas.md): visual base
+     compartilhado. Roteiro sem correção automática (o jogo roda no PixelCode
+     do aluno): cada tela só navega, e quem marca como concluída é o
+     professor, no visto da última etapa — mesmo formato de
+     cod-phaser-final-pratica.html. Continua o projeto de
+     fund-movimento-pratica.html: o aluno abre o personagem no Piskel, desenha
+     os quadros do passo, exporta a folha (spritesheet) e, no PixelCode,
+     anima o andar em Phaser 3, vira o personagem, aceita WASD e corrige a
+     velocidade na diagonal. -->
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<style>
+  :root{ --green:#c9a6ff; --green-dim:#7a58b3; --yellow:#e0b84a; }
+</style>
+<script>
+  window.ACTIVITY_LOCATION = 'fund_movimento_animado_pratica';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="../../../shared/vendor/supabase.js"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/professor-visto.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Fundamentos — Meu Personagem Animado</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">12</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  const LOC = 'fund_movimento_animado_pratica';
+  const username = new URLSearchParams(window.location.search).get('user') || 'anon';
+  const PROGRESS_KEY = `${LOC}_progress_${username}`;
+  const STEP_KEY = `${LOC}_step_${username}`;
+
+  // Marcações no texto: ¤código¤, **negrito**, blocos de código entre §§§,
+  // "- [ ]" vira checklist clicável (AulaBase.decorar).
+  const STEPS = [
+    {
+      titulo: 'Missão: seu personagem ganha vida',
+      corpo: `
+Na aula passada, o seu personagem passou a andar pelas setas, preso no chão. Mas ele **desliza**: parado ou andando, é sempre o mesmo desenho. Hoje ele ganha **pernas que se mexem**.
+
+### O que entregar no fim da aula
+
+1. A folha de quadros ¤andando.png¤ (3 quadros: parado e dois passos), desenhada no **Piskel**.
+2. O personagem mexendo as pernas **só enquanto anda**, e voltando ao desenho parado ao soltar a tecla.
+3. O personagem **virando** para o lado em que anda.
+4. O movimento pelas **setas** e também por **W A S D**, com a **mesma velocidade** na diagonal.
+
+### Você vai continuar o projeto da aula passada
+
+- No **PixelCode**, os arquivos ¤jogo.html¤, ¤jogo.js¤ e ¤personagem.png¤ precisam estar lá. Abra o ¤jogo.html¤ e clique em **▶ Executar**: o personagem anda e fica preso no chão verde?
+- O ¤New Piskel.png¤ da aula passada, na pasta **Downloads**.
+
+> Perdeu o projeto? Abra a prática **Meu Personagem em Movimento** (trilha anterior): o código completo está no fim da etapa 8. Refaça o ¤jogo.html¤ e o ¤jogo.js¤ e desenhe o personagem de novo no Piskel, 32×32 (aí, pule a etapa 1 desta prática).`
+    },
+    {
+      titulo: '1. Abra o seu personagem no Piskel',
+      corpo: `
+1. Abra ¤piskelapp.com¤ numa aba nova e clique em **Create Sprite**.
+2. Na coluna de botões da direita, clique em **IMPORT** (o ícone de **pasta**, o último de cima para baixo).
+3. Em **IMPORT FROM PICTURE**, clique em **Browse images** e escolha o ¤New Piskel.png¤ da pasta Downloads.
+4. Na janela **Import and Merge**, deixe marcado **Import as single image** e clique no botão **import**.
+5. O navegador pergunta: *This will replace your current animation, are you sure you want to continue?* Clique em **OK**.
+
+O seu desenho aparece no editor, com o mesmo tamanho: **32×32** (confira embaixo, à direita).
+
+> Não achou o ¤New Piskel.png¤? Desenhe o personagem de novo, 32×32, com o fundo sem pintar. De preferência **olhando para a direita** (de lado).
+
+- [ ] O meu personagem está aberto no Piskel, 32×32`
+    },
+    {
+      titulo: '2. Desenhe os quadros do passo',
+      corpo: `
+Uma animação é uma sequência de **quadros**. O seu andar vai ter **3**: um parado e dois passos.
+
+1. Na coluna da esquerda está o quadro **1**. Passe o mouse em cima dele e clique no ícone de **duplicar** (*Duplicate this frame*, os dois quadradinhos).
+2. Passe o mouse de novo e duplique mais uma vez. Agora são **3 quadros iguais**: 1, 2 e 3.
+3. **Quadro 1:** é o personagem **parado**. Não mexa nele.
+4. **Quadro 2:** clique nele e redesenhe as **pernas** com uma perna à frente e a outra atrás. A **borracha** apaga, o **lápis** pinta.
+5. **Quadro 3:** clique nele e faça o contrário: a **outra** perna à frente.
+
+Olhe o quadrado de cima, à direita: ele é a **prévia** e mostra os quadros em sequência, como no jogo.
+
+### Dicas
+
+- Mude **só as pernas** (e os braços, se quiser). Se o corpo mudar de lugar entre os quadros, o personagem "treme".
+- Não pinte o fundo em nenhum quadro.
+- Errou? **Ctrl+Z** desfaz.
+
+- [ ] 3 quadros: parado, passo com uma perna, passo com a outra
+- [ ] Na prévia, as pernas se alternam`
+    },
+    {
+      titulo: '3. Dê o nome e exporte a folha',
+      corpo: `
+O jogo recebe os 3 quadros num **PNG só**, lado a lado: a **folha de quadros** (*spritesheet*).
+
+1. Na coluna da direita, clique em **SAVE** (o ícone de **disquete**, o 3º de cima para baixo).
+2. No campo **Title**, apague o nome, digite ¤andando¤ e aperte **Enter**. O nome no topo do Piskel muda para **andando**. É esse o nome que o arquivo vai ter.
+3. Clique em **EXPORT** (o ícone de **imagem**, o 4º) e depois na aba **PNG**.
+4. Em **Spritesheet layout options**, troque **Columns** para ¤3¤. O **Rows** vira ¤1¤ sozinho: os 3 quadros numa fileira só.
+5. Em **Spritesheet file export**, clique em **Download**.
+
+O arquivo ¤andando.png¤ vai para a pasta **Downloads**. Ele tem **96×32** pixels: 3 quadros de 32 lado a lado.
+
+> Não precisa clicar em **Save in Browser** nem em **Save as .piskel**: o Title já basta para dar o nome ao arquivo.
+
+- [ ] Title trocado para andando
+- [ ] ¤andando.png¤ baixado, com Columns 3 e Rows 1`
+    },
+    {
+      titulo: '4. Leve a folha para o PixelCode',
+      corpo: `
+1. Abra o **PixelCode** (botão **💻 PixelCode** do portal).
+2. No painel **ARQUIVOS**, clique em **⤒** (importar) e escolha o ¤andando.png¤ da pasta Downloads.
+3. Clique em ¤andando.png¤ no painel: o PixelCode mostra os **3 desenhos lado a lado** e o tamanho, **96×32 pixels**.
+
+> Não apague o ¤personagem.png¤: ele pode continuar no projeto, só não vai mais ser usado.
+
+- [ ] ¤andando.png¤ no painel ARQUIVOS, com 96×32 pixels`
+    },
+    {
+      titulo: '5. Carregue a folha de quadros',
+      corpo: `
+Abra o ¤jogo.js¤. No ¤preCarregar()¤, **troque** a linha do ¤this.load.image¤ por esta:
+
+§§§javascript
+function preCarregar() {
+  this.load.spritesheet('heroi', 'andando.png', { frameWidth: 32, frameHeight: 32 });
+}
+§§§
+
+Clique em ¤jogo.html¤ e em **▶ Executar**.
+
+- ¤load.spritesheet¤ recorta a folha em pedaços de **32×32**: o tamanho de **um quadro**.
+- A chave continua ¤'heroi'¤, então o resto do código não muda.
+- O sprite começa no **quadro 0**: o personagem parado.
+
+> Apareceram os **3 bonecos lado a lado**, andando juntos? A linha ainda está com ¤load.image¤: ele não recorta nada.
+
+- [ ] Aparece só o personagem parado (um boneco, não três)
+- [ ] Ele ainda anda pelas setas, sem mexer as pernas`
+    },
+    {
+      titulo: '6. A animação de andar',
+      corpo: `
+**1.** No fim do ¤criar()¤, logo abaixo da linha do ¤teclas = ...¤, crie a animação:
+
+§§§javascript
+  // animação de andar: quadros 1 e 2 da folha, 8 por segundo, sem parar
+  this.anims.create({
+    key: 'andar',
+    frames: this.anims.generateFrameNumbers('heroi', { start: 1, end: 2 }),
+    frameRate: 8,
+    repeat: -1
+  });
+§§§
+
+**2.** No fim do ¤atualizar()¤, **antes** da ¤}¤ que fecha a função, acrescente:
+
+§§§javascript
+  if (heroi.body.velocity.length() > 0) {
+    heroi.anims.play('andar', true);
+  } else {
+    heroi.anims.stop();
+    heroi.setFrame(0);
+  }
+§§§
+
+**3.** Execute, **clique em cima do jogo** e ande pelas setas.
+
+- Os quadros contam do **0**: o 0 é o parado, o 1 e o 2 são os passos.
+- ¤velocity.length()¤ é o tamanho da velocidade: maior que 0, ele está andando.
+- O ¤true¤ do ¤play¤ deixa a animação **continuar** se ela já está tocando. Sem ele, ela recomeça 60 vezes por segundo e as pernas não saem do lugar.
+- Ao parar, ¤setFrame(0)¤ volta para o desenho **parado**.
+
+- [ ] Andando, as pernas se mexem
+- [ ] Soltando a seta, ele fica no desenho parado`
+    },
+    {
+      titulo: '7. Virar para o lado',
+      corpo: `
+Dentro do ¤atualizar()¤, acrescente uma linha em cada lado do bloco do **x**. Ele fica assim:
+
+§§§javascript
+  if (teclas.left.isDown) {
+    heroi.setVelocityX(-VELOCIDADE);
+    heroi.setFlipX(true);
+  } else if (teclas.right.isDown) {
+    heroi.setVelocityX(VELOCIDADE);
+    heroi.setFlipX(false);
+  }
+§§§
+
+Execute e ande para a esquerda e para a direita.
+
+- ¤setFlipX(true)¤ mostra o desenho **espelhado**.
+- Quando ele para, continua olhando para o último lado em que andou.
+- Desenhou o personagem **olhando para a esquerda**? Ele vai andar de costas: troque o ¤true¤ e o ¤false¤ de lugar.
+- Desenhou **de frente**? O espelho quase não aparece. Tudo bem: siga em frente.
+
+- [ ] Andando para a esquerda, ele olha para a esquerda
+- [ ] Andando para a direita, ele olha para a direita`
+    },
+    {
+      titulo: '8. W A S D junto com as setas',
+      corpo: `
+**1.** Lá em cima, abaixo de ¤let teclas;¤, crie a variável das letras:
+
+§§§javascript
+let wasd;
+§§§
+
+**2.** No ¤criar()¤, logo abaixo da linha do ¤teclas = ...¤, pegue as 4 letras:
+
+§§§javascript
+  wasd = this.input.keyboard.addKeys('W,A,S,D');
+§§§
+
+**3.** No ¤atualizar()¤, cada condição passa a aceitar a seta **ou** a letra. Os dois blocos ficam assim:
+
+§§§javascript
+  if (teclas.left.isDown || wasd.A.isDown) {
+    heroi.setVelocityX(-VELOCIDADE);
+    heroi.setFlipX(true);
+  } else if (teclas.right.isDown || wasd.D.isDown) {
+    heroi.setVelocityX(VELOCIDADE);
+    heroi.setFlipX(false);
+  }
+
+  if (teclas.up.isDown || wasd.W.isDown) {
+    heroi.setVelocityY(-VELOCIDADE);
+  } else if (teclas.down.isDown || wasd.S.isDown) {
+    heroi.setVelocityY(VELOCIDADE);
+  }
+§§§
+
+- ¤||¤ quer dizer **OU**: basta uma das duas teclas estar apertada.
+- As letras vão em **maiúsculo**: ¤wasd.A¤, não ¤wasd.a¤.
+
+- [ ] W A S D movem o personagem, e as setas continuam funcionando
+- [ ] Com A e D ele também vira para o lado`
+    },
+    {
+      titulo: '9. Mesma velocidade na diagonal',
+      corpo: `
+Segure **direita + baixo**: o personagem anda 200 em x e 200 em y ao mesmo tempo. Pela diagonal, isso dá cerca de **283** pixels por segundo, 41% mais rápido que em linha reta.
+
+No ¤atualizar()¤, **depois** dos dois blocos ¤if¤ (do x e do y) e **antes** do ¤if¤ da animação, acrescente:
+
+§§§javascript
+  // na diagonal, a mesma velocidade das retas
+  heroi.body.velocity.normalize().scale(VELOCIDADE);
+§§§
+
+- ¤normalize()¤ mantém a **direção** e deixa o tamanho da velocidade em 1.
+- ¤scale(VELOCIDADE)¤ multiplica até 200. Na diagonal, fica cerca de 141 em x e 141 em y.
+- Parado, a velocidade é zero e continua zero.
+
+Execute e compare andar na reta e na diagonal: agora é a mesma velocidade.
+
+### Código completo para conferir
+
+§§§javascript
+const configuracao = {
+  type: Phaser.AUTO,
+  width: 640,
+  height: 360,
+  backgroundColor: '#1d2b3a',
+  pixelArt: true,
+  physics: { default: 'arcade' },
+  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+  scene: { preload: preCarregar, create: criar, update: atualizar }
+};
+
+const VELOCIDADE = 200;
+let heroi;
+let teclas;
+let wasd;
+
+function preCarregar() {
+  this.load.spritesheet('heroi', 'andando.png', { frameWidth: 32, frameHeight: 32 });
+}
+
+function criar() {
+  // chão: a área onde o personagem pode andar
+  this.add.rectangle(320, 280, 640, 160, 0x2e6b3f);
+  this.physics.world.setBounds(0, 200, 640, 160);
+
+  heroi = this.physics.add.sprite(320, 280, 'heroi');
+  heroi.setScale(3);
+  heroi.setCollideWorldBounds(true);
+  teclas = this.input.keyboard.createCursorKeys();
+  wasd = this.input.keyboard.addKeys('W,A,S,D');
+
+  // animação de andar: quadros 1 e 2 da folha, 8 por segundo, sem parar
+  this.anims.create({
+    key: 'andar',
+    frames: this.anims.generateFrameNumbers('heroi', { start: 1, end: 2 }),
+    frameRate: 8,
+    repeat: -1
+  });
+}
+
+function atualizar() {
+  heroi.setVelocity(0);
+
+  if (teclas.left.isDown || wasd.A.isDown) {
+    heroi.setVelocityX(-VELOCIDADE);
+    heroi.setFlipX(true);
+  } else if (teclas.right.isDown || wasd.D.isDown) {
+    heroi.setVelocityX(VELOCIDADE);
+    heroi.setFlipX(false);
+  }
+
+  if (teclas.up.isDown || wasd.W.isDown) {
+    heroi.setVelocityY(-VELOCIDADE);
+  } else if (teclas.down.isDown || wasd.S.isDown) {
+    heroi.setVelocityY(VELOCIDADE);
+  }
+
+  // na diagonal, a mesma velocidade das retas
+  heroi.body.velocity.normalize().scale(VELOCIDADE);
+
+  if (heroi.body.velocity.length() > 0) {
+    heroi.anims.play('andar', true);
+  } else {
+    heroi.anims.stop();
+    heroi.setFrame(0);
+  }
+}
+
+new Phaser.Game(configuracao);
+§§§
+
+- [ ] Na diagonal, ele anda na mesma velocidade que na reta
+- [ ] Continua preso no chão, sem erro no Console`
+    },
+    {
+      titulo: '10. Desafios extras (se der tempo)',
+      corpo: `
+Faça quantos conseguir. Teste cada um antes de ir para o próximo.
+
+**A. Correr com Shift.** As setas do ¤createCursorKeys¤ já trazem o **Shift** (¤teclas.shift¤). Troque a linha do ¤normalize¤ por estas duas:
+
+§§§javascript
+  heroi.body.velocity.normalize().scale(teclas.shift.isDown ? VELOCIDADE * 2 : VELOCIDADE);
+  heroi.anims.timeScale = teclas.shift.isDown ? 2 : 1;
+§§§
+
+O ¤? :¤ escolhe entre dois valores: **se** o Shift está apertado, o primeiro; **senão**, o segundo. O ¤timeScale¤ 2 faz as pernas mexerem **duas vezes mais rápido** junto.
+
+**B. Ritmo do passo.** Mude o ¤frameRate¤ para ¤4¤ e depois para ¤14¤. Qual combina com a velocidade do seu personagem?
+
+**C. Um passo a mais.** No Piskel, duplique o quadro **3**: a cópia aparece no fim, como quadro 4. Mude as pernas dela para **juntas**, no meio do passo. Exporte com **Columns** ¤4¤ e importe de novo no PixelCode (ele pergunta se quer substituir: **OK**). No código, troque o ¤end: 2¤ por ¤end: 3¤.
+
+### Guia de conserto
+
+| Sintoma | O que conferir |
+|---|---|
+| Três bonecos lado a lado | ¤this.load.spritesheet¤ no lugar de ¤this.load.image¤ |
+| Quadrado com um risco no lugar do desenho | O nome ¤andando.png¤ igual no painel e no ¤load.spritesheet¤ |
+| O PixelCode recusou ¤andando-(1).png¤ | O arquivo foi baixado duas vezes. No Piskel, troque o Title para ¤andando2¤ e exporte de novo; no código, use ¤'andando2.png'¤ |
+| Desliza com a perna sempre à frente | O ¤true¤ em ¤heroi.anims.play('andar', true)¤ |
+| Para de perna aberta | ¤heroi.setFrame(0);¤ depois do ¤heroi.anims.stop();¤ |
+| Anda de costas | Trocar o ¤true¤ e o ¤false¤ do ¤setFlipX¤ |
+| ¤Cannot read properties of undefined (reading 'isDown')¤ | Letra em maiúsculo (¤wasd.A¤) e ¤wasd = this.input.keyboard.addKeys('W,A,S,D');¤ no ¤criar()¤ |
+| ¤Unexpected token '}'¤ no Console | Sobrou uma ¤}¤: apague a ¤}¤ a mais no fim do bloco |
+
+- [ ] Fiz pelo menos um desafio extra`
+    },
+  ];
+
+  function loadProgress() {
+    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || 'null'); } catch (e) { return null; }
+  }
+  function saveProgress(data) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(data)); }
+  function loadStepIndex() {
+    try {
+      const n = parseInt(localStorage.getItem(STEP_KEY), 10);
+      return Number.isInteger(n) && n >= 0 && n <= STEPS.length ? n : 0;
+    } catch (e) { return 0; }
+  }
+  function saveStepIndex(i) { try { localStorage.setItem(STEP_KEY, String(i)); } catch (e) {} }
+
+  const savedProgress = loadProgress();
+  let currentIndex = (savedProgress && savedProgress.completed) ? STEPS.length : loadStepIndex();
+
+  const stepWrap = document.getElementById('stepWrap');
+  const lblStepNum = document.getElementById('lblStepNum');
+  const progressFill = document.getElementById('progressFill');
+  document.getElementById('lblStepTotal').textContent = STEPS.length + 1;
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function inline(s) {
+    let t = escapeHtml(s);
+    t = t.replace(/¤([^¤]+)¤/g, '<code>$1</code>');
+    t = t.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    return t;
+  }
+
+  // Mesmo parser markdown-enxuto de cod-phaser-final-pratica.html.
+  function mdToHtml(md) {
+    const lines = md.replace(/\r\n/g, '\n').split('\n');
+    let html = '';
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i].trim();
+      if (line === '') { i++; continue; }
+
+      if (line.startsWith('§§§')) {
+        i++;
+        const codeLines = [];
+        while (i < lines.length && lines[i].trim() !== '§§§') { codeLines.push(lines[i]); i++; }
+        i++;
+        html += `<pre><code>${escapeHtml(codeLines.join('\n'))}</code></pre>`;
+        continue;
+      }
+
+      const hm = line.match(/^(#{1,6})\s+(.*)$/);
+      if (hm) {
+        const level = Math.min(hm[1].length + 2, 6);
+        html += `<h${level}>${inline(hm[2])}</h${level}>`;
+        i++; continue;
+      }
+
+      if (line.startsWith('|') && lines[i + 1] && /^\s*\|[\s:-]+\|/.test(lines[i + 1])) {
+        const headerCells = line.slice(1, -1).split('|').map(s => s.trim());
+        i += 2;
+        const rows = [];
+        while (i < lines.length && lines[i].trim().startsWith('|')) {
+          rows.push(lines[i].trim().slice(1, -1).split('|').map(s => s.trim()));
+          i++;
+        }
+        html += '<div class="md-table-wrap"><table class="md-table"><thead><tr>'
+          + headerCells.map(c => `<th>${inline(c)}</th>`).join('') + '</tr></thead><tbody>'
+          + rows.map(r => '<tr>' + r.map(c => `<td>${inline(c)}</td>`).join('') + '</tr>').join('')
+          + '</tbody></table></div>';
+        continue;
+      }
+
+      if (/^\d+\.\s+/.test(line)) {
+        const items = [];
+        // Lista que continua depois de um bloco de código começa no número escrito.
+        const inicio = parseInt(line, 10);
+        while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) { items.push(lines[i].trim().replace(/^\d+\.\s+/, '')); i++; }
+        html += `<ol class="md-list"${inicio > 1 ? ` start="${inicio}"` : ''}>` + items.map(it => `<li>${inline(it)}</li>`).join('') + '</ol>';
+        continue;
+      }
+
+      if (/^-\s+/.test(line)) {
+        const items = [];
+        while (i < lines.length && /^-\s+/.test(lines[i].trim())) { items.push(lines[i].trim()); i++; }
+        html += '<ul class="md-list">' + items.map(it => {
+          const cbm = it.match(/^-\s+\[( |x)\]\s*(.*)$/i);
+          if (cbm) return `<li class="md-check">${inline(cbm[2])}</li>`;
+          return `<li>${inline(it.replace(/^-\s+/, ''))}</li>`;
+        }).join('') + '</ul>';
+        continue;
+      }
+
+      if (line.startsWith('>')) {
+        const q = [];
+        while (i < lines.length && lines[i].trim().startsWith('>')) { q.push(lines[i].trim().replace(/^>\s?/, '')); i++; }
+        html += `<blockquote>${inline(q.join(' '))}</blockquote>`;
+        continue;
+      }
+
+      const para = [];
+      while (i < lines.length && lines[i].trim() !== '' && !/^(§§§|#|\||-|\d+\.|>)/.test(lines[i].trim())) {
+        para.push(lines[i].trim());
+        i++;
+      }
+      html += `<p>${inline(para.join(' '))}</p>`;
+    }
+    return html;
+  }
+
+  function reportStep(label) {
+    if (typeof window.reportActivity === 'function') {
+      window.reportActivity(LOC, label, { step: currentIndex + 1, total: STEPS.length + 1 });
+    }
+  }
+
+  function renderNav(showBack, showNext) {
+    return `
+      <div class="ab-nav">
+        ${showBack ? '<button class="btn btn-secondary" id="btnBack">← Voltar</button>' : '<span></span>'}
+        <span class="ab-nav-dica">use ← → do teclado</span>
+        ${showNext ? '<button class="btn" id="btnNext">Próximo →</button>' : '<span></span>'}
+      </div>`;
+  }
+
+  let direcao = 1;
+  function irPara(i) {
+    direcao = i < currentIndex ? -1 : 1;
+    currentIndex = Math.max(0, Math.min(i, STEPS.length));
+    renderStep();
+  }
+  function mostrarEtapa() {
+    document.getElementById('palco').scrollTop = 0;
+    window.AulaBase.transicao(stepWrap.querySelector('.ab-cartao'), direcao);
+  }
+  window.AulaBase.teclado({
+    proximo: () => { const b = document.getElementById('btnNext'); if (b) b.click(); },
+    anterior: () => { const b = document.getElementById('btnBack'); if (b) b.click(); },
+  });
+
+  function renderStep() {
+    if (currentIndex >= STEPS.length) { renderVisto(); return; }
+    saveStepIndex(currentIndex);
+    progressFill.style.width = Math.min(Math.round((currentIndex / STEPS.length) * 100), 100) + '%';
+    lblStepNum.textContent = currentIndex + 1;
+
+    const step = STEPS[currentIndex];
+    reportStep(`Personagem animado — ${step.titulo}`);
+    stepWrap.innerHTML = `
+      <article class="ab-cartao">
+        <div class="ab-cartao-etapa">Etapa ${currentIndex + 1} de ${STEPS.length + 1}</div>
+        <h2>${escapeHtml(step.titulo)}</h2>
+        <div class="ab-conteudo">${mdToHtml(step.corpo)}</div>
+      </article>
+      ${renderNav(currentIndex > 0, true)}
+    `;
+    window.AulaBase.decorar(stepWrap, { chaveChecklist: `${LOC}_check_${username}_${currentIndex}` });
+    mostrarEtapa();
+    const btnBack = document.getElementById('btnBack');
+    if (btnBack) btnBack.addEventListener('click', () => irPara(currentIndex - 1));
+    document.getElementById('btnNext').addEventListener('click', () => irPara(currentIndex + 1));
+  }
+
+  function renderVisto() {
+    progressFill.style.width = '100%';
+    lblStepNum.textContent = STEPS.length + 1;
+    reportStep('Personagem animado — Visto do professor');
+
+    const already = loadProgress();
+    if (already && already.completed) {
+      const quando = already.vistoEm ? new Date(already.vistoEm).toLocaleString('pt-BR') : '';
+      stepWrap.innerHTML = `
+        <div class="ab-cartao ab-concluida">
+          <h2>✅ Personagem animado concluído</h2>
+          <p>Visto dado por <b>${escapeHtml(already.vistoPor || '')}</b>${quando ? ' em ' + escapeHtml(quando) : ''}.</p>
+        </div>
+        ${renderNav(true, false)}
+      `;
+      mostrarEtapa();
+      document.getElementById('btnBack').addEventListener('click', () => irPara(STEPS.length - 1));
+      return;
+    }
+
+    stepWrap.innerHTML = `
+      <div class="ab-cartao">
+        <div class="ab-cartao-etapa">Etapa ${STEPS.length + 1} de ${STEPS.length + 1}</div>
+        <h2>🧑‍🏫 Etapa final — Visto do professor</h2>
+        <div class="ab-conteudo">
+          <p>O personagem mexe as pernas <b>só enquanto anda</b>, volta ao desenho parado ao soltar, <b>vira</b> para o lado em que anda e responde às setas e a <b>W A S D</b>, com a mesma velocidade na diagonal?</p>
+          <p>Chame o professor e mostre o jogo rodando no PixelCode: a folha <code>andando.png</code> no painel (96×32), o andar animado, o personagem virando e a diagonal. Se fez desafios extras, mostre também. Quando ele confirmar, peça o token de professor e digite abaixo.</p>
+        </div>
+        <div class="ab-form">
+          <label>Token do professor
+            <input type="text" id="vistoToken" inputmode="numeric" maxlength="6" autocomplete="off">
+          </label>
+          <button class="btn" id="btnDarVisto">Dar visto</button>
+          <div class="ab-msg" id="vistoMsg" style="display:none;"></div>
+        </div>
+      </div>
+      ${renderNav(true, false)}
+    `;
+    mostrarEtapa();
+    document.getElementById('btnBack').addEventListener('click', () => irPara(STEPS.length - 1));
+
+    const btnDarVisto = document.getElementById('btnDarVisto');
+    const vistoMsg = document.getElementById('vistoMsg');
+    btnDarVisto.addEventListener('click', async () => {
+      const t = document.getElementById('vistoToken').value;
+      vistoMsg.style.display = 'none';
+      if (!t) {
+        vistoMsg.className = 'ab-msg erro';
+        vistoMsg.textContent = 'Informe o token do professor.';
+        vistoMsg.style.display = 'block';
+        return;
+      }
+      btnDarVisto.disabled = true;
+      btnDarVisto.textContent = 'Verificando...';
+      try {
+        const result = window.PortalProfessorVisto
+          ? await window.PortalProfessorVisto.verificarToken(t)
+          : { ok: false, erro: 'Verificação indisponível nesta tela.' };
+        if (!result.ok) {
+          vistoMsg.className = 'ab-msg erro';
+          vistoMsg.textContent = result.erro;
+          vistoMsg.style.display = 'block';
+          btnDarVisto.disabled = false;
+          btnDarVisto.textContent = 'Dar visto';
+          return;
+        }
+        saveProgress({ completed: true, vistoPor: result.nome, vistoEm: new Date().toISOString() });
+        renderVisto();
+      } catch (e) {
+        vistoMsg.className = 'ab-msg erro';
+        vistoMsg.textContent = 'Erro inesperado ao verificar. Tente de novo.';
+        vistoMsg.style.display = 'block';
+        btnDarVisto.disabled = false;
+        btnDarVisto.textContent = 'Dar visto';
+      }
+    });
+  }
+
+  // Gabarito = checklist pra o professor conferir o projeto na tela do aluno.
+  window.generateGabaritoForGestao = function () {
+    return window.PortalGabarito.generate({
+      title: 'Fundamentos — Meu Personagem Animado — Checklist de correção',
+      subtitle: 'Roteiro prático (spritesheet no Piskel + animação em Phaser no PixelCode, verificado presencialmente) · Fundamentos de Programação de Jogos · Turma Jogos Digitais',
+      items: [
+        { number: 1, title: 'Folha de quadros', prompt: 'andando.png está no PixelCode com 96×32 pixels: 3 quadros de 32×32 (parado, passo A, passo B), desenhados pelo aluno, com fundo transparente?', answer: 'No Piskel: 3 quadros (duplicar o quadro 1), Title "andando", EXPORT > PNG com Columns 3 e Rows 1. No PixelCode, clicar em andando.png mostra os 3 desenhos e "96×32 pixels".' },
+        { number: 2, title: 'Spritesheet no jogo', prompt: 'O jogo mostra um personagem só (não os 3 lado a lado), parado no quadro 0?', answer: "preCarregar(): this.load.spritesheet('heroi', 'andando.png', { frameWidth: 32, frameHeight: 32 })." },
+        { number: 3, title: 'Animação de andar', prompt: 'As pernas se mexem só enquanto ele anda e, ao soltar, ele volta ao desenho parado?', answer: "criar(): this.anims.create({ key: 'andar', frames: this.anims.generateFrameNumbers('heroi', { start: 1, end: 2 }), frameRate: 8, repeat: -1 }). atualizar(): if (heroi.body.velocity.length() > 0) heroi.anims.play('andar', true); senão, heroi.anims.stop() e heroi.setFrame(0)." },
+        { number: 4, title: 'Virar, WASD e diagonal', prompt: 'Ele vira para o lado em que anda, anda com W A S D e com as setas, e na diagonal não fica mais rápido?', answer: "setFlipX(true) na esquerda e setFlipX(false) na direita; wasd = this.input.keyboard.addKeys('W,A,S,D') e condições com || (teclas.left.isDown || wasd.A.isDown); heroi.body.velocity.normalize().scale(VELOCIDADE) depois dos if do x e do y." },
+      ],
+      fileName: 'fund-movimento-animado-pratica-checklist.txt',
+    });
+  };
+
+  renderStep();
+</script>
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>
