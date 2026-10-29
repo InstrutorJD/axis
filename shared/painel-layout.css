@@ -4,9 +4,14 @@
    cartões menores. Usa os tokens --pr-* de shared/professor.css. */
 
 /* A área ocupa a tela toda (o resto do painel continua centralizado). */
-.pr-main.pr-main-livre{ max-width:none; padding:24px 32px 48px; }
+.pr-main.pr-main-livre{ max-width:none; padding:24px 32px; }
 
-.pr-painel{ position:relative; }
+/* Sem rolagem: o JS encolhe a grade inteira (transform: scale) até caber
+   na altura da janela, e a seção guarda a altura que se vê. Só se ficar
+   pequeno demais (classe pr-painel-cabe sai) a página volta a rolar. */
+html.pr-painel-cabe, html.pr-painel-cabe body{ overflow:hidden; }
+.pr-main-livre > .pr-secao{ position:relative; }
+.pr-painel{ position:relative; transform-origin:0 0; }
 .pr-painel.pr-painel-livre > .pr-bloco{ position:absolute; }
 .pr-painel-pronto > .pr-bloco{
   transition:left .22s cubic-bezier(.2,.8,.2,1), top .22s cubic-bezier(.2,.8,.2,1), width .22s cubic-bezier(.2,.8,.2,1), height .22s cubic-bezier(.2,.8,.2,1);
@@ -18,6 +23,15 @@
 .pr-painel .pr-card, .pr-painel .pr-card.pr-card-ferramenta{ min-height:136px; }
 /* Relógio como cartão: sem a margem de baixo que ele tinha sozinho. */
 .pr-bloco[data-bloco="relogio"] .pr-hero{ margin:0; padding:8px 0 4px; display:flex; flex-direction:column; justify-content:center; }
+
+/* Tela baixa (notebook, 768 px ou menos de altura): cartões e relógio
+   mais compactos, pra o painel precisar encolher menos pra caber. */
+@media (max-height:900px){
+  .pr-painel .pr-card, .pr-painel .pr-card.pr-card-ferramenta{ min-height:100px; padding:14px 12px; gap:10px; }
+  .pr-painel .pr-hero .pr-relogio{ font-size:84px; }
+  .pr-painel .pr-hero .pr-saudacao{ margin-top:6px; }
+  .pr-painel .pr-hero .pr-frase{ margin-top:12px; min-height:0; }
+}
 
 /* Celular: cartões compactos, dois por linha. */
 .pr-modo-celular .pr-card, .pr-modo-celular .pr-card.pr-card-ferramenta{ min-height:116px; padding:14px 8px; gap:8px; border-radius:14px; }
@@ -138,7 +152,7 @@ body.pr-esticando-cartao, body.pr-esticando-cartao *{ cursor:nwse-resize !import
 .pr-pb-aviso{ flex-basis:100%; text-align:center; font-size:12px; color:var(--pr-warn); }
 
 @media (max-width:600px){
-  .pr-main.pr-main-livre{ padding:20px 16px 40px; }
+  .pr-main.pr-main-livre{ padding:16px; }
   .pr-pb-texto, .pr-pb-restaurar span{ display:none; }
   .pr-personalizar-barra{ padding:8px; }
 }

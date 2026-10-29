@@ -64,14 +64,6 @@ html[data-theme="light"] body{
    a aba Gestão) fica simplesmente inacessível abaixo da dobra. */
 #app{ display:flex; flex-direction:column; height:100%; }
 
-/* Emojis de tecnologia caindo no fundo, bem transparentes — a mesma chuva
-   das telas do professor (shared/professor-fx.js cria os elementos e faz a
-   queda). z-index -1: fica atrás de todo o conteúdo e por cima só do fundo
-   do body, sem mexer no empilhamento de modais/telas por cima. */
-.pr-chuva{ position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
-.pr-chuva span{ position:absolute; top:-10vh; filter:grayscale(.2); }
-@media (prefers-reduced-motion: reduce){ .pr-chuva{ display:none; } }
-
 .a11y-bar{
   display:flex; align-items:center; justify-content:space-between; gap:8px;
   padding:4px 14px; border-bottom:1px solid var(--line); background:var(--panel2); flex-wrap:wrap;

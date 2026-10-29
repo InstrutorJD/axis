@@ -49,12 +49,20 @@ window.PainelLayout = (function () {
   let barra = null;
   let soLocal = false;
   let arrastando = null;
+  // Painel sem rolagem: tudo encolhe por igual até caber na altura da
+  // janela (1 = tamanho normal; nunca aumenta). Abaixo de ESCALA_MIN fica
+  // pequeno demais pra ler, então para ali e a página volta a rolar.
+  let escala = 1;
+  const ESCALA_MIN = 0.4;
   const natural = new Map(); // id -> altura do conteúdo, em linhas
 
   const blocos = () => Array.from(grade.querySelectorAll(':scope > .pr-bloco'));
   const porId = id => grade.querySelector(`:scope > .pr-bloco[data-bloco="${id}"]`);
   const ids = () => blocos().map(b => b.dataset.bloco);
-  const modo = () => (grade.clientWidth >= TELA_LARGA ? 'itens' : 'celular');
+  // Largura que se vê (a da seção em volta). A grade é arrumada mais larga
+  // (largura / escala) e encolhida com transform pra caber na tela.
+  const larguraVisivel = () => grade.parentElement.clientWidth;
+  const modo = () => (larguraVisivel() >= TELA_LARGA ? 'itens' : 'celular');
   const COLUNAS_DE = m => MODOS[m].colunas;
   const cols = () => COLUNAS_DE(modo());
   const gap = () => MODOS[modo()].gap;
@@ -66,7 +74,7 @@ window.PainelLayout = (function () {
     return limitar(v, 1, COLUNAS_DE(m));
   };
   const conteudo = b => b.querySelector(':scope > :not(.pr-bloco-barra):not(.pr-bloco-redim)');
-  const larguraColuna = () => (grade.clientWidth + gap()) / cols();
+  const larguraColuna = () => (larguraVisivel() / escala + gap()) / cols();
   const altura = id => Math.max(L()[id].h || 0, natural.get(id) || 1);
   const visiveis = () => ids().filter(id => !L()[id].oculto);
 
@@ -165,9 +173,51 @@ window.PainelLayout = (function () {
     return mudou;
   }
 
-  // Desenha tudo. `prioridade`: quem não pode sair do lugar ao resolver.
-  // `pular`: cartão que está grudado no mouse (não reposiciona).
+  // Altura da janela que sobra pro painel (abaixo da barra do topo, menos o
+  // respiro de baixo do <main>).
+  function alturaDisponivel() {
+    const secao = grade.parentElement;
+    const topo = secao.getBoundingClientRect().top + window.scrollY;
+    const main = secao.closest('.pr-main');
+    const baixo = main ? parseFloat(getComputedStyle(main).paddingBottom) || 0 : 0;
+    return Math.max(160, window.innerHeight - topo - baixo - 1);
+  }
+
+  // Desenha tudo e encolhe pra caber na tela. `prioridade`: quem não pode
+  // sair do lugar ao resolver. `pular`: cartão que está grudado no mouse (não
+  // reposiciona). Arrastando, a escala fica parada (senão tudo treme); ao
+  // soltar, ela é recalculada.
   function render(prioridade, pular) {
+    // Personalizando, sobra espaço embaixo pra soltar cartão lá.
+    const folga = editando ? 160 : 0;
+    let fundo = desenhar(prioridade, pular);
+    if (!arrastando) {
+      const disp = alturaDisponivel();
+      // A largura muda com a escala e a altura dos cartões muda com a
+      // largura (o calendário da Agenda cresce quando fica mais largo):
+      // algumas voltas até acertar.
+      for (let i = 0; i < 10; i++) {
+        const nova = limitar(disp / (fundo + folga), ESCALA_MIN, 1);
+        // Só cresce de novo se for pra valer: a frase troca a cada 15 s e
+        // mexe um pouco na altura, e o painel não deve ficar "respirando".
+        if (nova > escala - 0.002 && nova - escala < 0.03) break;
+        // Encolhendo, vai um pouquinho além, pra não ficar correndo atrás
+        // da Agenda que cresce junto.
+        escala = nova < escala ? Math.max(ESCALA_MIN, nova * 0.99) : nova;
+        fundo = desenhar(prioridade, pular);
+      }
+    }
+    const total = fundo + folga;
+    grade.style.width = `${larguraVisivel() / escala}px`;
+    grade.style.height = `${total}px`;
+    grade.style.transform = escala < 1 ? `scale(${escala})` : '';
+    // O transform não muda o espaço ocupado: quem guarda a altura que se vê é a seção.
+    grade.parentElement.style.height = `${Math.ceil(total * escala)}px`;
+    document.documentElement.classList.toggle('pr-painel-cabe', escala > ESCALA_MIN);
+    if (barra) renderBarra();
+  }
+
+  function desenhar(prioridade, pular) {
     const itens = L();
     const G = gap();
     blocos().forEach(b => { b.hidden = !!itens[b.dataset.bloco].oculto; });
@@ -193,9 +243,7 @@ window.PainelLayout = (function () {
       b.style.top = `${itens[id].y * LINHA}px`;
       b.style.height = `${h * LINHA - G}px`;
     });
-    // Personalizando, sobra espaço embaixo pra soltar cartão lá.
-    grade.style.height = `${fundo + (editando || arrastando ? 240 : 0)}px`;
-    if (barra) renderBarra();
+    return fundo;
   }
 
   // ---------- Salvar ----------
@@ -352,7 +400,9 @@ window.PainelLayout = (function () {
     const r = b.getBoundingClientRect();
     const d = {
       b, id, redim, base: copiar(layout), modo: modo(), x0: e.clientX, y0: e.clientY,
-      dx: e.clientX - r.left, dy: e.clientY - r.top, ativo: false, vaga: null, ultimoMov: e, chave: '',
+      // Medidas do mouse ficam no tamanho da tela; as da grade, no tamanho
+      // antes de encolher — daí as divisões por `escala`.
+      dx: (e.clientX - r.left) / escala, dy: (e.clientY - r.top) / escala, ativo: false, vaga: null, ultimoMov: e, chave: '',
     };
 
     const mover = m => {
@@ -376,12 +426,12 @@ window.PainelLayout = (function () {
       let x, y, w, h;
       if (d.redim) {
         x = it0.x; y = it0.y;
-        w = limitar(Math.round((m.clientX - g.left - x * cw + gap()) / cw), larguraMin(id), cols() - x);
-        h = Math.max(1, Math.round((m.clientY - g.top - y * LINHA + gap()) / LINHA));
+        w = limitar(Math.round(((m.clientX - g.left) / escala - x * cw + gap()) / cw), larguraMin(id), cols() - x);
+        h = Math.max(1, Math.round(((m.clientY - g.top) / escala - y * LINHA + gap()) / LINHA));
       } else {
         w = it0.w; h = it0.h;
-        const px = m.clientX - g.left - d.dx;
-        const py = m.clientY - g.top - d.dy;
+        const px = (m.clientX - g.left) / escala - d.dx;
+        const py = (m.clientY - g.top) / escala - d.dy;
         x = limitar(Math.round(px / cw), 0, cols() - w);
         y = Math.max(0, Math.round(py / LINHA));
         // O cartão acompanha o mouse livremente; a vaga mostra onde encaixa.
@@ -500,16 +550,20 @@ window.PainelLayout = (function () {
     // ou a janela muda de largura: redesenha. O relógio muda o texto a todo
     // segundo, então só redesenha se alguma altura mudou de verdade.
     let pendente = null;
-    let larguraAntes = grade.clientWidth;
+    // Altura da janela também conta: é ela que decide o quanto o painel encolhe.
+    let telaAntes = '';
     const conferir = () => {
       if (arrastando) return;
       cancelAnimationFrame(pendente);
       pendente = requestAnimationFrame(() => {
-        const largura = grade.clientWidth;
-        if (largura !== larguraAntes || medir()) { larguraAntes = largura; render(); }
+        const tela = `${larguraVisivel()}x${Math.round(alturaDisponivel())}`;
+        if (tela !== telaAntes || medir()) { telaAntes = tela; render(); }
       });
     };
     window.addEventListener('resize', conferir);
+    // A barra do topo muda de altura depois de abrir (logo do Axis, música,
+    // fonte): o painel desce e precisa encolher de novo.
+    if (window.ResizeObserver) new ResizeObserver(conferir).observe(document.body);
     new MutationObserver(conferir).observe(grade, { childList: true, subtree: true, characterData: true });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => render());
     carregarNuvem();

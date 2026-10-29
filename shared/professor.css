@@ -200,15 +200,9 @@ html{ cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg
 }
 
 
-/* Emojis de tecnologia caindo no fundo, bem transparentes
-   (shared/professor-fx.js cria os elementos e faz a queda, quadro a
-   quadro). Ficam atrás do conteúdo e não recebem clique. */
-.pr-chuva{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
-.pr-chuva span{ position:absolute; top:-10vh; filter:grayscale(.2); }
 .pr-main{ position:relative; z-index:1; }
 
 @media (prefers-reduced-motion: reduce){
-  .pr-chuva{ display:none; }
   .pr-card, .pr-card-icone{ transition:none; }
   .pr-card{ transform:none; }
   .axis-logo{ transition:none; transform:none !important; }
