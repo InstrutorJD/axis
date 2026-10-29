@@ -42,9 +42,7 @@ html.pr-painel-cabe, html.pr-painel-cabe body{ overflow:hidden; }
 .pr-modo-celular .pr-hero .pr-frase{ margin-top:14px; min-height:0; }
 
 /* ---------- Botão do topo ---------- */
-.pr-btn-personalizar svg{ width:16px; height:16px; }
 .pr-btn-personalizar[aria-pressed="true"]{ background:var(--pr-accent-soft); color:var(--pr-accent); }
-@media (max-width:600px){ .pr-btn-personalizar span{ display:none; } }
 
 /* ---------- Arrastando (com ou sem Personalizar) ---------- */
 .pr-bloco.pr-bloco-solto{
