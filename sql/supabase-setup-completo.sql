@@ -2017,6 +2017,9 @@ alter table public.user_preferences add column if not exists click_sound boolean
 -- Arrumação do painel do professor (ordem, largura e ocultos dos cartões),
 -- shared/painel-layout.js — ver sql/painel-layout.sql.
 alter table public.user_preferences add column if not exists painel_layout jsonb;
+-- Aulas excluídas da lista do Criar Material (o .md continua em materiais/),
+-- professor/materiais.html — ver sql/materiais-ocultos.sql.
+alter table public.user_preferences add column if not exists materiais_ocultos jsonb;
 
 alter table public.user_preferences enable row level security;
 

@@ -1,0 +1,13 @@
+-- Criar Material (professor/materiais.html): aulas que o professor excluiu
+-- da lista (botão da lixeira no card). O .md continua em materiais/; só
+-- some da tela, e volta pela seção "Excluídas". Guarda na linha do
+-- professor em user_preferences, pra valer em qualquer computador. Rode UMA
+-- vez no SQL Editor do Supabase — é seguro rodar de novo (idempotente). É o
+-- mesmo trecho que está em sql/supabase-setup-completo.sql, logo depois de
+-- user_preferences.
+--
+-- Formato: { "aula-03-tela-checklist.md": "2026-10-29T15:02:00.000Z", ... }
+-- (nome do arquivo → quando foi excluída).
+-- As policies de user_preferences já valem (cada um só lê/grava a própria
+-- linha). Sem esta coluna, a exclusão fica salva só no navegador.
+alter table public.user_preferences add column if not exists materiais_ocultos jsonb;

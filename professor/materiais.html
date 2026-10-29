@@ -19,6 +19,10 @@
      um card com número e data (cabeçalho do .md, ver SlidesMD.lerMeta) e só
      fica "Concluída" quando o professor clica em "Finalizar aula" no último
      slide (guardado neste navegador — localStorage 'sm_aulas_concluidas').
+     A lixeira do card exclui a aula da lista (o .md continua em materiais/):
+     some da tela, com "Desfazer" e a seção "Excluídas" pra restaurar —
+     guardado na conta (user_preferences.materiais_ocultos,
+     sql/materiais-ocultos.sql) e no localStorage 'sm_aulas_ocultas'.
      Motor em shared/slides-md.js; formato em materiais/instrucoes-para-ia.md. -->
 <link rel="stylesheet" href="../shared/professor.css">
 <style>
@@ -74,6 +78,38 @@
   }
   .mat-desfazer{ font:inherit; font-size:12px; cursor:pointer; background:transparent; border:none; color:var(--pr-text-3); text-decoration:underline; padding:0; }
   .mat-desfazer:hover{ color:var(--pr-danger); }
+  .mat-acao{ display:flex; align-items:center; gap:10px; }
+
+  /* ---------- Excluir aula (lixeira no card, "Desfazer" e "Excluídas") ---------- */
+  .mat-excluir{
+    display:grid; place-items:center; width:30px; height:30px; padding:0; margin:-6px -6px -6px 0;
+    border:0; border-radius:8px; background:transparent; color:var(--pr-text-3); cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  .mat-excluir svg{ width:16px; height:16px; }
+  .mat-excluir:hover, .mat-excluir:focus-visible{ background:var(--pr-danger-soft); color:var(--pr-danger); }
+  .mat-excluidas{ margin-top:20px; font-size:14px; }
+  .mat-excluidas summary{ cursor:pointer; font-weight:500; color:var(--pr-text-3); }
+  .mat-excluidas summary:hover{ color:var(--pr-text); }
+  .mat-excluidas ul{ list-style:none; margin:10px 0 0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  .mat-excluidas li{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 12px;
+    border:1px dashed var(--pr-border); border-radius:10px; color:var(--pr-text-2);
+  }
+  .mat-excluidas li span{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mat-excluidas .btn{ padding:5px 12px; font-size:13px; flex:none; }
+  .mat-excluidas-aviso{ margin:8px 0 0; font-size:12px; color:var(--pr-warn); }
+  .mat-aviso{
+    position:fixed; left:50%; bottom:24px; z-index:50; transform:translateX(-50%);
+    display:flex; align-items:center; gap:14px; max-width:calc(100vw - 32px); padding:10px 10px 10px 16px;
+    background:var(--pr-text); color:var(--pr-bg); border-radius:12px; box-shadow:0 16px 40px rgba(16,24,40,.25);
+    font-size:14px; animation:matAvisoSobe .2s ease-out;
+  }
+  .mat-aviso span{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mat-aviso button{ flex:none; padding:6px 12px; border:0; border-radius:8px; background:transparent; color:inherit; font:inherit; font-weight:700; cursor:pointer; }
+  .mat-aviso button:hover{ background:color-mix(in srgb, var(--pr-bg) 18%, transparent); }
+  @keyframes matAvisoSobe{ from{ opacity:0; transform:translate(-50%, 12px); } to{ opacity:1; transform:translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce){ .mat-aviso{ animation:none; } }
 
   /* ---------- Testar .md e instruções pra IA ---------- */
   .mat-ferramentas{ display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px; }
@@ -132,6 +168,12 @@
       <span class="mat-resumo" id="matResumo"></span>
     </div>
     <div class="mat-grid" id="matLista"><p class="mat-vazio">Carregando aulas...</p></div>
+    <!-- Aulas excluídas pela lixeira do card: voltam com "Restaurar". -->
+    <details class="mat-excluidas" id="matExcluidas" hidden>
+      <summary id="matExcluidasTitulo">Excluídas</summary>
+      <ul id="matExcluidasLista"></ul>
+      <p class="mat-excluidas-aviso" id="matExcluidasAviso" hidden>Salvo só neste navegador: rode sql/materiais-ocultos.sql no Supabase pra guardar na sua conta.</p>
+    </details>
   </section>
 
   <section class="mat-ferramentas">
@@ -229,6 +271,64 @@
     const c = lerConcluidas();
     if (sim) c[arquivo] = new Date().toISOString(); else delete c[arquivo];
     try { localStorage.setItem(CHAVE_CONCLUIDAS, JSON.stringify(c)); } catch (e) {}
+  }
+
+  // ---------- Aulas excluídas (lixeira do card) ----------
+  // { "arquivo.md": "2026-10-29T15:02:00.000Z" }. O .md não é apagado: só
+  // some da lista. Fica no localStorage (abre já sem ela) e na conta do
+  // professor (user_preferences.materiais_ocultos), pra valer em qualquer
+  // computador; sem a coluna, salva só no navegador e avisa em "Excluídas".
+  const CHAVE_OCULTAS = 'sm_aulas_ocultas';
+  const sb = window.PortalSession.client();
+  let ocultas = {};
+  let ocultasSoLocal = false;
+  try { ocultas = JSON.parse(localStorage.getItem(CHAVE_OCULTAS) || '{}') || {}; } catch (e) { ocultas = {}; }
+
+  async function salvarOcultas() {
+    try { localStorage.setItem(CHAVE_OCULTAS, JSON.stringify(ocultas)); } catch (e) {}
+    if (!sb || !currentUser.email || ocultasSoLocal) return;
+    const { error } = await sb.from('user_preferences')
+      .upsert({ email: currentUser.email, materiais_ocultos: ocultas, updated_at: new Date().toISOString() }, { onConflict: 'email' });
+    if (error) marcarOcultasSoLocal(error);
+  }
+  async function carregarOcultas() {
+    if (!sb || !currentUser.email) return;
+    const { data, error } = await sb.from('user_preferences').select('materiais_ocultos').eq('email', currentUser.email).maybeSingle();
+    if (error) { marcarOcultasSoLocal(error); return; }
+    if (data && data.materiais_ocultos && typeof data.materiais_ocultos === 'object') {
+      ocultas = data.materiais_ocultos;
+      try { localStorage.setItem(CHAVE_OCULTAS, JSON.stringify(ocultas)); } catch (e) {}
+    } else if (Object.keys(ocultas).length) {
+      salvarOcultas(); // excluiu antes de a coluna existir: leva pra conta
+    }
+  }
+  function marcarOcultasSoLocal(error) {
+    ocultasSoLocal = true;
+    console.warn('[materiais] aulas excluídas salvas só neste navegador:', error && error.message);
+    renderCards();
+  }
+
+  let timerAviso = null;
+  function excluirAula(it) {
+    ocultas[it.arquivo] = new Date().toISOString();
+    salvarOcultas();
+    renderCards();
+    // Aviso embaixo com "Desfazer" (some sozinho em 8 s).
+    document.querySelectorAll('.mat-aviso').forEach(a => a.remove());
+    clearTimeout(timerAviso);
+    const aviso = document.createElement('div');
+    aviso.className = 'mat-aviso';
+    aviso.setAttribute('role', 'status');
+    aviso.innerHTML = '<span></span><button type="button">Desfazer</button>';
+    aviso.querySelector('span').textContent = `“${it.titulo}” foi excluída.`;
+    aviso.querySelector('button').addEventListener('click', () => { restaurarAula(it.arquivo); aviso.remove(); });
+    document.body.appendChild(aviso);
+    timerAviso = setTimeout(() => aviso.remove(), 8000);
+  }
+  function restaurarAula(arquivo) {
+    delete ocultas[arquivo];
+    salvarOcultas();
+    renderCards();
   }
 
   function hojeIso() {
@@ -355,6 +455,15 @@
       desfazer.addEventListener('click', ev => { ev.stopPropagation(); marcarConcluida(it.arquivo, false); renderCards(); });
       card.querySelector('.mat-acao').appendChild(desfazer);
     }
+    const lixeira = document.createElement('button');
+    lixeira.type = 'button';
+    lixeira.className = 'mat-excluir';
+    lixeira.title = 'Excluir da lista (dá pra desfazer)';
+    lixeira.setAttribute('aria-label', `Excluir “${it.titulo}” da lista`);
+    lixeira.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+    lixeira.addEventListener('click', ev => { ev.stopPropagation(); excluirAula(it); });
+    lixeira.addEventListener('keydown', ev => ev.stopPropagation());
+    card.querySelector('.mat-acao').appendChild(lixeira);
     const abrir = () => { if (it.ok) abrirDaLista(it.arquivo, 0); };
     card.addEventListener('click', abrir);
     card.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); abrir(); } });
@@ -363,9 +472,10 @@
 
   function renderCards() {
     const concluidas = lerConcluidas();
-    const aulas = itens.filter(it => it.meta.aula !== undefined && it.meta.aula !== '')
+    const visiveis = itens.filter(it => !ocultas[it.arquivo]);
+    const aulas = visiveis.filter(it => it.meta.aula !== undefined && it.meta.aula !== '')
       .sort((a, b) => (Number(a.meta.aula) || 0) - (Number(b.meta.aula) || 0) || String(a.meta.data || '').localeCompare(String(b.meta.data || '')));
-    const refs = itens.filter(it => !(it.meta.aula !== undefined && it.meta.aula !== ''));
+    const refs = visiveis.filter(it => !(it.meta.aula !== undefined && it.meta.aula !== ''));
     const hoje = hojeIso();
     const futuras = aulas.map(a => a.meta.data).filter(d => d && d > hoje && !aulas.some(x => x.meta.data === d && concluidas[x.arquivo])).sort();
     const proximaData = futuras[0] || null;
@@ -383,10 +493,28 @@
     const ref = document.getElementById('matRef');
     ref.innerHTML = '';
     refs.forEach(it => ref.appendChild(montarCard(it, { cls: '', txt: 'Guia' }, null)));
+
+    // Excluídas: só as que ainda existem na lista.js, a mais recente primeiro.
+    const excluidas = itens.filter(it => ocultas[it.arquivo]).sort((a, b) => String(ocultas[b.arquivo]).localeCompare(String(ocultas[a.arquivo])));
+    const caixa = document.getElementById('matExcluidas');
+    caixa.hidden = excluidas.length === 0;
+    document.getElementById('matExcluidasTitulo').textContent = `Excluídas (${excluidas.length})`;
+    document.getElementById('matExcluidasAviso').hidden = !ocultasSoLocal;
+    const ul = document.getElementById('matExcluidasLista');
+    ul.innerHTML = '';
+    excluidas.forEach(it => {
+      const li = document.createElement('li');
+      li.innerHTML = '<span></span><button type="button" class="btn btn-secondary">Restaurar</button>';
+      const temNum = it.meta.aula !== undefined && it.meta.aula !== '';
+      li.querySelector('span').textContent = `${temNum ? `Aula ${it.meta.aula} · ` : ''}${it.titulo}`;
+      li.querySelector('button').addEventListener('click', () => restaurarAula(it.arquivo));
+      ul.appendChild(li);
+    });
   }
 
   await carregarItens();
   renderCards();
+  carregarOcultas().then(renderCards);
 
   // ---------- Instruções pra IA ----------
   let textoIA = '';
