@@ -20,7 +20,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="../shared/professor.css">
-<link rel="stylesheet" href="../shared/professor-agenda.css">
 <link rel="stylesheet" href="../shared/painel-layout.css">
 <link rel="stylesheet" href="../shared/painel-musica.css">
 <style>
@@ -59,7 +58,6 @@
 <script src="../shared/professor-fx.js"></script>
 <script src="../shared/axis-logo.js"></script>
 <script src="../shared/frases-estoicas.js"></script>
-<script src="../shared/professor-agenda.js"></script>
 <script src="../shared/painel-layout.js"></script>
 <script src="../shared/painel-musica.js"></script>
 </head>
@@ -171,12 +169,6 @@
           <span class="pr-card-nome">Projetos</span>
         </button>
       </div>
-      <!-- Agenda: mini calendário que expande pra tela cheia (Mês/Semana),
-           compromissos arrastáveis e lembretes com contador no sininho —
-           shared/professor-agenda.js, tabela em sql/professor-agenda.sql. -->
-      <div class="pr-bloco" data-bloco="agenda" data-nome="Agenda" data-x="3" data-w="6" data-min="4" data-w-celular="4" data-min-celular="4">
-        <div id="agenda" aria-label="Agenda"></div>
-      </div>
     </div>
   </section>
 </main>
@@ -243,7 +235,6 @@ setInterval(atualizarRelogio, 1000);
   document.getElementById('sessionUser').textContent = currentUser.nome;
   // Conhecimentos e Projetos são só do professor: o substituto nem vê os cartões.
   if (currentUser.substituto) document.querySelectorAll('[data-bloco="conhecimentos"], [data-bloco="projetos"]').forEach(b => b.remove());
-  window.ProfessorAgenda.montar(document.getElementById('agenda'), window.PortalSession.client());
   window.PainelLayout.montar({
     grade: document.getElementById('painelGrade'),
     botao: document.getElementById('btnPersonalizar'),

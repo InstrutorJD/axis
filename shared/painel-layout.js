@@ -9,8 +9,8 @@
 //   ficam um sobre o outro).
 // - Altura: no mínimo a do conteúdo; dá pra deixar mais alto esticando pelo
 //   canto (dois cliques no canto voltam à altura do conteúdo).
-// Arrastar funciona sempre (cartão: clicar e arrastar; Agenda: pelo
-// cabeçalho; clique simples continua abrindo). O botão "Personalizar" mostra
+// Arrastar funciona sempre (clicar e arrastar o cartão; clique simples
+// continua abrindo). O botão "Personalizar" mostra
 // as guias das colunas, a alça de esticar no canto, ocultar e "Restaurar
 // padrão". Teclado no Personalizar: setas movem, Shift+setas esticam,
 // Delete oculta. No celular a arrumação é outra (4 colunas, cartões menores),
@@ -194,15 +194,14 @@ window.PainelLayout = (function () {
     if (!arrastando) {
       const disp = alturaDisponivel();
       // A largura muda com a escala e a altura dos cartões muda com a
-      // largura (o calendário da Agenda cresce quando fica mais largo):
-      // algumas voltas até acertar.
+      // largura: algumas voltas até acertar.
       for (let i = 0; i < 10; i++) {
         const nova = limitar(disp / (fundo + folga), ESCALA_MIN, 1);
         // Só cresce de novo se for pra valer: a frase troca a cada 15 s e
         // mexe um pouco na altura, e o painel não deve ficar "respirando".
         if (nova > escala - 0.002 && nova - escala < 0.03) break;
         // Encolhendo, vai um pouquinho além, pra não ficar correndo atrás
-        // da Agenda que cresce junto.
+        // da altura que muda junto.
         escala = nova < escala ? Math.max(ESCALA_MIN, nova * 0.99) : nova;
         fundo = desenhar(prioridade, pular);
       }
@@ -377,13 +376,10 @@ window.PainelLayout = (function () {
   }
 
   // ---------- Arrastar e esticar ----------
-  // Fora do Personalizar também dá pra arrastar: o cartão (clique simples
-  // continua abrindo) ou a Agenda pelo cabeçalho (o resto dela tem os
-  // próprios cliques e arrastes).
+  // Fora do Personalizar também dá pra arrastar o cartão (clique simples
+  // continua abrindo).
   function podeArrastarSemEditar(e) {
-    if (e.target.closest('.pr-card')) return true;
-    const topo = e.target.closest('.ag-cartao-topo');
-    return !!topo && !e.target.closest('button');
+    return !!e.target.closest('.pr-card');
   }
   function aoApertar(e) {
     if (e.button !== 0) return;
@@ -542,11 +538,11 @@ window.PainelLayout = (function () {
       else if (e.key === 'Delete') { e.preventDefault(); ocultar(b); }
     });
     document.addEventListener('keydown', e => {
-      // Esc encerra a personalização (se a agenda não estiver com algo aberto).
-      if (e.key === 'Escape' && editando && !document.querySelector('.ag-full.ag-aberta, .ag-modal-fundo, .ag-pop, .ag-lista')) sair();
+      // Esc encerra a personalização.
+      if (e.key === 'Escape' && editando) sair();
     });
 
-    // O conteúdo muda de altura (agenda com mais compromissos, frase maior)
+    // O conteúdo muda de altura (frase maior)
     // ou a janela muda de largura: redesenha. O relógio muda o texto a todo
     // segundo, então só redesenha se alguma altura mudou de verdade.
     let pendente = null;

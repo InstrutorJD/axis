@@ -66,13 +66,9 @@ body.pr-esticando-cartao, body.pr-esticando-cartao *{ cursor:nwse-resize !import
   background-size:var(--coluna, 8.33%) 100%;
   border-radius:12px;
 }
-/* A Agenda é arrastada pelo cabeçalho. */
-.pr-bloco[data-bloco="agenda"] .ag-cartao-topo{ cursor:grab; }
-
 /* ---------- Modo Personalizar ---------- */
-/* Nada dentro do cartão recebe clique (nem abre turma, nem mexe na
-   agenda): quem recebe é o próprio cartão, pra ser arrastado. A barrinha e
-   a alça de esticar continuam clicáveis. */
+/* Nada dentro do cartão recebe clique (nem abre turma): quem recebe é o
+   próprio cartão, pra ser arrastado. A barrinha e a alça de esticar continuam clicáveis. */
 .pr-editando .pr-bloco{ cursor:grab; border-radius:18px; outline:none; }
 .pr-editando .pr-bloco > :not(.pr-bloco-barra):not(.pr-bloco-redim){ pointer-events:none; user-select:none; }
 .pr-editando .pr-bloco > .pr-card{ transform:none !important; }
