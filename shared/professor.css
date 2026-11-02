@@ -129,7 +129,7 @@ html{ cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg
    estoica que troca a cada 15 s (professor/painel.html). */
 .pr-hero{ text-align:center; margin-bottom:28px; }
 .pr-relogio{
-  font-size:clamp(64px, 14vw, 112px); font-weight:300; letter-spacing:-.03em; line-height:1;
+  font-size:clamp(54px, 12vw, 94px); font-weight:300; letter-spacing:-.03em; line-height:1;
   font-variant-numeric:tabular-nums; color:var(--pr-text);
 }
 .pr-saudacao{ margin:10px 0 0; font-size:17px; color:var(--pr-text-2); }

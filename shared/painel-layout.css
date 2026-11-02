@@ -28,7 +28,7 @@ html.pr-painel-cabe, html.pr-painel-cabe body{ overflow:hidden; }
    mais compactos, pra o painel precisar encolher menos pra caber. */
 @media (max-height:900px){
   .pr-painel .pr-card, .pr-painel .pr-card.pr-card-ferramenta{ min-height:100px; padding:14px 12px; gap:10px; }
-  .pr-painel .pr-hero .pr-relogio{ font-size:84px; }
+  .pr-painel .pr-hero .pr-relogio{ font-size:70px; }
   .pr-painel .pr-hero .pr-saudacao{ margin-top:6px; }
   .pr-painel .pr-hero .pr-frase{ margin-top:12px; min-height:0; }
 }
@@ -38,7 +38,7 @@ html.pr-painel-cabe, html.pr-painel-cabe body{ overflow:hidden; }
 .pr-modo-celular .pr-card-icone{ width:38px; height:38px; border-radius:10px; }
 .pr-modo-celular .pr-card-icone svg{ width:19px; height:19px; }
 .pr-modo-celular .pr-card-nome{ font-size:13px; }
-.pr-modo-celular .pr-hero .pr-relogio{ font-size:64px; }
+.pr-modo-celular .pr-hero .pr-relogio{ font-size:54px; }
 .pr-modo-celular .pr-hero .pr-frase{ margin-top:14px; min-height:0; }
 
 /* ---------- Botão do topo ---------- */
