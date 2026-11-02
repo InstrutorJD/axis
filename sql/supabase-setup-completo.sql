@@ -2475,6 +2475,49 @@ grant select, insert, update, delete on public.professor_projetos to authenticat
 grant select, insert, update, delete on public.professor_projeto_itens to authenticated;
 
 -- ============================================================
+-- AULAS SALVAS NO PORTAL — arquivos .md enviados em "Criar Material"
+-- (professor/materiais.html). O professor grava as próprias; o substituto
+-- só lê, pra poder dar a aula.
+-- ============================================================
+
+create table if not exists public.professor_materiais (
+  id uuid primary key default gen_random_uuid(),
+  professor_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  arquivo text not null,
+  md text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint professor_materiais_arquivo_valido check (char_length(arquivo) between 1 and 200),
+  constraint professor_materiais_md_valido check (octet_length(md) <= 2097152),
+  constraint professor_materiais_arquivo_unico unique (professor_id, arquivo)
+);
+
+alter table public.professor_materiais enable row level security;
+
+drop policy if exists "professor_materiais_select" on public.professor_materiais;
+create policy "professor_materiais_select"
+  on public.professor_materiais for select to authenticated
+  using ((professor_id = auth.uid() and public.is_professor()) or public.is_substituto());
+
+drop policy if exists "professor_materiais_insert_dono" on public.professor_materiais;
+create policy "professor_materiais_insert_dono"
+  on public.professor_materiais for insert to authenticated
+  with check (professor_id = auth.uid() and public.is_professor());
+
+drop policy if exists "professor_materiais_update_dono" on public.professor_materiais;
+create policy "professor_materiais_update_dono"
+  on public.professor_materiais for update to authenticated
+  using (professor_id = auth.uid() and public.is_professor())
+  with check (professor_id = auth.uid() and public.is_professor());
+
+drop policy if exists "professor_materiais_delete_dono" on public.professor_materiais;
+create policy "professor_materiais_delete_dono"
+  on public.professor_materiais for delete to authenticated
+  using (professor_id = auth.uid() and public.is_professor());
+
+grant select, insert, update, delete on public.professor_materiais to authenticated;
+
+-- ============================================================
 -- GITHUB DOS ALUNOS — link do repositório e do GitHub Pages de cada
 -- aluno (ícone do GitHub na barra de abas, shared/github-links.js).
 -- Aluno lê/grava só os próprios; professor (e substituto) leem todos.

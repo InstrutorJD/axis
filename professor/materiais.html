@@ -14,8 +14,9 @@
 
 <!-- "Criar Material" (só professor, aberto pelo painel): aulas em slides a
      partir de um arquivo Markdown, pra projetar na sala. Tudo estático —
-     sem Supabase além do login: os .md ficam em materiais/ (listados em
-     materiais/lista.js) ou são abertos direto do computador. Cada aula vira
+     os .md ficam em materiais/ (listados em materiais/lista.js) ou são
+     enviados do computador e salvos no portal (tabela professor_materiais,
+     sql/supabase-setup-completo.sql). Cada aula vira
      um card com número e data (cabeçalho do .md, ver SlidesMD.lerMeta) e só
      fica "Concluída" quando o professor clica em "Finalizar aula" no último
      slide (guardado neste navegador — localStorage 'sm_aulas_concluidas').
@@ -120,6 +121,12 @@
   .mat-drop svg{ width:28px; height:28px; color:var(--pr-accent); }
   .mat-drop b{ color:var(--pr-accent); font-weight:600; }
   .mat-erro{ color:var(--pr-danger); font-size:13px; margin-top:10px; min-height:1em; }
+  .mat-carregado{ margin-top:14px; padding-top:14px; border-top:1px solid var(--pr-border); display:flex; flex-direction:column; gap:10px; }
+  .mat-carregado[hidden], .mat-carregado .btn[hidden]{ display:none; }
+  .mat-carregado-nome{ font-size:14px; font-weight:600; overflow-wrap:anywhere; }
+  .mat-carregado-info{ margin:2px 0 0; font-size:13px; color:var(--pr-text-3); }
+  .mat-carregado .status-msg:empty, .mat-salvas-aviso:empty{ display:none; }
+  .mat-salvas-aviso{ margin:12px 0 0; font-size:12px; color:var(--pr-warn); }
   .mat-ia-botoes{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
   .mat-ia details{ margin-top:14px; font-size:14px; }
   .mat-ia summary{ cursor:pointer; font-weight:500; color:var(--pr-text-2); }
@@ -178,13 +185,26 @@
 
   <section class="mat-ferramentas">
     <div class="mat-painel">
-      <h2>Testar um arquivo .md</h2>
+      <h2>Adicionar uma aula (.md)</h2>
       <label class="mat-drop" id="matDrop">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
         <span><b>Escolha</b> ou arraste um arquivo .md</span>
         <input type="file" id="matArquivo" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
       </label>
       <div class="mat-erro" id="matErro"></div>
+      <!-- O arquivo escolhido espera aqui: salvar no portal e/ou apresentar. -->
+      <div class="mat-carregado" id="matCarregado" hidden>
+        <div>
+          <div class="mat-carregado-nome" id="matCarregadoNome"></div>
+          <p class="mat-carregado-info" id="matCarregadoInfo"></p>
+        </div>
+        <div class="mat-ia-botoes">
+          <button type="button" class="btn" id="btnSalvarMd">Salvar no portal</button>
+          <button type="button" class="btn btn-secondary" id="btnApresentarMd">Apresentar</button>
+        </div>
+        <span class="status-msg" id="matSalvarStatus" role="status"></span>
+      </div>
+      <p class="mat-salvas-aviso" id="matSalvasAviso"></p>
     </div>
 
     <div class="mat-painel mat-ia">
@@ -199,8 +219,8 @@
         <ol>
           <li>Copie as instruções (ou baixe o arquivo) e cole na conversa com a IA.</li>
           <li>Peça a aula, por exemplo: <i>“Gere a aula 4, dia 07/10/2026, turma 2º DS, sobre laços de repetição em JavaScript, com 20 min de prática.”</i></li>
-          <li>Salve a resposta como <code>.md</code> e teste ao lado.</li>
-          <li>Para entrar em Minhas aulas: coloque o arquivo em <code>materiais/</code> e o nome em <code>materiais/lista.js</code>.</li>
+          <li>Salve a resposta como <code>.md</code> e escolha o arquivo ao lado.</li>
+          <li>Clique em <b>Salvar no portal</b>: com <code>aula:</code> no cabeçalho, ela entra em Minhas aulas; sem, em Referência.</li>
         </ol>
       </details>
       <details>
@@ -309,21 +329,30 @@
   }
 
   let timerAviso = null;
-  function excluirAula(it) {
-    ocultas[it.arquivo] = new Date().toISOString();
-    salvarOcultas();
-    renderCards();
-    // Aviso embaixo com "Desfazer" (some sozinho em 8 s).
+  // Aviso embaixo (some sozinho em 8 s), com um botão opcional.
+  function avisar(texto, rotulo, acao) {
     document.querySelectorAll('.mat-aviso').forEach(a => a.remove());
     clearTimeout(timerAviso);
     const aviso = document.createElement('div');
     aviso.className = 'mat-aviso';
     aviso.setAttribute('role', 'status');
-    aviso.innerHTML = '<span></span><button type="button">Desfazer</button>';
-    aviso.querySelector('span').textContent = `“${it.titulo}” foi excluída.`;
-    aviso.querySelector('button').addEventListener('click', () => { restaurarAula(it.arquivo); aviso.remove(); });
+    aviso.innerHTML = '<span></span>';
+    aviso.querySelector('span').textContent = texto;
+    if (rotulo) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = rotulo;
+      b.addEventListener('click', () => { acao(); aviso.remove(); });
+      aviso.appendChild(b);
+    }
     document.body.appendChild(aviso);
     timerAviso = setTimeout(() => aviso.remove(), 8000);
+  }
+  function excluirAula(it) {
+    ocultas[it.arquivo] = new Date().toISOString();
+    salvarOcultas();
+    renderCards();
+    avisar(`“${it.titulo}” foi excluída.`, 'Desfazer', () => restaurarAula(it.arquivo));
   }
   function restaurarAula(arquivo) {
     delete ocultas[arquivo];
@@ -341,8 +370,8 @@
     return n > 0 ? n - 1 : 0;
   }
 
-  // arquivo: nome em materiais/ (aula da lista, pode ser finalizada) ou
-  // null (aberta do computador — sem "Finalizar", não tem card).
+  // arquivo: chave do card (aula da lista ou salva no portal, pode ser
+  // finalizada) ou null (aberta do computador — sem "Finalizar", não tem card).
   function apresentar(md, baseUrl, nome, param, inicio, arquivo) {
     const deck = SM.parse(md, baseUrl);
     if (deck.slides.length === 0) {
@@ -367,6 +396,15 @@
   }
 
   async function abrirDaLista(arquivo, inicio) {
+    const salva = itens.find(it => it.arquivo === arquivo && it.salvaId);
+    if (salva) {
+      apresentar(salva.md, BASE_MATERIAIS, salva.nomeArquivo, arquivo, inicio, arquivo);
+      return;
+    }
+    if (arquivo.startsWith(PREFIXO_SALVA)) {
+      erroEl.textContent = `A aula salva “${arquivo.slice(PREFIXO_SALVA.length)}” não foi encontrada.`;
+      return;
+    }
     try {
       const { md, url } = await buscarMd(arquivo);
       apresentar(md, url, arquivo, arquivo, inicio, arquivo);
@@ -376,17 +414,137 @@
   }
 
   // Arquivo do computador: fica guardado nesta aba (sessionStorage) só pra
-  // sobreviver a um F5 no meio da aula.
+  // sobreviver a um F5 no meio da aula, até ser salvo no portal.
   function abrirArquivo(file) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       const md = String(reader.result || '');
       try { sessionStorage.setItem('sm_upload', JSON.stringify({ nome: file.name, md })); } catch (e) {}
-      apresentar(md, null, file.name, '__arquivo', 0, null);
+      mostrarCarregado(file.name, md);
     };
     reader.onerror = () => { erroEl.textContent = 'Não foi possível ler o arquivo.'; };
     reader.readAsText(file, 'utf-8');
+  }
+
+  // ---------- Aulas salvas no portal (tabela professor_materiais) ----------
+  // O texto do .md fica no banco. A chave do card leva o prefixo "portal:"
+  // pra não misturar a situação (concluída, excluída) com a de um arquivo de
+  // mesmo nome em materiais/. Imagem com caminho relativo continua vindo de
+  // materiais/. Enviar de novo um arquivo de mesmo nome substitui o salvo.
+  // O substituto só lê (o banco também barra a gravação dele).
+  const TABELA_SALVAS = 'professor_materiais';
+  const PREFIXO_SALVA = 'portal:';
+  const LIMITE_MD = 2 * 1024 * 1024; // Mesmo limite do CHECK da tabela.
+  const AVISO_SEM_TABELA = 'Falta criar a tabela: rode o bloco "AULAS SALVAS NO PORTAL" de sql/supabase-setup-completo.sql no Supabase.';
+  const BASE_MATERIAIS = new URL('../materiais/', location.href).href;
+  const ehSubstituto = !!currentUser.substituto;
+  const semTabela = error => error && (error.code === '42P01' || error.code === 'PGRST205');
+  let salvas = [];
+  let carregado = null; // { nome, md, slides, salvo }
+
+  async function carregarSalvas() {
+    if (!sb) return;
+    const { data, error } = await sb.from(TABELA_SALVAS).select('id, arquivo, md, updated_at').order('updated_at', { ascending: false });
+    const avisoEl = document.getElementById('matSalvasAviso');
+    avisoEl.textContent = '';
+    if (error) {
+      console.warn('[materiais] aulas salvas indisponíveis:', error.message);
+      if (semTabela(error)) { if (!ehSubstituto) avisoEl.textContent = AVISO_SEM_TABELA; }
+      else avisoEl.textContent = 'Não foi possível carregar as aulas salvas. Recarregue a página para tentar de novo.';
+      return false;
+    }
+    salvas = data || [];
+    return true;
+  }
+
+  function itemDaSalva(s) {
+    const { meta } = SM.lerMeta(s.md);
+    const deck = SM.parse(s.md, null);
+    return { arquivo: PREFIXO_SALVA + s.arquivo, nomeArquivo: s.arquivo, salvaId: s.id, md: s.md, meta,
+      titulo: meta.titulo || deck.titulo || s.arquivo, descricao: meta.descricao || '', icone: meta.icone, slides: deck.slides.length, ok: true };
+  }
+
+  function mostrarCarregado(nome, md) {
+    const caixa = document.getElementById('matCarregado');
+    const { meta } = SM.lerMeta(md);
+    const slides = SM.parse(md, null).slides.length;
+    if (slides === 0) {
+      carregado = null;
+      caixa.hidden = true;
+      erroEl.textContent = `“${nome}” não tem nenhum slide — confira se o arquivo tem conteúdo.`;
+      return;
+    }
+    erroEl.textContent = '';
+    carregado = { nome, md, slides, temAula: meta.aula !== undefined && meta.aula !== '', salvo: false };
+    document.getElementById('matCarregadoNome').textContent = meta.titulo || nome;
+    document.getElementById('matCarregadoInfo').textContent = `${nome} · ${slides} slide${slides === 1 ? '' : 's'}`;
+    document.getElementById('matSalvarStatus').textContent = '';
+    atualizarBotaoSalvar();
+    caixa.hidden = false;
+  }
+
+  function atualizarBotaoSalvar() {
+    const btn = document.getElementById('btnSalvarMd');
+    const st = document.getElementById('matSalvarStatus');
+    btn.hidden = ehSubstituto;
+    if (!carregado) return;
+    const grande = new Blob([carregado.md]).size > LIMITE_MD;
+    btn.disabled = carregado.salvo || grande;
+    if (carregado.salvo) { btn.textContent = 'Salva ✓'; return; }
+    const existe = salvas.some(s => s.arquivo === carregado.nome);
+    btn.textContent = existe ? 'Substituir a aula salva' : 'Salvar no portal';
+    if (grande) st.textContent = 'Arquivo grande demais para salvar: o limite é 2 MB.';
+    else if (existe) st.textContent = 'Já existe uma aula salva com este nome. Salvar troca o conteúdo dela.';
+  }
+
+  async function salvarCarregado() {
+    if (!carregado || carregado.salvo) return;
+    const btn = document.getElementById('btnSalvarMd');
+    const st = document.getElementById('matSalvarStatus');
+    if (!sb) { st.textContent = 'Sem conexão com o Supabase: não foi possível salvar.'; return; }
+    const { nome, md, temAula } = carregado;
+    btn.disabled = true;
+    st.textContent = 'Salvando...';
+    const existente = salvas.find(s => s.arquivo === nome);
+    const { data, error } = await (existente
+      ? sb.from(TABELA_SALVAS).update({ md, updated_at: new Date().toISOString() }).eq('id', existente.id).select('id')
+      : sb.from(TABELA_SALVAS).insert({ arquivo: nome, md }).select('id'));
+    if (error || !data || data.length === 0) {
+      console.warn('[materiais] aula não salva:', error && error.message);
+      btn.disabled = false;
+      st.textContent = semTabela(error) ? AVISO_SEM_TABELA
+        : `Não foi possível salvar${error ? `: ${error.message}` : ' (sem permissão para alterar esta aula)'}. O arquivo continua aqui, tente de novo.`;
+      return;
+    }
+    carregado.salvo = true;
+    // Salvar de novo uma aula que estava em "Excluídas" traz ela de volta.
+    if (ocultas[PREFIXO_SALVA + nome]) { delete ocultas[PREFIXO_SALVA + nome]; salvarOcultas(); }
+    await recarregarSalvas();
+    st.textContent = temAula ? 'Salva! Já está em Minhas aulas.' : 'Salva em Referência: sem "aula:" no cabeçalho, ela não entra em Minhas aulas.';
+    atualizarBotaoSalvar();
+  }
+
+  async function recarregarSalvas() {
+    await carregarSalvas();
+    juntarItens();
+    renderCards();
+  }
+
+  // Tira a aula do banco de vez (só as salvas; pede um segundo clique).
+  async function apagarSalva(it) {
+    const { data, error } = await sb.from(TABELA_SALVAS).delete().eq('id', it.salvaId).select('id');
+    if (error || !data || data.length === 0) {
+      console.warn('[materiais] aula não apagada:', error && error.message);
+      avisar(`Não foi possível apagar “${it.titulo}”.`);
+      return;
+    }
+    delete ocultas[it.arquivo];
+    salvarOcultas();
+    marcarConcluida(it.arquivo, false);
+    await recarregarSalvas();
+    if (carregado && carregado.nome === it.nomeArquivo) { carregado.salvo = false; atualizarBotaoSalvar(); }
+    avisar(`“${it.titulo}” foi apagada do portal.`);
   }
 
   // ---------- Cards ----------
@@ -394,10 +552,14 @@
   // descricao, icone } — formato antigo). Número, data, título etc. vêm do
   // cabeçalho de cada .md; o que estiver no objeto só completa o que faltar.
   const entradas = (window.MATERIAIS || []).map(e => (typeof e === 'string' ? { arquivo: e } : e));
+  let itensFixos = [];
   let itens = [];
+  function juntarItens() {
+    itens = [...itensFixos, ...salvas.map(itemDaSalva)];
+  }
 
   async function carregarItens() {
-    itens = await Promise.all(entradas.map(async e => {
+    itensFixos = await Promise.all(entradas.map(async e => {
       try {
         const { md } = await buscarMd(e.arquivo);
         const { meta } = SM.lerMeta(md);
@@ -444,7 +606,7 @@
     card.querySelector('.mat-data').textContent = [it.meta.data ? SM.formatarData(it.meta.data) : '', it.meta.turma || ''].filter(Boolean).join(' · ');
     card.querySelector('h3').textContent = it.titulo;
     card.querySelector('p').textContent = it.descricao;
-    card.querySelector('.mat-qtd').textContent = it.ok ? `${it.slides} slides` : '';
+    card.querySelector('.mat-qtd').textContent = it.ok ? `${it.slides} slides${it.salvaId ? ' · no portal' : ''}` : '';
     if (concluidoEm) {
       const quando = new Date(concluidoEm);
       const desfazer = document.createElement('button');
@@ -483,7 +645,7 @@
     const lista = document.getElementById('matLista');
     lista.innerHTML = '';
     if (aulas.length === 0) {
-      lista.innerHTML = '<p class="mat-vazio">Nenhuma aula ainda. Gere uma com a IA (veja abaixo), coloque o .md em materiais/ e o nome em materiais/lista.js.</p>';
+      lista.innerHTML = '<p class="mat-vazio">Nenhuma aula ainda. Gere uma com a IA (veja abaixo) e salve o .md no portal.</p>';
     } else {
       aulas.forEach(it => lista.appendChild(montarCard(it, situacao(it, concluidas, proximaData), concluidas[it.arquivo])));
     }
@@ -494,7 +656,7 @@
     ref.innerHTML = '';
     refs.forEach(it => ref.appendChild(montarCard(it, { cls: '', txt: 'Guia' }, null)));
 
-    // Excluídas: só as que ainda existem na lista.js, a mais recente primeiro.
+    // Excluídas: só as que ainda existem (lista.js ou salvas), a mais recente primeiro.
     const excluidas = itens.filter(it => ocultas[it.arquivo]).sort((a, b) => String(ocultas[b.arquivo]).localeCompare(String(ocultas[a.arquivo])));
     const caixa = document.getElementById('matExcluidas');
     caixa.hidden = excluidas.length === 0;
@@ -508,11 +670,25 @@
       const temNum = it.meta.aula !== undefined && it.meta.aula !== '';
       li.querySelector('span').textContent = `${temNum ? `Aula ${it.meta.aula} · ` : ''}${it.titulo}`;
       li.querySelector('button').addEventListener('click', () => restaurarAula(it.arquivo));
+      if (it.salvaId && !ehSubstituto) {
+        const apagar = document.createElement('button');
+        apagar.type = 'button';
+        apagar.className = 'btn btn-ghost';
+        apagar.textContent = 'Apagar de vez';
+        let armado = null;
+        apagar.addEventListener('click', () => {
+          if (armado) { clearTimeout(armado); armado = null; apagar.disabled = true; apagarSalva(it).finally(() => { apagar.disabled = false; apagar.textContent = 'Apagar de vez'; }); return; }
+          apagar.textContent = 'Confirmar: não dá pra desfazer';
+          armado = setTimeout(() => { armado = null; apagar.textContent = 'Apagar de vez'; }, 4000);
+        });
+        li.appendChild(apagar);
+      }
       ul.appendChild(li);
     });
   }
 
-  await carregarItens();
+  await Promise.all([carregarItens(), carregarSalvas()]);
+  juntarItens();
   renderCards();
   carregarOcultas().then(renderCards);
 
@@ -550,13 +726,20 @@
   ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('mat-drop-on'); }));
   ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('mat-drop-on'); }));
   drop.addEventListener('drop', e => abrirArquivo(e.dataTransfer.files[0]));
+  document.getElementById('btnSalvarMd').addEventListener('click', salvarCarregado);
+  document.getElementById('btnApresentarMd').addEventListener('click', () => {
+    if (carregado) apresentar(carregado.md, BASE_MATERIAIS, carregado.nome, '__arquivo', 0, null);
+  });
 
   // ?m=arquivo.md#5 reabre direto no slide 5 (F5 no meio da aula).
   const param = new URLSearchParams(location.search).get('m');
   if (param === '__arquivo') {
     try {
       const salvo = JSON.parse(sessionStorage.getItem('sm_upload') || 'null');
-      if (salvo) apresentar(salvo.md, null, salvo.nome, '__arquivo', slideDoHash(), null);
+      if (salvo) {
+        mostrarCarregado(salvo.nome, salvo.md);
+        apresentar(salvo.md, BASE_MATERIAIS, salvo.nome, '__arquivo', slideDoHash(), null);
+      }
     } catch (e) {}
   } else if (param) {
     abrirDaLista(param, slideDoHash());
