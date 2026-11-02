@@ -9,7 +9,7 @@
 //     caixinha pra marcar quem já apresentou (marcar_canva_apresentado()).
 //
 // É TEMPORÁRIO: o link vale 72 horas a partir do último "Salvar". Grava em
-// public.student_canva_links (sql/canva-links.sql); a RLS esconde do
+// public.student_canva_links (sql/supabase-setup-completo.sql); a RLS esconde do
 // professor o que passou de 72 h e limpar_canva_expirados() apaga de vez
 // (chamada sempre que o modal abre). Reaproveita o visual do modal do
 // GitHub (classes gh-* em shared/platform-core.css).
@@ -18,7 +18,7 @@
 
   const VALIDADE_MS = 72 * 60 * 60 * 1000;
 
-  // Mesmas regras do CHECK em sql/canva-links.sql. Só endereços conhecidos
+  // Mesmas regras do CHECK em sql/supabase-setup-completo.sql. Só endereços conhecidos
   // de apresentação (o link vira botão clicável na tela do professor):
   //   Canva — design, link curto canva.link ou site *.my.canva.site;
   //   Google Slides — docs.google.com/presentation/d/...;
@@ -234,7 +234,7 @@
     }
     if (!overlay.isConnected) return;
     if (error) {
-      lista.innerHTML = '<p class="status-msg">Não foi possível carregar. Confira se o script sql/canva-links.sql já foi rodado no Supabase.</p>';
+      lista.innerHTML = '<p class="status-msg">Não foi possível carregar. Confira se o script sql/supabase-setup-completo.sql já foi rodado no Supabase.</p>';
       return;
     }
     const nomePorEmail = new Map(alunos.map(a => [a.email, a.nome || a.email]));
@@ -267,7 +267,7 @@
           <tbody>${linhas}</tbody>
         </table>
       </div>`;
-    if (!comTick) lista.insertAdjacentHTML('beforeend', '<p class="status-msg">Para marcar quem já apresentou, rode o script sql/canva-links.sql no Supabase.</p>');
+    if (!comTick) lista.insertAdjacentHTML('beforeend', '<p class="status-msg">Para marcar quem já apresentou, rode o script sql/supabase-setup-completo.sql no Supabase.</p>');
 
     const resumo = overlay.querySelector('#cvResumo');
     function atualizarResumo() {

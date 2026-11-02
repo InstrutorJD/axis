@@ -1,5 +1,5 @@
 // "Sair da tela nas práticas" (Gestão → Bloqueios e Liberações,
-// classroom_settings.trava_praticas, sql/pratica-trava.sql). Com a chave
+// classroom_settings.trava_praticas, sql/supabase-setup-completo.sql). Com a chave
 // ligada, TODA prática da turma (`*-pratica.html`, `*-pratica-simples.html`)
 // ganha a mesma trava das provas (shared/exam-proctor.js): trocar de aba,
 // minimizar ou clicar em outra janela — inclusive com a TELA DIVIDIDA —

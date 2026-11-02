@@ -80,7 +80,7 @@ window.PortalSession = (function () {
       if (profileError || !profile) return null;
 
       cachedUser = { ...profile };
-      // Substituto (sql/usuario-substituto.sql): na TELA ele se comporta
+      // Substituto (sql/supabase-setup-completo.sql): na TELA ele se comporta
       // como professor em todo o portal — aulas destravadas, gabarito,
       // sem bloqueio de copiar, sem contar como aluno, anfitrião dos jogos
       // — sem precisar mexer nas dezenas de páginas que testam

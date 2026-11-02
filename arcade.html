@@ -13,7 +13,7 @@
      barra de abas do portal de Jogos Digitais (shared/platform-core.js,
      numa aba nova). Só da turma de Jogos Digitais: aluno de outra turma vê
      um aviso, e o banco também só libera os links dos colegas pra turma
-     'jogos' (RLS em sql/arcade-turma.sql). TEMPORÁRIO: a turma Sistemas
+     'jogos' (RLS em sql/supabase-setup-completo.sql). TEMPORÁRIO: a turma Sistemas
      entra como convidada (só jogar e curtir) — TURMAS_CONVIDADAS abaixo e
      sql/arcade-sistemas-temporario.sql. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -318,7 +318,7 @@
 <script src="shared/session.js"></script>
 <script>
 (async function () {
-  // Mesma regra do CHECK de sql/github-links.sql: só https://<usuario>.github.io/...
+  // Mesma regra do CHECK de sql/supabase-setup-completo.sql: só https://<usuario>.github.io/...
   const PAGES_RE = /^https:\/\/[a-z0-9](?:-?[a-z0-9]){0,38}\.github\.io(\/\S*)?$/i;
   // E a do repositório: só https://github.com/<usuario>/<repo>.
   const REPO_RE = /^https:\/\/github\.com\/[a-z0-9](?:-?[a-z0-9]){0,38}\/[a-z0-9._-]{1,100}\/?$/i;
@@ -381,7 +381,7 @@
     return;
   }
 
-  // ---------- Curtidas (tabela arcade_likes, sql/arcade-curtidas.sql) ----------
+  // ---------- Curtidas (tabela arcade_likes, sql/supabase-setup-completo.sql) ----------
   // Uma curtida por pessoa por jogo; o jogo é identificado pelo email do
   // aluno dono. Não dá pra curtir o próprio jogo. Sem a tabela no banco
   // (SQL ainda não rodado), os corações simplesmente não aparecem.
@@ -442,7 +442,7 @@
     salvando = false;
   }
 
-  // ---------- Casos de teste (tabela arcade_test_cases, sql/arcade-casos-teste.sql) ----------
+  // ---------- Casos de teste (tabela arcade_test_cases, sql/supabase-setup-completo.sql) ----------
   // Com o jogo aberto, o botão 🧪 da barra abre um painel ao lado: o aluno
   // escreve um caso de teste (título, passos, esperado, obtido, passou ou
   // falhou e, se falhou, o bug encontrado) e vê os casos que a turma já
@@ -533,7 +533,7 @@
     const obtido = $('tObtido').value.trim();
     const status = document.querySelector('input[name="tStatus"]:checked')?.value;
     const msg = t => { $('tMsg').textContent = t; $('tMsg').classList.add('erro'); };
-    // Mesmos limites dos CHECKs de sql/arcade-casos-teste.sql.
+    // Mesmos limites dos CHECKs de sql/supabase-setup-completo.sql.
     if (titulo.length < 3) return msg('Dê um título ao caso (3+ letras).');
     if (passos.length < 5) return msg('Escreva os passos do teste.');
     if (esperado.length < 3) return msg('Diga qual era o resultado esperado.');

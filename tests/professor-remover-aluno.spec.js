@@ -3,7 +3,7 @@
 // (arquivar), não apaga nada: profiles.archived_at some da lista ativa em
 // TODA tela que lê turmaStudents() (Gestão, Chamada, Notas, Ranking,
 // relatórios), mas notas/chamada/progresso/placares já lançados continuam no
-// banco. Login também é bloqueado (RPC arquivar_aluno, sql/arquivar-aluno.sql
+// banco. Login também é bloqueado (RPC arquivar_aluno, sql/supabase-setup-completo.sql
 // — bane a conta e derruba a sessão no Supabase de verdade; o fake client só
 // simula o lado profiles.archived_at, ver tests/fixtures/fake-supabase-client.js).
 const { test, expect } = require('@playwright/test');
@@ -95,7 +95,7 @@ test.describe('Gestão → Alunos (arquivar/reativar) — dentro do portal da tu
     expect(profilesAfter.find(p => p.email === 'alexandre.natal').archived_at).toBeFalsy();
   });
 
-  // O RPC arquivar_aluno (sql/arquivar-aluno.sql) só deixa arquivar
+  // O RPC arquivar_aluno (sql/supabase-setup-completo.sql) só deixa arquivar
   // role='aluno' — nunca um professor, mesmo que alguém chame na mão via
   // console. Esta tela nem mostra o botão pra professor, mas a regra
   // também vale no lado do "servidor" (RPC), então testamos o RPC direto.

@@ -8,13 +8,13 @@
 //     os alunos da turma aberta (roster de fetchTurmaStudents()), com os
 //     links clicáveis.
 //
-// Grava em public.student_github_links (sql/github-links.sql), uma linha por
+// Grava em public.student_github_links (sql/supabase-setup-completo.sql), uma linha por
 // email, self-service via RLS — mesmo modelo de user_preferences. Os CHECKs
 // da tabela repetem as regras de validação daqui.
 (function () {
   'use strict';
 
-  // Mesmas regras dos CHECKs em sql/github-links.sql. Usuário do GitHub:
+  // Mesmas regras dos CHECKs em sql/supabase-setup-completo.sql. Usuário do GitHub:
   // letras/números e hífen simples no meio, até 39 caracteres.
   const USUARIO = '[a-z0-9](?:-?[a-z0-9]){0,38}';
   const REPO_RE = new RegExp(`^https://github\\.com/${USUARIO}/[a-z0-9._-]{1,100}/?$`, 'i');
@@ -200,7 +200,7 @@
       const { data, error } = await client.from('student_github_links').select('email, repo_url, pages_url');
       if (!overlay.isConnected) return;
       if (error) {
-        lista.innerHTML = '<p class="status-msg">Não foi possível carregar os links. Confira se o script sql/github-links.sql já foi rodado no Supabase.</p>';
+        lista.innerHTML = '<p class="status-msg">Não foi possível carregar os links. Confira se o script sql/supabase-setup-completo.sql já foi rodado no Supabase.</p>';
         return;
       }
       porEmail = new Map((data || []).map(r => [r.email, r]));

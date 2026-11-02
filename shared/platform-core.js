@@ -51,7 +51,7 @@
   // ---------- Personalização do portal (botão de perfil → 🎨 Personalizar)
   // ----------
   // Uma linha por usuário em user_preferences (Supabase), self-service via
-  // RLS (ver sql/user-preferences.sql) — carregada uma vez em init() e
+  // RLS (ver sql/supabase-setup-completo.sql) — carregada uma vez em init() e
   // reaplicada a cada mudança de controle na modal (ver openPersonalizacao).
   let prefs = { fontFamily: 'pixel', accentKey: 'padrao', theme: 'dark', avatarEmoji: '👤', bgPattern: false, cursorKey: 'default', clickSound: false };
 
@@ -412,7 +412,7 @@
           </div>
 
           <div id="tabContentGestao" class="tab-page" style="display:none;">
-            <!-- Substituto (shared/session.js, sql/usuario-substituto.sql): vê a
+            <!-- Substituto (shared/session.js, sql/supabase-setup-completo.sql): vê a
                  Gestão com as seções .so-professor escondidas (CSS por
                  html[data-substituto], ver platform-core.css). -->
             <div class="card so-substituto substituto-aviso">
@@ -1618,14 +1618,14 @@
   // profiles não tem policy de update pro professor, então só a function
   // consegue gravar archived_at (e, no arquivar, banir a conta/derrubar a
   // sessão — ver sql/supabase-setup-completo.sql). Best-effort: se a
-  // migração (sql/arquivar-aluno.sql) ainda não rodou, a function nem
+  // migração (sql/supabase-setup-completo.sql) ainda não rodou, a function nem
   // existe no banco e o RPC volta com erro — a tela avisa em vez de falhar
   // em silêncio.
   async function arquivarAluno(email) {
     if (!sbClient) return;
     const { data, error } = await sbClient.rpc('arquivar_aluno', { p_email: email });
     if (error) {
-      showAlert('Não foi possível arquivar este aluno agora (falha ao falar com o Supabase — rode sql/arquivar-aluno.sql se ainda não rodou). Veja o console (F12) para detalhes.');
+      showAlert('Não foi possível arquivar este aluno agora (falha ao falar com o Supabase — rode sql/supabase-setup-completo.sql se ainda não rodou). Veja o console (F12) para detalhes.');
       console.error('[Gestão] arquivar_aluno:', error);
       return;
     }
@@ -1647,7 +1647,7 @@
     if (!sbClient) return;
     const { data, error } = await sbClient.rpc('reativar_aluno', { p_email: email });
     if (error) {
-      showAlert('Não foi possível reativar este aluno agora (falha ao falar com o Supabase — rode sql/arquivar-aluno.sql se ainda não rodou). Veja o console (F12) para detalhes.');
+      showAlert('Não foi possível reativar este aluno agora (falha ao falar com o Supabase — rode sql/supabase-setup-completo.sql se ainda não rodou). Veja o console (F12) para detalhes.');
       console.error('[Gestão] reativar_aluno:', error);
       return;
     }
@@ -1787,7 +1787,7 @@
       const { error } = await sbClient.from('grades').upsert(rows, { onConflict: 'student_email,bimestre' });
       if (error) {
         if (status) status.textContent = /notas_congeladas/.test(error.message || '')
-          ? 'Não foi possível fechar: rode sql/fechar-bimestre.sql no Supabase.'
+          ? 'Não foi possível fechar: rode sql/supabase-setup-completo.sql no Supabase.'
           : 'Não foi possível fechar o bimestre (erro ao gravar as notas).';
         return;
       }
@@ -1795,7 +1795,7 @@
     const { error: errFechar } = await sbClient.from('bimestre_dates').upsert(
       { turma: cfg.id, bimestre: num, fechado: true, updated_at: now }, { onConflict: 'turma,bimestre' });
     if (errFechar) {
-      if (status) status.textContent = 'Não foi possível fechar: rode sql/fechar-bimestre.sql no Supabase.';
+      if (status) status.textContent = 'Não foi possível fechar: rode sql/supabase-setup-completo.sql no Supabase.';
       return;
     }
     if (status) status.textContent = `${BIMESTRE_LABELS[num]} fechado — notas congeladas às ${new Date().toLocaleTimeString('pt-BR')}.`;
@@ -2041,7 +2041,7 @@
     }
     const { error } = await sbClient.from('trilha_bimestre').upsert(rows, { onConflict: 'turma,trilha_key' });
     if (error) {
-      // Coluna liberar_em ainda não criada no Supabase (sql/trilha-liberar-em.sql).
+      // Coluna liberar_em ainda não criada no Supabase (sql/supabase-setup-completo.sql).
       if (status) status.textContent = `Erro ao salvar: ${error.message}`;
       return;
     }
@@ -2073,7 +2073,7 @@
   // "Sair da tela nas práticas" (Gestão → Bloqueios e Liberações): ligada,
   // todas as práticas da turma ganham a trava das provas (shared/pratica-trava.js).
   // Busca separada, como a do Horário de Acesso: sem a coluna no Supabase
-  // (sql/pratica-trava.sql) o select dá erro e a chave fica como desligada.
+  // (sql/supabase-setup-completo.sql) o select dá erro e a chave fica como desligada.
   async function fetchTravaPraticasGestao() {
     if (!sbClient) return;
     const { data, error } = await sbClient.from('classroom_settings').select('trava_praticas').eq('id', cfg.id).maybeSingle();
@@ -2087,7 +2087,7 @@
       id: cfg.id, trava_praticas: newValue, updated_at: new Date().toISOString()
     }, { onConflict: 'id' });
     if (error) {
-      showAlert('Não foi possível salvar a trava das práticas (rodou o sql/pratica-trava.sql no Supabase?): ' + error.message);
+      showAlert('Não foi possível salvar a trava das práticas (rodou o sql/supabase-setup-completo.sql no Supabase?): ' + error.message);
       return;
     }
     gestaoTravaPraticas = newValue;
@@ -2095,7 +2095,7 @@
 
   // "Horário de Acesso" (Gestão → Bloqueios e Liberações): fora do horário
   // o aluno vê o portal fechado (shared/horario-acesso.js). Busca separada
-  // da do Copiar e Colar: sem as colunas no Supabase (sql/horario-acesso.sql)
+  // da do Copiar e Colar: sem as colunas no Supabase (sql/supabase-setup-completo.sql)
   // o select dá erro, e não pode levar a chave do Copiar e Colar junto.
   async function fetchHorarioAcessoGestao() {
     if (!sbClient) return;
@@ -2126,7 +2126,7 @@
       updated_at: new Date().toISOString(),
     }, { onConflict: 'id' });
     if (error) {
-      status.textContent = `Erro ao salvar (rodou o sql/horario-acesso.sql no Supabase?): ${error.message}`;
+      status.textContent = `Erro ao salvar (rodou o sql/supabase-setup-completo.sql no Supabase?): ${error.message}`;
       return false;
     }
     status.textContent = `Salvo às ${new Date().toLocaleTimeString('pt-BR')}.`;
@@ -2662,7 +2662,7 @@
 
   // Nota de matéria digitada à mão pelo professor (Gestão → Lançar Notas,
   // com a chave "Editar Notas Manuais" ligada): fica em grades.notas_materia
-  // ({ [materiaKey]: nota }, sql/notas-manuais-materia.sql) e SUBSTITUI a
+  // ({ [materiaKey]: nota }, sql/supabase-setup-completo.sql) e SUBSTITUI a
   // nota final daquela matéria — sem fórmula, sem Recuperação por cima,
   // mesmo em matéria sem trilha no bimestre. null = sem nota manual, vale
   // a calculada. Usada por Lançar Notas, Perfil do aluno e Relatório.
@@ -3155,11 +3155,11 @@
 
     if (rows.length === 0) return;
     const { error } = await sbClient.from('grades').upsert(rows, { onConflict: 'student_email,bimestre' });
-    // Banco sem a coluna notas_materia ainda (sql/notas-manuais-materia.sql
+    // Banco sem a coluna notas_materia ainda (sql/supabase-setup-completo.sql
     // não rodado): salva o resto normalmente e avisa que as manuais ficaram de fora.
     if (error && /notas_materia/.test(error.message || '')) {
       await sbClient.from('grades').upsert(rows.map(({ notas_materia, ...r }) => r), { onConflict: 'student_email,bimestre' });
-      document.getElementById('notasStatus').textContent = 'Notas salvas, MENOS as notas manuais de matéria — rode sql/notas-manuais-materia.sql no Supabase.';
+      document.getElementById('notasStatus').textContent = 'Notas salvas, MENOS as notas manuais de matéria — rode sql/supabase-setup-completo.sql no Supabase.';
       renderRelatorioNotas();
       return;
     }
@@ -3387,7 +3387,7 @@
     const notaManual = (cfg.notasManuaisFor || []).includes(targetEmail);
     const [gradeRes, notaProvaByStudent, nota3AutoByStudent] = await Promise.all([
       // '*' e não uma lista de colunas: notas_materia só existe depois de
-      // rodar sql/notas-manuais-materia.sql, e pedir uma coluna que não
+      // rodar sql/supabase-setup-completo.sql, e pedir uma coluna que não
       // existe derrubaria a consulta inteira.
       sbClient.from('grades').select('*').eq('turma', cfg.id).eq('student_email', targetEmail).eq('bimestre', bimestreAtual).maybeSingle(),
       notaManual ? Promise.resolve({}) : fetchNotaProvaByStudent(),
@@ -4087,7 +4087,7 @@
   // (O "tempo em cada atividade × colegas" foi tirado a pedido do professor:
   // deixava o relatório grande demais. student_time_log continua guardando
   // o tempo por local, se um dia voltar.)
-  // O tempo vem de student_time_log (sql/student-time-log.sql): um gatilho
+  // O tempo vem de student_time_log (sql/supabase-setup-completo.sql): um gatilho
   // no banco soma, a cada heartbeat de shared/activity-tracker.js, os
   // segundos em que o aluno estava ATIVO em cada local, por dia. Sem
   // histórico antes desse SQL rodar.
@@ -4221,7 +4221,7 @@
       }).join('');
 
       const avisoTempo = tempoIndisponivel
-        ? `<p class="rel-aluno-aviso">⚠️ O registro de tempo ainda não está disponível no Supabase (rode <code>sql/student-time-log.sql</code>). As pendências abaixo continuam valendo.</p>`
+        ? `<p class="rel-aluno-aviso">⚠️ O registro de tempo ainda não está disponível no Supabase (rode <code>sql/supabase-setup-completo.sql</code>). As pendências abaixo continuam valendo.</p>`
         : `<p class="rel-aluno-nota">Tempo ativo = aba do portal aberta e visível, com o aluno mexendo no mouse/teclado nos últimos 2 minutos. O registro começou quando o recurso foi instalado — antes disso não há histórico.</p>`;
 
       const parte1 = `
@@ -5168,7 +5168,7 @@
   }
 
   // Upsert direto (sem RPC) na própria linha — mesmo modelo self-service de
-  // student_activity_state (ver sql/user-preferences.sql). Chamada a cada
+  // student_activity_state (ver sql/supabase-setup-completo.sql). Chamada a cada
   // controle trocado na modal de personalização, sem debounce: são cliques
   // discretos, não algo contínuo tipo arrastar um slider.
   async function saveUserPreferences() {

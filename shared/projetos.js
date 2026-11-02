@@ -13,7 +13,7 @@
 // clicáveis). Textos maiores e conectados ficam no Conhecimentos.
 //
 // Dados: tabelas public.professor_projetos e public.professor_projeto_itens
-// (sql/professor-projetos.sql). Sem as tabelas, salva só neste navegador
+// (sql/supabase-setup-completo.sql). Sem as tabelas, salva só neste navegador
 // (localStorage) e avisa. Estilos em shared/projetos.css.
 //
 // Uso: window.Projetos.montar(elemento, clienteSupabase)
@@ -193,7 +193,7 @@ window.Projetos = (function () {
           <button type="button" role="tab" data-aba="arquivados">Arquivados <span class="pj-n-arq"></span></button>
         </div>
         <nav class="pj-lista" aria-label="Lista de projetos"></nav>
-        <p class="pj-local" hidden>Salvando só neste navegador. Rode <code>sql/professor-projetos.sql</code> no Supabase pra guardar na sua conta.</p>
+        <p class="pj-local" hidden>Salvando só neste navegador. Rode <code>sql/supabase-setup-completo.sql</code> no Supabase pra guardar na sua conta.</p>
       </aside>
 
       <main class="pj-centro">

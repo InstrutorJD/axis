@@ -226,12 +226,12 @@ window.QuizRushEngine = (function () {
     let { error } = await sb.from('quizrush_sessions').upsert(row, { onConflict: 'id' });
     if (error && !allowSteal) { console.error('[QuizRushEngine] falha ao criar sessão:', error); return null; }
     if (error) {
-      // allow_steal é coluna nova (sql/quizrush-roubar-e-saida.sql) — se a
+      // allow_steal é coluna nova (sql/supabase-setup-completo.sql) — se a
       // migração ainda não rodou, tenta de novo sem ela em vez de deixar o
       // professor sem conseguir criar NENHUMA partida por causa de uma
       // opção que ele nem usou de propósito (a tela só oferece o checkbox,
       // não é obrigatório marcar).
-      console.warn('[QuizRushEngine] criando sessão sem allow_steal (rode sql/quizrush-roubar-e-saida.sql para habilitar "pegar pontos"):', error);
+      console.warn('[QuizRushEngine] criando sessão sem allow_steal (rode sql/supabase-setup-completo.sql para habilitar "pegar pontos"):', error);
       const { allow_steal, ...rowSemSteal } = row;
       ({ error } = await sb.from('quizrush_sessions').upsert(rowSemSteal, { onConflict: 'id' }));
       if (error) { console.error('[QuizRushEngine] falha ao criar sessão:', error); return null; }
@@ -346,7 +346,7 @@ window.QuizRushEngine = (function () {
 
   // Cada tentativa do aluno é gravada (a errada com score 0, pra o professor
   // ver quem está "tentando"); o acerto sobrescreve a mesma linha com a
-  // pontuação. `attempts` e `answer_text` são colunas novas (sql/quizrush-quizz-pratico.sql):
+  // pontuação. `attempts` e `answer_text` são colunas novas (sql/supabase-setup-completo.sql):
   // se a migração ainda não rodou, o banco recusa o upsert inteiro — nesse
   // caso tenta de novo só com as colunas antigas, pra o aluno NÃO perder o
   // ponto por causa de um script que faltou rodar, e avisa no console.
@@ -361,7 +361,7 @@ window.QuizRushEngine = (function () {
       { ...base, attempts: attempts || 1, answer_text: String(answerText || '').slice(0, 4000) }, opts
     );
     if (error) {
-      console.warn('[QuizRushEngine] gravando a resposta de código sem attempts/answer_text (rode sql/quizrush-quizz-pratico.sql):', error);
+      console.warn('[QuizRushEngine] gravando a resposta de código sem attempts/answer_text (rode sql/supabase-setup-completo.sql):', error);
       ({ error } = await sb.from('quizrush_answers').upsert(base, opts));
     }
     if (error) { console.error('[QuizRushEngine] falha ao enviar resposta de código:', error); return null; }

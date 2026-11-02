@@ -16,7 +16,7 @@
 // marcar na visualização), citações, callouts (> [!dica] Título), tabelas,
 // links [texto](https://...) e linha ---.
 //
-// Dados: tabela public.professor_notas (sql/professor-notas.sql). Sem a
+// Dados: tabela public.professor_notas (sql/supabase-setup-completo.sql). Sem a
 // tabela, salva só neste navegador (localStorage) e avisa. Na 1ª vez, cria
 // duas notas de exemplo (só uma vez por navegador; pode apagar).
 // Estilos em shared/conhecimentos.css.
@@ -346,7 +346,7 @@ window.Conhecimentos = (function () {
           <summary class="cn-secao-titulo">Mencionada em <span class="cn-contagem cn-n-entradas"></span></summary>
           <div class="cn-entradas"></div>
         </details>
-        <p class="cn-local" hidden>Salvando só neste navegador. Rode <code>sql/professor-notas.sql</code> no Supabase pra guardar na sua conta.</p>
+        <p class="cn-local" hidden>Salvando só neste navegador. Rode <code>sql/supabase-setup-completo.sql</code> no Supabase pra guardar na sua conta.</p>
       </aside>
 
       <main class="cn-centro">

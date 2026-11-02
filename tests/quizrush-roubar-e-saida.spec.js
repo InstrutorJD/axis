@@ -17,7 +17,7 @@
 //    opcional): perde pontos na hora, mas continua logado/jogando — recebe
 //    um aviso PRIVADO (só ele vê) na própria tela.
 //
-// sql/quizrush-roubar-e-saida.sql (schema real). Aqui o fake client simula
+// sql/supabase-setup-completo.sql (schema real). Aqui o fake client simula
 // as duas tabelas novas (quizrush_powers/quizrush_penalties) via .insert()
 // com conflito de chave primária — ver tests/fixtures/fake-supabase-client.js.
 const { test, expect } = require('@playwright/test');

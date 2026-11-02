@@ -1,6 +1,6 @@
 // "Horário de Acesso" (Gestão → Bloqueios e Liberações): o professor define
 // um horário de início e fim, por turma (classroom_settings.acesso_restrito/
-// acesso_inicio/acesso_fim, sql/horario-acesso.sql), e fora dele o ALUNO vê
+// acesso_inicio/acesso_fim, sql/supabase-setup-completo.sql), e fora dele o ALUNO vê
 // o portal fechado — uma tela cheia por cima de tudo, sem dar pra clicar nem
 // digitar em nada por baixo. Quando o horário abre de novo, a tela some
 // sozinha (confere a cada 20s e na hora em que o professor muda a regra).

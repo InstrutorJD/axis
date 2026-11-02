@@ -18,7 +18,7 @@
 // tocar no resto do cartão continua rolando a página. Ocultar vale nos dois.
 //
 // A arrumação fica no localStorage (abre já arrumado) e na conta do
-// professor (user_preferences.painel_layout, sql/painel-layout.sql). Sem a
+// professor (user_preferences.painel_layout, sql/supabase-setup-completo.sql). Sem a
 // coluna, salva só no navegador e avisa na barra. Estilos em
 // shared/painel-layout.css.
 //
@@ -353,7 +353,7 @@ window.PainelLayout = (function () {
       <span class="pr-pb-sep"></span>
       <button type="button" class="btn btn-ghost pr-pb-restaurar" data-acao="restaurar">${ico('restaurar')}<span>Restaurar padrão</span></button>
       <button type="button" class="btn" data-acao="concluir">Concluir</button>
-      ${soLocal ? '<span class="pr-pb-aviso" title="Rode sql/painel-layout.sql no Supabase pra guardar na sua conta">Salvo só neste navegador</span>' : ''}`;
+      ${soLocal ? '<span class="pr-pb-aviso" title="Rode sql/supabase-setup-completo.sql no Supabase pra guardar na sua conta">Salvo só neste navegador</span>' : ''}`;
   }
 
   function ocultar(b) {

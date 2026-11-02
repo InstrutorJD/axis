@@ -633,7 +633,7 @@ iframe{ width:100%; height:100%; border:none; display:block; }
 
 /* Substituto (shared/session.js → html[data-substituto]): esconde o que ele
    não usa na Gestão (.so-professor) e mostra o aviso de modo (.so-substituto).
-   Só visual — quem garante que ele não edita é o banco (sql/usuario-substituto.sql). */
+   Só visual — quem garante que ele não edita é o banco (sql/supabase-setup-completo.sql). */
 .so-substituto{ display:none; }
 html[data-substituto] .so-substituto{ display:block; }
 html[data-substituto] .so-professor{ display:none !important; }

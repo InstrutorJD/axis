@@ -2,8 +2,8 @@
 // Bug (plataforma, games/fuga-do-bug-engine.js) com o QuizRush (quiz ao
 // vivo, shared/quizrush-engine.js). Mesmo espírito de quizrush-engine.js —
 // cuida só do que NÃO é tela: sessão/progresso no Supabase (tabelas
-// PRÓPRIAS, ver sql/corrida-do-bug.sql, bloco 16 de
-// supabase-setup-completo.sql) e a pontuação por checkpoint.
+// PRÓPRIAS, ver o bloco 16 de
+// sql/supabase-setup-completo.sql) e a pontuação por checkpoint.
 //
 // Diferença de fundo pro QuizRush: lá é "todo mundo responde a MESMA
 // pergunta ao mesmo tempo" (um cronômetro do servidor, sincronizado). Aqui

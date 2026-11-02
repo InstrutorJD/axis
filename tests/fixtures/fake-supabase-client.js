@@ -325,7 +325,7 @@
           const current = validRows[0];
           return Promise.resolve({ data: current ? [{ token: current.token, expires_at: current.expires_at }] : [], error: null });
         }
-        // Arquivar/reativar aluno (ver sql/arquivar-aluno.sql e "Alunos" na
+        // Arquivar/reativar aluno (ver sql/supabase-setup-completo.sql e "Alunos" na
         // Gestão) — mesma checagem de role que is_professor() faz de
         // verdade. Não simula o banimento no Supabase Auth em si (o fake
         // não tem auth.users/auth.sessions) — só o profiles.archived_at,

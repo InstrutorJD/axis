@@ -226,7 +226,7 @@ insert into public.classroom_settings (id, clipboard_blocked)
 values ('global', false), ('jogos', false), ('sistemas', false)
 on conflict (id) do nothing;
 
--- "Horário de Acesso" (Gestão → Bloqueios e Liberações, sql/horario-acesso.sql):
+-- "Horário de Acesso" (Gestão → Bloqueios e Liberações):
 -- com acesso_restrito ligado, fora de acesso_inicio–acesso_fim o aluno vê o
 -- portal fechado (shared/horario-acesso.js, hora do servidor via
 -- quizrush_server_now). Desligado = livre; os horários ficam gravados.
@@ -234,8 +234,8 @@ alter table public.classroom_settings add column if not exists acesso_restrito b
 alter table public.classroom_settings add column if not exists acesso_inicio time;
 alter table public.classroom_settings add column if not exists acesso_fim time;
 
--- "Sair da tela nas práticas" (Gestão → Bloqueios e Liberações,
--- sql/pratica-trava.sql): ligada, todas as práticas da turma ganham a trava
+-- "Sair da tela nas práticas" (Gestão → Bloqueios e Liberações):
+-- ligada, todas as práticas da turma ganham a trava
 -- das provas (shared/pratica-trava.js + shared/exam-proctor.js).
 alter table public.classroom_settings add column if not exists trava_praticas boolean not null default false;
 
@@ -432,8 +432,7 @@ end $$;
 
 -- ============================================================
 -- BLOCO 2b — Histórico de tempo no portal, por aluno/dia/atividade
--- (Gestão → Relatórios → "Relatório por Aluno"). Também em
--- sql/student-time-log.sql.
+-- (Gestão → Relatórios → "Relatório por Aluno").
 -- ============================================================
 -- active_seconds_today (acima) zera todo dia; esta tabela guarda o tempo
 -- por aluno, por DIA (de Brasília) e por LOCAL (o `location` do
@@ -1051,12 +1050,11 @@ create index if not exists idx_grades_turma_bimestre on public.grades (turma, bi
 
 -- Notas manuais por matéria (Gestão → Lançar Notas, chave "Editar Notas
 -- Manuais" em Bloqueios e Liberações): { "<materia_key>": nota } — substitui a nota
--- calculada daquela matéria. Ver sql/notas-manuais-materia.sql.
+-- calculada daquela matéria.
 alter table public.grades add column if not exists notas_materia jsonb not null default '{}'::jsonb;
 
 -- Notas congeladas ao "Fechar bimestre": { "<materia_key>": nota | null },
 -- a nota FINAL de cada matéria no momento em que o professor fechou.
--- Ver sql/fechar-bimestre.sql.
 alter table public.grades add column if not exists notas_congeladas jsonb;
 
 alter table public.grades enable row level security;
@@ -1242,8 +1240,7 @@ alter table public.bimestre_dates add column if not exists notas_liberadas boole
 
 -- "Fechar bimestre" (Gestão → Bloqueios e Liberações, coluna "Notas" da
 -- tabela de bimestres): true = as notas desse bimestre estão congeladas em
--- grades.notas_congeladas e não são mais recalculadas. Ver
--- sql/fechar-bimestre.sql.
+-- grades.notas_congeladas e não são mais recalculadas.
 alter table public.bimestre_dates add column if not exists fechado boolean not null default false;
 
 alter table public.bimestre_dates enable row level security;
@@ -1288,8 +1285,7 @@ create table if not exists public.trilha_bimestre (
 -- "Liberar em" (Gestão → Liberação por Trilha): data opcional, dentro do
 -- bimestre, a partir da qual a trilha aparece pro aluno — pra não ficar
 -- disponível o bimestre inteiro e o aluno adiantar atividade dos colegas.
--- null = libera junto com o início do bimestre, como antes. Ver
--- sql/trilha-liberar-em.sql.
+-- null = libera junto com o início do bimestre, como antes.
 alter table public.trilha_bimestre add column if not exists liberar_em date;
 
 alter table public.trilha_bimestre enable row level security;
@@ -1477,8 +1473,7 @@ create index if not exists idx_quizrush_answers_session on public.quizrush_answe
 -- Quizz Prático (problemas de código no lugar de múltipla escolha): além do
 -- acerto/pontuação de sempre, guarda quantas tentativas o aluno fez e o
 -- último código enviado (o professor consegue conferir depois). choice_index
--- continua obrigatório — pra código vale 0 e é ignorado. Script avulso
--- equivalente: sql/quizrush-quizz-pratico.sql.
+-- continua obrigatório — pra código vale 0 e é ignorado.
 alter table public.quizrush_answers add column if not exists attempts int not null default 1;
 alter table public.quizrush_answers add column if not exists answer_text text;
 
@@ -1614,8 +1609,7 @@ end $$;
 -- allow_steal abaixo) e a penalidade de sair da tela (sempre ativa, não é
 -- opcional) — os dois mexem no placar além de quizrush_answers, então
 -- shared/quizrush-engine.js soma os três (leaderboardFrom) pra chegar no
--- total de cada aluno. Script avulso equivalente:
--- sql/quizrush-roubar-e-saida.sql.
+-- total de cada aluno.
 alter table public.quizrush_sessions add column if not exists allow_steal boolean not null default false;
 
 -- Um aluno que ACERTOU a pergunta escolhe: 'roubar' (tira `amount` pontos de
@@ -2015,10 +2009,10 @@ create table if not exists public.user_preferences (
 alter table public.user_preferences add column if not exists ambient_music boolean not null default false;
 alter table public.user_preferences add column if not exists click_sound boolean not null default false;
 -- Arrumação do painel do professor (ordem, largura e ocultos dos cartões),
--- shared/painel-layout.js — ver sql/painel-layout.sql.
+-- shared/painel-layout.js.
 alter table public.user_preferences add column if not exists painel_layout jsonb;
 -- Aulas excluídas da lista do Criar Material (o .md continua em materiais/),
--- professor/materiais.html — ver sql/materiais-ocultos.sql.
+-- professor/materiais.html.
 alter table public.user_preferences add column if not exists materiais_ocultos jsonb;
 
 alter table public.user_preferences enable row level security;
@@ -2177,8 +2171,24 @@ end $$;
 -- SUBSTITUTO — quem dá a aula quando o professor se ausenta. Pode: ligar/
 -- desligar Copiar e Colar e Jogos, fazer a chamada, gerar o token de visto
 -- e conduzir QuizRush/Corrida do Bug; só VÊ alunos, progresso, notas,
--- relatórios e alertas. Ver sql/usuario-substituto.sql (tem também o passo
--- a passo pra criar a conta) e shared/session.js.
+-- relatórios e alertas. Ver shared/session.js.
+--
+-- CRIAR A CONTA DO SUBSTITUTO (uma vez por pessoa, fora deste script):
+--  a) No painel do Supabase: Authentication → Users → Add user →
+--     Create new user:
+--       Email:    <usuario>@aluno.portal.local   (ex.: substituto@aluno.portal.local)
+--       Password: a senha que ele vai usar
+--       [x] Auto Confirm User
+--     (O login do portal pede só o <usuario> — o "@aluno.portal.local" é
+--     interno, igual ao de todo mundo.)
+--  b) Depois, troque os valores (usuário e nome) e rode no SQL Editor:
+--
+--     insert into public.profiles (id, email, nome, role, turma)
+--     select u.id, 'substituto', 'Professor Substituto', 'substituto', 'all'
+--     from auth.users u
+--     where u.email = 'substituto@aluno.portal.local'
+--     on conflict (id) do update
+--       set role = 'substituto', nome = excluded.nome, email = excluded.email, turma = 'all';
 -- ============================================================
 
 -- 1) Papel novo em profiles.
@@ -2325,7 +2335,6 @@ $$;
 -- ============================================================
 -- CONHECIMENTOS — notas do professor conectadas por [[links]]
 -- (professor/conhecimentos.html). Só o professor, cada um as suas.
--- Mesmo trecho de sql/professor-notas.sql.
 -- ============================================================
 
 create table if not exists public.professor_notas (
@@ -2375,7 +2384,6 @@ grant select, insert, update, delete on public.professor_notas to authenticated;
 -- ============================================================
 -- PROJETOS — caderno de projetos do professor (ideias, pesquisas,
 -- links; fixar e arquivar). professor/projetos.html. Só o professor.
--- Mesmo trecho de sql/professor-projetos.sql.
 -- ============================================================
 
 create table if not exists public.professor_projetos (
@@ -2470,7 +2478,6 @@ grant select, insert, update, delete on public.professor_projeto_itens to authen
 -- GITHUB DOS ALUNOS — link do repositório e do GitHub Pages de cada
 -- aluno (ícone do GitHub na barra de abas, shared/github-links.js).
 -- Aluno lê/grava só os próprios; professor (e substituto) leem todos.
--- Mesmo trecho de sql/github-links.sql.
 -- ============================================================
 
 create table if not exists public.student_github_links (
@@ -2528,7 +2535,7 @@ create policy "student_github_links_select_same_turma"
     where p.email = student_github_links.email and p.turma = 'jogos'
   ));
 
--- Curtidas do Arcade da Turma (arcade.html, sql/arcade-curtidas.sql).
+-- Curtidas do Arcade da Turma (arcade.html).
 -- Uma linha por curtida: quem curtiu (liker_email) o jogo de qual aluno
 -- (game_email, o dono do link do GitHub Pages em student_github_links).
 -- Uma curtida por pessoa por jogo (chave primária) e ninguém curte o
@@ -2565,7 +2572,7 @@ create policy "arcade_likes_delete_self"
 
 grant select, insert, delete on public.arcade_likes to authenticated;
 
--- Casos de teste do Arcade da Turma (arcade.html, sql/arcade-casos-teste.sql).
+-- Casos de teste do Arcade da Turma (arcade.html).
 -- Enquanto joga um jogo do Arcade, o aluno registra um caso de teste:
 -- título, passos, resultado esperado, resultado obtido, se passou ou
 -- falhou e, quando falha, o bug encontrado. game_email = dono do jogo
@@ -2629,7 +2636,7 @@ grant select, insert, delete on public.arcade_test_cases to authenticated;
 
 
 -- =====================================================================
--- APRESENTAÇÕES DO CANVA (links temporários, 72 h) — sql/canva-links.sql
+-- APRESENTAÇÕES DO CANVA (links temporários, 72 h)
 -- =====================================================================
 
 create table if not exists public.student_canva_links (
@@ -2686,7 +2693,7 @@ create policy "student_canva_links_delete_self"
   on public.student_canva_links for delete to authenticated
   using (email = public.current_email());
 
--- Substituto (sql/usuario-substituto.sql) só lê, igual às outras tabelas.
+-- Substituto só lê, igual às outras tabelas.
 do $$
 begin
   if exists (select 1 from pg_proc where proname = 'is_substituto' and pronamespace = 'public'::regnamespace) then
