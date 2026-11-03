@@ -3,535 +3,527 @@ aula: 11
 data: 2026-11-04
 titulo: Aulão: O caso do Estúdio Pequi
 turma: 2º JD
-descricao: Mundo do Trabalho, Projeto de Vida e Projetos ligados por enigmas de lógica, sem computador
+descricao: Profissões, trabalho em equipe e estrutura de projetos com enigmas, usando só caderno e caneta
 ---
 
 # O caso do Estúdio Pequi
-Profissões, trabalho em equipe e estrutura de projetos
+Você é a dupla de detetives que vai salvar um jogo
 
 ---
 
-## Capacidades de hoje
-| Matéria | Capacidade |
-|---|---|
-| Mundo do Trabalho 4.0 | Identificar as características das profissões |
-| Projeto de Vida | Reconhecer as características do trabalho em equipe de forma colaborativa, considerando o respeito às diferenças individuais. |
-| Introdução ao Desenvolvimento de Projetos | Reconhecer os padrões de estrutura estabelecidos para a elaboração de projetos |
+## O que está acontecendo
+O Estúdio Pequi vai lançar o jogo **Lenda do Cerrado**, mas tudo deu errado.
+
++ 🪪 **Missão 1:** os crachás sumiram. Quem faz o quê?
++ 🤝 **Missão 2:** a equipe está brigando. Como resolver?
++ 📄 **Missão 3:** o documento embaralhou. Como organizar?
+
+> Uma missão ajuda na próxima.
 
 ---
 
 ## Como vai funcionar
-1. Forme uma **dupla** e separe caderno e caneta
-2. Consulte apenas o que estiver nos slides
-3. Registre cada resposta e o **motivo** no caderno
-4. Mostre o caderno nos pontos de **visto**
-
-> Hoje não usaremos computador nem celular.
+1. Forme uma **dupla**
+2. Use só **caderno e caneta**
+3. Olhe o slide e **converse** antes de responder
+4. No fim de cada missão, mostre o caderno para o **visto**
 
 ---
 
-## O caso
-O Estúdio Pequi vai lançar o jogo **Lenda do Cerrado**.
-
-+ **Parte 1:** os crachás sumiram. Quem é quem?
-+ **Parte 2:** faltam cinco dias. Como a equipe se organiza?
-+ **Parte 3:** o documento embaralhou. Como corrigir?
-
-> Cada parte usa o resultado da anterior.
+# Missão 1: Quem faz o quê?
+Mundo do Trabalho 4.0
 
 ---
 
-# Parte 1: Quem é quem no estúdio
-Mundo do Trabalho 4.0 · 1 hora
+## O que vamos aprender
+Cada profissão tem características que ajudam a reconhecê-la.
+
+- O que a pessoa **faz**
+- O que ela precisa **estudar**
+- Como ela é **contratada**
+
+> **Capacidade:** Identificar as características das profissões
 
 ---
 
-## Consulta: quem faz o quê
-| Profissão | Atividade principal |
+## Quem trabalha em um jogo
+| Profissão | O que faz no dia a dia |
 |---|---|
-| Programador(a) | Escreve e corrige o código do jogo |
-| Game designer | Define regras e mecânicas no GDD |
-| Artista 2D | Cria personagens, cenários e sprites |
-| Analista de testes | Executa roteiros e registra bugs |
-| Produtor(a) | Organiza cronograma, prazos e prioridades |
+| 💻 Programador(a) | Escreve o código do jogo |
+| 🎲 Game designer | Inventa as regras e os desafios |
+| 🎨 Artista | Desenha personagens e cenários |
+| 🔍 Testador(a) | Joga várias vezes e procura erros |
 
 ---
 
-## Consulta: vínculo e nível
-| Forma ou nível | O que caracteriza |
+## Vamos treinar
+Alguém joga a mesma fase 50 vezes e anota cada erro. Qual é a profissão?
+
+- [ ] Programador(a)
+- [ ] Game designer
+- [ ] Artista
+- [x] Testador(a)
+
+> Por quê: procurar e anotar erros é o trabalho de quem testa.
+
+---
+
+## Como resolver um enigma
+**Exemplo:** Ana, Léo e Mia jogam jogos diferentes.
+
+- **Pista 1:** Léo joga corrida.
+- **Pista 2:** Ana não joga futebol.
+
+> Primeiro, desenhe uma tabela com os nomes e as opções.
+
+---
+
+## Passo 1: use a pista certa
+"Léo joga corrida." Marque ✔ e risque o resto com ✖.
+
+| | Corrida | Futebol | Luta |
+|---|---|---|---|
+| Ana | ✖ | | |
+| Léo | ✔ | ✖ | ✖ |
+| Mia | ✖ | | |
+
+---
+
+## Passo 2: elimine
+"Ana não joga futebol." Só sobra **luta** para Ana. Então, Mia joga **futebol**.
+
+| | Corrida | Futebol | Luta |
+|---|---|---|---|
+| Ana | ✖ | ✖ | ✔ |
+| Léo | ✔ | ✖ | ✖ |
+| Mia | ✖ | ✔ | ✖ |
+
+---
+
+## 🧩 Enigma 1: de quem é o crachá? (8 min)
+1. Duda passa o dia escrevendo código.
+2. Enzo leva um caderno de desenhos para o trabalho e cria os personagens.
+3. Bia nunca joga a mesma fase para procurar erros.
+
+| | Programa | Regras | Arte | Testes |
+|---|---|---|---|---|
+| Bia | | | | |
+| Caio | | | | |
+| Duda | | | | |
+| Enzo | | | | |
+
+---
+
+## ✅ Resposta do Enigma 1
++ **Duda** é programadora: ela escreve código
++ **Enzo** é artista: ele cria os personagens
++ **Bia** não testa, então sobra inventar as regras: **game designer**
++ **Caio** fica com o que sobrou: **testador**
+
+---
+
+## Como cada pessoa é contratada
+| Tipo | Como reconhecer |
 |---|---|
-| Aprendiz | Trabalha e faz curso de aprendizagem |
-| Estágio | Ato educativo supervisionado, ligado ao curso |
-| CLT | Carteira assinada, férias, 13º e FGTS |
-| PJ | Presta serviço e emite nota fiscal |
-| Júnior / sênior | Mais revisão / mais autonomia e orientação |
+| Aprendiz | Trabalha e faz um curso de aprendizagem |
+| Estágio | Estuda e tem um supervisor no trabalho |
+| CLT | Carteira assinada, férias e 13º salário |
+| PJ | Tem empresa e emite nota fiscal |
 
 ---
 
-## Consulta: o que mais caracteriza
-- **Cargo:** nome do posto em uma empresa
-- **Ocupação:** o trabalho que a pessoa realmente faz
-- **Regulamentada:** tem lei própria e requisitos
-- Medicina e engenharia exigem registro em conselho
-- Programação e game design não têm essa exigência legal
+## 🧩 Enigma 2: como foram contratados? (6 min)
+1. Bia tem a própria empresa e emite nota fiscal.
+2. Duda tem carteira assinada e recebe 13º salário.
+3. Enzo faz faculdade de design, e uma supervisora acompanha seu trabalho.
+
+| | Aprendiz | Estágio | CLT | PJ |
+|---|---|---|---|---|
+| Bia | | | | |
+| Caio | | | | |
+| Duda | | | | |
+| Enzo | | | | |
 
 ---
 
-## Ferramenta 1: eliminar
-Cada pessoa tem uma profissão, e cada profissão tem uma pessoa.
-
-- **✖** quando a pista descarta um par
-- **✔** quando sobrou só uma possibilidade
-- Marcou ✔? Coloque ✖ no resto da linha e da coluna
-
----
-
-## Ferramenta 2: "se... então"
-| Regra: se A, então B | Dá para concluir? |
-|---|---|
-| A aconteceu | **Sim:** B aconteceu |
-| B não aconteceu | **Sim:** A não aconteceu |
-| B aconteceu | **Não:** A pode ter ocorrido ou não |
-| A não aconteceu | **Não:** B pode ter ocorrido ou não |
-
----
-
-## Treino rápido
-"Se Duda registra os bugs, então Caio cuida dos prazos." Caio não cuida. O que é certo?
-
-- [ ] Duda registra os bugs
-- [x] Duda não registra os bugs
-- [ ] Caio registra os bugs
-- [ ] Nada se pode concluir
-
-> Por quê: B não aconteceu, então A também não aconteceu. Mas isso não diz quem registra os bugs.
-
----
-
-## Enigma 1: monte no caderno
-| Pessoa | Prog. | Design | Arte | Testes | Prazos |
-|---|---|---|---|---|---|
-| Bia | | | | | |
-| Caio | | | | | |
-| Duda | | | | | |
-| Enzo | | | | | |
-| Yara | | | | | |
-
----
-
-## Enigma 1: pistas (12 min)
-1. Caio não escreve código nem desenha sprites.
-2. Enzo e Duda não cuidam dos prazos.
-3. Yara e Enzo não definem mecânicas no GDD.
-4. Se Duda registrasse bugs, Caio cuidaria dos prazos. Caio não cuida.
-5. Bia não testa, não desenha, não programa e não organiza prazos.
-6. Duda e Yara não criam a arte do jogo.
-
----
-
-## Enigma 1: resolução
-+ Pista 5: só sobra **game design** para **Bia**
-+ Arte: só sobra **Enzo**
-+ Prazos: só sobra **Yara**
-+ Testes: só sobra **Caio**
-+ Código: fica com **Duda**
-
----
-
-## Enigma 2: vínculo de cada pessoa (8 min)
-Copie a tabela com **Aprendiz, Estágio, CLT júnior, CLT sênior e PJ**.
-
-1. Quem escreve o GDD emite nota fiscal.
-2. Quem desenha e quem testa não têm carteira assinada.
-3. Quem desenha faz ato educativo supervisionado, ligado ao curso superior.
-4. O código de quem programa ainda é revisado por alguém experiente.
-5. Quem organiza os prazos orienta colegas com bastante autonomia.
-
----
-
-## Enigma 2: resolução
-| Pessoa | Profissão | Vínculo |
+## ✅ Resposta do Enigma 2
+| Pessoa | Profissão | Contratação |
 |---|---|---|
 | Bia | Game designer | PJ |
-| Caio | Analista de testes | Aprendiz |
-| Duda | Programadora | CLT júnior |
-| Enzo | Artista 2D | Estágio |
-| Yara | Produtora | CLT sênior |
+| Caio | Testador | Aprendiz |
+| Duda | Programadora | CLT |
+| Enzo | Artista | Estágio |
 
 ---
 
-## Caso 1: o candidato sem GDD
-Regra: "Se define mecânicas, então escreve o GDD". Luan nunca escreveu um GDD neste estúdio.
+## A regra do "se... então"
+**Regra:** se o celular está sem bateria, então ele não liga.
 
-- [ ] Luan é programador
-- [x] Luan não definia as mecânicas aqui
-- [ ] Luan definia, mas não registrava
-- [ ] Nada se pode concluir
+| O que aconteceu | O que dá para concluir |
+|---|---|
+| O celular ligou | Com certeza, ele tem bateria |
+| O celular não ligou | **Não dá para ter certeza:** pode estar quebrado |
 
-> Por quê: B não aconteceu, então A não aconteceu. A regra não revela a profissão de Luan.
-
----
-
-## Caso 2: a conclusão apressada
-"Todo analista de testes é detalhista. Nina é detalhista. Logo, Nina é analista de testes."
-
-- [ ] Válida, pois ela tem a competência
-- [ ] Inválida, pois testador não é detalhista
-- [x] Inválida, pois outras áreas também pedem detalhe
-- [ ] Válida, pois só há uma explicação possível
-
-> Por quê: B verdadeiro não prova A. Para identificar a profissão, faltam as atividades de Nina.
+> Uma pista pode ajudar, mas nem sempre prova tudo.
 
 ---
 
-## Caso 3: o registro obrigatório
-"Médicos e engenheiros têm registro em conselho. Então, Bia também precisa para ser game designer."
+## 💬 Caso 1: o detalhista
+Todo testador presta atenção aos detalhes. Nina também presta. Dá para ter certeza de que Nina é testadora?
 
-- [x] Não precisa: a profissão não é regulamentada
-- [ ] Precisa: toda profissão técnica tem conselho
-- [ ] Precisa: o contrato com o estúdio exige
-- [ ] Não precisa: nenhuma profissão exige registro
+- [ ] Sim, porque ela tem essa qualidade
+- [x] Não, porque outras profissões também pedem atenção
+- [ ] Sim, porque essa qualidade só existe em testes
+- [ ] Não, porque testador não presta atenção
 
-> Por quê: a exigência depende da regulamentação. O exemplo de outras profissões não transfere a regra.
+> Por quê: é como o celular que não ligou: existe mais de uma explicação. Falta saber o que Nina faz.
 
 ---
 
-## Caso 4: o "Ninja do Código"
-O crachá de Theo diz "Ninja do Código". Ele segue roteiros, compara resultados e registra falhas. Não altera o código.
+## 💬 Caso 2: o nome engraçado
+O crachá de Theo diz "Ninja do Código". Mas ele só testa o jogo e anota os erros. Qual é o trabalho dele?
 
-- [ ] Programador, pelo nome do cargo
-- [x] Analista de testes, pelas atividades
-- [ ] Produtor, porque acompanha resultados
+- [ ] Programador, por causa do nome no crachá
+- [x] Testador, por causa do que ele faz
 - [ ] Artista, porque o nome é criativo
+- [ ] Não dá para saber quem é Theo
 
-> Por quê: cargo é só o nome do posto. A ocupação aparece no que a pessoa faz.
+> Por quê: o nome do cargo pode enganar. O que vale é o que a pessoa faz no dia a dia.
 
 ---
 
-## ✍️ Visto da Parte 1
-- Tabelas dos **Enigmas 1 e 2**
-- Respostas dos **Casos 1 a 4**
-- Uma frase: qual característica mais ajudou?
+## 💬 Caso 3: precisa de registro?
+Médicos precisam de registro em um conselho, porque uma lei exige. Bia precisa disso para ser game designer?
+
+- [ ] Sim, toda profissão precisa de um conselho
+- [x] Não, nenhuma lei exige isso de game designers
+- [ ] Sim, porque jogos também são tecnologia
+- [ ] Só se ela trabalhar com médicos
+
+> Por quê: só profissões regulamentadas por lei têm essa exigência, e game design não é uma delas.
+
+---
+
+## 🕵️ Agora é com vocês
+1. Escolham uma profissão ligada a jogos
+2. Escrevam **3 pistas** sem dizer o nome dela
+3. Troquem com outra dupla e tentem adivinhar
+
+[cronômetro 10]
+
+---
+
+## ✍️ Visto da Missão 1
+- Enigmas 1 e 2 resolvidos
+- Casos 1 a 3 respondidos
+- As 3 pistas criadas pela dupla
 
 [cronômetro 5]
 
 ---
 
-# Parte 2: A equipe em ação
-Projeto de Vida · 1 hora
+# Missão 2: A equipe em crise
+Projeto de Vida
 
 ---
 
-## Consulta: características da equipe
-| Característica | O que significa |
+## O que vamos aprender
+Equipe não é só um grupo de pessoas no mesmo lugar.
+
+- Todos têm o **mesmo objetivo**
+- O trabalho de um **depende** do trabalho do outro
+- As **diferenças** entre as pessoas são respeitadas
+
+> **Capacidade:** Reconhecer as características do trabalho em equipe de forma colaborativa, considerando o respeito às diferenças individuais.
+
+---
+
+## O que faz uma equipe funcionar
+| Característica | Na prática |
 |---|---|
-| Objetivo comum | Todos sabem o que precisam alcançar |
-| Papéis complementares | A parte de um depende da parte do outro |
-| Comunicação | A informação chega clara e a tempo |
-| Compromisso | Cada um cumpre o combinado e avisa riscos cedo |
-| Respeito às diferenças | Horários e jeitos de contribuir são considerados |
+| Objetivo comum | Todos sabem aonde querem chegar |
+| Papéis que se completam | Um precisa do trabalho do outro |
+| Comunicação | Avisar com clareza e no tempo certo |
+| Compromisso | Cumprir o combinado ou avisar antes |
+| Respeito | Cada pessoa contribui do seu jeito |
 
 ---
 
-## Consulta: fato ou suposição?
-| Fato: dá para verificar | Suposição: é uma interpretação |
+## Fato ou achismo?
+| Fato: dá para comprovar | Achismo: é só o que parece |
 |---|---|
 | Duda falou pouco na reunião | Duda não liga para o projeto |
 | Enzo entregou um dia depois | Enzo é preguiçoso |
-| Bia discordou da arte | Bia não gosta de Enzo |
+| Bia não gostou da arte | Bia não gosta do Enzo |
 
-> Antes de concluir sobre alguém, pergunte: qual evidência eu tenho?
-
----
-
-## Consulta: conflito e comunicação
-- **Conflito:** volte ao objetivo comum e combine um critério
-- **Decisão:** separe fatos de opiniões e teste
-- **Problema:** diga o fato, o efeito e um pedido
-- **Risco:** avise cedo para replanejar em equipe
-
-> A discussão é sobre a solução, não sobre quem é melhor.
+> Antes de julgar alguém, pergunte: **como eu sei disso?**
 
 ---
 
-## Treino rápido
-Cada pessoa terminou sua parte, mas a arte não encaixa no código. O que faltou?
+## Vamos treinar
+"Caio chegou atrasado hoje." O que é essa frase?
 
-- [ ] Mais competição entre a equipe
-- [x] Integração entre as partes
-- [ ] Autonomia para decidir sozinho
-- [ ] Menos conversa durante o trabalho
+- [x] Um fato, porque dá para comprovar
+- [ ] Um achismo, porque critica Caio
+- [ ] Um fato, porque mostra que ele é irresponsável
+- [ ] Um achismo, porque ninguém olha o relógio
 
-> Por quê: papéis complementares precisam combinar como as partes se encaixam.
-
----
-
-## Enigma: as tarefas extras
-Copie a tabela. Cada pessoa assume **uma** tarefa.
-
-| Pessoa | Demo | Mentoria | Textos | Contraste | Reunião |
-|---|---|---|---|---|---|
-| Bia | | | | | |
-| Caio | | | | | |
-| Duda | | | | | |
-| Enzo | | | | | |
-| Yara | | | | | |
+> Por quê: o atraso pode ser comprovado. Já dizer "ele é irresponsável" seria achismo.
 
 ---
 
-## Enigma: pistas (12 min)
-1. A reunião é às 8h. Caio tem curso e Enzo só vem à tarde.
-2. Mentoria pede experiência: aprendiz e estagiário ainda não fazem.
-3. Duda pediu para não apresentar nesta semana, e a equipe aceitou.
-4. O contraste fica com quem cria a arte.
-5. A demo é em inglês. Bia é fluente e se ofereceu.
-6. Se Duda conduzisse a reunião, Yara mentoraria. Yara não pode mentorar.
+## 🧩 Enigma 3: quem faz cada tarefa? (8 min)
+1. Enzo entende de arte e vai cuidar das cores.
+2. A apresentação é em inglês, e só Bia e Caio falam inglês.
+3. Caio tem curso na hora da apresentação.
+4. Ajudar o novato pede experiência, e Caio chegou há um mês.
+
+| | Apresentar | Ajudar novato | Textos | Cores |
+|---|---|---|---|---|
+| Bia | | | | |
+| Caio | | | | |
+| Duda | | | | |
+| Enzo | | | | |
 
 ---
 
-## Enigma: resolução
-+ Pista 4: **Enzo** confere o contraste
-+ Pista 5: **Bia** apresenta a demo
-+ Pistas 1 e 2: para **Caio**, sobram os textos
-+ Pista 6: Yara não mentora, então **Duda** mentora
-+ Sobra a reunião para **Yara**
+## ✅ Resposta do Enigma 3
++ **Enzo** cuida das cores
++ **Bia** apresenta: só ela fala inglês e está livre nesse horário
++ **Caio** não apresenta nem ajuda o novato, então revisa os **textos**
++ **Duda** ajuda o novato
 
-> As diferenças orientaram o plano sem excluir ninguém.
+> O plano levou em conta o curso e a experiência de cada um, sem excluir ninguém.
 
 ---
 
-## Caso 1: "Duda não fala nada"
-"Duda não fala na reunião, logo não se importa." Mas Duda envia comentários por escrito e corrigiu o erro mais grave.
+## 💬 Caso 4: "Duda não fala nada"
+Um colega diz: "Duda não fala na reunião, então não se importa". Mas ela manda ideias por escrito e corrigiu o pior erro do jogo.
 
-- [x] Duda contribui, mas mais por escrito
-- [ ] Duda não se importa, pois fala pouco
-- [ ] Duda deve sair das decisões
+- [x] Duda contribui, só que de outro jeito
+- [ ] Duda não se importa, porque fala pouco
+- [ ] Duda deve sair da equipe
 - [ ] Todos devem falar o mesmo tempo
 
-> Por quê: "fala pouco" é fato; "não se importa" é suposição. Há formas diferentes de contribuir.
+> Por quê: "fala pouco" é fato. "Não se importa" é achismo, e os fatos mostram o contrário.
 
 ---
 
-## Caso 2: arte ou jogabilidade?
-Enzo quer um cenário detalhado. Bia teme que esconda obstáculos. A discussão ficou pessoal.
+## 💬 Caso 5: a briga
+Enzo quer um cenário cheio de detalhes. Bia acha que isso esconde os obstáculos. Os dois começam a se ofender.
 
-- [ ] Yara escolhe sozinha para acabar logo
-- [x] Testar as versões com um critério combinado
-- [ ] Manter o cenário, pois arte é função de Enzo
-- [ ] Separar a dupla até o lançamento
+- [ ] Quem falar mais alto decide
+- [x] Testar as duas versões com jogadores
+- [ ] Separar os dois até o lançamento
+- [ ] Manter o cenário de Enzo
 
-> Por quê: o critério traz a decisão de volta ao objetivo comum, com evidência.
-
----
-
-## Caso 3: o bug no código de Duda
-Caio é aprendiz, encontrou um bug no código de Duda e teme parecer que está acusando.
-
-- [x] Registrar os passos e o resultado, sem culpar
-- [ ] Não relatar, para preservar a relação
-- [ ] Avisar no grupo que Duda errou feio
-- [ ] Esperar outra pessoa encontrar o bug
-
-> Por quê: descrever o defeito com fatos ajuda a corrigir e mantém a confiança.
+> Por quê: o teste tira o foco da briga e mostra qual opção é melhor para o jogo.
 
 ---
 
-## Caso 4: a prova de Enzo
-Na segunda, Enzo descobre uma prova na quinta, dia da entrega. Regra: se há risco, avise cedo.
+## 💬 Caso 6: o erro no código
+Caio achou um erro no código de Duda, mas tem medo de parecer uma acusação. O que ele deve fazer?
 
-- [ ] Virar a noite sem contar a ninguém
-- [x] Avisar agora e replanejar com a equipe
+- [x] Mostrar o erro e pedir ajuda para resolver
+- [ ] Ficar quieto para não criar problema com Duda
+- [ ] Contar para todo mundo que Duda errou
+- [ ] Esperar outra pessoa encontrar o erro
+
+> Por quê: falar do problema, e não da pessoa, ajuda a consertar o jogo e mantém a confiança.
+
+---
+
+## 💬 Caso 7: a prova surpresa
+Na segunda, Enzo descobre uma prova na quinta, o dia da entrega. O que mostra compromisso com a equipe?
+
+- [ ] Não contar e tentar fazer tudo de última hora
+- [x] Avisar agora e combinar um novo plano
 - [ ] Esperar quinta para ver o que acontece
-- [ ] Deixar a tarefa sem dar explicações
+- [ ] Largar a tarefa sem explicar nada
 
-> Por quê: A aconteceu, então B precisa acontecer. Compromisso inclui transparência.
-
----
-
-## Caso 5: "minha parte está pronta"
-Código, sprites e GDD foram concluídos. Ao juntar tudo, os sprites têm outro tamanho e o jogo não abre.
-
-- [x] Combinar como integrar as partes
-- [ ] Cobrar mais velocidade de cada um
-- [ ] Descobrir quem deve levar a culpa
-- [ ] Revisar tudo apenas no último dia
-
-> Por quê: a entrega da equipe é o jogo funcionando, e os papéis dependem um do outro.
+> Por quê: quem avisa cedo dá tempo para a equipe se organizar. Isso também é compromisso.
 
 ---
 
-## ✍️ Visto da Parte 2
-- Tabela do **Enigma**
-- Respostas dos **Casos 1 a 5**
-- Uma frase: que diferença a equipe respeitou?
+## 🕵️ Agora é com vocês
+1. Escrevam um **achismo** comum em trabalhos em grupo
+2. Troquem por um **fato**
+3. Escrevam uma frase respeitosa para **resolver** a situação
+
+[cronômetro 10]
+
+---
+
+## ✍️ Visto da Missão 2
+- Enigma 3 resolvido
+- Casos 4 a 7 respondidos
+- Achismo, fato e frase criados pela dupla
 
 [cronômetro 5]
 
 ---
 
-# Parte 3: O documento do projeto
-Introdução ao Desenvolvimento de Projetos · 1 hora
+# Missão 3: O documento embaralhado
+Introdução ao Desenvolvimento de Projetos
 
 ---
 
-## Consulta: elementos textuais
-| Elemento | Função |
+## O que vamos aprender
+Todo projeto precisa de um documento organizado, para qualquer pessoa entender o que foi feito.
+
+> **Capacidade:** Reconhecer os padrões de estrutura estabelecidos para a elaboração de projetos
+
+---
+
+## A parte principal: conte a história
+| Parte | A pergunta que ela responde |
 |---|---|
-| 1. Introdução | Tema, problema, justificativa e objetivos |
-| 2. Desenvolvimento | Método, construção e resultados |
-| 3. Conclusão | Retoma objetivos e aponta próximos passos |
+| 1. Introdução | O que é o projeto e por que ele importa? |
+| 2. Desenvolvimento | Como fizemos e o que aconteceu? |
+| 3. Conclusão | Deu certo? O que vem depois? |
 
-> A conclusão não traz dados novos: só dá para concluir depois de mostrar o que foi feito.
-
----
-
-## Consulta: elementos pós-textuais
-| Ordem | Elemento | Função | Situação |
-|---|---|---|---|
-| 1 | Referências | Lista as obras citadas | Obrigatório |
-| 2 | Glossário | Explica termos técnicos | Opcional |
-| 3 | Apêndice | Material criado pela equipe | Opcional |
-| 4 | Anexo | Material criado por terceiros | Opcional |
-| 5 | Índice | Lista assuntos e indica páginas | Opcional |
+> Só dá para concluir depois de contar o que foi feito.
 
 ---
 
-## Consulta: regras de estrutura
-- **Apêndice ou anexo?** Pergunte: quem elaborou o material?
-- **Citação:** se a obra foi citada, ela aparece nas referências
-- **Referências:** seguem a ABNT NBR 6023
-- **Textuais:** usam numeração progressiva: 1, 2, 2.1
-- **Pós-textuais:** ficam sem número e centralizados
+## Depois da história: os complementos
+| Parte | Para que serve |
+|---|---|
+| Referências | Mostra de onde vieram as informações |
+| Glossário | Explica palavras difíceis |
+| Apêndice | Extra criado **pela equipe** |
+| Anexo | Extra criado **por outra pessoa** |
+| Índice | Mostra em que página está cada assunto |
+
+> Só as referências são obrigatórias. As demais entram quando forem necessárias.
 
 ---
 
-## Treino rápido
-Uma lista final explica o que são "sprite" e "hitbox". Qual elemento é esse?
+## Vamos treinar
+"Fizemos o jogo em Phaser, e 9 de cada 10 jogadores passaram da fase 1." Em qual parte isso entra?
 
-- [ ] Índice
-- [x] Glossário
-- [ ] Sumário
-- [ ] Apêndice
+- [ ] Introdução
+- [x] Desenvolvimento
+- [ ] Glossário
+- [ ] Anexo
 
-> Por quê: o glossário explica o significado dos termos. O índice só indica onde eles aparecem.
-
----
-
-## Enigma 1: quem escreveu (10 min)
-Copie a tabela com **Introdução, Desenvolvimento, Conclusão, Referências e Apêndice**.
-
-1. Caio, Duda e Enzo não escreveram tema, justificativa e objetivos.
-2. Bia, Enzo e Yara não fizeram a lista de obras citadas.
-3. Quem cria a arte preparou o guia visual feito pela equipe.
-4. Se Yara escrevesse método e resultados, Duda faria a lista de obras. Duda não fez.
-5. Duda e Yara não retomaram objetivos nem apontaram próximos passos.
+> Por quê: o trecho conta como o projeto foi feito e o que aconteceu nos testes.
 
 ---
 
-## Enigma 1: resolução
-+ Pista 3: **Enzo** fez o apêndice
-+ Pistas 2 e 4: só **Caio** pode ter feito as referências
-+ Pista 4: Yara não escreveu o desenvolvimento
-+ Assim, **Duda** só pode ter feito o desenvolvimento
-+ **Yara** fez a introdução, e **Bia**, a conclusão
+## 🧩 Enigma 4: quem escreveu o quê? (6 min)
+1. Bia explicou qual é o problema e por que o jogo importa.
+2. Duda contou como o jogo foi feito e o resultado dos testes.
+3. Enzo criou um guia de cores e o colocou no fim, como extra.
+
+| | Introdução | Desenvolvimento | Referências | Apêndice |
+|---|---|---|---|---|
+| Bia | | | | |
+| Caio | | | | |
+| Duda | | | | |
+| Enzo | | | | |
 
 ---
 
-## Enigma 2: a ordem final (7 min)
-Coloque em ordem, de 1º a 5º: **Referências, Glossário, Apêndice, Anexo e Índice**.
-
-1. Nenhum vem antes do único elemento obrigatório.
-2. Material de terceiros vem logo depois do material da equipe.
-3. A lista que explica termos vem antes do material da equipe.
-4. A lista que explica termos e a lista de assuntos não ficam lado a lado.
+## ✅ Resposta do Enigma 4
++ **Bia** fez a introdução: ela explica o problema
++ **Duda** fez o desenvolvimento: ela conta como foi feito
++ **Enzo** fez o apêndice: o extra foi criado por ele
++ **Caio** fica com as referências
 
 ---
 
-## Enigma 2: resolução
-+ **1º Referências:** é o único obrigatório
-+ **2º Glossário:** vem antes do par apêndice e anexo
-+ **3º Apêndice:** material da equipe
-+ **4º Anexo:** logo depois, material de terceiros
-+ **5º Índice:** assim, não fica ao lado do glossário
+## 🧩 Enigma 5: qual é a ordem? (5 min)
+Coloque em ordem, do 1º ao 4º: **Referências, Glossário, Apêndice e Anexo**.
+
+1. As referências vêm antes das outras três partes.
+2. O anexo vem logo depois do apêndice.
+3. O glossário vem antes do apêndice.
 
 ---
 
-## Trecho 1: o ponto de partida
-"Muitos jovens de Goiás conhecem pouco as lendas do Cerrado. Este projeto tem como objetivo desenvolver um jogo 2D sobre elas."
+## ✅ Resposta do Enigma 5
++ **1º Referências:** vêm antes de todas
++ **2º Glossário:** vem antes do apêndice
++ **3º Apêndice:** o extra da equipe
++ **4º Anexo:** logo depois do apêndice
+
+> Se o documento tiver índice, ele fica por último.
+
+---
+
+## 💬 Caso 8: por onde começar?
+"Muitos jovens não conhecem as lendas do Cerrado. Por isso, vamos criar um jogo sobre elas." Onde isso entra?
 
 - [x] Introdução
 - [ ] Desenvolvimento
 - [ ] Conclusão
 - [ ] Referências
 
-> Por quê: o trecho apresenta o problema e o objetivo. Essa é a função da introdução.
+> Por quê: o trecho apresenta o problema e diz o que o projeto quer fazer.
 
 ---
 
-## Trecho 2: objetivo alcançado?
-"O objetivo foi alcançado, conforme os resultados apresentados. Recomenda-se incluir novas fases e recursos de acessibilidade."
+## 💬 Caso 9: deu certo?
+"Atingimos o objetivo do projeto. No futuro, vamos criar novas fases." Onde isso entra?
 
 - [ ] Introdução
 - [ ] Desenvolvimento
 - [x] Conclusão
 - [ ] Glossário
 
-> Por quê: o trecho retoma o objetivo e aponta próximos passos, sem trazer dados novos.
+> Por quê: o trecho responde se deu certo e aponta o que vem depois.
 
 ---
 
-## Trecho 3: o questionário
-Caio criou um questionário para os jogadores. O texto completo deixaria o desenvolvimento longo demais.
+## 💬 Caso 10: apêndice ou anexo?
+Caio criou um questionário para os jogadores. A editora enviou a licença da música. Onde fica cada um?
 
-- [x] Apêndice
-- [ ] Anexo
-- [ ] Glossário
-- [ ] Referências
+- [x] Questionário no apêndice; licença no anexo
+- [ ] Questionário no anexo; licença no apêndice
+- [ ] Os dois no apêndice
+- [ ] Os dois no anexo
 
-> Por quê: Caio faz parte da equipe. Se a equipe criou o material, ele é apêndice.
-
----
-
-## Trecho 4: a licença da música
-A editora enviou um termo de licença assinado, e a equipe quer incluí-lo como comprovante, sem alterá-lo.
-
-- [ ] Apêndice
-- [x] Anexo
-- [ ] Referências
-- [ ] Índice
-
-> Por quê: escolher incluir não torna a equipe autora. O documento é da editora: anexo.
+> Por quê: pergunte quem criou. A equipe criou o questionário, e a editora criou a licença.
 
 ---
 
-## Trecho 5: o erro no documento
-O texto cita "Souza (2024)", mas a lista de referências não traz nenhuma obra de Souza.
+## 💬 Caso 11: o erro no documento
+O texto usa uma informação do livro de Souza, mas esse livro não aparece nas referências. O que a equipe faz?
 
-- [ ] Está certo: a citação dispensa a lista
-- [x] Há um erro: falta a referência
-- [ ] Deve ir para o apêndice
-- [ ] Deve ir para o anexo
+- [ ] Nada, porque citar no texto já basta
+- [x] Inclui o livro nas referências
+- [ ] Coloca o livro no apêndice
+- [ ] Apaga as referências do documento
 
-> Por quê: a regra diz "citou, então referencia". A equipe precisa localizar a obra e corrigir.
+> Por quê: se usou uma obra e citou no texto, ela precisa aparecer nas referências.
 
 ---
 
-## ✍️ Visto da Parte 3
-- Tabelas dos **Enigmas 1 e 2**
-- Respostas dos **Trechos 1 a 5**
-- Uma frase: por que a conclusão vem no fim?
+## 🕵️ Agora é com vocês (10 min)
+Pensem em um jogo que gostariam de criar e escrevam uma frase para cada parte:
+
+1. **Introdução:** por que esse jogo importa?
+2. **Desenvolvimento:** como vocês fariam?
+3. **Conclusão:** como saberiam que deu certo?
+
+---
+
+## ✍️ Visto da Missão 3
+- Enigmas 4 e 5 resolvidos
+- Casos 8 a 11 respondidos
+- As 3 frases do jogo da dupla
 
 [cronômetro 5]
 
 ---
 
-## O que vimos
-+ **Profissões** se reconhecem pelas características, não pelo cargo
-+ **Equipes** usam fatos, combinados e respeito às diferenças
-+ **Projetos** seguem uma estrutura com lógica
-+ **"Se A, então B"** ajuda a pensar em todos esses casos
+## O que descobrimos
++ 🪪 O que a pessoa **faz** revela a profissão, mais do que o nome do cargo
++ 🤝 Equipes usam **fatos**, conversa e respeito às diferenças
++ 📄 Um projeto organizado conta uma **história** que todos entendem
 
 ---
 
 # Caso encerrado!
-Lenda do Cerrado pronto para o lançamento
+O Lenda do Cerrado está pronto para o lançamento 🎉

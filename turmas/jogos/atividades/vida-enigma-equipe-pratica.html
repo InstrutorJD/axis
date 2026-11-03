@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projeto de Vida — A Semana do Lançamento</title>
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<link rel="stylesheet" href="../../../shared/enigma-logica.css">
+<script>
+  window.ACTIVITY_LOCATION = 'vida_enigma_equipe_pratica';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="../../../shared/vendor/supabase.js"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+<script src="../../../shared/enigma-logica.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Projeto de Vida — A Semana do Lançamento</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">8</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  const DEMO = 'Apresentar a demo', MENT = 'Mentorar o novato', TXT = 'Revisar os textos', CONT = 'Conferir o contraste', REUN = 'Conduzir a reunião';
+
+  EnigmaLogica.iniciar({
+    activityLocation: 'vida_enigma_equipe_pratica',
+    nome: 'A Semana do Lançamento',
+    subtitulo: 'Prática · Aulão Parte 2 · Projeto de Vida · Turma Jogos',
+    abertura: {
+      titulo: 'Faltam cinco dias para o lançamento',
+      html: `
+        <p>A equipe descoberta na Parte 1 é formada por Bia (game designer, PJ), Caio (analista de testes, aprendiz), Duda (programadora, CLT júnior), Enzo (artista 2D, estágio) e Yara (produtora, CLT sênior).</p>
+        <ol>
+          <li>Primeiro, distribua as tarefas extras respeitando os combinados da equipe.</li>
+          <li>Depois, resolva os conflitos com <b>fatos</b>, não com suposições.</li>
+        </ol>
+        <blockquote>Errou? Você recebe uma orientação e tenta de novo, sem revelar a resposta. Tempo sugerido: <b>35 minutos</b>.</blockquote>`,
+    },
+    fechamento: {
+      titulo: '✅ Equipe pronta para o lançamento!',
+      html: `
+        <p>Você dividiu o trabalho considerando as diferenças individuais e resolveu os conflitos com evidências, objetivo comum e comunicação.</p>
+        <p>Na <b>Parte 3</b> (Introdução ao Desenvolvimento de Projetos), a mesma equipe vai organizar o documento do projeto.</p>`,
+    },
+    etapas: [
+      {
+        id: 'grade-tarefas', tipo: 'grade', icone: '🗓️',
+        titulo: 'Enigma — Quem assume cada tarefa extra',
+        intro: '<p>Cada pessoa assume <b>uma</b> tarefa extra. As pistas reúnem o que a própria equipe informou e combinou.</p>',
+        rotuloLinha: 'Pessoa',
+        linhas: ['Bia', 'Caio', 'Duda', 'Enzo', 'Yara'],
+        colunas: [DEMO, MENT, TXT, CONT, REUN],
+        pistas: [
+          { t: 'A reunião é às 8h. Caio tem curso de manhã e Enzo só está no estúdio à tarde, então nenhum dos dois a conduz.', ok: s => s.Caio !== REUN && s.Enzo !== REUN },
+          { t: 'A mentoria pede experiência na empresa, algo que quem é aprendiz ou estagiário ainda está construindo.', ok: s => s.Caio !== MENT && s.Enzo !== MENT },
+          { t: 'Duda explicou que rende melhor em conversas de dupla e pediu para não apresentar nesta semana. A equipe aceitou.', ok: s => s.Duda !== DEMO },
+          { t: 'A conferência de contraste ficou com quem cria a arte do jogo.', ok: s => s.Enzo === CONT },
+          { t: 'A demo será em inglês, e Bia é a pessoa que se ofereceu porque é fluente no idioma.', ok: s => s.Bia === DEMO },
+          { t: 'Se Duda conduzisse a reunião, Yara faria a mentoria. Mas Yara avisou que os prazos da semana não permitem mentorar.', ok: s => s.Yara !== MENT && (s.Duda !== REUN || s.Yara === MENT) },
+        ],
+        solucao: { Bia: DEMO, Caio: TXT, Duda: MENT, Enzo: CONT, Yara: REUN },
+        resultado: '<p><b>Distribuição combinada:</b> Bia apresenta a demo, Caio revisa os textos, Duda mentora o novato, Enzo confere o contraste e Yara conduz a reunião.</p><p>Repare: as diferenças individuais orientaram o plano, sem excluir ninguém.</p>',
+      },
+      {
+        id: 'caso-calada', tipo: 'caso', icone: '🤫',
+        titulo: 'Caso 1 — "Duda não fala nada"',
+        cenario: '<p>Um colega diz: <b>"Duda nunca fala na reunião, logo não se importa com o projeto."</b> Os registros mostram que Duda <b>manda comentários detalhados por escrito</b> e corrigiu o erro mais grave da semana.</p>',
+        pergunta1: 'Qual conclusão as evidências sustentam?',
+        opcoes: [
+          { t: 'Duda contribui, mas se comunica mais por escrito', ok: true },
+          { t: 'Duda não se importa, pois fala pouco nas reuniões' },
+          { t: 'Duda precisa ser excluída das próximas decisões' },
+        ],
+        pergunta2: 'Qual atitude de equipe esse caso mostra?',
+        motivos: [
+          { t: 'Avaliar todos com um único jeito de participar' },
+          { t: 'Reconhecer formas diferentes de contribuir', ok: true },
+          { t: 'Exigir que cada pessoa fale o mesmo tempo' },
+        ],
+        dica: 'Separe a frase em duas: qual parte pode ser verificada e qual é uma interpretação?',
+        explica: '"Fala pouco" é um fato, mas "não se importa" é uma suposição que os registros contradizem. Há mais de uma forma de contribuir.',
+      },
+      {
+        id: 'caso-arte', tipo: 'caso', icone: '🎨',
+        titulo: 'Caso 2 — A arte ou a jogabilidade?',
+        cenario: '<p>Enzo quer um cenário cheio de detalhes. Bia teme que os detalhes <b>escondam obstáculos</b>. A discussão ficou pessoal: <b>"você nunca entende arte"</b>, <b>"você só complica"</b>.</p>',
+        pergunta1: 'Qual é o próximo passo mais lógico?',
+        opcoes: [
+          { t: 'Pedir que Yara escolha sozinha para acabar com a briga' },
+          { t: 'Testar as duas versões com um critério aceito por todos', ok: true },
+          { t: 'Manter o cenário de Enzo, pois arte é função dele' },
+        ],
+        pergunta2: 'Por que esse passo é colaborativo?',
+        motivos: [
+          { t: 'Porque define um vencedor entre Bia e Enzo' },
+          { t: 'Porque evita que a equipe fale sobre o problema' },
+          { t: 'Porque traz a decisão de volta ao objetivo comum', ok: true },
+        ],
+        dica: 'A disputa virou sobre as pessoas. O que faria a conversa voltar para o jogo?',
+        explica: 'Um critério como "o jogador enxerga os obstáculos?" transforma a disputa em uma decisão baseada em evidência.',
+      },
+      {
+        id: 'caso-bug', tipo: 'caso', icone: '🐞',
+        titulo: 'Caso 3 — O bug no código de Duda',
+        cenario: '<p>Caio é aprendiz e encontrou um bug que trava o jogo. O erro está em um trecho escrito por Duda. Caio tem medo de parecer que está <b>acusando</b> uma colega mais experiente.</p>',
+        pergunta1: 'Como Caio deve comunicar o problema?',
+        opcoes: [
+          { t: 'Registrar passos e resultado, sem atribuir culpa a Duda', ok: true },
+          { t: 'Não relatar, para preservar a relação entre os colegas' },
+          { t: 'Avisar no grupo geral que Duda cometeu um erro grave' },
+        ],
+        pergunta2: 'Qual característica da equipe sustenta a escolha?',
+        motivos: [
+          { t: 'Hierarquia: quem tem menos experiência deve se calar' },
+          { t: 'Comunicação clara e respeitosa, focada no problema', ok: true },
+          { t: 'Competição: encontrar erros prova quem é o melhor' },
+        ],
+        dica: 'O objetivo é consertar o jogo. Qual mensagem ajuda Duda a agir sem expor ninguém?',
+        explica: 'Descrever o defeito com fatos ajuda a corrigir e preserva a confiança. Experiência diferente não anula a responsabilidade de avisar.',
+      },
+      {
+        id: 'caso-prazo', tipo: 'caso', icone: '⏰',
+        titulo: 'Caso 4 — A prova de Enzo',
+        cenario: '<p>Enzo descobre na segunda que terá <b>prova na faculdade na quinta</b>, dia em que entregaria os últimos sprites. Regra da equipe: <b>se uma entrega corre risco, então avise cedo</b>.</p>',
+        pergunta1: 'Pela regra, o que Enzo deve fazer?',
+        opcoes: [
+          { t: 'Virar a noite de quarta, sem contar para a equipe' },
+          { t: 'Avisar agora e replanejar a entrega com a equipe', ok: true },
+          { t: 'Esperar quinta, para ver se a prova atrapalha mesmo' },
+        ],
+        pergunta2: 'Por que avisar na segunda ajuda a equipe?',
+        motivos: [
+          { t: 'Porque os estudos sempre têm prioridade sobre a equipe' },
+          { t: 'Porque transfere toda a responsabilidade à produtora' },
+          { t: 'Porque há tempo para ajustar o plano e manter o compromisso', ok: true },
+        ],
+        dica: 'A condição da regra já aconteceu? Qual é a consequência que ela determina?',
+        explica: 'Risco identificado (A) exige aviso (B). Compromisso não é fazer tudo sozinho: é ser transparente e buscar uma solução a tempo.',
+      },
+      {
+        id: 'caso-integracao', tipo: 'caso', icone: '🧩',
+        titulo: 'Caso 5 — Todo mundo terminou, mas o jogo não',
+        cenario: '<p>Duda fez o código, Enzo fez os sprites e Bia atualizou o GDD. Todos dizem: <b>"minha parte está pronta"</b>. Ao juntar tudo, os sprites têm <b>tamanho diferente do que o código espera</b>, e o jogo não abre.</p>',
+        pergunta1: 'O que realmente faltou?',
+        opcoes: [
+          { t: 'Combinar como as partes seriam integradas', ok: true },
+          { t: 'Cobrar mais velocidade de cada integrante' },
+          { t: 'Descobrir quem deve levar a culpa pela falha' },
+        ],
+        pergunta2: 'Que característica do trabalho em equipe isso mostra?',
+        motivos: [
+          { t: 'Papéis isolados bastam, se cada um for competente' },
+          { t: 'Os papéis são complementares e dependem um do outro', ok: true },
+          { t: 'Basta que uma pessoa revise tudo no último momento' },
+        ],
+        dica: 'Cada parte estava boa quando olhada sozinha. Onde está a falha, então?',
+        explica: 'A entrega da equipe é o jogo funcionando. Por isso, os papéis complementares precisam de acordos e integração desde o começo.',
+      },
+    ],
+  });
+</script>
+
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

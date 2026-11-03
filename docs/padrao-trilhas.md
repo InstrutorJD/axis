@@ -19,6 +19,13 @@
 > (Sistemas), `teste-bugs`, `fund-jogo2d` (prática com
 > `js-challenge-engine.js` no visual base) e `cod-phaser-final` (Jogos).
 >
+> **Aulão de 04/11/2026 (Jogos):** `mundo-enigma-estudio`, `vida-enigma-equipe`
+> e `projetos-enigma-documento`, três trilhas ligadas pela mesma história. As
+> práticas usam o motor de enigmas `shared/enigma-logica.js` (+ `.css`): etapas
+> `grade` (tabela de eliminação com pistas verificáveis) e `caso` (resposta +
+> motivo). Todo enigma novo precisa ter **uma única solução**, conferida por
+> força bruta sobre `EnigmaLogica.dados` (seção 11).
+>
 > **Carga horária:** quando o professor manda a linha do plano de ensino
 > ("Aula N - data", com um mínimo de horas), teoria + práticas precisam
 > cobrir esse tempo. Anote a estimativa por módulo num comentário da trilha

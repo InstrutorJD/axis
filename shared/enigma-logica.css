@@ -1,0 +1,29 @@
+/* Específico das práticas com enigmas (shared/enigma-logica.js). O layout vem de aula-base.css. */
+.en-enigma{ display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.2fr); gap:20px; margin-top:10px; align-items:start; }
+@media (max-width:860px){ .en-enigma{ grid-template-columns:minmax(0, 1fr); } }
+.en-grupo{ margin:14px 0 8px; font-size:11px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase; color:var(--ab-acento); }
+.en-pistas ol{ margin:0; padding-left:22px; display:flex; flex-direction:column; gap:9px; line-height:1.5; }
+.en-grade-rolagem{ overflow-x:auto; }
+.en-grade{ border-collapse:collapse; width:100%; font-size:13px; }
+.en-grade th{ padding:7px; border:1px solid var(--line); background:var(--panel2); font-weight:700; line-height:1.25; text-align:center; }
+.en-grade tbody th{ text-align:left; white-space:nowrap; }
+.en-grade td{ padding:0; border:1px solid var(--line); text-align:center; }
+.en-celula{ display:block; width:100%; min-width:44px; height:44px; border:0; background:transparent; color:var(--ink); font:inherit; font-size:18px; font-weight:800; cursor:pointer; }
+.en-celula:hover:not(:disabled){ background:color-mix(in srgb, var(--green) 10%, transparent); }
+.en-celula:focus-visible{ outline:2px solid var(--ab-acento); outline-offset:-2px; }
+.en-celula:disabled{ cursor:default; }
+.en-celula.en-e1{ color:var(--ink-dim); }
+.en-celula.en-e2{ color:var(--ok); background:color-mix(in srgb, var(--ok) 14%, transparent); }
+.en-caso{ display:flex; gap:14px; align-items:flex-start; }
+.en-avatar{ font-size:38px; line-height:1; flex-shrink:0; }
+.en-opcoes{ display:flex; flex-direction:column; gap:8px; }
+.en-op{ display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:var(--panel2); transition:border-color .2s, background .2s; }
+.en-op:hover{ border-color:var(--green-dim); }
+.en-op input{ accent-color:var(--green); margin:0; flex-shrink:0; }
+.en-op:has(input:checked){ border-color:var(--green); background:color-mix(in srgb, var(--green) 10%, transparent); }
+.en-acoes{ display:flex; align-items:center; gap:12px; margin-top:18px; flex-wrap:wrap; }
+.en-acoes .ab-msg{ flex:1; min-width:220px; }
+.en-resultado{ margin-top:16px; padding-top:12px; border-top:1px solid var(--line); }
+.en-placar{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+.en-placar span{ font-family:var(--ab-mono); font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--ink-dim); }
+.en-placar span.ok{ border-color:var(--ok); color:var(--ok); }
