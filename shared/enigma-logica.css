@@ -24,6 +24,7 @@
 .en-acoes{ display:flex; align-items:center; gap:12px; margin-top:18px; flex-wrap:wrap; }
 .en-acoes .ab-msg{ flex:1; min-width:220px; }
 .en-resultado{ margin-top:16px; padding-top:12px; border-top:1px solid var(--line); }
+.en-escrita textarea{ width:100%; margin-top:5px; padding:9px 11px; border-radius:10px; border:1px solid var(--line); background:var(--panel2); color:var(--ink); font:inherit; resize:vertical; }
 .en-placar{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
 .en-placar span{ font-family:var(--ab-mono); font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--ink-dim); }
 .en-placar span.ok{ border-color:var(--ok); color:var(--ok); }

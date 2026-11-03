@@ -1,197 +1,163 @@
 ---
-titulo: Aulão Parte 2: A equipe em ação
+titulo: Aulão Missão 2: A equipe em crise
 turma: 2º JD
 ---
 
-# Aulão Parte 2: A equipe em ação
-Lógica para colaborar e respeitar as diferenças
+# Missão 2: A equipe em crise
+A equipe do Estúdio Pequi está brigando. Você vai ajudar a resolver
 
 ---
 
 ## Nesta aula você vai
-+ Reencontrar a equipe do Estúdio Pequi
-+ Reconhecer características do trabalho colaborativo
-+ Separar fato de suposição sobre as pessoas
-+ Dividir tarefas considerando as diferenças individuais
++ Reconhecer o que faz uma equipe funcionar
++ Separar fato de achismo
++ Considerar as diferenças ao dividir tarefas
++ Resolver conflitos com respeito
 
 ---
 
-## A equipe que você descobriu
-| Pessoa | Profissão | Vínculo |
-|---|---|---|
-| Bia | Game designer | PJ |
-| Caio | Analista de testes | Aprendiz |
-| Duda | Programadora | CLT júnior |
-| Enzo | Artista 2D | Estágio |
-| Yara | Produtora | CLT sênior |
-
----
-
-## Grupo não é o mesmo que equipe
-- **Objetivo comum:** todos sabem o que precisam alcançar
-- **Papéis complementares:** a parte de um depende da de outro
-- **Comunicação:** informações chegam claras e a tempo
-- **Compromisso:** cada pessoa assume e cumpre o combinado
-- **Respeito às diferenças:** cada perfil soma à equipe
+## O que faz uma equipe funcionar
+| Característica | Na prática |
+|---|---|
+| Objetivo comum | Todos sabem aonde querem chegar |
+| Papéis que se completam | Um precisa do trabalho do outro |
+| Comunicação | Avisar com clareza e no tempo certo |
+| Compromisso | Cumprir o combinado ou avisar antes |
+| Respeito | Cada pessoa contribui do seu jeito |
 
 ---
 
 ## Pergunta
-Cada pessoa terminou sua parte, mas a arte não encaixa no código. O que faltou à equipe?
+Cada pessoa terminou sua parte, mas a arte não encaixa no código. O que faltou?
 
-- [ ] Mais competição, para premiar quem entregasse primeiro
-- [x] Integração, para que as partes fossem combinadas juntas
-- [ ] Mais autonomia, para cada um decidir sozinho o formato
-- [ ] Menos reuniões, para sobrar mais tempo de produção
+- [ ] Mais competição
+- [x] Combinar como juntar as partes
+- [ ] Cada pessoa decidir tudo por conta própria
+- [ ] Menos conversa na equipe
 
-> Por quê: colaborar não é só somar tarefas individuais. Os papéis se complementam quando a equipe combina como as partes se encaixam.
-
----
-
-## Diferença individual é informação
-Pessoas variam em vários aspectos:
-
-- Experiência e jeito de aprender
-- Forma de se comunicar: fala ou escrita
-- Horários, estudos e responsabilidades
-- Cultura, crenças, idioma e necessidades
-
-> Respeitar não é ignorar diferenças: é conversar sobre elas e combinar o trabalho.
+> Por quê: o trabalho de um depende do trabalho do outro, então a equipe precisa combinar como tudo se encaixa.
 
 ---
 
 ## Pergunta
-Caio estuda de manhã e a reunião é às 8h. Qual decisão é colaborativa?
+Todo mundo sabe que a meta é lançar o jogo em dezembro. Qual característica aparece aqui?
 
-- [ ] Registrar que Caio está sempre ausente da reunião diária
-- [ ] Manter o horário e pedir que Caio largue parte dos estudos
-- [ ] Deixar Caio de fora das decisões até terminar a formação
-- [x] Combinar outra forma de atualizá-lo sem prejudicar o curso
+- [ ] Compromisso
+- [ ] Comunicação
+- [x] Objetivo comum
+- [ ] Respeito às diferenças
 
-> Por quê: a equipe considera a diferença de horário e mantém Caio informado, em vez de excluí-lo ou prejudicar a formação.
-
----
-
-## Pergunta
-Duda pede para não apresentar nesta semana e se oferece para mentorar o novato. O que a equipe faz?
-
-- [x] Aceita a troca, pois Duda segue contribuindo com o objetivo comum
-- [ ] Recusa a troca, pois todos precisam fazer as mesmas tarefas juntos
-- [ ] Aceita a troca, mas retira Duda das demais decisões da semana
-- [ ] Recusa a troca, pois preferências pessoais atrasam qualquer projeto
-
-> Por quê: tratar com respeito não é dar tarefas iguais a todos. O pedido foi combinado e Duda continua contribuindo.
+> Por quê: quando todos sabem aonde querem chegar, a equipe tem um objetivo comum.
 
 ---
 
-## Fato ou suposição?
-| Fato: dá para verificar | Suposição: é uma interpretação |
+## Fato ou achismo?
+| Fato: dá para comprovar | Achismo: é só o que parece |
 |---|---|
 | Duda falou pouco na reunião | Duda não liga para o projeto |
 | Enzo entregou um dia depois | Enzo é preguiçoso |
-| Bia discordou da arte | Bia não gosta de Enzo |
 
-> Antes de concluir sobre alguém, pergunte: qual evidência eu tenho?
-
----
-
-## Pergunta
-"Duda falou pouco, então não se importa com o projeto." Qual é o problema desse raciocínio?
-
-- [x] Tira uma conclusão sobre a intenção a partir de um único fato
-- [ ] Parte de um fato falso, já que ninguém fala pouco na reunião
-- [ ] Mostra que Duda precisa falar mais para continuar na equipe
-- [ ] Prova que a reunião é o único meio de medir a contribuição
-
-> Por quê: falar pouco é um fato. "Não se importa" é uma suposição sobre a intenção, e pode existir outra explicação.
+> Antes de julgar alguém, pergunte: **como eu sei disso?**
 
 ---
 
 ## Pergunta
-Toda sexta, Enzo entrega atrasado, mas a causa ainda é desconhecida. Qual é o primeiro passo mais lógico?
+Qual destas frases é um **fato**?
 
-- [ ] Concluir que falta compromisso, pois os atrasos se repetem
-- [ ] Redistribuir as tarefas de Enzo sem comentar nada com ele
-- [x] Apresentar os fatos a Enzo e investigar a causa com ele
-- [ ] Esperar mais semanas, pois atrasos costumam se resolver
+- [x] Caio chegou às 8h20 hoje
+- [ ] Caio não leva o trabalho a sério
+- [ ] Caio é desorganizado
+- [ ] Caio não gosta da equipe
 
-> Por quê: o padrão é um fato, mas a causa ainda é desconhecida. A conversa traz evidências para a equipe agir.
-
----
-
-## Conflito: ideia, não pessoa
-Enzo quer uma arte detalhada, e Bia teme que ela atrapalhe a jogabilidade.
-
-1. Volte ao **objetivo comum**
-2. Separe os fatos das opiniões
-3. Defina um **critério** de decisão
-4. Teste e decida juntos
-
-> A discussão é sobre a solução, não sobre quem é melhor.
+> Por quê: o horário pode ser comprovado. As outras frases são interpretações sobre Caio.
 
 ---
 
 ## Pergunta
-Bia e Enzo discordam sobre a arte. Que atitude resolve de forma colaborativa?
+Qual destas frases é um **achismo**?
 
-- [ ] Seguir quem tem mais tempo de estúdio, para encerrar o assunto
-- [ ] Separar a dupla até o lançamento, para evitar mais discussões
-- [ ] Atender quem argumenta mais alto, para decidir em menos tempo
-- [x] Testar as opções com jogadores, usando um critério combinado
+- [ ] A entrega do jogo atrasou um dia inteiro
+- [ ] Faltam duas telas no jogo
+- [x] Ela atrasou porque é preguiçosa
+- [ ] A reunião começou às 9h
 
-> Por quê: o teste traz evidência ligada ao objetivo comum e desloca a disputa das pessoas para a qualidade da solução.
-
----
-
-## Apontar o problema, não a pessoa
-1. **Fato:** o que aconteceu e como repetir
-2. **Efeito:** o que isso causa no jogo
-3. **Pedido:** como a equipe pode resolver
-
-> Experiência diferente não anula o dever de avisar: todos cuidam do mesmo jogo.
+> Por quê: ninguém comprovou o motivo do atraso. "Preguiçosa" é só uma interpretação.
 
 ---
 
-## Pergunta
-A aprendiz encontrou um bug no código de um sênior. Qual mensagem colabora com a solução?
+## Diferenças também contam
+As pessoas têm horários, experiências e jeitos de contribuir diferentes.
 
-- [ ] "Você errou aqui, e olha que tem muito mais experiência que eu"
-- [ ] "Prefiro não falar nada, porque esse código é função de outra pessoa"
-- [x] "Ao clicar duas vezes, o jogo trava. Podemos olhar isso juntos?"
-- [ ] "Tem algo muito ruim no jogo, mas ainda não sei dizer onde está"
+- Quem estuda de manhã pode não estar na reunião das 8h
+- Quem é novo pode precisar de mais ajuda
+- Quem fala pouco pode contribuir bem por escrito
 
-> Por quê: a mensagem traz o fato e o convite para resolver, sem culpa. Omitir ou ser vago não ajuda a corrigir.
-
----
-
-## Avisar também é colaborar
-Regra da equipe: **se** uma entrega corre risco, **então** avise cedo.
-
-- Aviso cedo permite replanejar juntos
-- Silêncio transforma um risco em atraso de todos
-- Compromisso também é pedir ajuda a tempo
+> Respeitar é conversar e combinar, sem excluir ninguém.
 
 ---
 
 ## Pergunta
-Numa terça, Caio percebe que a entrega de sexta não fica pronta. O que demonstra compromisso?
+Uma colega tem aula na hora da reunião. Qual é a atitude que respeita a diferença?
 
-- [ ] Esperar a sexta, pois ainda pode conseguir terminar sozinho
-- [x] Avisar a equipe na terça, para replanejar e pedir ajuda
-- [ ] Entregar uma versão incompleta, sem falar sobre o que falta
-- [ ] Passar a tarefa adiante, sem explicar o motivo do atraso
+- [ ] Tirar a colega do projeto
+- [ ] Pedir que ela falte à aula
+- [x] Combinar outra forma de atualizá-la
+- [ ] Decidir tudo sem contar nada para a colega
 
-> Por quê: o aviso antecipado dá à equipe tempo para decidir. Colaboração depende de transparência sobre os riscos.
+> Por quê: a equipe considera o horário dela e continua incluindo a colega no trabalho.
+
+---
+
+## Conflito: resolva o problema
+1. Lembre o **objetivo comum**
+2. Separe **fatos** de opiniões
+3. Fale do **problema**, não da pessoa
+4. **Teste** ou combine um critério
+
+---
+
+## Pergunta
+Duas pessoas discordam sobre a cor do cenário. O que resolve melhor?
+
+- [ ] Quem falar mais alto decide
+- [x] Testar as cores com jogadores
+- [ ] Parar de falar sobre o jogo
+- [ ] Deixar quem é mais antigo decidir sozinho
+
+> Por quê: o teste traz uma evidência e tira o foco da disputa entre as pessoas.
+
+---
+
+## Pergunta
+Você encontrou um erro no código de um colega. Qual mensagem ajuda mais?
+
+- [ ] "Você estragou o jogo de novo"
+- [ ] "Não vou falar nada sobre isso"
+- [x] "O jogo trava aqui. Podemos ver juntos?"
+- [ ] "Tem algo errado no jogo, mas nem sei onde está"
+
+> Por quê: a mensagem mostra o problema e convida para resolver, sem culpar o colega.
+
+---
+
+## Pergunta
+Na terça, você percebe que não vai terminar sua parte até sexta. O que mostra compromisso?
+
+- [x] Avisar agora e combinar um plano
+- [ ] Esperar sexta e ver o que acontece
+- [ ] Entregar pela metade sem avisar
+- [ ] Passar a tarefa sem explicar
+
+> Por quê: quem avisa cedo dá tempo para a equipe se organizar.
 
 ---
 
 ## O que vimos
-+ Equipe tem objetivo comum e papéis complementares
-+ Diferenças individuais são consideradas na divisão do trabalho
-+ Fatos sustentam conclusões, e suposições precisam ser verificadas
-+ Conflitos se resolvem com critério e evidência
++ Equipe tem objetivo comum e papéis que se completam
++ Fatos ajudam mais do que achismos
++ Diferenças entram no combinado, sem excluir ninguém
 
 ---
 
 # Hora da prática!
-Abra **Prática: A Semana do Lançamento** e organize a equipe do Estúdio Pequi
+Abra **Prática: A Semana do Lançamento**

@@ -211,26 +211,26 @@ window.TURMA_CONFIG_JOGOS = {
           ]
         },
         {
-          // Aulão interligado de 04/11 (Parte 2 de 3, história do Estúdio Pequi).
-          // Estimativa: teoria ~25 min + prática ~35 min.
+          // Aulão de 04/11, versão no portal para dia com internet (Missão 2 de 3).
+          // Mesma história dos slides da Aula 11. Teoria ~25 min + prática ~35 min.
           key: 'vida-enigma-equipe',
-          label: 'Aulão Parte 2: A equipe em ação',
+          label: 'Aulão Missão 2: A equipe em crise',
           dataAula: '2026-11-04',
-          desc: 'A equipe do Estúdio Pequi distribui tarefas e resolve conflitos com lógica, fatos e respeito às diferenças individuais.',
+          desc: 'A equipe do Estúdio Pequi divide as tarefas e resolve problemas usando fatos, enigmas e respeito às diferenças.',
           capacidade: 'Reconhecer as características do trabalho em equipe de forma colaborativa, considerando o respeito às diferenças individuais.',
           modules: [
             {
-              key: 'teoria', title: 'Teoria — A equipe em ação',
-              desc: 'Objetivo comum, papéis complementares, comunicação, compromisso, diferenças individuais, fato × suposição e conflito resolvido com evidências.',
+              key: 'teoria', title: 'Teoria — A equipe em crise',
+              desc: 'O que faz uma equipe funcionar, fato ou achismo, diferenças entre as pessoas e como resolver conflitos.',
               icon: '📖', src: 'atividades/vida-enigma-equipe-teoria.html', telaCheia: true,
               progressKey: 'vida_enigma_equipe_teoria_progress_', progressMode: 'flag',
               hasGabarito: true
             },
             {
               key: 'pratica', title: 'Prática — A Semana do Lançamento',
-              desc: 'Enigma de distribuição de tarefas e cinco casos de colaboração resolvidos com raciocínio lógico.',
+              desc: 'Um enigma de tarefas, quatro casos, uma frase para resolver um problema e o visto do professor.',
               icon: '🗓️', src: 'atividades/vida-enigma-equipe-pratica.html', telaCheia: true,
-              progressKey: 'vida_enigma_equipe_pratica_progress_', progressTotal: 6,
+              progressKey: 'vida_enigma_equipe_pratica_progress_', progressTotal: 7,
               requires: 'teoria', hasGabarito: true
             }
           ]
@@ -400,26 +400,26 @@ window.TURMA_CONFIG_JOGOS = {
           ]
         },
         {
-          // Aulão interligado de 04/11 (Parte 1 de 3, história do Estúdio Pequi).
-          // Estimativa: teoria ~25 min + prática ~35 min.
+          // Aulão de 04/11, versão no portal para dia com internet (Missão 1 de 3).
+          // Mesma história dos slides da Aula 11. Teoria ~25 min + prática ~35 min.
           key: 'mundo-enigma-estudio',
-          label: 'Aulão Parte 1: Quem é quem no estúdio',
+          label: 'Aulão Missão 1: Quem faz o quê?',
           dataAula: '2026-11-04',
-          desc: 'Descubra as profissões da equipe do Estúdio Pequi usando pistas, eliminação e raciocínio "se... então".',
+          desc: 'Descubra o trabalho de cada pessoa do Estúdio Pequi usando pistas e enigmas.',
           capacidade: 'Identificar as características das profissões',
           modules: [
             {
-              key: 'teoria', title: 'Teoria — Quem é quem no estúdio',
-              desc: 'Características das profissões em um estúdio de jogos, formas de contratação, cargo × ocupação, eliminação e "se... então".',
+              key: 'teoria', title: 'Teoria — Quem faz o quê?',
+              desc: 'Profissões de um estúdio de jogos, formas de contratação, nome do cargo, como resolver enigmas e a regra do se... então.',
               icon: '📖', src: 'atividades/mundo-enigma-estudio-teoria.html', telaCheia: true,
               progressKey: 'mundo_enigma_estudio_teoria_progress_', progressMode: 'flag',
               hasGabarito: true
             },
             {
               key: 'pratica', title: 'Prática — O Enigma dos Crachás',
-              desc: 'Dois enigmas de dedução e quatro casos: identifique as profissões e os vínculos a partir das pistas.',
+              desc: 'Dois enigmas, três casos, pistas criadas por você e o visto do professor.',
               icon: '🪪', src: 'atividades/mundo-enigma-estudio-pratica.html', telaCheia: true,
-              progressKey: 'mundo_enigma_estudio_pratica_progress_', progressTotal: 6,
+              progressKey: 'mundo_enigma_estudio_pratica_progress_', progressTotal: 7,
               requires: 'teoria', hasGabarito: true
             }
           ]
@@ -524,26 +524,26 @@ window.TURMA_CONFIG_JOGOS = {
           ]
         },
         {
-          // Aulão interligado de 04/11 (Parte 3 de 3, história do Estúdio Pequi).
-          // Estimativa: teoria ~25 min + prática ~35 min.
+          // Aulão de 04/11, versão no portal para dia com internet (Missão 3 de 3).
+          // Mesma história dos slides da Aula 11. Teoria ~25 min + prática ~35 min.
           key: 'projetos-enigma-documento',
-          label: 'Aulão Parte 3: O documento do projeto',
+          label: 'Aulão Missão 3: O documento embaralhado',
           dataAula: '2026-11-04',
-          desc: 'Elementos textuais e pós-textuais do documento do projeto, reconhecidos e ordenados com enigmas de lógica.',
+          desc: 'Organize as partes do documento do projeto usando enigmas: introdução, desenvolvimento, conclusão e complementos.',
           capacidade: 'Reconhecer os padrões de estrutura estabelecidos para a elaboração de projetos',
           modules: [
             {
-              key: 'teoria', title: 'Teoria — O documento do projeto',
-              desc: 'Introdução, desenvolvimento e conclusão; referências, glossário, apêndice, anexo e índice; citação × referência; numeração progressiva.',
+              key: 'teoria', title: 'Teoria — O documento embaralhado',
+              desc: 'Introdução, desenvolvimento e conclusão; referências, glossário, apêndice, anexo e índice; e por que toda obra citada precisa aparecer nas referências.',
               icon: '📖', src: 'atividades/projetos-enigma-documento-teoria.html', telaCheia: true,
               progressKey: 'projetos_enigma_documento_teoria_progress_', progressMode: 'flag',
               hasGabarito: true
             },
             {
               key: 'pratica', title: 'Prática — O Documento Embaralhado',
-              desc: 'Dois enigmas de estrutura e cinco trechos para identificar o elemento certo e o erro do documento.',
+              desc: 'Dois enigmas, quatro casos, as partes de um jogo criado por você e o visto do professor.',
               icon: '🧾', src: 'atividades/projetos-enigma-documento-pratica.html', telaCheia: true,
-              progressKey: 'projetos_enigma_documento_pratica_progress_', progressTotal: 7,
+              progressKey: 'projetos_enigma_documento_pratica_progress_', progressTotal: 8,
               requires: 'teoria', hasGabarito: true
             }
           ]

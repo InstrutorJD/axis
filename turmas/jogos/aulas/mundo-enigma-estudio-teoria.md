@@ -1,210 +1,175 @@
 ---
-titulo: Aulão Parte 1: Quem é quem no estúdio
+titulo: Aulão Missão 1: Quem faz o quê?
 turma: 2º JD
 ---
 
-# Aulão Parte 1: Quem é quem no estúdio
-Descubra as profissões usando pistas e lógica
+# Missão 1: Quem faz o quê?
+Os crachás do Estúdio Pequi sumiram. Você vai descobrir o trabalho de cada pessoa
 
 ---
 
 ## Nesta aula você vai
-+ Conhecer a equipe do Estúdio Pequi
-+ Identificar uma profissão pelas características dela
-+ Raciocinar com "se... então" e por eliminação
-+ Separar o que é certeza do que é só palpite
++ Reconhecer quem faz o quê na criação de um jogo
++ Identificar formas de contratação
++ Resolver enigmas eliminando possibilidades
++ Usar o "se... então" sem cair em armadilhas
 
 ---
 
-## O caso do Estúdio Pequi
-O Estúdio Pequi vai lançar o jogo **Lenda do Cerrado**, mas o crachá da equipe sumiu.
-
-- Cinco pessoas: **Bia, Caio, Duda, Enzo e Yara**
-- Cinco profissões para descobrir
-- Nada de adivinhar: você terá só pistas
-
-> Neste aulão, uma parte alimenta a outra: a equipe que você descobrir agora volta nas Partes 2 e 3.
-
----
-
-## Características denunciam a profissão
-| Característica | Pergunta que ela responde |
+## Quem trabalha em um jogo
+| Profissão | O que faz no dia a dia |
 |---|---|
-| Atividades | O que a pessoa faz? |
-| Formação | O que precisa estudar? |
-| Competências | O que precisa saber e ser? |
-| Ambiente | Onde e como trabalha? |
-| Regulamentação | Existe lei ou conselho? |
-| Mercado e carreira | Como entra e como cresce? |
-
----
-
-## Quem faz o quê em um estúdio
-- **Programador(a):** escreve e corrige o código do jogo
-- **Game designer:** define regras e mecânicas no GDD
-- **Artista 2D:** cria personagens, cenários e sprites
-- **Analista de testes (QA):** executa roteiros e registra bugs
-- **Produtor(a):** organiza cronograma, prazos e prioridades
+| 💻 Programador(a) | Escreve o código do jogo |
+| 🎲 Game designer | Inventa as regras e os desafios |
+| 🎨 Artista | Desenha personagens e cenários |
+| 🔍 Testador(a) | Joga várias vezes e procura erros |
 
 ---
 
 ## Pergunta
-Uma vaga pede "definir o desafio de cada fase e ajustar a dificuldade". Quem a equipe procura?
+Alguém joga a mesma fase 50 vezes e anota cada erro. Qual é a profissão?
 
-- [x] Game designer, porque cuida das regras e do equilíbrio do jogo
-- [ ] Programador(a), porque toda fase depende de código escrito
-- [ ] Produtor(a), porque decide quando cada fase será entregue
-- [ ] Artista 2D, porque cada fase precisa de um cenário próprio
+- [ ] Programador(a)
+- [ ] Game designer
+- [ ] Artista
+- [x] Testador(a)
 
-> Por quê: decidir regras, desafios e dificuldade é atividade central de game design. Programar, desenhar e cuidar de prazos vêm depois.
-
----
-
-## Pergunta
-Num estúdio, alguém repete a mesma fase e descreve os passos que geram cada falha. Qual é a profissão?
-
-- [ ] Programador(a), já que corrige as falhas relatadas no código
-- [ ] Game designer, já que muda a fase quando ela fica difícil
-- [x] Analista de testes, já que executa roteiros e registra bugs
-- [ ] Produtor(a), já que prioriza quais falhas entram no prazo
-
-> Por quê: a entrega dessa pessoa é a informação sobre o defeito. Quem corrige e quem prioriza usam esse registro depois.
-
----
-
-## Ferramenta 1: eliminar
-Em um enigma com pares únicos, cada pessoa tem uma profissão e cada profissão tem uma pessoa.
-
-- **✖** quando a pista descarta um par
-- **✔** quando só sobrou uma possibilidade
-- Marcou ✔? Risque o resto da linha e da coluna
-
-> Cada ✖ é informação: quando quatro opções caem, a quinta é certeza.
+> Por quê: procurar e anotar erros é o trabalho de quem testa.
 
 ---
 
 ## Pergunta
-Entre cinco profissões, Enzo já tem ✖ em programação, testes, design e produção. O que você conclui?
+Uma vaga pede alguém para inventar os desafios de cada fase. Quem a equipe procura?
 
-- [ ] Ainda falta uma pista direta para marcar a profissão de Enzo
-- [ ] Enzo pode ter duas profissões, então a tabela não ajuda aqui
-- [x] Enzo é artista 2D, pois é a única possibilidade que restou
-- [ ] Enzo fica sem profissão, porque as pistas contradizem a regra
+- [x] Game designer
+- [ ] Testador(a)
+- [ ] Artista
+- [ ] Programador(a)
 
-> Por quê: cada pessoa precisa ter uma profissão. Quando só resta uma possibilidade, ela é uma certeza, mesmo sem pista direta.
+> Por quê: criar regras e desafios é o trabalho do game designer. Depois, a equipe transforma a ideia em jogo.
 
 ---
 
-## Ferramenta 2: "se... então"
-**Regra:** se A acontece, então B acontece.
+## Como resolver um enigma
+Ana, Léo e Mia jogam jogos diferentes. Cada um joga só um.
 
-| O que sabemos | Dá para concluir? |
+**Pistas:** Léo joga corrida. Ana não joga futebol.
+
+| | Corrida | Futebol | Luta |
+|---|---|---|---|
+| Ana | ✖ | ✖ | ✔ |
+| Léo | ✔ | ✖ | ✖ |
+| Mia | ✖ | ✔ | ✖ |
+
+---
+
+## Pergunta
+Enzo tem ✖ em programar, regras e testes. Só resta arte. O que você conclui?
+
+- [ ] Falta uma pista direta sobre ele
+- [ ] Ele pode ter duas profissões
+- [x] Enzo é o artista da equipe
+- [ ] A tabela está obrigatoriamente errada
+
+> Por quê: cada pessoa tem uma profissão. Quando só sobra uma opção, ela é a resposta.
+
+---
+
+## Como cada pessoa é contratada
+| Tipo | Como reconhecer |
 |---|---|
-| A aconteceu | **Sim:** B aconteceu |
-| B não aconteceu | **Sim:** A não aconteceu |
-| B aconteceu | **Não:** A pode ter ocorrido ou não |
-| A não aconteceu | **Não:** B pode ter ocorrido ou não |
+| Aprendiz | Trabalha e faz um curso de aprendizagem |
+| Estágio | Estuda e tem um supervisor no trabalho |
+| CLT | Carteira assinada, férias e 13º salário |
+| PJ | Tem empresa e emite nota fiscal |
 
 ---
 
 ## Pergunta
-Regra: "Se Duda registra os bugs, então Caio cuida do cronograma". Caio não cuida dele. Conclusão?
+Uma artista tem empresa própria e emite nota fiscal para o estúdio. Qual é a contratação?
 
-- [ ] Duda registra os bugs, porque alguém precisa fazer essa tarefa
-- [x] Duda não registra os bugs, senão Caio cuidaria do cronograma
-- [ ] Caio registra os bugs, porque Duda foi descartada da tarefa
-- [ ] Nada se conclui, porque a regra só vale quando Caio faz algo
+- [ ] Estágio
+- [ ] CLT
+- [x] PJ
+- [ ] Aprendiz
 
-> Por quê: se B não aconteceu, A também não aconteceu. Mas isso não diz sozinho quem registra os bugs.
-
----
-
-## Pergunta
-Regra: "Quem escreve o GDD conhece as mecânicas do jogo". Nina conhece as mecânicas. O que é certo?
-
-- [ ] Nina escreve o GDD, porque atende à condição descrita na regra
-- [ ] Nina não escreve o GDD, porque a regra fala de outra pessoa
-- [ ] Toda pessoa que conhece as mecânicas escreve o GDD do estúdio
-- [x] Nina pode ou não escrever o GDD, pois faltam informações
-
-> Por quê: testadores e programadores também conhecem as mecânicas. A regra não permite voltar de B para A.
+> Por quê: ter empresa e emitir nota fiscal pelo serviço são características de PJ.
 
 ---
 
-## Contrato e carreira também são pistas
-| Forma ou nível | O que caracteriza |
+## A regra do "se... então"
+**Regra:** se o celular está sem bateria, então ele não liga.
+
+| O que aconteceu | O que dá para concluir |
 |---|---|
-| Aprendiz | Trabalha e faz curso de aprendizagem |
-| Estágio | Ato educativo supervisionado, ligado ao curso |
-| CLT | Carteira assinada, férias, 13º e FGTS |
-| PJ | Presta serviço e emite nota fiscal |
-| Júnior / sênior | Muita revisão / mais autonomia e orientação |
+| O celular ligou | Com certeza, ele tem bateria |
+| O celular não ligou | **Não dá para ter certeza:** pode estar quebrado |
 
 ---
 
 ## Pergunta
-Uma artista emite nota fiscal por entrega, sem férias pagas pelo estúdio. Qual é a forma de contratação?
+Regra: se chove, a quadra fica molhada. Hoje a quadra está seca. O que é certo?
 
-- [ ] Estágio, porque ela recebe um valor por cada entrega feita
-- [ ] CLT, porque ela trabalha com frequência para o mesmo estúdio
-- [x] PJ, porque ela presta um serviço e emite a própria nota fiscal
-- [ ] Aprendizagem, porque ela ainda está criando o próprio portfólio
+- [ ] Choveu bem pouco hoje
+- [x] Não choveu hoje
+- [ ] A quadra foi lavada
+- [ ] Nada se pode concluir
 
-> Por quê: emitir nota por serviço prestado, sem os direitos da carteira assinada, caracteriza a contratação como PJ.
-
----
-
-## Regulamentação: quando a lei entra
-- Profissão regulamentada tem **lei própria** com requisitos
-- Medicina e engenharia exigem registro em conselho
-- Programação e game design **não** têm essa exigência legal
-
-> A empresa ainda pode pedir formação, portfólio e testes, mas isso é critério da vaga.
+> Por quê: se tivesse chovido, a quadra estaria molhada. Como está seca, não choveu.
 
 ---
 
 ## Pergunta
-Um colega diz que, sem registro em conselho, Bia não pode atuar como game designer. A afirmação procede?
+Regra: se chove, a quadra fica molhada. Hoje a quadra está molhada. O que é certo?
 
-- [ ] Sim, porque todo trabalho técnico exige um conselho de classe
-- [x] Não, porque game design não é uma profissão regulamentada
-- [ ] Sim, porque o estúdio emite o registro no primeiro contrato
-- [ ] Não, porque nenhuma profissão no Brasil exige registro legal
+- [ ] Choveu, sem nenhuma dúvida
+- [ ] Não choveu, sem nenhuma dúvida
+- [ ] Alguém lavou a quadra
+- [x] Pode ter chovido, ou não
 
-> Por quê: registro em conselho é exigido em profissões regulamentadas por lei, e game design não está nesse grupo.
+> Por quê: é a armadilha do celular que não ligou. A quadra pode ter sido molhada de outro jeito.
 
 ---
 
-## Cargo não é prova
-O nome criativo de um cargo não diz o que a pessoa faz.
+## Nome do cargo e registro
+- **Cargo:** é só o nome do posto, e pode enganar
+- **O que vale:** o que a pessoa faz no dia a dia
+- **Registro em conselho:** só existe quando a lei exige
 
-- "Ninja do código" pode nem programar
-- "Mago da qualidade" pode executar testes
-- Olhe as **atividades** antes de concluir
-
-> Regra do detetive: decida pelas evidências, não pelo rótulo.
+> Medicina exige registro. Game design e programação, não.
 
 ---
 
 ## Pergunta
-Um crachá diz "Mestre dos Pixels", mas a pessoa só define prazos e prioridades. Qual é a ocupação?
+O crachá diz "Mestre dos Pixels", mas a pessoa só testa o jogo e anota erros. Qual é o trabalho dela?
 
-- [ ] Artista 2D, pois o nome do cargo fala diretamente de pixels
-- [ ] Game designer, pois títulos criativos são comuns nessa função
-- [ ] Programador(a), pois pixel é um termo técnico de computação
-- [x] Produtor(a), pois as atividades descritas são prazos e prioridades
+- [ ] Artista
+- [ ] Game designer
+- [x] Testador(a)
+- [ ] Programador(a)
 
-> Por quê: cargo é só o nome do posto. A ocupação aparece nas atividades que a pessoa realmente exerce.
+> Por quê: o nome no crachá pode enganar. O que vale é o que a pessoa faz.
+
+---
+
+## Pergunta
+Qual destas profissões exige por lei o registro em um conselho?
+
+- [x] Médico(a)
+- [ ] Game designer
+- [ ] Programador(a)
+- [ ] Artista
+
+> Por quê: a medicina é regulamentada por lei e exige registro no conselho.
 
 ---
 
 ## O que vimos
-+ Características revelam a profissão melhor do que o nome do cargo
-+ Eliminar possibilidades também produz certezas
-+ "Se A, então B": B falso prova que A é falso
-+ B verdadeiro não prova A
++ O que a pessoa **faz** revela a profissão
++ Eliminar opções também leva à resposta
++ Uma pista pode ajudar, mas nem sempre prova tudo
 
 ---
 
 # Hora da prática!
-Abra **Prática: O Enigma dos Crachás** e descubra a equipe do Estúdio Pequi
+Abra **Prática: O Enigma dos Crachás**

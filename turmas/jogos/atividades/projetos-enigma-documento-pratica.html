@@ -16,6 +16,7 @@
 <script src="../../../shared/activity-tracker.js"></script>
 <script src="../../../shared/progress-sync.js"></script>
 <script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/professor-visto.js"></script>
 <script src="../../../shared/aula-base.js"></script>
 <script src="../../../shared/enigma-logica.js"></script>
 </head>
@@ -24,7 +25,7 @@
 <div class="ab-app">
   <header class="ab-topo">
     <div class="ab-topo-titulo">Projetos — O Documento Embaralhado</div>
-    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">9</span></div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">10</span></div>
   </header>
   <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
   <main class="ab-palco" id="palco">
@@ -33,158 +34,118 @@
 </div>
 
 <script>
-  const INTRO = 'Introdução', DES = 'Desenvolvimento', CONC = 'Conclusão', REF = 'Referências', APE = 'Apêndice';
-  const P1 = '1º', P2 = '2º', P3 = '3º', P4 = '4º', P5 = '5º';
+  const INTRO = 'Introdução', DES = 'Desenvolvimento', REF = 'Referências', APE = 'Apêndice';
   const pos = p => parseInt(p, 10);
 
   EnigmaLogica.iniciar({
     activityLocation: 'projetos_enigma_documento_pratica',
     nome: 'O Documento Embaralhado',
-    subtitulo: 'Prática · Aulão Parte 3 · Introdução ao Desenvolvimento de Projetos · Turma Jogos',
+    subtitulo: 'Prática · Aulão Missão 3 · Introdução ao Desenvolvimento de Projetos · Turma Jogos',
     abertura: {
-      titulo: 'O arquivo do projeto ficou embaralhado',
+      titulo: 'O documento do jogo se misturou',
       html: `
-        <p>A equipe distribuiu as tarefas e agora precisa entregar o documento do <b>Lenda do Cerrado</b>, mas as partes se misturaram. Lembre: Bia é game designer, Caio é analista de testes, Duda programa, Enzo é artista 2D e Yara é produtora.</p>
+        <p>A equipe precisa entregar o documento do <b>Lenda do Cerrado</b>, mas as partes estão fora do lugar.</p>
         <ol>
-          <li>Descubra quem escreveu cada parte e coloque os pós-textuais na ordem certa.</li>
-          <li>Depois, identifique os trechos soltos e o erro do documento.</li>
+          <li>Resolva os enigmas sobre as partes do documento.</li>
+          <li>Responda aos casos.</li>
+          <li>Planeje as partes de um jogo seu e peça o visto.</li>
         </ol>
-        <blockquote>Errou? Você recebe uma orientação e tenta de novo, sem revelar a resposta. Tempo sugerido: <b>35 minutos</b>.</blockquote>`,
+        <blockquote>O trabalho é individual. Se errar, você recebe uma dica e tenta de novo.</blockquote>`,
     },
     fechamento: {
-      titulo: '🎉 Projeto entregue!',
+      titulo: '🎉 Caso encerrado!',
       html: `
-        <p>Você reconheceu a função de cada parte da estrutura e justificou a posição dela com lógica. O documento do <b>Lenda do Cerrado</b> está pronto.</p>
-        <p>O caso do Estúdio Pequi termina aqui: as <b>profissões</b> definiram quem faz o quê, o <b>trabalho em equipe</b> transformou as partes em um projeto único e a <b>estrutura</b> tornou esse projeto compreensível para outras pessoas.</p>`,
+        <p>O documento está organizado, e o <b>Lenda do Cerrado</b> está pronto para o lançamento.</p>
+        <p>Você descobriu quem faz o quê, ajudou a equipe a colaborar e organizou o projeto para todos entenderem.</p>`,
     },
     etapas: [
       {
         id: 'grade-autoria', tipo: 'grade', icone: '✍️',
-        titulo: 'Enigma 1 — Quem escreveu cada parte',
-        intro: '<p>Cada pessoa escreveu <b>uma</b> parte. As pistas descrevem a função de cada elemento, sem dizer o nome dele.</p>',
+        titulo: 'Enigma 4: quem escreveu o quê?',
+        intro: '<p>Cada pessoa escreveu <b>uma</b> parte do documento.</p>',
         rotuloLinha: 'Pessoa',
-        linhas: ['Bia', 'Caio', 'Duda', 'Enzo', 'Yara'],
-        colunas: [INTRO, DES, CONC, REF, APE],
+        linhas: ['Bia', 'Caio', 'Duda', 'Enzo'],
+        colunas: [INTRO, DES, REF, APE],
         pistas: [
-          { t: 'A parte com tema, justificativa e objetivos não foi escrita por Caio, Duda nem Enzo.', ok: s => s.Caio !== INTRO && s.Duda !== INTRO && s.Enzo !== INTRO },
-          { t: 'A lista das obras citadas, feita conforme a NBR 6023, não foi escrita por Bia, Enzo nem Yara.', ok: s => s.Bia !== REF && s.Enzo !== REF && s.Yara !== REF },
-          { t: 'O guia visual criado pela equipe entrou como material complementar e foi preparado por quem cria a arte do jogo.', ok: s => s.Enzo === APE },
-          { t: 'Se Yara tivesse escrito a parte com método e resultados, Duda teria feito as referências. Mas Duda não fez as referências.', ok: s => s.Duda !== REF && (s.Yara !== DES || s.Duda === REF) },
-          { t: 'A parte que retoma os objetivos e aponta os próximos passos não foi escrita por Duda nem por Yara.', ok: s => s.Duda !== CONC && s.Yara !== CONC },
+          { t: 'Bia explicou qual é o problema e por que o jogo importa.', ok: s => s.Bia === INTRO },
+          { t: 'Duda contou como o jogo foi feito e o resultado dos testes.', ok: s => s.Duda === DES },
+          { t: 'Enzo criou um guia de cores e o colocou no fim, como extra.', ok: s => s.Enzo === APE },
         ],
-        solucao: { Bia: CONC, Caio: REF, Duda: DES, Enzo: APE, Yara: INTRO },
-        resultado: '<p><b>Autoria descoberta:</b> Yara escreveu a introdução, Duda o desenvolvimento, Bia a conclusão, Caio as referências e Enzo o apêndice.</p>',
+        solucao: { Bia: INTRO, Caio: REF, Duda: DES, Enzo: APE },
+        resultado: '<p><b>Descoberto:</b> Bia fez a introdução, Duda o desenvolvimento, Enzo o apêndice e Caio as referências.</p>',
       },
       {
         id: 'grade-ordem', tipo: 'grade', icone: '🔢',
-        titulo: 'Enigma 2 — A ordem dos pós-textuais',
-        intro: '<p>Descubra a posição de cada elemento depois da conclusão. As pistas seguem a NBR 14724.</p>',
-        rotuloLinha: 'Elemento',
-        linhas: ['Referências', 'Glossário', 'Apêndice', 'Anexo', 'Índice'],
-        colunas: [P1, P2, P3, P4, P5],
+        titulo: 'Enigma 5: qual é a ordem?',
+        intro: '<p>Descubra a posição de cada parte.</p>',
+        rotuloLinha: 'Parte',
+        linhas: ['Referências', 'Glossário', 'Apêndice', 'Anexo'],
+        colunas: ['1º', '2º', '3º', '4º'],
         pistas: [
-          { t: 'Nenhum dos outros elementos vem antes do único que é obrigatório.', ok: s => s['Referências'] === P1 },
-          { t: 'O material criado por terceiros vem imediatamente depois do material criado pela equipe.', ok: s => pos(s['Anexo']) === pos(s['Apêndice']) + 1 },
-          { t: 'A lista de termos técnicos explicados vem antes do material criado pela equipe.', ok: s => pos(s['Glossário']) < pos(s['Apêndice']) },
-          { t: 'A lista de termos técnicos explicados e a lista de assuntos com páginas não ficam lado a lado.', ok: s => Math.abs(pos(s['Glossário']) - pos(s['Índice'])) !== 1 },
+          { t: 'As referências vêm antes das outras três partes.', ok: s => s['Referências'] === '1º' },
+          { t: 'O anexo vem logo depois do apêndice.', ok: s => pos(s['Anexo']) === pos(s['Apêndice']) + 1 },
+          { t: 'O glossário vem antes do apêndice.', ok: s => pos(s['Glossário']) < pos(s['Apêndice']) },
         ],
-        solucao: { 'Referências': P1, 'Glossário': P2, 'Apêndice': P3, 'Anexo': P4, 'Índice': P5 },
-        resultado: '<p><b>Ordem encontrada:</b> referências, glossário, apêndice, anexo e índice.</p>',
+        solucao: { 'Referências': '1º', 'Glossário': '2º', 'Apêndice': '3º', 'Anexo': '4º' },
+        resultado: '<p><b>Ordem:</b> referências, glossário, apêndice e anexo. Se o documento tiver índice, ele fica por último.</p>',
       },
       {
-        id: 'caso-introducao', tipo: 'caso', icone: '🧭',
-        titulo: 'Trecho 1 — O ponto de partida',
-        cenario: '<p>"Muitos jovens de Goiás conhecem pouco as lendas do Cerrado. Por isso, este projeto tem como objetivo desenvolver um jogo 2D que apresente essas histórias de forma divertida."</p>',
-        pergunta1: 'Em qual elemento este trecho se encaixa?',
-        opcoes: [
-          { t: 'Introdução', ok: true },
-          { t: 'Desenvolvimento' },
-          { t: 'Conclusão' },
-        ],
-        pergunta2: 'Qual pista do trecho justifica sua escolha?',
-        motivos: [
-          { t: 'Mostra resultados medidos nos testes realizados' },
-          { t: 'Apresenta o problema, a justificativa e o objetivo', ok: true },
-          { t: 'Avalia se o objetivo do projeto já foi atendido' },
-        ],
-        dica: 'O trecho fala sobre algo que já aconteceu ou sobre o que o projeto pretende fazer?',
-        explica: 'O trecho prepara o leitor: apresenta o problema e diz o que o projeto pretende fazer. Essa é a função da introdução.',
+        id: 'caso-comeco', tipo: 'caso', icone: '🧭',
+        titulo: 'Caso 1: por onde começar?',
+        cenario: '<p>"Muitos jovens não conhecem as lendas do Cerrado. Por isso, vamos criar um jogo sobre elas."</p>',
+        pergunta1: 'Onde esse trecho entra?',
+        opcoes: [{ t: 'Introdução', ok: true }, { t: 'Desenvolvimento' }, { t: 'Conclusão' }, { t: 'Referências' }],
+        dica: 'O trecho conta o que já aconteceu ou explica por que o projeto existe?',
+        explica: 'O trecho apresenta o problema e diz o que o projeto quer fazer.',
       },
       {
-        id: 'caso-conclusao', tipo: 'caso', icone: '🏁',
-        titulo: 'Trecho 2 — Objetivo alcançado?',
-        cenario: '<p>"O objetivo de apresentar as lendas por meio de um jogo 2D foi alcançado, conforme os resultados já apresentados. Como próximo passo, recomenda-se incluir novas fases e recursos de acessibilidade."</p>',
-        pergunta1: 'Em qual elemento este trecho se encaixa?',
-        opcoes: [
-          { t: 'Introdução' },
-          { t: 'Desenvolvimento' },
-          { t: 'Conclusão', ok: true },
-        ],
-        pergunta2: 'Qual pista do trecho justifica sua escolha?',
-        motivos: [
-          { t: 'Retoma o objetivo e aponta os próximos passos', ok: true },
-          { t: 'Detalha cada etapa da construção do jogo em Phaser' },
-          { t: 'Lista as obras que a equipe consultou na pesquisa' },
-        ],
-        dica: 'Os resultados aparecem pela primeira vez aqui ou o trecho apenas fala sobre o que já foi mostrado?',
-        explica: 'A conclusão fecha o raciocínio aberto na introdução, sem trazer dados novos, e pode indicar próximos passos.',
+        id: 'caso-deu-certo', tipo: 'caso', icone: '🏁',
+        titulo: 'Caso 2: deu certo?',
+        cenario: '<p>"Atingimos o objetivo do projeto. No futuro, vamos criar novas fases."</p>',
+        pergunta1: 'Onde esse trecho entra?',
+        opcoes: [{ t: 'Introdução' }, { t: 'Desenvolvimento' }, { t: 'Conclusão', ok: true }, { t: 'Glossário' }],
+        dica: 'Qual parte responde "Deu certo? O que vem depois?"',
+        explica: 'O trecho responde se deu certo e aponta o que vem depois.',
       },
       {
-        id: 'caso-apendice', tipo: 'caso', icone: '📋',
-        titulo: 'Trecho 3 — O questionário dos testes',
-        cenario: '<p>Caio <b>criou um questionário</b> para os jogadores responderem depois da partida. O texto cita esse questionário, mas o conteúdo completo deixaria o desenvolvimento longo demais.</p>',
-        pergunta1: 'Onde o questionário completo deve ficar?',
+        id: 'caso-extras', tipo: 'caso', icone: '📋',
+        titulo: 'Caso 3: apêndice ou anexo?',
+        cenario: '<p>Caio criou um questionário para os jogadores. A editora enviou a licença da música.</p>',
+        pergunta1: 'Onde fica cada um?',
         opcoes: [
-          { t: 'Apêndice', ok: true },
-          { t: 'Anexo' },
-          { t: 'Glossário' },
+          { t: 'Questionário no apêndice; licença no anexo', ok: true },
+          { t: 'Questionário no anexo; licença no apêndice' },
+          { t: 'Os dois no apêndice' },
+          { t: 'Os dois no anexo' },
         ],
-        pergunta2: 'Qual critério decide a resposta?',
-        motivos: [
-          { t: 'O tamanho do material incluído no documento' },
-          { t: 'O fato de o material ser usado nos testes do jogo' },
-          { t: 'A autoria: o material foi criado pela própria equipe', ok: true },
-        ],
-        dica: 'Apêndice ou anexo: a resposta depende de uma só pergunta. Quem elaborou esse material?',
-        explica: 'Caio faz parte da equipe. Portanto, o questionário é um material complementar da própria equipe: apêndice.',
+        dica: 'Para cada material, pergunte: quem o criou?',
+        explica: 'A equipe criou o questionário, e a editora criou a licença.',
       },
       {
-        id: 'caso-anexo', tipo: 'caso', icone: '🎵',
-        titulo: 'Trecho 4 — A licença da música',
-        cenario: '<p>A trilha sonora do jogo é licenciada. A <b>editora enviou um termo de licença</b> já assinado, e a equipe quer incluir o documento como comprovante, sem alterar o conteúdo.</p>',
-        pergunta1: 'Onde o termo de licença deve ficar?',
+        id: 'caso-souza', tipo: 'caso', icone: '🔎',
+        titulo: 'Caso 4: o erro no documento',
+        cenario: '<p>O texto usa uma informação do livro de Souza, mas esse livro não aparece nas referências.</p>',
+        pergunta1: 'O que a equipe faz?',
         opcoes: [
-          { t: 'Apêndice' },
-          { t: 'Anexo', ok: true },
-          { t: 'Referências' },
+          { t: 'Nada, porque citar no texto já basta' },
+          { t: 'Inclui o livro nas referências', ok: true },
+          { t: 'Coloca o livro no apêndice' },
+          { t: 'Apaga as referências do documento' },
         ],
-        pergunta2: 'Qual raciocínio sustenta a resposta?',
-        motivos: [
-          { t: 'Foi elaborado por terceiros e serve de comprovação', ok: true },
-          { t: 'Foi escolhido pela equipe, então é material dela' },
-          { t: 'Foi consultado no texto, então é uma obra citada' },
-        ],
-        dica: 'A equipe escolheu incluir o documento, mas foi ela que o elaborou?',
-        explica: 'Escolher incluir não torna a equipe autora. Como o documento veio da editora, ele é um anexo.',
+        dica: 'Qual é a função das referências?',
+        explica: 'Se usou uma obra e citou no texto, ela precisa aparecer nas referências.',
       },
       {
-        id: 'caso-citacao', tipo: 'caso', icone: '🔎',
-        titulo: 'Trecho 5 — O erro no documento',
-        cenario: '<p>No desenvolvimento, o texto diz: <b>"segundo Souza (2024), o jogador aprende melhor quando recebe retorno imediato"</b>. Caio confere a lista de referências e não encontra nenhuma obra de Souza.</p>',
-        pergunta1: 'O que a equipe conclui?',
-        opcoes: [
-          { t: 'Nada, pois a citação no texto dispensa a lista final' },
-          { t: 'Há um erro: a citação não tem a referência correspondente', ok: true },
-          { t: 'A obra de Souza precisa ser movida para o apêndice' },
-        ],
-        pergunta2: 'Qual regra foi quebrada?',
-        motivos: [
-          { t: 'Se a obra está nas referências, ela é sempre citada no resumo' },
-          { t: 'Se a obra foi citada no texto, ela aparece nas referências', ok: true },
-          { t: 'Se a obra é de outro autor, ela sempre vai para o anexo' },
-        ],
-        dica: 'A condição da regra aconteceu, mas a consequência não. O que isso mostra?',
-        explica: 'A regra diz: citou, então referencia. Como houve citação sem referência, a equipe precisa localizar a obra e incluí-la ou corrigir o texto.',
+        id: 'criar-jogo', tipo: 'escrita', icone: '🕵️',
+        titulo: 'Agora é com você',
+        intro: '<p>Pense em um jogo que você gostaria de criar e escreva uma frase para cada parte.</p>',
+        campos: ['Introdução: por que esse jogo importa?', 'Desenvolvimento: como você faria?', 'Conclusão: como saberia que deu certo?'],
+        gabarito: 'Resposta pessoal. Cada frase deve cumprir a função da parte indicada.',
+      },
+      {
+        id: 'visto', tipo: 'visto', icone: '✍️',
+        titulo: 'Visto da Missão 3',
+        intro: '<p>Mostre para o professor as 3 frases do seu jogo.</p>',
       },
     ],
   });

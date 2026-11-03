@@ -16,6 +16,7 @@
 <script src="../../../shared/activity-tracker.js"></script>
 <script src="../../../shared/progress-sync.js"></script>
 <script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/professor-visto.js"></script>
 <script src="../../../shared/aula-base.js"></script>
 <script src="../../../shared/enigma-logica.js"></script>
 </head>
@@ -24,7 +25,7 @@
 <div class="ab-app">
   <header class="ab-topo">
     <div class="ab-topo-titulo">Mundo do Trabalho — O Enigma dos Crachás</div>
-    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">8</span></div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">9</span></div>
   </header>
   <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
   <main class="ab-palco" id="palco">
@@ -33,141 +34,114 @@
 </div>
 
 <script>
-  const PROG = 'Programador(a)', GD = 'Game designer', ART = 'Artista 2D', QA = 'Analista de testes', PROD = 'Produtor(a)';
-  const APR = 'Aprendiz', EST = 'Estágio', JR = 'CLT júnior', SR = 'CLT sênior', PJ = 'PJ';
+  const PROG = 'Programa', REGRAS = 'Regras', ARTE = 'Arte', TESTES = 'Testes';
+  const APR = 'Aprendiz', EST = 'Estágio', CLT = 'CLT', PJ = 'PJ';
 
   EnigmaLogica.iniciar({
     activityLocation: 'mundo_enigma_estudio_pratica',
     nome: 'O Enigma dos Crachás',
-    subtitulo: 'Prática · Aulão Parte 1 · Mundo do Trabalho · Turma Jogos',
+    subtitulo: 'Prática · Aulão Missão 1 · Mundo do Trabalho · Turma Jogos',
     abertura: {
       titulo: 'Os crachás do Estúdio Pequi sumiram',
       html: `
-        <p>A equipe do jogo <b>Lenda do Cerrado</b> precisa dos crachás para a feira de jogos. Sua missão é descobrir a profissão e o vínculo de cada pessoa.</p>
+        <p>O estúdio vai lançar o jogo <b>Lenda do Cerrado</b>. Sua missão é descobrir o que cada pessoa faz.</p>
         <ol>
-          <li>Nos enigmas, toque na tabela para marcar <b>✖</b> ou <b>✔</b>. Use só as pistas.</li>
-          <li>Nos casos, escolha a <b>conclusão</b> e o <b>motivo</b>.</li>
+          <li>Nos enigmas, toque na tabela para marcar <b>✖</b> ou <b>✔</b>.</li>
+          <li>Nos casos, escolha uma resposta.</li>
+          <li>No fim, crie suas pistas e peça o visto.</li>
         </ol>
-        <blockquote>Errou? Você recebe uma orientação e tenta de novo, sem revelar a resposta. Tempo sugerido: <b>35 minutos</b>.</blockquote>`,
+        <blockquote>O trabalho é individual. Se errar, você recebe uma dica e tenta de novo.</blockquote>`,
     },
     fechamento: {
       titulo: '✅ Crachás entregues!',
       html: `
-        <p>Você identificou cada profissional pelas <b>atividades, competências e formas de contratação</b>, sem depender do nome do cargo.</p>
-        <p>Guarde o resultado: na <b>Parte 2</b> (Projeto de Vida), essa mesma equipe vai precisar trabalhar junta.</p>`,
+        <p>Você descobriu o trabalho de cada pessoa pelo que ela faz, e não pelo nome no crachá.</p>
+        <p>Na <b>Missão 2</b>, em Projeto de Vida, essa equipe vai precisar de ajuda.</p>`,
     },
     etapas: [
       {
-        id: 'grade-profissoes', tipo: 'grade', icone: '🪪',
-        titulo: 'Enigma 1 — A profissão de cada pessoa',
-        intro: '<p>Cada pessoa tem <b>uma</b> profissão, e cada profissão pertence a <b>uma</b> pessoa.</p>',
+        id: 'grade-crachas', tipo: 'grade', icone: '🪪',
+        titulo: 'Enigma 1: de quem é o crachá?',
+        intro: '<p>Cada pessoa faz <b>um</b> trabalho, e cada trabalho é de <b>uma</b> pessoa.</p>',
         rotuloLinha: 'Pessoa',
-        linhas: ['Bia', 'Caio', 'Duda', 'Enzo', 'Yara'],
-        colunas: [PROG, GD, ART, QA, PROD],
+        linhas: ['Bia', 'Caio', 'Duda', 'Enzo'],
+        colunas: [PROG, REGRAS, ARTE, TESTES],
         pistas: [
-          { t: 'Caio não escreve o código do jogo nem desenha sprites.', ok: s => s.Caio !== PROG && s.Caio !== ART },
-          { t: 'Enzo e Duda não cuidam de cronogramas e prazos.', ok: s => s.Enzo !== PROD && s.Duda !== PROD },
-          { t: 'Yara e Enzo não definem as mecânicas no GDD.', ok: s => s.Yara !== GD && s.Enzo !== GD },
-          { t: 'Se Duda registrasse os bugs, Caio cuidaria do cronograma. Mas Caio não cuida do cronograma.', ok: s => s.Caio !== PROD && (s.Duda !== QA || s.Caio === PROD) },
-          { t: 'Bia não executa roteiros de teste, não desenha personagens e não organiza os prazos.', ok: s => s.Bia !== QA && s.Bia !== ART && s.Bia !== PROD },
-          { t: 'Duda e Yara não montam portfólio de ilustração, porque não criam a arte do jogo.', ok: s => s.Duda !== ART && s.Yara !== ART },
-          { t: 'O código do jogo nunca passou pelas mãos de Bia.', ok: s => s.Bia !== PROG },
+          { t: 'Duda passa o dia escrevendo código.', ok: s => s.Duda === PROG },
+          { t: 'Enzo leva um caderno de desenhos para o trabalho e cria os personagens.', ok: s => s.Enzo === ARTE },
+          { t: 'Bia nunca joga a mesma fase para procurar erros.', ok: s => s.Bia !== TESTES },
         ],
-        solucao: { Bia: GD, Caio: QA, Duda: PROG, Enzo: ART, Yara: PROD },
-        resultado: '<p><b>Equipe descoberta:</b> Bia é game designer, Caio é analista de testes, Duda é programadora, Enzo é artista 2D e Yara é produtora.</p>',
+        solucao: { Bia: REGRAS, Caio: TESTES, Duda: PROG, Enzo: ARTE },
+        resultado: '<p><b>Descoberto:</b> Bia é game designer, Caio é testador, Duda é programadora e Enzo é artista.</p>',
       },
       {
-        id: 'grade-vinculos', tipo: 'grade', icone: '📄',
-        titulo: 'Enigma 2 — Contrato e nível de cada um',
-        intro: '<p>Use a resposta do Enigma 1: Bia é game designer, Caio é analista de testes, Duda programa, Enzo é artista 2D e Yara é produtora.</p>',
+        id: 'grade-contratos', tipo: 'grade', icone: '📄',
+        titulo: 'Enigma 2: como foram contratados?',
+        intro: '<table><tr><th>Tipo</th><th>Como reconhecer</th></tr><tr><td>Aprendiz</td><td>Trabalha e faz um curso de aprendizagem</td></tr><tr><td>Estágio</td><td>Estuda e tem um supervisor no trabalho</td></tr><tr><td>CLT</td><td>Carteira assinada, férias e 13º salário</td></tr><tr><td>PJ</td><td>Tem empresa e emite nota fiscal</td></tr></table>',
         rotuloLinha: 'Pessoa',
-        linhas: ['Bia', 'Caio', 'Duda', 'Enzo', 'Yara'],
-        colunas: [APR, EST, JR, SR, PJ],
+        linhas: ['Bia', 'Caio', 'Duda', 'Enzo'],
+        colunas: [APR, EST, CLT, PJ],
         pistas: [
-          { t: 'Quem escreve o GDD presta serviço ao estúdio e emite nota fiscal.', ok: s => s.Bia === PJ },
-          { t: 'Quem desenha os sprites e quem registra os bugs não têm carteira assinada.', ok: s => s.Enzo !== JR && s.Enzo !== SR && s.Caio !== JR && s.Caio !== SR },
-          { t: 'Quem desenha os sprites realiza um ato educativo supervisionado, ligado ao curso superior.', ok: s => s.Enzo === EST },
-          { t: 'O código de quem programa ainda passa pela revisão de um colega mais experiente.', ok: s => s.Duda !== SR },
-          { t: 'Quem organiza os prazos orienta colegas e decide com bastante autonomia.', ok: s => s.Yara !== JR },
+          { t: 'Bia tem a própria empresa e emite nota fiscal.', ok: s => s.Bia === PJ },
+          { t: 'Duda tem carteira assinada e recebe 13º salário.', ok: s => s.Duda === CLT },
+          { t: 'Enzo faz faculdade de design, e uma supervisora acompanha seu trabalho.', ok: s => s.Enzo === EST },
         ],
-        solucao: { Bia: PJ, Caio: APR, Duda: JR, Enzo: EST, Yara: SR },
-        resultado: '<p><b>Vínculos descobertos:</b> Bia é PJ, Caio é aprendiz, Duda é CLT júnior, Enzo faz estágio e Yara é CLT sênior.</p>',
-      },
-      {
-        id: 'caso-nao-gdd', tipo: 'caso', icone: '📜',
-        titulo: 'Caso 1 — O candidato sem GDD',
-        cenario: '<p>Para uma vaga do estúdio, vale a regra: <b>"Se a pessoa define as mecânicas do jogo, então ela escreve o GDD"</b>. Luan se candidata e diz: <b>"nunca escrevi um GDD neste estúdio"</b>.</p>',
-        pergunta1: 'O que dá para concluir sobre o trabalho de Luan no estúdio?',
-        opcoes: [
-          { t: 'Luan é programador, porque essa é a outra vaga de criação' },
-          { t: 'Luan não definia as mecânicas do jogo neste estúdio', ok: true },
-          { t: 'Luan definia as mecânicas, mas não registrava as decisões' },
-        ],
-        pergunta2: 'Qual raciocínio sustenta a conclusão?',
-        motivos: [
-          { t: 'Se B não aconteceu, então A também não aconteceu', ok: true },
-          { t: 'Se B aconteceu, então A obrigatoriamente aconteceu' },
-          { t: 'Se A não aconteceu, então B também não aconteceu' },
-        ],
-        dica: 'Identifique quem é A e quem é B na regra. Qual deles a fala de Luan nega?',
-        explica: 'A regra liga mecânicas (A) a GDD (B). Sem GDD, as mecânicas também caem. Mas a regra não diz qual é a profissão de Luan.',
+        solucao: { Bia: PJ, Caio: APR, Duda: CLT, Enzo: EST },
+        resultado: '<p><b>Descoberto:</b> Bia é PJ, Caio é aprendiz, Duda é CLT e Enzo faz estágio.</p>',
       },
       {
         id: 'caso-detalhista', tipo: 'caso', icone: '🔍',
-        titulo: 'Caso 2 — A conclusão apressada',
-        cenario: '<p>Um gestor afirma: <b>"Todo analista de testes é detalhista. Nina é detalhista. Logo, Nina é analista de testes."</b> Não há outras informações sobre as atividades de Nina.</p>',
-        pergunta1: 'A conclusão do gestor é válida?',
+        titulo: 'Caso 1: a detalhista',
+        cenario: '<p>Todo testador presta atenção aos detalhes. Nina também presta.</p>',
+        pergunta1: 'Dá para ter certeza de que Nina é testadora?',
         opcoes: [
-          { t: 'Sim, porque Nina tem a competência mais pedida para o cargo' },
-          { t: 'Não, porque analistas de testes não precisam ser detalhistas' },
-          { t: 'Não, porque outras profissões também pedem atenção a detalhes', ok: true },
+          { t: 'Sim, porque ela tem essa qualidade' },
+          { t: 'Não, porque outras profissões também pedem atenção', ok: true },
+          { t: 'Sim, porque essa qualidade só existe em testes' },
+          { t: 'Não, porque testador não presta atenção' },
         ],
-        pergunta2: 'O que falta para identificar a profissão de Nina?',
-        motivos: [
-          { t: 'Saber o nome do cargo escrito no crachá da empresa' },
-          { t: 'Saber as atividades que Nina realmente faz no trabalho', ok: true },
-          { t: 'Saber se Nina tem registro em um conselho profissional' },
-        ],
-        dica: 'Uma competência pode aparecer em várias profissões. O que mostra de fato qual é a ocupação de alguém?',
-        explica: 'B verdadeiro não prova A. Uma competência isolada não define a profissão: as atividades costumam ser a pista mais forte.',
+        dica: 'Lembre do celular que não ligou: pode existir mais de uma explicação?',
+        explica: 'É como o celular que não ligou: existe mais de uma explicação. Falta saber o que Nina faz.',
       },
       {
-        id: 'caso-conselho', tipo: 'caso', icone: '⚖️',
-        titulo: 'Caso 3 — O registro obrigatório',
-        cenario: '<p>Um colega avisa: <b>"Profissão regulamentada por lei pode exigir registro em conselho. Médicos e engenheiros têm registro. Então, para trabalhar como game designer, a Bia também precisa."</b> No Brasil, game design não é uma profissão regulamentada por lei.</p>',
-        pergunta1: 'O que a equipe deve responder ao colega?',
+        id: 'caso-ninja', tipo: 'caso', icone: '🥷',
+        titulo: 'Caso 2: o nome engraçado',
+        cenario: '<p>O crachá de Theo diz <b>"Ninja do Código"</b>. Mas ele só testa o jogo e anota os erros.</p>',
+        pergunta1: 'Qual é o trabalho de Theo?',
         opcoes: [
-          { t: 'A exigência não vale, porque essa profissão não é regulamentada', ok: true },
-          { t: 'A exigência vale, porque toda profissão técnica tem um conselho' },
-          { t: 'A exigência vale só depois de Bia ter um contrato de trabalho' },
+          { t: 'Programador, por causa do nome no crachá' },
+          { t: 'Testador, por causa do que ele faz', ok: true },
+          { t: 'Artista, porque o nome é criativo' },
+          { t: 'Não dá para saber quem é Theo' },
         ],
-        pergunta2: 'Qual característica decide a questão?',
-        motivos: [
-          { t: 'A formação, porque um curso sempre substitui o registro' },
-          { t: 'A regulamentação, porque ela define quando há essa exigência', ok: true },
-          { t: 'O ambiente, porque o estúdio decide quais registros valem' },
-        ],
-        dica: 'Médicos e engenheiros têm uma característica que game designers não têm. Qual é?',
-        explica: 'O exemplo de outras profissões não transfere a regra para game design. A exigência depende da regulamentação da profissão.',
+        dica: 'Esqueça o crachá por um instante. O que Theo faz no dia a dia?',
+        explica: 'O nome do cargo pode enganar. O que vale é o que a pessoa faz no dia a dia.',
       },
       {
-        id: 'caso-cargo', tipo: 'caso', icone: '🥷',
-        titulo: 'Caso 4 — O "Ninja do Código"',
-        cenario: '<p>O crachá de Theo diz <b>"Ninja do Código"</b>. No dia a dia, ele <b>segue roteiros, compara o resultado esperado com o obtido e registra as falhas</b>. Ele não altera o código do jogo.</p>',
-        pergunta1: 'Qual ocupação Theo exerce?',
+        id: 'caso-registro', tipo: 'caso', icone: '⚖️',
+        titulo: 'Caso 3: precisa de registro?',
+        cenario: '<p>Médicos precisam de registro em um conselho, porque uma lei exige.</p>',
+        pergunta1: 'Bia precisa disso para ser game designer?',
         opcoes: [
-          { t: 'Programador, porque o nome do cargo fala de código' },
-          { t: 'Analista de testes, por causa das atividades dele', ok: true },
-          { t: 'Produtor, porque ele acompanha falhas e resultados' },
+          { t: 'Sim, toda profissão precisa de um conselho' },
+          { t: 'Não, nenhuma lei exige isso de game designers', ok: true },
+          { t: 'Sim, porque jogos também são tecnologia' },
+          { t: 'Só se ela trabalhar com médicos' },
         ],
-        pergunta2: 'O que o nome "Ninja do Código" representa neste caso?',
-        motivos: [
-          { t: 'A regulamentação da profissão de programador' },
-          { t: 'A formação obrigatória para trabalhar no estúdio' },
-          { t: 'Apenas o nome dado ao cargo dentro dessa empresa', ok: true },
-        ],
-        dica: 'Ignore o crachá por um instante. O que Theo entrega no fim do dia?',
-        explica: 'Cargo é o nome do posto. A ocupação vem do que a pessoa faz, por isso a evidência está nas atividades de Theo.',
+        dica: 'De onde vem a exigência de registro dos médicos?',
+        explica: 'Só profissões regulamentadas por lei têm essa exigência, e game design não é uma delas.',
+      },
+      {
+        id: 'criar-pistas', tipo: 'escrita', icone: '🕵️',
+        titulo: 'Agora é com você',
+        intro: '<p>Escolha uma profissão ligada a jogos e escreva <b>3 pistas</b> sobre ela, sem dizer o nome.</p>',
+        campos: ['Profissão escolhida', 'Pista 1', 'Pista 2', 'Pista 3'],
+        gabarito: 'Resposta pessoal. As pistas devem falar de características da profissão, sem dizer o nome dela.',
+      },
+      {
+        id: 'visto', tipo: 'visto', icone: '✍️',
+        titulo: 'Visto da Missão 1',
+        intro: '<p>Mostre para o professor suas pistas e os enigmas resolvidos.</p>',
       },
     ],
   });

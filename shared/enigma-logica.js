@@ -5,7 +5,9 @@
 //  - tipo 'grade': tabela de eliminação. Cada pista traz o texto e uma função
 //    `ok(s)`, em que `s` é { linha: coluna }. Ao conferir, a primeira pista
 //    desrespeitada é apontada, sem revelar a resposta.
-//  - tipo 'caso': duas escolhas (resposta + motivo), ambas precisam estar certas.
+//  - tipo 'caso': uma resposta e, se houver `motivos`, também o motivo.
+//  - tipo 'escrita': o aluno preenche os campos, e o texto fica salvo no navegador.
+//  - tipo 'visto': só abre com as outras etapas prontas e pede o token do professor.
 //
 // Progresso: lista de ids das etapas resolvidas (progressTotal no config.js).
 (function () {
@@ -87,6 +89,8 @@
       if (atual === TOTAL - 1) return renderFechamento();
       const etapa = ETAPAS[atual - 1];
       if (etapa.tipo === 'grade') renderGrade(etapa);
+      else if (etapa.tipo === 'escrita') renderEscrita(etapa);
+      else if (etapa.tipo === 'visto') renderVisto(etapa);
       else renderCaso(etapa);
     }
 
@@ -223,14 +227,14 @@
           <div class="ab-cartao-etapa">Etapa ${atual + 1} de ${TOTAL} · Caso</div>
           <h2>${caso.titulo}</h2>
           <div class="ab-conteudo"><div class="en-caso"><div class="en-avatar">${caso.icone || ''}</div><div>${caso.cenario}</div></div></div>
-          <div class="en-grupo">1. ${caso.pergunta1}</div>
+          <div class="en-grupo">${caso.motivos ? '1. ' : ''}${caso.pergunta1}</div>
           <div class="en-opcoes">
             ${caso.opcoes.map((o, i) => `<label class="en-op"><input type="radio" name="g1" value="${i}" ${resolvido && o.ok ? 'checked' : ''}>${o.t}</label>`).join('')}
           </div>
-          <div class="en-grupo">2. ${caso.pergunta2}</div>
+          ${caso.motivos ? `<div class="en-grupo">2. ${caso.pergunta2}</div>
           <div class="en-opcoes">
             ${caso.motivos.map((m, i) => `<label class="en-op"><input type="radio" name="g2" value="${i}" ${resolvido && m.ok ? 'checked' : ''}>${m.t}</label>`).join('')}
-          </div>
+          </div>` : ''}
           <div class="en-acoes">
             <button class="btn" id="btnVerificar" ${resolvido ? 'disabled' : ''}>${resolvido ? '✔ Resolvido' : 'Enviar resposta'}</button>
             <div class="ab-msg" id="enMsg" style="display:none;"></div>
@@ -246,13 +250,13 @@
         const r1 = (stepWrap.querySelector('input[name="g1"]:checked') || {}).value;
         const r2 = (stepWrap.querySelector('input[name="g2"]:checked') || {}).value;
         msg.style.display = 'block';
-        if (r1 === undefined || r2 === undefined) {
+        if (r1 === undefined || (caso.motivos && r2 === undefined)) {
           msg.className = 'ab-msg erro';
-          msg.textContent = 'Responda as duas perguntas antes de enviar.';
+          msg.textContent = caso.motivos ? 'Responda as duas perguntas antes de enviar.' : 'Escolha uma resposta antes de enviar.';
           return;
         }
         const ok1 = !!caso.opcoes[+r1].ok;
-        const ok2 = !!caso.motivos[+r2].ok;
+        const ok2 = !caso.motivos || !!caso.motivos[+r2].ok;
         if (ok1 && ok2) {
           marcarResolvido(caso.id);
           reportar(`${DADOS.nome} — ${caso.titulo} (resolvido)`);
@@ -270,12 +274,97 @@
       });
     }
 
+    // ---- Escrita livre: o professor confere o texto na tela, na hora do visto ----
+    function renderEscrita(etapa) {
+      const chave = `${LOC}_escrita_${user}_${etapa.id}`;
+      const salvos = lerJson(chave, {});
+      reportar(`${DADOS.nome} — ${etapa.titulo}`);
+      stepWrap.innerHTML = `
+        <article class="ab-cartao">
+          <div class="ab-cartao-etapa">Etapa ${atual + 1} de ${TOTAL} · Agora é com você</div>
+          <h2>${etapa.titulo}</h2>
+          <div class="ab-conteudo">${etapa.intro}</div>
+          <div class="ab-form en-escrita">
+            ${etapa.campos.map((c, i) => `<label>${c}<textarea rows="2" maxlength="500" data-i="${i}"></textarea></label>`).join('')}
+            <button class="btn" id="btnSalvar">Salvar</button>
+            <div class="ab-msg" id="enMsg" style="display:none;"></div>
+          </div>
+        </article>
+        ${nav(true, true)}`;
+      ligarNav();
+      const areas = [...stepWrap.querySelectorAll('textarea')];
+      // .value não interpreta HTML, então o texto do aluno nunca vira código.
+      areas.forEach(a => { a.value = salvos[a.dataset.i] || ''; });
+      document.getElementById('btnSalvar').addEventListener('click', () => {
+        const msg = document.getElementById('enMsg');
+        msg.style.display = 'block';
+        const dados = {};
+        areas.forEach(a => { dados[a.dataset.i] = a.value.trim(); });
+        gravar(chave, dados);
+        if (areas.some(a => a.value.trim().length < 5)) {
+          msg.className = 'ab-msg erro';
+          msg.textContent = 'Preencha todos os campos com pelo menos 5 letras.';
+          return;
+        }
+        marcarResolvido(etapa.id);
+        msg.className = 'ab-msg ok';
+        msg.textContent = '✅ Texto salvo. Você pode ajustar antes de pedir o visto.';
+      });
+    }
+
+    // ---- Visto do professor (token de Gestão → "Token — Dar Visto / Pular Etapa") ----
+    function renderVisto(etapa) {
+      const feitos = lerResolvidos();
+      const faltam = ETAPAS.filter(e => e.id !== etapa.id && !feitos.includes(e.id)).length;
+      const pronto = feitos.includes(etapa.id);
+      reportar(`${DADOS.nome} — ${etapa.titulo}`);
+      const corpo = pronto
+        ? '<p>✅ Visto dado pelo professor.</p>'
+        : (faltam
+          ? `<p>Ainda faltam ${faltam} etapa(s). Volte às etapas sem ✔ antes de pedir o visto.</p>`
+          : `${etapa.intro}<p>Chame o professor e digite o token que ele informar.</p>`);
+      stepWrap.innerHTML = `
+        <article class="ab-cartao">
+          <div class="ab-cartao-etapa">Etapa ${atual + 1} de ${TOTAL} · Visto</div>
+          <h2>${etapa.titulo}</h2>
+          <div class="ab-conteudo">${corpo}</div>
+          ${!pronto && !faltam ? `<div class="ab-form"><label>Token do professor <input type="text" id="vistoToken" inputmode="numeric" maxlength="6" autocomplete="off"></label>
+            <button class="btn" id="btnDarVisto">Dar visto</button><div class="ab-msg" id="enMsg" style="display:none;"></div></div>` : ''}
+          ${placar()}
+        </article>
+        ${nav(true, pronto)}`;
+      ligarNav();
+      const btn = document.getElementById('btnDarVisto');
+      if (!btn) return;
+      btn.addEventListener('click', async () => {
+        const msg = document.getElementById('enMsg');
+        const token = document.getElementById('vistoToken').value;
+        const erro = texto => { msg.style.display = 'block'; msg.className = 'ab-msg erro'; msg.textContent = texto; };
+        if (!token.trim()) { erro('Informe o token do professor.'); return; }
+        btn.disabled = true;
+        try {
+          const r = window.PortalProfessorVisto
+            ? await window.PortalProfessorVisto.verificarToken(token)
+            : { ok: false, erro: 'Verificação indisponível. Avise o professor.' };
+          if (!r.ok) { erro(r.erro || 'Token inválido.'); btn.disabled = false; return; }
+          marcarResolvido(etapa.id);
+          reportar(`${DADOS.nome} — ${etapa.titulo} (resolvido)`);
+          renderVisto(etapa);
+        } catch (e) {
+          erro('Não foi possível verificar o token. Tente de novo.');
+          btn.disabled = false;
+        }
+      });
+    }
+
     window.generateGabaritoForGestao = function () {
       const limpar = t => String(t).replace(/<[^>]+>/g, '');
       return window.PortalGabarito.generate({
         title: DADOS.nome,
         subtitle: DADOS.subtitulo,
-        items: ETAPAS.map((e, i) => (e.tipo === 'grade'
+        items: ETAPAS.filter(e => e.tipo !== 'visto').map((e, i) => (e.tipo === 'escrita'
+          ? { number: i + 1, title: e.titulo, prompt: limpar(e.intro), answer: e.gabarito }
+          : e.tipo === 'grade'
           ? {
             number: i + 1,
             title: e.titulo,
@@ -286,7 +375,9 @@
             number: i + 1,
             title: e.titulo,
             prompt: `${limpar(e.cenario)} ${e.pergunta1}`,
-            answer: `${limpar(e.opcoes.find(o => o.ok).t)} — ${limpar(e.motivos.find(m => m.ok).t)}`,
+            answer: e.motivos
+              ? `${limpar(e.opcoes.find(o => o.ok).t)} — ${limpar(e.motivos.find(m => m.ok).t)}`
+              : limpar(e.opcoes.find(o => o.ok).t),
           })),
         fileName: `${LOC.replace(/_/g, '-')}-gabarito.txt`,
       });
