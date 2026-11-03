@@ -7,7 +7,7 @@ descricao: Profissões, trabalho em equipe e estrutura de projetos com enigmas, 
 ---
 
 # O caso do Estúdio Pequi
-Você é a dupla de detetives que vai salvar um jogo
+Sua missão: investigar e salvar um jogo
 
 ---
 
@@ -23,9 +23,9 @@ O Estúdio Pequi vai lançar o jogo **Lenda do Cerrado**, mas tudo deu errado.
 ---
 
 ## Como vai funcionar
-1. Forme uma **dupla**
+1. O trabalho é **individual**
 2. Use só **caderno e caneta**
-3. Olhe o slide e **converse** antes de responder
+3. Leia o slide e **pense** antes de responder
 4. No fim de cada missão, mostre o caderno para o **visto**
 
 ---
@@ -204,10 +204,10 @@ Médicos precisam de registro em um conselho, porque uma lei exige. Bia precisa 
 
 ---
 
-## 🕵️ Agora é com vocês
-1. Escolham uma profissão ligada a jogos
-2. Escrevam **3 pistas** sem dizer o nome dela
-3. Troquem com outra dupla e tentem adivinhar
+## 🕵️ Agora é com você
+1. Escolha uma profissão ligada a jogos
+2. Escreva **3 pistas** sem dizer o nome dela
+3. Quando o professor chamar, leia as pistas para a turma adivinhar
 
 [cronômetro 10]
 
@@ -216,7 +216,7 @@ Médicos precisam de registro em um conselho, porque uma lei exige. Bia precisa 
 ## ✍️ Visto da Missão 1
 - Enigmas 1 e 2 resolvidos
 - Casos 1 a 3 respondidos
-- As 3 pistas criadas pela dupla
+- As 3 pistas que você criou
 
 [cronômetro 5]
 
@@ -345,10 +345,10 @@ Na segunda, Enzo descobre uma prova na quinta, o dia da entrega. O que mostra co
 
 ---
 
-## 🕵️ Agora é com vocês
-1. Escrevam um **achismo** comum em trabalhos em grupo
-2. Troquem por um **fato**
-3. Escrevam uma frase respeitosa para **resolver** a situação
+## 🕵️ Agora é com você
+1. Escreva um **achismo** comum em trabalhos em grupo
+2. Troque por um **fato**
+3. Escreva uma frase respeitosa para **resolver** a situação
 
 [cronômetro 10]
 
@@ -357,7 +357,7 @@ Na segunda, Enzo descobre uma prova na quinta, o dia da entrega. O que mostra co
 ## ✍️ Visto da Missão 2
 - Enigma 3 resolvido
 - Casos 4 a 7 respondidos
-- Achismo, fato e frase criados pela dupla
+- Achismo, fato e frase que você criou
 
 [cronômetro 5]
 
@@ -500,19 +500,19 @@ O texto usa uma informação do livro de Souza, mas esse livro não aparece nas 
 
 ---
 
-## 🕵️ Agora é com vocês (10 min)
-Pensem em um jogo que gostariam de criar e escrevam uma frase para cada parte:
+## 🕵️ Agora é com você (10 min)
+Pense em um jogo que gostaria de criar e escreva uma frase para cada parte:
 
 1. **Introdução:** por que esse jogo importa?
-2. **Desenvolvimento:** como vocês fariam?
-3. **Conclusão:** como saberiam que deu certo?
+2. **Desenvolvimento:** como você faria?
+3. **Conclusão:** como saberia que deu certo?
 
 ---
 
 ## ✍️ Visto da Missão 3
 - Enigmas 4 e 5 resolvidos
 - Casos 8 a 11 respondidos
-- As 3 frases do jogo da dupla
+- As 3 frases do seu jogo
 
 [cronômetro 5]
 
