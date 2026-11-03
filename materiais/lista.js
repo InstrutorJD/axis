@@ -18,4 +18,5 @@ window.MATERIAIS = [
   'aula-05-ciclo-publicacao-git.md',
   'aula-09-banco-de-dados.md',
   'aula-10-recapitulacao.md',
+  'aula-11-aulao-estudio-pequi.md',
 ];
