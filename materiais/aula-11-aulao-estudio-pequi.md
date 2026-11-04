@@ -25,8 +25,18 @@ O Estúdio Pequi vai lançar o jogo **Lenda do Cerrado**, mas tudo deu errado.
 ## Como vai funcionar
 1. O trabalho é **individual**
 2. Use só **caderno e caneta**
-3. Leia o slide e **pense** antes de responder
-4. No fim de cada missão, mostre o caderno para o **visto**
+3. Slide com **✍️ Copie:** vai inteiro para o caderno
+4. Toda pergunta é respondida **no caderno**, antes da correção
+5. No fim de cada missão, mostre o caderno para o **visto**
+
+---
+
+## Como responder no caderno
+- **Vamos treinar e Casos:** escreva o número ou nome e a letra
+- **Enigmas:** desenhe a tabela e marque ✔ e ✖
+- **Agora é com você:** escreva a sua resposta completa
+
+> Escreva a sua resposta antes de ver a correção. Errou? Corrija ao lado.
 
 ---
 
@@ -46,7 +56,7 @@ Cada profissão tem características que ajudam a reconhecê-la.
 
 ---
 
-## Quem trabalha em um jogo
+## ✍️ Copie: quem trabalha em um jogo (3 min)
 | Profissão | O que faz no dia a dia |
 |---|---|
 | 💻 Programador(a) | Escreve o código do jogo |
@@ -122,7 +132,7 @@ Alguém joga a mesma fase 50 vezes e anota cada erro. Qual é a profissão?
 
 ---
 
-## Como cada pessoa é contratada
+## ✍️ Copie: tipos de contratação (3 min)
 | Tipo | Como reconhecer |
 |---|---|
 | Aprendiz | Trabalha e faz um curso de aprendizagem |
@@ -156,7 +166,7 @@ Alguém joga a mesma fase 50 vezes e anota cada erro. Qual é a profissão?
 
 ---
 
-## A regra do "se... então"
+## ✍️ Copie: a regra do "se... então" (3 min)
 **Regra:** se o celular está sem bateria, então ele não liga.
 
 | O que aconteceu | O que dá para concluir |
@@ -214,8 +224,8 @@ Médicos precisam de registro em um conselho, porque uma lei exige. Bia precisa 
 ---
 
 ## ✍️ Visto da Missão 1
-- Enigmas 1 e 2 resolvidos
-- Casos 1 a 3 respondidos
+- 3 slides ✍️ copiados
+- Enigmas 1 e 2 e Casos 1 a 3 respondidos
 - As 3 pistas que você criou
 
 [cronômetro 5]
@@ -227,18 +237,23 @@ Projeto de Vida
 
 ---
 
-## O que vamos aprender
+## ✍️ Copie: o que é uma equipe (2 min)
 Equipe não é só um grupo de pessoas no mesmo lugar.
 
 - Todos têm o **mesmo objetivo**
 - O trabalho de um **depende** do trabalho do outro
 - As **diferenças** entre as pessoas são respeitadas
 
+---
+
+## O que vamos aprender
+Vamos usar essa ideia para resolver a crise da equipe do Estúdio Pequi.
+
 > **Capacidade:** Reconhecer as características do trabalho em equipe de forma colaborativa, considerando o respeito às diferenças individuais.
 
 ---
 
-## O que faz uma equipe funcionar
+## ✍️ Copie: equipe que funciona (3 min)
 | Característica | Na prática |
 |---|---|
 | Objetivo comum | Todos sabem aonde querem chegar |
@@ -249,7 +264,7 @@ Equipe não é só um grupo de pessoas no mesmo lugar.
 
 ---
 
-## Fato ou achismo?
+## ✍️ Copie: fato ou achismo? (3 min)
 | Fato: dá para comprovar | Achismo: é só o que parece |
 |---|---|
 | Duda falou pouco na reunião | Duda não liga para o projeto |
@@ -355,8 +370,8 @@ Na segunda, Enzo descobre uma prova na quinta, o dia da entrega. O que mostra co
 ---
 
 ## ✍️ Visto da Missão 2
-- Enigma 3 resolvido
-- Casos 4 a 7 respondidos
+- 3 slides ✍️ copiados
+- Enigma 3 e Casos 4 a 7 respondidos
 - Achismo, fato e frase que você criou
 
 [cronômetro 5]
@@ -375,7 +390,7 @@ Todo projeto precisa de um documento organizado, para qualquer pessoa entender o
 
 ---
 
-## A parte principal: conte a história
+## ✍️ Copie: a parte principal do projeto (3 min)
 | Parte | A pergunta que ela responde |
 |---|---|
 | 1. Introdução | O que é o projeto e por que ele importa? |
@@ -386,7 +401,7 @@ Todo projeto precisa de um documento organizado, para qualquer pessoa entender o
 
 ---
 
-## Depois da história: os complementos
+## ✍️ Copie: complementos (3 min)
 | Parte | Para que serve |
 |---|---|
 | Referências | Mostra de onde vieram as informações |
@@ -510,8 +525,8 @@ Pense em um jogo que gostaria de criar e escreva uma frase para cada parte:
 ---
 
 ## ✍️ Visto da Missão 3
-- Enigmas 4 e 5 resolvidos
-- Casos 8 a 11 respondidos
+- 2 slides ✍️ copiados
+- Enigmas 4 e 5 e Casos 8 a 11 respondidos
 - As 3 frases do seu jogo
 
 [cronômetro 5]
