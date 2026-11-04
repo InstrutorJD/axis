@@ -89,6 +89,26 @@
   }
   .mat-excluir svg{ width:16px; height:16px; }
   .mat-excluir:hover, .mat-excluir:focus-visible{ background:var(--pr-danger-soft); color:var(--pr-danger); }
+  .mat-editar{
+    display:grid; place-items:center; width:30px; height:30px; padding:0; margin:-6px 0;
+    border:0; border-radius:8px; background:transparent; color:var(--pr-text-3); cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  .mat-editar svg{ width:16px; height:16px; }
+  .mat-editar:hover, .mat-editar:focus-visible{ background:var(--pr-accent-soft); color:var(--pr-accent); }
+
+  /* ---------- Editar o .md (lápis no card) ---------- */
+  .mat-editor{ width:min(1000px, calc(100vw - 32px)); height:calc(100dvh - 48px); max-height:none; padding:0; border:1px solid var(--pr-border); border-radius:14px; background:var(--pr-surface); color:var(--pr-text); box-shadow:0 24px 60px rgba(16,24,40,.35); }
+  .mat-editor[open]{ display:flex; flex-direction:column; }
+  .mat-editor::backdrop{ background:rgba(16,24,40,.55); }
+  .mat-editor-topo{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:16px 20px; border-bottom:1px solid var(--pr-border); }
+  .mat-editor-topo h2{ margin:0; font-size:16px; font-weight:600; overflow-wrap:anywhere; }
+  .mat-editor-topo p{ margin:2px 0 0; font-size:13px; color:var(--pr-text-3); overflow-wrap:anywhere; }
+  .mat-editor textarea{ flex:1; min-height:0; width:100%; box-sizing:border-box; resize:none; padding:16px 20px; border:0; outline:none; background:var(--pr-surface-2); color:var(--pr-text); font-family:'JetBrains Mono', ui-monospace, monospace; font-size:14px; line-height:1.6; tab-size:2; }
+  .mat-editor-pe{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:12px 20px; border-top:1px solid var(--pr-border); }
+  .mat-editor-status{ flex:1 1 220px; min-width:0; font-size:13px; color:var(--pr-text-3); }
+  .mat-editor-status.erro{ color:var(--pr-danger); }
+  .mat-editor-pe .btn[hidden]{ display:none; }
   .mat-excluidas{ margin-top:20px; font-size:14px; }
   .mat-excluidas summary{ cursor:pointer; font-weight:500; color:var(--pr-text-3); }
   .mat-excluidas summary:hover{ color:var(--pr-text); }
@@ -244,6 +264,25 @@
   </section>
 </main>
 
+<!-- Editar o .md: aula de materiais/ ganha uma versão editada no portal; o arquivo não muda. -->
+<dialog class="mat-editor" id="matEditor" aria-labelledby="matEditorTitulo">
+  <div class="mat-editor-topo">
+    <div>
+      <h2 id="matEditorTitulo"></h2>
+      <p id="matEditorInfo"></p>
+    </div>
+    <button type="button" class="btn btn-ghost" id="btnEditorFechar">Fechar</button>
+  </div>
+  <textarea id="matEditorTexto" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Texto em Markdown da aula"></textarea>
+  <div class="mat-editor-pe">
+    <span class="mat-editor-status" id="matEditorStatus" role="status"></span>
+    <button type="button" class="btn btn-ghost" id="btnEditorOriginal" hidden>Voltar ao original</button>
+    <button type="button" class="btn btn-secondary" id="btnEditorBaixar">Baixar .md</button>
+    <button type="button" class="btn btn-secondary" id="btnEditorApresentar">Apresentar daqui</button>
+    <button type="button" class="btn" id="btnEditorSalvar">Salvar</button>
+  </div>
+</dialog>
+
 <div class="sm-presenter" id="smPresenter" hidden></div>
 
 <script>
@@ -270,6 +309,7 @@
     onExit: () => {
       document.title = 'Axis — Criar Material';
       try { history.replaceState(null, '', location.pathname); } catch (e) {}
+      voltarAoEditor();
     },
   });
 
@@ -396,9 +436,9 @@
   }
 
   async function abrirDaLista(arquivo, inicio) {
-    const salva = itens.find(it => it.arquivo === arquivo && it.salvaId);
+    const salva = itens.find(it => it.arquivo === arquivo && (it.salvaId || it.editaId));
     if (salva) {
-      apresentar(salva.md, BASE_MATERIAIS, salva.nomeArquivo, arquivo, inicio, arquivo);
+      apresentar(salva.md, BASE_MATERIAIS, salva.nomeArquivo || arquivo, arquivo, inicio, arquivo);
       return;
     }
     if (arquivo.startsWith(PREFIXO_SALVA)) {
@@ -435,6 +475,9 @@
   // O substituto só lê (o banco também barra a gravação dele).
   const TABELA_SALVAS = 'professor_materiais';
   const PREFIXO_SALVA = 'portal:';
+  // Versão editada de uma aula de materiais/: fica na mesma tabela, com este
+  // prefixo no nome. Não vira card novo: substitui o conteúdo do card original.
+  const PREFIXO_EDICAO = 'editado:';
   const LIMITE_MD = 2 * 1024 * 1024; // Mesmo limite do CHECK da tabela.
   const AVISO_SEM_TABELA = 'Falta criar a tabela: rode o bloco "AULAS SALVAS NO PORTAL" de sql/supabase-setup-completo.sql no Supabase.';
   const BASE_MATERIAIS = new URL('../materiais/', location.href).href;
@@ -555,7 +598,15 @@
   let itensFixos = [];
   let itens = [];
   function juntarItens() {
-    itens = [...itensFixos, ...salvas.map(itemDaSalva)];
+    const edicoes = new Map(salvas.filter(s => s.arquivo.startsWith(PREFIXO_EDICAO)).map(s => [s.arquivo.slice(PREFIXO_EDICAO.length), s]));
+    const fixos = itensFixos.map(f => {
+      const e = edicoes.get(f.arquivo);
+      if (!e) return f;
+      const { meta } = SM.lerMeta(e.md);
+      const deck = SM.parse(e.md, null);
+      return { ...f, md: e.md, editaId: e.id, meta, titulo: meta.titulo || deck.titulo || f.titulo, descricao: meta.descricao || '', icone: meta.icone || f.icone, slides: deck.slides.length, ok: true };
+    });
+    itens = [...fixos, ...salvas.filter(s => !s.arquivo.startsWith(PREFIXO_EDICAO)).map(itemDaSalva)];
   }
 
   async function carregarItens() {
@@ -564,7 +615,7 @@
         const { md } = await buscarMd(e.arquivo);
         const { meta } = SM.lerMeta(md);
         const deck = SM.parse(md, null);
-        return { ...e, meta, titulo: meta.titulo || deck.titulo || e.titulo || e.arquivo, descricao: meta.descricao || e.descricao || '',
+        return { ...e, md, mdOriginal: md, meta, titulo: meta.titulo || deck.titulo || e.titulo || e.arquivo, descricao: meta.descricao || e.descricao || '',
           icone: meta.icone || e.icone, slides: deck.slides.length, ok: true };
       } catch (err) {
         return { ...e, meta: {}, titulo: e.titulo || e.arquivo, descricao: 'Arquivo não encontrado em materiais/.', slides: 0, ok: false };
@@ -606,7 +657,7 @@
     card.querySelector('.mat-data').textContent = [it.meta.data ? SM.formatarData(it.meta.data) : '', it.meta.turma || ''].filter(Boolean).join(' · ');
     card.querySelector('h3').textContent = it.titulo;
     card.querySelector('p').textContent = it.descricao;
-    card.querySelector('.mat-qtd').textContent = it.ok ? `${it.slides} slides${it.salvaId ? ' · no portal' : ''}` : '';
+    card.querySelector('.mat-qtd').textContent = it.ok ? `${it.slides} slides${it.salvaId ? ' · no portal' : it.editaId ? ' · editada' : ''}` : '';
     if (concluidoEm) {
       const quando = new Date(concluidoEm);
       const desfazer = document.createElement('button');
@@ -616,6 +667,17 @@
       desfazer.title = `Finalizada em ${quando.toLocaleDateString('pt-BR')} às ${quando.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} — clique para voltar a "não concluída"`;
       desfazer.addEventListener('click', ev => { ev.stopPropagation(); marcarConcluida(it.arquivo, false); renderCards(); });
       card.querySelector('.mat-acao').appendChild(desfazer);
+    }
+    if (it.ok && !ehSubstituto) {
+      const lapis = document.createElement('button');
+      lapis.type = 'button';
+      lapis.className = 'mat-editar';
+      lapis.title = 'Editar o .md';
+      lapis.setAttribute('aria-label', `Editar o .md de “${it.titulo}”`);
+      lapis.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+      lapis.addEventListener('click', ev => { ev.stopPropagation(); abrirEditor(it.arquivo); });
+      lapis.addEventListener('keydown', ev => ev.stopPropagation());
+      card.querySelector('.mat-acao').appendChild(lapis);
     }
     const lixeira = document.createElement('button');
     lixeira.type = 'button';
@@ -691,6 +753,166 @@
   juntarItens();
   renderCards();
   carregarOcultas().then(renderCards);
+
+  // ---------- Editar o .md ----------
+  // Aula salva no portal: troca o texto dela. Aula de materiais/: o site é
+  // estático e não grava no repositório, então a edição fica no banco
+  // (PREFIXO_EDICAO) e vale no lugar do arquivo até "Voltar ao original".
+  const editorEl = document.getElementById('matEditor');
+  const editorTexto = document.getElementById('matEditorTexto');
+  const editorStatus = document.getElementById('matEditorStatus');
+  const btnEditorSalvar = document.getElementById('btnEditorSalvar');
+  const btnEditorFechar = document.getElementById('btnEditorFechar');
+  const btnEditorOriginal = document.getElementById('btnEditorOriginal');
+  let editando = null; // chave do card em edição
+  let textoSalvo = '';
+  let apresentandoDoEditor = false;
+  let armadoFechar = null;
+  let armadoOriginal = null;
+
+  const itemEditado = () => itens.find(it => it.arquivo === editando);
+  const editorSujo = () => editando !== null && editorTexto.value !== textoSalvo;
+
+  function statusEditor(texto, erro) {
+    editorStatus.textContent = texto;
+    editorStatus.classList.toggle('erro', !!erro);
+  }
+  function desarmarBotoes() {
+    clearTimeout(armadoFechar); armadoFechar = null;
+    clearTimeout(armadoOriginal); armadoOriginal = null;
+    btnEditorFechar.textContent = 'Fechar';
+    btnEditorOriginal.textContent = 'Voltar ao original';
+  }
+  function atualizarEditor() {
+    desarmarBotoes();
+    const md = editorTexto.value;
+    const slides = SM.parse(md, null).slides.length;
+    const grande = new Blob([md]).size > LIMITE_MD;
+    btnEditorSalvar.disabled = !editorSujo() || slides === 0 || grande;
+    if (grande) statusEditor('Texto grande demais: o limite é 2 MB.', true);
+    else if (slides === 0) statusEditor('Sem nenhum slide: escreva o conteúdo antes de salvar.', true);
+    else statusEditor(`${slides} slide${slides === 1 ? '' : 's'}${editorSujo() ? ' · alterações não salvas' : ''}`);
+  }
+  function preencherEditor() {
+    const it = itemEditado();
+    document.getElementById('matEditorTitulo').textContent = it.titulo;
+    document.getElementById('matEditorInfo').textContent = it.salvaId
+      ? `${it.nomeArquivo} · salva no portal`
+      : it.editaId
+        ? `${it.arquivo} · editada: mudanças futuras no arquivo original não aparecem até voltar ao original`
+        : `${it.arquivo} · ao salvar, a edição fica no portal e o arquivo do site não muda`;
+    btnEditorOriginal.hidden = !it.editaId;
+  }
+  function abrirEditor(arquivo) {
+    editando = arquivo;
+    textoSalvo = itemEditado().md || '';
+    editorTexto.value = textoSalvo;
+    preencherEditor();
+    atualizarEditor();
+    editorEl.showModal();
+    editorTexto.setSelectionRange(0, 0);
+    editorTexto.scrollTop = 0;
+    editorTexto.focus();
+  }
+  function fecharEditor() {
+    desarmarBotoes();
+    editando = null;
+    textoSalvo = '';
+    editorEl.close();
+  }
+  function pedirFechar() {
+    if (!editorSujo() || armadoFechar) { fecharEditor(); return; }
+    btnEditorFechar.textContent = 'Fechar sem salvar?';
+    armadoFechar = setTimeout(() => { armadoFechar = null; btnEditorFechar.textContent = 'Fechar'; }, 4000);
+    statusEditor('Há alterações não salvas. Clique de novo em "Fechar" para descartar.', true);
+  }
+  function voltarAoEditor() {
+    if (!apresentandoDoEditor) return;
+    apresentandoDoEditor = false;
+    editorEl.showModal();
+    editorTexto.focus();
+  }
+  async function salvarEditor() {
+    const it = itemEditado();
+    if (!it || !editorSujo()) return;
+    if (!sb) { statusEditor('Sem conexão com o Supabase: não foi possível salvar.', true); return; }
+    const md = editorTexto.value;
+    const id = it.salvaId || it.editaId;
+    btnEditorSalvar.disabled = true;
+    statusEditor('Salvando...');
+    const { data, error } = await (id
+      ? sb.from(TABELA_SALVAS).update({ md, updated_at: new Date().toISOString() }).eq('id', id).select('id')
+      : sb.from(TABELA_SALVAS).insert({ arquivo: PREFIXO_EDICAO + it.arquivo, md }).select('id'));
+    if (error || !data || data.length === 0) {
+      console.warn('[materiais] edição não salva:', error && error.message);
+      btnEditorSalvar.disabled = false;
+      statusEditor(semTabela(error) ? AVISO_SEM_TABELA
+        : `Não foi possível salvar${error ? `: ${error.message}` : ' (sem permissão para alterar esta aula)'}. O texto continua aqui, tente de novo.`, true);
+      return;
+    }
+    textoSalvo = md;
+    await recarregarSalvas();
+    if (editando === null) return;
+    preencherEditor();
+    atualizarEditor();
+    statusEditor(`Salvo ✓ · ${itemEditado().slides} slides`);
+  }
+  async function voltarAoOriginal() {
+    const it = itemEditado();
+    if (!it || !it.editaId) return;
+    if (!armadoOriginal) {
+      btnEditorOriginal.textContent = 'Confirmar: apaga a edição';
+      armadoOriginal = setTimeout(() => { armadoOriginal = null; btnEditorOriginal.textContent = 'Voltar ao original'; }, 4000);
+      return;
+    }
+    desarmarBotoes();
+    btnEditorOriginal.disabled = true;
+    const { data, error } = await sb.from(TABELA_SALVAS).delete().eq('id', it.editaId).select('id');
+    btnEditorOriginal.disabled = false;
+    if (error || !data || data.length === 0) {
+      console.warn('[materiais] edição não apagada:', error && error.message);
+      statusEditor(`Não foi possível voltar ao original${error ? `: ${error.message}` : ''}.`, true);
+      return;
+    }
+    await recarregarSalvas();
+    if (editando === null) return;
+    textoSalvo = itemEditado().mdOriginal || '';
+    editorTexto.value = textoSalvo;
+    preencherEditor();
+    atualizarEditor();
+    statusEditor('Voltou ao arquivo original.');
+  }
+
+  editorTexto.addEventListener('input', atualizarEditor);
+  editorTexto.addEventListener('keydown', ev => {
+    if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 's') { ev.preventDefault(); if (!btnEditorSalvar.disabled) salvarEditor(); }
+  });
+  btnEditorSalvar.addEventListener('click', salvarEditor);
+  btnEditorFechar.addEventListener('click', pedirFechar);
+  btnEditorOriginal.addEventListener('click', voltarAoOriginal);
+  // Esc passa pelo mesmo cuidado do botão Fechar.
+  editorEl.addEventListener('cancel', ev => { ev.preventDefault(); pedirFechar(); });
+  document.getElementById('btnEditorBaixar').addEventListener('click', () => {
+    const it = itemEditado();
+    if (!it) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([editorTexto.value], { type: 'text/markdown;charset=utf-8' }));
+    a.download = it.nomeArquivo || it.arquivo;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  });
+  // Abre no slide onde está o cursor; sair da apresentação volta para o editor.
+  document.getElementById('btnEditorApresentar').addEventListener('click', () => {
+    const it = itemEditado();
+    const md = editorTexto.value;
+    if (!it || SM.parse(md, null).slides.length === 0) return;
+    const inicio = Math.max(SM.parse(md.slice(0, editorTexto.selectionStart), null).slides.length - 1, 0);
+    apresentandoDoEditor = true;
+    editorEl.close();
+    apresentar(md, BASE_MATERIAIS, it.nomeArquivo || it.arquivo, '__editor', inicio, null);
+  });
+  window.addEventListener('beforeunload', ev => { if (editorSujo()) { ev.preventDefault(); ev.returnValue = ''; } });
 
   // ---------- Instruções pra IA ----------
   let textoIA = '';
