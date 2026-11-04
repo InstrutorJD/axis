@@ -1,6 +1,6 @@
 ---
 aula: 11
-data: 2026-11-04
+data: 2026-11-05
 titulo: Aulão: O caso do Estúdio Pequi
 turma: 2º JD
 descricao: Trabalho individual entregue em folha: profissões, trabalho em equipe e estrutura de projetos com enigmas
