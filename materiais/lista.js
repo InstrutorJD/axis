@@ -19,4 +19,5 @@ window.MATERIAIS = [
   'aula-09-banco-de-dados.md',
   'aula-10-recapitulacao.md',
   'aula-11-aulao-estudio-pequi.md',
+  'workshop-a-casa-onde-ninguem-mora.md',
 ];
