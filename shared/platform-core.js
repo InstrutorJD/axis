@@ -154,7 +154,7 @@
       css: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><line x1='4' y1='4' x2='22' y2='22' stroke='%2300f0ff' stroke-width='6' stroke-linecap='round' opacity='0.45'/><line x1='4' y1='4' x2='22' y2='22' stroke='%23e9ffff' stroke-width='2.5' stroke-linecap='round'/><line x1='22' y1='22' x2='29' y2='29' stroke='%23555555' stroke-width='5' stroke-linecap='round'/><line x1='21' y1='25' x2='25' y2='21' stroke='%23999999' stroke-width='2'/></svg>") 3 3, auto`,
     },
     carretel: {
-      label: 'Carretel de Linha 🧵', trail: 'linha',
+      label: 'Carretel de Linha 🧵',
       css: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><rect x='8' y='7' width='14' height='18' fill='%23d62828'/><path d='M8 10 L22 12 M8 14 L22 16 M8 18 L22 20 M8 22 L22 24' stroke='%238e1414' stroke-width='1'/><rect x='5' y='2' width='20' height='5' rx='1.5' fill='%23c8914f' stroke='%236b4423' stroke-width='1'/><rect x='5' y='25' width='20' height='5' rx='1.5' fill='%23c8914f' stroke='%236b4423' stroke-width='1'/><ellipse cx='15' cy='4.5' rx='2.5' ry='1' fill='%236b4423'/></svg>") 5 2, auto`,
     },
   };
@@ -4937,10 +4937,6 @@
     }
     doc.__pfTrailKind = kind;
     if (!kind || reduzMovimento()) return;
-    if (kind === 'linha') {
-      doc.__pfTrailStop = iniciarLinhaPendurada(doc);
-      return;
-    }
     if (!TRAILS[kind]) return;
     let ultimo = 0, n = 0;
     const handler = (ev) => {
@@ -4960,136 +4956,6 @@
     };
     doc.addEventListener('pointermove', handler, { passive: true });
     doc.__pfTrailStop = () => doc.removeEventListener('pointermove', handler);
-  }
-
-  // Cursor Carretel: uma linha de costura sai do carretel e fica pendurada,
-  // balançando com o movimento do mouse. É uma corda de Verlet (pontos
-  // ligados por distância fixa, com gravidade) desenhada num <canvas> fixo
-  // por cima da página, sem capturar cliques. O laço de animação para
-  // sozinho quando a linha sossega e volta no próximo movimento. Ao sair do
-  // documento (ou entrar no iframe da atividade, que tem a própria linha) a
-  // linha some. Devolve a função que desliga tudo.
-  function iniciarLinhaPendurada(doc) {
-    const win = doc.defaultView;
-    if (!win || !doc.body) return () => {};
-    const canvas = doc.createElement('canvas');
-    canvas.setAttribute('aria-hidden', 'true');
-    Object.assign(canvas.style, { position: 'fixed', left: '0', top: '0', width: '100vw', height: '100vh', pointerEvents: 'none', zIndex: '2147483647' });
-    doc.body.appendChild(canvas);
-    const ctx = canvas.getContext('2d');
-
-    const N = 26, SEG = 6, GRAVIDADE = 0.35, AMORTECE = 0.985, PASSO_MS = 1000 / 60;
-    // Ponto do SVG do carretel de onde a linha sai, relativo ao hotspot (5,2).
-    const SAIDA_X = 17, SAIDA_Y = 15;
-    const ancora = { x: 0, y: 0 };
-    let pts = null, raf = 0, parado = 0, acumulado = 0, ultimoQuadro = 0;
-
-    function redimensionar() {
-      const dpr = win.devicePixelRatio || 1;
-      canvas.width = Math.round(win.innerWidth * dpr);
-      canvas.height = Math.round(win.innerHeight * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    function soltar() {
-      pts = Array.from({ length: N }, (_, i) => ({ x: ancora.x, y: ancora.y + i * SEG, px: ancora.x, py: ancora.y + i * SEG }));
-    }
-    // Um passo fixo de física; devolve o maior deslocamento do passo.
-    function passo() {
-      const chao = win.innerHeight - 2;
-      for (let i = 1; i < N; i++) {
-        const p = pts[i];
-        const vx = (p.x - p.px) * AMORTECE, vy = (p.y - p.py) * AMORTECE;
-        p.px = p.x; p.py = p.y;
-        p.x += vx; p.y += vy + GRAVIDADE;
-      }
-      pts[0].x = pts[0].px = ancora.x;
-      pts[0].y = pts[0].py = ancora.y;
-      for (let k = 0; k < 12; k++) {
-        for (let i = 0; i < N - 1; i++) {
-          const a = pts[i], b = pts[i + 1];
-          const dx = b.x - a.x, dy = b.y - a.y;
-          const d = Math.hypot(dx, dy) || 0.0001;
-          const corr = (d - SEG) / d;
-          if (i === 0) { b.x -= dx * corr; b.y -= dy * corr; }
-          else { a.x += dx * corr / 2; a.y += dy * corr / 2; b.x -= dx * corr / 2; b.y -= dy * corr / 2; }
-        }
-        for (let i = 1; i < N; i++) {
-          const p = pts[i];
-          if (p.y > chao) { p.y = chao; p.px = p.x - (p.x - p.px) * 0.6; }
-        }
-      }
-      let mov = 0;
-      for (let i = 1; i < N; i++) mov = Math.max(mov, Math.abs(pts[i].x - pts[i].px) + Math.abs(pts[i].y - pts[i].py));
-      return mov;
-    }
-    function desenhar() {
-      ctx.clearRect(0, 0, win.innerWidth, win.innerHeight);
-      if (!pts) return;
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x, pts[0].y);
-      for (let i = 1; i < N - 1; i++) {
-        ctx.quadraticCurveTo(pts[i].x, pts[i].y, (pts[i].x + pts[i + 1].x) / 2, (pts[i].y + pts[i + 1].y) / 2);
-      }
-      ctx.lineTo(pts[N - 1].x, pts[N - 1].y);
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.strokeStyle = '#8e1414'; ctx.lineWidth = 3.2; ctx.stroke();
-      ctx.strokeStyle = '#e0413a'; ctx.lineWidth = 1.8; ctx.stroke();
-      // Tracejado claro por cima dá a textura de fio torcido.
-      ctx.setLineDash([2, 3]);
-      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1; ctx.stroke();
-      ctx.setLineDash([]);
-      // Nózinho na ponta.
-      ctx.beginPath();
-      ctx.arc(pts[N - 1].x, pts[N - 1].y, 2.4, 0, Math.PI * 2);
-      ctx.fillStyle = '#8e1414'; ctx.fill();
-    }
-    function quadro(agora) {
-      raf = 0;
-      if (!pts) return;
-      acumulado += Math.min(agora - (ultimoQuadro || agora), 100);
-      ultimoQuadro = agora;
-      let mov = 0;
-      while (acumulado >= PASSO_MS) { mov = Math.max(mov, passo()); acumulado -= PASSO_MS; }
-      desenhar();
-      parado = mov < 0.02 ? parado + 1 : 0;
-      if (parado < 30) raf = win.requestAnimationFrame(quadro);
-    }
-    function acordar() {
-      parado = 0;
-      if (!raf) { ultimoQuadro = 0; acumulado = PASSO_MS; raf = win.requestAnimationFrame(quadro); }
-    }
-    function esconder() {
-      if (raf) win.cancelAnimationFrame(raf);
-      raf = 0;
-      pts = null;
-      desenhar();
-    }
-
-    const mover = (ev) => {
-      if (ev.pointerType && ev.pointerType !== 'mouse') return;
-      ancora.x = ev.clientX + SAIDA_X;
-      ancora.y = ev.clientY + SAIDA_Y;
-      if (!pts) soltar();
-      acordar();
-    };
-    const sair = (ev) => {
-      const destino = ev.relatedTarget;
-      if (!destino || destino.tagName === 'IFRAME') esconder();
-    };
-    const aoRedimensionar = () => { redimensionar(); if (pts) acordar(); };
-
-    redimensionar();
-    doc.addEventListener('pointermove', mover, { passive: true });
-    doc.addEventListener('pointerout', sair, { passive: true });
-    win.addEventListener('resize', aoRedimensionar);
-    return () => {
-      esconder();
-      doc.removeEventListener('pointermove', mover);
-      doc.removeEventListener('pointerout', sair);
-      win.removeEventListener('resize', aoRedimensionar);
-      canvas.remove();
-    };
   }
 
   // Fundo decorativo de emojis, atrás de TUDO (z-index negativo) — só
@@ -5217,7 +5083,7 @@
     const cursorButtons = CURSOR_ORDER.map(key => {
       const c = CURSOR_PRESETS[key];
       const cssAttr = c.css.replace(/"/g, '&quot;');
-      return `<button type="button" class="pf-cursor-btn ${prefs.cursorKey === key ? 'active' : ''}" data-cursor-key="${key}" style="cursor:${cssAttr};"${c.trail === 'linha' ? ' title="Uma linha fica pendurada no carretel e balança ao mover o mouse"' : c.trail ? ' title="Deixa um rastro ao mover o mouse"' : ''}>${c.label}</button>`;
+      return `<button type="button" class="pf-cursor-btn ${prefs.cursorKey === key ? 'active' : ''}" data-cursor-key="${key}" style="cursor:${cssAttr};"${c.trail ? ' title="Deixa um rastro ao mover o mouse"' : ''}>${c.label}</button>`;
     }).join('');
 
     return `
