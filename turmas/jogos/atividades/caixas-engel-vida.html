@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caixas (Engel) — Minha Vida</title>
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<link rel="stylesheet" href="../../../shared/caixas-visuais.css">
+<script>
+  window.ACTIVITY_LOCATION = 'caixas_engel_vida';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="../../../shared/vendor/supabase.js"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/professor-visto.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+<script src="../../../shared/caixas-visuais.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">🎒 Minha Vida</div>
+    <div class="ab-topo-etapa"><span id="lblStepNum">1</span> / <span id="lblStepTotal">9</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  // Projeto de Vida com as mesmas caixas: as escolhas do próprio aluno viram
+  // variáveis de verdade, e as decisões do dia a dia viram if.
+  CaixasVisuais.iniciar({
+    activityLocation: 'caixas_engel_vida',
+    nome: 'Minha Vida',
+    subtitulo: 'Prática visual · Caixas e Imagens (Engel) · Turma Jogos',
+    fechamento: 'Minha Vida',
+    palavras: {
+      '🛏️': 'acordar', '🚿': 'banho', '🚌': 'ônibus', '🧘': 'respirar', '👊': 'bater', '💥': 'quebrar', '😠': 'brigar',
+      '🙋': 'perguntar', '😴': 'dormir', '🎮': 'jogar', '📱': 'avisar', '🙈': 'esconder', '🏠': 'casa',
+    },
+    etapas: [
+      {
+        id: 1, tipo: 'livre', titulo: 'gosto', icone: '❤️', nome: 'gosto',
+        opcoes: [
+          { v: '🎮', p: 'jogo' }, { v: '⚽', p: 'bola' }, { v: '🎨', p: 'desenho' }, { v: '💻', p: 'computador' },
+          { v: '🍳', p: 'cozinha' }, { v: '🚗', p: 'carro' }, { v: '📷', p: 'foto' }, { v: '🤟', p: 'Libras' },
+        ],
+      },
+      {
+        id: 2, tipo: 'livre', titulo: 'trabalho', icone: '💼', nome: 'trabalho',
+        opcoes: [
+          { v: '👨‍💻', p: 'programador' }, { v: '👨‍🎨', p: 'artista' }, { v: '👨‍🍳', p: 'cozinheiro' }, { v: '👨‍🔧', p: 'mecânico' },
+          { v: '👨‍🏫', p: 'professor' }, { v: '👨‍🌾', p: 'agricultor' }, { v: '👨‍⚕️', p: 'médico' }, { v: '🧑‍💼', p: 'escritório' },
+        ],
+      },
+      {
+        id: 3, tipo: 'livre', titulo: 'ajuda', icone: '🤝', nome: 'ajuda',
+        opcoes: [
+          { v: '👪', p: 'família' }, { v: '👨‍🏫', p: 'professor' }, { v: '🧑‍🤝‍🧑', p: 'amigo' }, { v: '🤟', p: 'intérprete' },
+        ],
+      },
+      {
+        id: 4, tipo: 'montar', titulo: 'manhã', icone: '🌅', ocultar: true,
+        figura: '🌅 ➡️ 1 ➡️ 2 ➡️ 3 ➡️ 🏫',
+        molde: 'let passo1 = {{}};\nlet passo2 = {{}};\nlet passo3 = {{}};',
+        pecas: ['"🚿"', '"🚌"', '"🛏️"'],
+        solucao: ['"🛏️"', '"🚿"', '"🚌"'],
+        testes: [{ espera: { passo1: '🛏️', passo2: '🚿', passo3: '🚌' } }],
+      },
+      {
+        id: 5, tipo: 'escolher', titulo: 'raiva', icone: '😡',
+        codigo: ['let eu = "😡";', 'if (eu === "😡") {', '  eu = "🧘";', '}'],
+        pergunta: 'eu',
+        opcoes: ['🧘', '👊', '💥', '😠'],
+      },
+      {
+        id: 6, tipo: 'montar', titulo: 'entendi?', icone: '🙋', ocultar: true,
+        molde: 'let eu;\nif (entendi === "❌") {\n  eu = {{}};\n} else {\n  eu = "💪";\n}',
+        pecas: ['"🙋"', '"😴"', '"🎮"'],
+        solucao: ['"🙋"'],
+        testes: [
+          { se: '❌', antes: 'let entendi = "❌";', espera: { eu: '🙋' } },
+          { se: '✅', antes: 'let entendi = "✅";', espera: { eu: '💪' } },
+        ],
+      },
+      {
+        id: 7, tipo: 'escolher', titulo: 'atraso', icone: '⏰',
+        codigo: ['let hora = "⏰";', 'let eu = "🚌";', 'if (hora === "⏰") {', '  eu = "📱";', '}'],
+        pergunta: 'eu',
+        opcoes: ['📱', '😴', '🙈', '🏠'],
+      },
+      {
+        id: 8, tipo: 'montar', titulo: 'futuro', icone: '🚀', usaEscolhas: true,
+        figura: '📚 ➡️ 💼',
+        molde: 'let estudo = "📚";\nlet futuro = "❓";\nif (estudo === "📚") {\n  futuro = {{}};\n}',
+        pecas: ['trabalho', 'gosto', 'ajuda'],
+        solucao: ['trabalho'],
+        testes: [{ espera: { futuro: '$trabalho' } }],
+      },
+    ],
+  });
+</script>
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

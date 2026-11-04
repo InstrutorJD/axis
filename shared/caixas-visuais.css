@@ -1,0 +1,116 @@
+/* Práticas visuais de programação (shared/caixas-visuais.js). Layout vem do
+   shared/aula-base.css; aqui só o que é específico: caixa, peças, código grande
+   e retorno visual forte, porque o aluno não depende de som nem de leitura. */
+:root{ --cx-caixa:#b9824a; --cx-caixa-fundo:color-mix(in srgb, #b9824a 16%, transparent); --cx-nome:#6cc4ff; --cx-chave:#ffb86b; --cx-valor:#8ee28e; }
+:root[data-theme="light"]{ --cx-nome:#0b5fa5; --cx-chave:#a34f00; --cx-valor:#1d7a1d; }
+
+.cx-cartao h2{ margin-bottom:12px; }
+.cx-cartao .ab-conteudo{ display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center; }
+.cx-demo{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:18px; width:100%; }
+/* Regra e peças lado a lado: o aluno vê as duas sem rolar a tela. */
+.cx-montar{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:20px; width:100%; align-items:start; }
+.cx-montar-lado{ display:flex; flex-direction:column; align-items:center; gap:12px; min-width:0; }
+.cx-slot .cx-p-img{ font-size:1.25em; }
+.cx-slot .cx-p-palavra{ display:none; }
+
+/* Caixa = variável; etiqueta = nome; objeto = valor. */
+.cx-caixas{ display:flex; flex-wrap:wrap; justify-content:center; gap:14px; }
+.cx-caixa{
+  min-width:112px; display:flex; flex-direction:column; align-items:center; overflow:hidden;
+  border:4px solid var(--cx-caixa); border-radius:12px; background:var(--cx-caixa-fundo);
+}
+.cx-etiqueta{
+  width:100%; padding:3px 10px; font-family:var(--ab-mono); font-size:1.15em; font-weight:800;
+  color:var(--cx-nome); background:color-mix(in srgb, var(--cx-caixa) 26%, var(--panel));
+}
+.cx-obj{ min-height:1.35em; padding:6px 12px; font-size:3.1em; line-height:1.3; }
+.cx-enche .cx-obj{ animation:cxPula .5s cubic-bezier(.2,.8,.2,1.5) both; }
+@keyframes cxPula{ from{ transform:translateY(-34px) scale(.5); opacity:0; } }
+
+/* Código grande e com as mesmas cores da caixa. */
+.cx-codigo{
+  font-family:var(--ab-mono); font-variant-ligatures:none; font-size:1.35em; line-height:1.9; text-align:left; max-width:100%; overflow-x:auto;
+  padding:10px 16px; border-radius:12px; border:1px solid var(--line); background:var(--panel2);
+}
+.cx-linha{ white-space:pre; border-radius:6px; padding:0 6px; min-height:1.9em; }
+.cx-agora{ background:color-mix(in srgb, var(--yellow) 24%, transparent); outline:2px solid var(--yellow); }
+.cx-pulada{ opacity:.45; text-decoration:line-through; }
+.cx-c-chave{ color:var(--cx-chave); font-weight:800; }
+.cx-c-nome{ color:var(--cx-nome); font-weight:800; }
+.cx-c-valor{ color:var(--cx-valor); font-weight:800; }
+.cx-balao{ font-size:2em; font-weight:800; padding:4px 16px; border-radius:12px; border:2px dashed var(--yellow); }
+.cx-balao[hidden]{ display:none; }
+
+/* Lacunas e peças: alvos grandes para tocar. */
+.cx-slot{
+  display:inline-flex; flex-direction:column; align-items:center; justify-content:center; vertical-align:middle;
+  min-width:68px; min-height:52px; margin:2px 4px; padding:2px 8px; cursor:pointer; color:var(--ink);
+  font:inherit; border-radius:10px; border:3px dashed var(--yellow); background:color-mix(in srgb, var(--yellow) 8%, transparent);
+}
+.cx-slot.cheio{ border-style:solid; border-color:var(--ab-acento); background:color-mix(in srgb, var(--green) 12%, transparent); }
+.cx-slot:disabled{ cursor:default; }
+.cx-instrucao{ font-size:1.1em; font-weight:700; color:var(--ink-dim); }
+.cx-instrucao span{ font-size:1.5em; vertical-align:middle; }
+.cx-pecas, .cx-opcoes{ display:flex; flex-wrap:wrap; justify-content:center; gap:12px; width:100%; }
+.cx-peca, .cx-opcao{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  min-width:96px; min-height:72px; padding:8px 14px; cursor:pointer; color:var(--ink);
+  font:inherit; border-radius:14px; border:3px solid var(--green-dim); background:var(--panel2);
+  transition:transform .12s, border-color .12s;
+}
+.cx-peca:hover:not(:disabled), .cx-opcao:hover:not(:disabled){ transform:translateY(-3px); border-color:var(--ab-acento); }
+.cx-peca:disabled{ opacity:.22; cursor:default; }
+.cx-opcao:disabled{ cursor:default; }
+.cx-opcao-ok{ border-color:var(--ok); background:color-mix(in srgb, var(--ok) 20%, transparent); }
+.cx-opcao-erro{ border-color:var(--blood-bright); background:color-mix(in srgb, var(--blood-bright) 20%, transparent); }
+.cx-p-principal{ font-family:var(--ab-mono); font-size:1.3em; font-weight:800; line-height:1.2; }
+.cx-p-img{ font-size:2.2em; }
+.cx-p-palavra{ font-size:.85em; font-weight:800; color:var(--yellow); }
+
+/* Objetivo: o que deve acontecer em cada situação. */
+.cx-figura{ font-size:2.6em; line-height:1.3; letter-spacing:.05em; }
+.cx-regras{ display:flex; flex-wrap:wrap; justify-content:center; gap:12px; }
+.cx-regra{ display:flex; align-items:center; gap:10px; padding:6px 12px; border-radius:14px; border:2px solid var(--line); }
+.cx-regra-ok{ border-color:var(--ok); }
+.cx-regra-erro{ border-color:var(--blood-bright); }
+.cx-regra-se{ font-size:2.7em; line-height:1.2; }
+.cx-seta{ font-size:1.5em; }
+.cx-regra-marca{ font-size:2em; }
+
+.cx-modelo{ font-size:1.25em; padding:6px 14px; border-radius:12px; border:2px dashed var(--yellow); }
+.cx-modelo code{ font-family:var(--ab-mono); font-weight:800; }
+.cx-digita{
+  width:min(100%, 15em); margin:0 4px; padding:4px 8px; font:inherit; font-weight:800; color:var(--ink);
+  border-radius:8px; border:3px solid var(--yellow); background:var(--panel);
+}
+.cx-digita:focus{ outline:none; border-color:var(--ab-acento); }
+
+.cx-acoes{ display:flex; justify-content:center; }
+button.btn.cx-btn-rodar{ font-size:1.9em; min-width:112px; padding:10px 26px; }
+button.btn.cx-btn-prox{ font-size:1.5em; min-width:112px; }
+#btnBack{ font-size:1.2em; }
+.cx-cartao button[hidden], .ab-nav button[hidden]{ display:none; }
+.cx-retorno{ min-height:0; font-size:3.4em; line-height:1.15; }
+.cx-retorno:empty{ display:none; }
+.cx-retorno.ok{ animation:cxPula .5s cubic-bezier(.2,.8,.2,1.5) both; }
+.cx-treme{ animation:cxTreme .45s both; }
+@keyframes cxTreme{ 20%,60%{ transform:translateX(-10px); } 40%,80%{ transform:translateX(10px); } }
+
+.cx-placar{ display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-top:16px; }
+.cx-placar span{ width:38px; height:38px; display:grid; place-content:center; font-size:1.15em; border-radius:9px; border:2px solid var(--line); opacity:.55; }
+.cx-placar .agora{ border-color:var(--ab-acento); opacity:1; }
+.cx-placar .ok{ border-color:var(--ok); opacity:1; }
+.cx-placar .errou{ border-color:var(--blood-bright); opacity:1; }
+.cx-pontos{ font-size:2em; font-weight:800; }
+.cx-pular{ margin-top:12px; font-size:.8em; color:var(--ink-dim); }
+.cx-pular summary{ cursor:pointer; }
+
+@media (max-width:860px){
+  .cx-montar{ grid-template-columns:minmax(0, 1fr); }
+}
+@media (max-width:700px){
+  .cx-codigo{ font-size:1.05em; padding:8px; }
+  .cx-obj{ font-size:2.5em; }
+  .cx-caixa{ min-width:92px; }
+  .cx-peca, .cx-opcao{ min-width:82px; }
+}

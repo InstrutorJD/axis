@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caixas (Engel) — Lógica</title>
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<link rel="stylesheet" href="../../../shared/caixas-visuais.css">
+<script>
+  window.ACTIVITY_LOCATION = 'caixas_engel_logica';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="../../../shared/vendor/supabase.js"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/professor-visto.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+<script src="../../../shared/caixas-visuais.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">🧠 Lógica</div>
+    <div class="ab-topo-etapa"><span id="lblStepNum">1</span> / <span id="lblStepTotal">12</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  // Lógica dentro das caixas: mesmo grupo e sequência (como em logica-engel.html)
+  // e depois decisão com if, sempre com a regra desenhada: situação ➡️ resultado.
+  CaixasVisuais.iniciar({
+    activityLocation: 'caixas_engel_logica',
+    nome: 'Lógica',
+    subtitulo: 'Prática visual · Caixas e Imagens (Engel) · Turma Jogos',
+    fechamento: 'Lógica',
+    palavras: {
+      '🐶': 'cachorro', '🚗': 'carro', '🏠': 'casa', '🍎': 'maçã', '🍌': 'banana', '⚽': 'bola', '🏫': 'escola',
+      '🌧️': 'chuva', '☀️': 'sol', '☂️': 'guarda-chuva', '🧢': 'boné', '🔴': 'vermelho', '🟢': 'verde',
+      '🛑': 'parar', '🏍️': 'moto', '🐱': 'gato',
+    },
+    etapas: [
+      {
+        id: 1, tipo: 'montar', titulo: 'animal', icone: '🐾', ocultar: true,
+        figura: '🐱 🐵 🦆',
+        molde: 'let animal = {{}};',
+        pecas: ['"🐶"', '"🚗"', '"🏠"', '"🍎"'],
+        solucao: ['"🐶"'],
+        testes: [{ espera: { animal: ['🐶'] } }],
+      },
+      {
+        id: 2, tipo: 'montar', titulo: 'fruta', icone: '🍎', ocultar: true,
+        figura: '🍎 🍇 🍊',
+        molde: 'let fruta = {{}};',
+        pecas: ['"⚽"', '"🚗"', '"🍌"', '"🏫"'],
+        solucao: ['"🍌"'],
+        testes: [{ espera: { fruta: ['🍌'] } }],
+      },
+      {
+        id: 3, tipo: 'montar', titulo: '1 2 3', icone: '🔢', ocultar: true,
+        figura: '1 ➡️ 2 ➡️ 3 ➡️ ❓',
+        molde: 'let proximo = {{}};',
+        pecas: ['4', '7', '1', '9'],
+        solucao: ['4'],
+        testes: [{ espera: { proximo: 4 } }],
+      },
+      {
+        id: 4, tipo: 'montar', titulo: '2 4 6', icone: '🔢', ocultar: true,
+        figura: '2 ➡️ 4 ➡️ 6 ➡️ ❓',
+        molde: 'let proximo = {{}};',
+        pecas: ['7', '8', '5', '12'],
+        solucao: ['8'],
+        testes: [{ espera: { proximo: 8 } }],
+      },
+      {
+        id: 5, tipo: 'ver', titulo: 'if 🌧️', icone: '🌧️', caixas: ['tempo', 'levar'],
+        linhas: [
+          { c: 'let tempo = "🌧️";', faz: { tempo: '🌧️' } },
+          { c: 'let levar = "🧢";', faz: { levar: '🧢' } },
+          { c: 'if (tempo === "🌧️") {', mostra: '🌧️ = 🌧️ ✅' },
+          { c: '  levar = "☂️";', faz: { levar: '☂️' } },
+          { c: '}' },
+        ],
+      },
+      {
+        id: 6, tipo: 'ver', titulo: 'if ☀️', icone: '☀️', caixas: ['tempo', 'levar'],
+        linhas: [
+          { c: 'let tempo = "☀️";', faz: { tempo: '☀️' } },
+          { c: 'let levar = "🧢";', faz: { levar: '🧢' } },
+          { c: 'if (tempo === "🌧️") {', mostra: '☀️ ≠ 🌧️ ❌' },
+          { c: '  levar = "☂️";', pula: true },
+          { c: '}' },
+        ],
+      },
+      {
+        id: 7, tipo: 'escolher', titulo: 'sinal 🔴', icone: '🚦',
+        codigo: ['let sinal = "🔴";', 'let carro = "🚗";', 'if (sinal === "🔴") {', '  carro = "🛑";', '}'],
+        pergunta: 'carro',
+        opcoes: ['🚗', '🛑', '🔴', '🏍️'],
+      },
+      {
+        id: 8, tipo: 'escolher', titulo: 'sinal 🟢', icone: '🚦',
+        codigo: ['let sinal = "🟢";', 'let carro = "🚗";', 'if (sinal === "🔴") {', '  carro = "🛑";', '}'],
+        pergunta: 'carro',
+        opcoes: ['🚗', '🛑', '🟢', '🏍️'],
+      },
+      {
+        id: 9, tipo: 'montar', titulo: 'levar', icone: '☂️',
+        molde: 'let levar = "🧢";\nif (tempo === "🌧️") {\n  levar = {{}};\n}',
+        pecas: ['"☂️"', '"🧢"', '"⚽"'],
+        solucao: ['"☂️"'],
+        testes: [
+          { se: '🌧️', antes: 'let tempo = "🌧️";', espera: { levar: '☂️' } },
+          { se: '☀️', antes: 'let tempo = "☀️";', espera: { levar: '🧢' } },
+        ],
+      },
+      {
+        id: 10, tipo: 'montar', titulo: 'if', icone: '🤔',
+        molde: 'let levar = "🧢";\nif (tempo === {{}}) {\n  levar = "☂️";\n}',
+        pecas: ['"🌧️"', '"☀️"', '"🟢"'],
+        solucao: ['"🌧️"'],
+        testes: [
+          { se: '🌧️', antes: 'let tempo = "🌧️";', espera: { levar: '☂️' } },
+          { se: '☀️', antes: 'let tempo = "☀️";', espera: { levar: '🧢' } },
+        ],
+      },
+      {
+        id: 11, tipo: 'montar', titulo: 'if / else', icone: '🚦',
+        molde: 'let carro;\nif (sinal === "🔴") {\n  carro = {{}};\n} else {\n  carro = {{}};\n}',
+        pecas: ['"🛑"', '"🚗"'],
+        solucao: ['"🛑"', '"🚗"'],
+        testes: [
+          { se: '🔴', antes: 'let sinal = "🔴";', espera: { carro: '🛑' } },
+          { se: '🟢', antes: 'let sinal = "🟢";', espera: { carro: '🚗' } },
+        ],
+      },
+    ],
+  });
+</script>
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

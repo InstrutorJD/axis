@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caixas (Engel) — A Caixa</title>
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<link rel="stylesheet" href="../../../shared/caixas-visuais.css">
+<script>
+  window.ACTIVITY_LOCATION = 'caixas_engel_caixa';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="../../../shared/vendor/supabase.js"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/professor-visto.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+<script src="../../../shared/caixas-visuais.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">📦 A Caixa</div>
+    <div class="ab-topo-etapa"><span id="lblStepNum">1</span> / <span id="lblStepTotal">12</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  // Variável = caixa, nome = etiqueta, valor = objeto. Só palavras que o Engel
+  // já conhece (ver csharp-basico-adaptado-engel.html) e frutas de logica-engel.
+  CaixasVisuais.iniciar({
+    activityLocation: 'caixas_engel_caixa',
+    nome: 'A Caixa',
+    subtitulo: 'Prática visual · Caixas e Imagens (Engel) · Turma Jogos',
+    fechamento: 'Caixa',
+    palavras: {
+      '🐱': 'gato', '🐶': 'cachorro', '🚗': 'carro', '🏍️': 'moto', '🏠': 'casa', '🏫': 'escola',
+      '🦆': 'pato', '🐭': 'rato', '🐵': 'macaco', '🍎': 'maçã', '🍌': 'banana', '🍇': 'uva', '🍊': 'laranja',
+    },
+    etapas: [
+      {
+        id: 1, tipo: 'ver', titulo: 'gato', icone: '🐱', caixas: ['gato'],
+        linhas: [{ c: 'let gato = "🐱";', faz: { gato: '🐱' } }],
+      },
+      {
+        id: 2, tipo: 'montar', titulo: 'gato', icone: '🐱',
+        molde: 'let gato = {{}};',
+        pecas: ['"🐱"', '"🚗"', '"🏠"'],
+        solucao: ['"🐱"'],
+        testes: [{ espera: { gato: '🐱' } }],
+      },
+      {
+        id: 3, tipo: 'montar', titulo: 'carro', icone: '🚗',
+        molde: 'let {{}} = "🚗";',
+        pecas: ['carro', 'casa', 'pato'],
+        solucao: ['carro'],
+        testes: [{ espera: { carro: '🚗' } }],
+      },
+      {
+        id: 4, tipo: 'montar', titulo: 'moto', icone: '🏍️',
+        molde: 'let {{}} = {{}};',
+        pecas: ['moto', 'rato', '"🏍️"', '"🐭"'],
+        solucao: ['moto', '"🏍️"'],
+        testes: [{ espera: { moto: '🏍️' } }],
+      },
+      {
+        id: 5, tipo: 'montar', titulo: 'pato', icone: '🦆',
+        molde: '{{}} {{}} {{}} {{}};',
+        pecas: ['let', 'pato', '=', '"🦆"', '"🐵"'],
+        solucao: ['let', 'pato', '=', '"🦆"'],
+        testes: [{ espera: { pato: '🦆' } }],
+      },
+      {
+        id: 6, tipo: 'escolher', titulo: 'casa', icone: '🏠',
+        codigo: ['let casa = "🏠";'],
+        pergunta: 'casa',
+        opcoes: ['🏠', '🏫', '🚗', '🐶'],
+      },
+      {
+        id: 7, tipo: 'escolher', titulo: 'pato', icone: '🤔',
+        codigo: ['let rato = "🐭";', 'let pato = "🦆";'],
+        pergunta: 'pato',
+        opcoes: ['🐭', '🦆', '🐱', '🐵'],
+      },
+      {
+        id: 8, tipo: 'ver', titulo: 'fruta', icone: '🔄', caixas: ['fruta'],
+        linhas: [
+          { c: 'let fruta = "🍎";', faz: { fruta: '🍎' } },
+          { c: 'fruta = "🍌";', faz: { fruta: '🍌' } },
+        ],
+      },
+      {
+        id: 9, tipo: 'escolher', titulo: 'fruta', icone: '🔄',
+        codigo: ['let fruta = "🍇";', 'fruta = "🍊";'],
+        pergunta: 'fruta',
+        opcoes: ['🍇', '🍊', '🍎', '🍌'],
+      },
+      {
+        id: 10, tipo: 'digitar', titulo: 'cachorro', icone: '🐶',
+        molde: 'let {{}} = "🐶";',
+        modelo: 'cachorro',
+        testes: [{ espera: { cachorro: '🐶' } }],
+      },
+      {
+        id: 11, tipo: 'digitar', titulo: 'vida', icone: '❤️',
+        molde: '{{}}',
+        modelo: 'let vida = 3;',
+        testes: [{ espera: { vida: 3 } }],
+      },
+    ],
+  });
+</script>
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

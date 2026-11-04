@@ -27,6 +27,12 @@
 > precisa ter **uma única solução**, conferida por força bruta sobre
 > `EnigmaLogica.dados` (seção 11).
 >
+> **Práticas visuais (só para adaptação individual):** `caixas-engel` usa o
+> motor `shared/caixas-visuais.js` (+ `.css`), com etapas `ver`, `montar`,
+> `escolher`, `digitar` e `livre`. Não tem teoria em `.md` por decisão do
+> professor: o aluno é surdo e lê com dificuldade, então nada depende de som
+> e o texto é mínimo.
+>
 > **Carga horária:** quando o professor manda a linha do plano de ensino
 > ("Aula N - data", com um mínimo de horas), teoria + práticas precisam
 > cobrir esse tempo. Anote a estimativa por módulo num comentário da trilha

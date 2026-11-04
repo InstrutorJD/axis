@@ -1028,6 +1028,42 @@ window.TURMA_CONFIG_JOGOS = {
           ]
         },
         {
+          // Trilha individual, adaptada: o Engel é surdo e lê com dificuldade.
+          // Mistura programação, lógica e Projeto de Vida com imagens: variável
+          // = caixa, nome = etiqueta, valor = objeto. Sem teoria em .md, por
+          // decisão do professor: cada prática ensina na própria tela, com
+          // demonstração passo a passo (motor shared/caixas-visuais.js).
+          // Estimativa: A Caixa ~30 min, Lógica ~40 min, Minha Vida ~30 min.
+          key: 'caixas-engel',
+          label: 'Caixas e Imagens (Engel)',
+          desc: '📦 🧠 🎒',
+          capacidade: 'Utilizar linguagem de programação para desenvolvimento de jogos digitais 2D',
+          visibleFor: ['engel.fraga'],
+          modules: [
+            {
+              key: 'caixa', title: '📦 A Caixa',
+              desc: 'Variável como caixa: montar let gato = "🐱"; tocando em peças, trocar o objeto da caixa e digitar uma linha curta com modelo.',
+              icon: '📦', src: 'atividades/caixas-engel-caixa.html', telaCheia: true,
+              progressKey: 'caixas_engel_caixa_progress_', progressTotal: 11,
+              hasGabarito: true
+            },
+            {
+              key: 'logica', title: '🧠 Lógica',
+              desc: 'Mesmo grupo e sequência dentro das caixas, depois if e else com a regra desenhada (🌧️ ➡️ ☂️).',
+              icon: '🧠', src: 'atividades/caixas-engel-logica.html', telaCheia: true,
+              progressKey: 'caixas_engel_logica_progress_', progressTotal: 11,
+              requires: 'caixa', hasGabarito: true
+            },
+            {
+              key: 'vida', title: '🎒 Minha Vida',
+              desc: 'Projeto de Vida em código: as escolhas do aluno (gosto, trabalho, ajuda) viram variáveis, e situações do dia a dia viram if.',
+              icon: '🎒', src: 'atividades/caixas-engel-vida.html', telaCheia: true,
+              progressKey: 'caixas_engel_vida_progress_', progressTotal: 8,
+              requires: 'logica', hasGabarito: true
+            }
+          ]
+        },
+        {
           // Fundamentos de Programação de Jogos Digitais — FO de 14/10. As
           // funções da prática são a lógica por trás do Pacman (movimento,
           // limite, colisão, pontos, vidas, perseguição). Estimativa: teoria
