@@ -3,7 +3,7 @@ aula: 11
 data: 2026-11-04
 titulo: Aulão: O caso do Estúdio Pequi
 turma: 2º JD
-descricao: Profissões, trabalho em equipe e estrutura de projetos com enigmas, usando só caderno e caneta
+descricao: Trabalho individual entregue em folha: profissões, trabalho em equipe e estrutura de projetos com enigmas
 ---
 
 # O caso do Estúdio Pequi
@@ -23,20 +23,20 @@ O Estúdio Pequi vai lançar o jogo **Lenda do Cerrado**, mas tudo deu errado.
 ---
 
 ## Como vai funcionar
-1. O trabalho é **individual**
-2. Use só **caderno e caneta**
-3. Slide com **✍️ Copie:** vai inteiro para o caderno
-4. Toda pergunta é respondida **no caderno**, antes da correção
-5. No fim de cada missão, mostre o caderno para o **visto**
+1. Hoje é um **TRABALHO individual**, entregue em **folha**
+2. Use **caderno, folha e caneta**
+3. Slide com **✍️ Copie:** vai inteiro para o **caderno**
+4. Enigmas, casos e atividades são respondidos na **folha**
+5. Coloque **nome e turma** e entregue no **fim do aulão**
 
 ---
 
-## Como responder no caderno
-- **Vamos treinar e Casos:** escreva o número ou nome e a letra
+## Como responder na folha
 - **Enigmas:** desenhe a tabela e marque ✔ e ✖
+- **Casos:** escreva o número do caso e a letra
 - **Agora é com você:** escreva a sua resposta completa
 
-> Escreva a sua resposta antes de ver a correção. Errou? Corrija ao lado.
+> **Vamos treinar** é só para praticar e não vai na folha. A correção vem depois da entrega.
 
 ---
 
@@ -124,14 +124,6 @@ Alguém joga a mesma fase 50 vezes e anota cada erro. Qual é a profissão?
 
 ---
 
-## ✅ Resposta do Enigma 1
-+ **Duda** é programadora: ela escreve código
-+ **Enzo** é artista: ele cria os personagens
-+ **Bia** não testa, então sobra inventar as regras: **game designer**
-+ **Caio** fica com o que sobrou: **testador**
-
----
-
 ## ✍️ Copie: tipos de contratação (3 min)
 | Tipo | Como reconhecer |
 |---|---|
@@ -156,16 +148,6 @@ Alguém joga a mesma fase 50 vezes e anota cada erro. Qual é a profissão?
 
 ---
 
-## ✅ Resposta do Enigma 2
-| Pessoa | Profissão | Contratação |
-|---|---|---|
-| Bia | Game designer | PJ |
-| Caio | Testador | Aprendiz |
-| Duda | Programadora | CLT |
-| Enzo | Artista | Estágio |
-
----
-
 ## ✍️ Copie: a regra do "se... então" (3 min)
 **Regra:** se o celular está sem bateria, então ele não liga.
 
@@ -181,36 +163,30 @@ Alguém joga a mesma fase 50 vezes e anota cada erro. Qual é a profissão?
 ## 💬 Caso 1: o detalhista
 Todo testador presta atenção aos detalhes. Nina também presta. Dá para ter certeza de que Nina é testadora?
 
-- [ ] Sim, porque ela tem essa qualidade
-- [x] Não, porque outras profissões também pedem atenção
-- [ ] Sim, porque essa qualidade só existe em testes
-- [ ] Não, porque testador não presta atenção
-
-> Por quê: é como o celular que não ligou: existe mais de uma explicação. Falta saber o que Nina faz.
+- **A)** Sim, porque ela tem essa qualidade
+- **B)** Não, porque outras profissões também pedem atenção
+- **C)** Sim, porque essa qualidade só existe em testes
+- **D)** Não, porque testador não presta atenção
 
 ---
 
 ## 💬 Caso 2: o nome engraçado
 O crachá de Theo diz "Ninja do Código". Mas ele só testa o jogo e anota os erros. Qual é o trabalho dele?
 
-- [ ] Programador, por causa do nome no crachá
-- [x] Testador, por causa do que ele faz
-- [ ] Artista, porque o nome é criativo
-- [ ] Não dá para saber quem é Theo
-
-> Por quê: o nome do cargo pode enganar. O que vale é o que a pessoa faz no dia a dia.
+- **A)** Programador, por causa do nome no crachá
+- **B)** Testador, por causa do que ele faz
+- **C)** Artista, porque o nome é criativo
+- **D)** Não dá para saber quem é Theo
 
 ---
 
 ## 💬 Caso 3: precisa de registro?
-Médicos precisam de registro em um conselho, porque uma lei exige. Bia precisa disso para ser game designer?
+Médicos precisam de registro em um conselho, porque uma lei exige. Léo precisa disso para ser game designer?
 
-- [ ] Sim, toda profissão precisa de um conselho
-- [x] Não, nenhuma lei exige isso de game designers
-- [ ] Sim, porque jogos também são tecnologia
-- [ ] Só se ela trabalhar com médicos
-
-> Por quê: só profissões regulamentadas por lei têm essa exigência, e game design não é uma delas.
+- **A)** Sim, toda profissão precisa de um conselho
+- **B)** Não, nenhuma lei exige isso de game designers
+- **C)** Sim, porque jogos também são tecnologia
+- **D)** Só se ela trabalhar com médicos
 
 ---
 
@@ -223,10 +199,10 @@ Médicos precisam de registro em um conselho, porque uma lei exige. Bia precisa 
 
 ---
 
-## ✍️ Visto da Missão 1
-- 3 slides ✍️ copiados
-- Enigmas 1 e 2 e Casos 1 a 3 respondidos
-- As 3 pistas que você criou
+## 📋 Confira a Missão 1
+- **Caderno:** 3 slides ✍️ copiados
+- **Folha:** Enigmas 1 e 2 e Casos 1 a 3
+- **Folha:** as 3 pistas que você criou
 
 [cronômetro 5]
 
@@ -302,61 +278,43 @@ Vamos usar essa ideia para resolver a crise da equipe do Estúdio Pequi.
 
 ---
 
-## ✅ Resposta do Enigma 3
-+ **Enzo** cuida das cores
-+ **Bia** apresenta: só ela fala inglês e está livre nesse horário
-+ **Caio** não apresenta nem ajuda o novato, então revisa os **textos**
-+ **Duda** ajuda o novato
-
-> O plano levou em conta o curso e a experiência de cada um, sem excluir ninguém.
-
----
-
 ## 💬 Caso 4: "Duda não fala nada"
 Um colega diz: "Duda não fala na reunião, então não se importa". Mas ela manda ideias por escrito e corrigiu o pior erro do jogo.
 
-- [x] Duda contribui, só que de outro jeito
-- [ ] Duda não se importa, porque fala pouco
-- [ ] Duda deve sair da equipe
-- [ ] Todos devem falar o mesmo tempo
-
-> Por quê: "fala pouco" é fato. "Não se importa" é achismo, e os fatos mostram o contrário.
+- **A)** Duda contribui, só que de outro jeito
+- **B)** Duda não se importa, porque fala pouco
+- **C)** Duda deve sair da equipe
+- **D)** Todos devem falar o mesmo tempo
 
 ---
 
 ## 💬 Caso 5: a briga
 Enzo quer um cenário cheio de detalhes. Bia acha que isso esconde os obstáculos. Os dois começam a se ofender.
 
-- [ ] Quem falar mais alto decide
-- [x] Testar as duas versões com jogadores
-- [ ] Separar os dois até o lançamento
-- [ ] Manter o cenário de Enzo
-
-> Por quê: o teste tira o foco da briga e mostra qual opção é melhor para o jogo.
+- **A)** Quem falar mais alto decide
+- **B)** Testar as duas versões com jogadores
+- **C)** Separar os dois até o lançamento
+- **D)** Manter o cenário de Enzo
 
 ---
 
 ## 💬 Caso 6: o erro no código
 Caio achou um erro no código de Duda, mas tem medo de parecer uma acusação. O que ele deve fazer?
 
-- [x] Mostrar o erro e pedir ajuda para resolver
-- [ ] Ficar quieto para não criar problema com Duda
-- [ ] Contar para todo mundo que Duda errou
-- [ ] Esperar outra pessoa encontrar o erro
-
-> Por quê: falar do problema, e não da pessoa, ajuda a consertar o jogo e mantém a confiança.
+- **A)** Mostrar o erro e pedir ajuda para resolver
+- **B)** Ficar quieto para não criar problema com Duda
+- **C)** Contar para todo mundo que Duda errou
+- **D)** Esperar outra pessoa encontrar o erro
 
 ---
 
 ## 💬 Caso 7: a prova surpresa
 Na segunda, Enzo descobre uma prova na quinta, o dia da entrega. O que mostra compromisso com a equipe?
 
-- [ ] Não contar e tentar fazer tudo de última hora
-- [x] Avisar agora e combinar um novo plano
-- [ ] Esperar quinta para ver o que acontece
-- [ ] Largar a tarefa sem explicar nada
-
-> Por quê: quem avisa cedo dá tempo para a equipe se organizar. Isso também é compromisso.
+- **A)** Não contar e tentar fazer tudo de última hora
+- **B)** Avisar agora e combinar um novo plano
+- **C)** Esperar quinta para ver o que acontece
+- **D)** Largar a tarefa sem explicar nada
 
 ---
 
@@ -369,10 +327,10 @@ Na segunda, Enzo descobre uma prova na quinta, o dia da entrega. O que mostra co
 
 ---
 
-## ✍️ Visto da Missão 2
-- 3 slides ✍️ copiados
-- Enigma 3 e Casos 4 a 7 respondidos
-- Achismo, fato e frase que você criou
+## 📋 Confira a Missão 2
+- **Caderno:** 3 slides ✍️ copiados
+- **Folha:** Enigma 3 e Casos 4 a 7
+- **Folha:** achismo, fato e frase que você criou
 
 [cronômetro 5]
 
@@ -440,20 +398,205 @@ Todo projeto precisa de um documento organizado, para qualquer pessoa entender o
 
 ---
 
-## ✅ Resposta do Enigma 4
-+ **Bia** fez a introdução: ela explica o problema
-+ **Duda** fez o desenvolvimento: ela conta como foi feito
-+ **Enzo** fez o apêndice: o extra foi criado por ele
-+ **Caio** fica com as referências
-
----
-
 ## 🧩 Enigma 5: qual é a ordem? (5 min)
 Coloque em ordem, do 1º ao 4º: **Referências, Glossário, Apêndice e Anexo**.
 
 1. As referências vêm antes das outras três partes.
 2. O anexo vem logo depois do apêndice.
 3. O glossário vem antes do apêndice.
+
+---
+
+## 💬 Caso 8: por onde começar?
+"Muitos jovens não conhecem as lendas do Cerrado. Por isso, vamos criar um jogo sobre elas." Onde isso entra?
+
+- **A)** Introdução
+- **B)** Desenvolvimento
+- **C)** Conclusão
+- **D)** Referências
+
+---
+
+## 💬 Caso 9: deu certo?
+"Atingimos o objetivo do projeto. No futuro, vamos criar novas fases." Onde isso entra?
+
+- **A)** Introdução
+- **B)** Desenvolvimento
+- **C)** Conclusão
+- **D)** Glossário
+
+---
+
+## 💬 Caso 10: apêndice ou anexo?
+Caio criou um questionário para os jogadores. A editora enviou a licença da música. Onde fica cada um?
+
+- **A)** Questionário no apêndice; licença no anexo
+- **B)** Questionário no anexo; licença no apêndice
+- **C)** Os dois no apêndice
+- **D)** Os dois no anexo
+
+---
+
+## 💬 Caso 11: o erro no documento
+O texto usa uma informação do livro de Souza, mas esse livro não aparece nas referências. O que a equipe faz?
+
+- **A)** Nada, porque citar no texto já basta
+- **B)** Inclui o livro nas referências
+- **C)** Coloca o livro no apêndice
+- **D)** Apaga as referências do documento
+
+---
+
+## 🕵️ Agora é com você (10 min)
+Pense em um jogo que gostaria de criar e escreva uma frase para cada parte:
+
+1. **Introdução:** por que esse jogo importa?
+2. **Desenvolvimento:** como você faria?
+3. **Conclusão:** como saberia que deu certo?
+
+---
+
+## 📋 Confira a Missão 3
+- **Caderno:** 2 slides ✍️ copiados
+- **Folha:** Enigmas 4 e 5 e Casos 8 a 11
+- **Folha:** as 3 frases do seu jogo
+
+[cronômetro 5]
+
+---
+
+## 📬 Entrega do trabalho
+1. Confira seu **nome** e sua **turma** na folha
+2. Confira os **Enigmas 1 a 5** e os **Casos 1 a 11**
+3. Confira as **3 atividades** "Agora é com você"
+4. **Entregue a folha** ao professor
+
+> O caderno fica com você: nele está o conteúdo para estudar.
+
+---
+
+# Correção
+Folhas entregues? Agora vamos conferir juntos
+
+---
+
+## ✅ Resposta do Enigma 1
++ **Duda** é programadora: ela escreve código
++ **Enzo** é artista: ele cria os personagens
++ **Bia** não testa, então sobra inventar as regras: **game designer**
++ **Caio** fica com o que sobrou: **testador**
+
+---
+
+## ✅ Resposta do Enigma 2
+| Pessoa | Profissão | Contratação |
+|---|---|---|
+| Bia | Game designer | PJ |
+| Caio | Testador | Aprendiz |
+| Duda | Programadora | CLT |
+| Enzo | Artista | Estágio |
+
+---
+
+## 💬 Caso 1: o detalhista
+Todo testador presta atenção aos detalhes. Nina também presta. Dá para ter certeza de que Nina é testadora?
+
+- [ ] Sim, porque ela tem essa qualidade
+- [x] Não, porque outras profissões também pedem atenção
+- [ ] Sim, porque essa qualidade só existe em testes
+- [ ] Não, porque testador não presta atenção
+
+> Por quê: é como o celular que não ligou: existe mais de uma explicação. Falta saber o que Nina faz.
+
+---
+
+## 💬 Caso 2: o nome engraçado
+O crachá de Theo diz "Ninja do Código". Mas ele só testa o jogo e anota os erros. Qual é o trabalho dele?
+
+- [ ] Programador, por causa do nome no crachá
+- [x] Testador, por causa do que ele faz
+- [ ] Artista, porque o nome é criativo
+- [ ] Não dá para saber quem é Theo
+
+> Por quê: o nome do cargo pode enganar. O que vale é o que a pessoa faz no dia a dia.
+
+---
+
+## 💬 Caso 3: precisa de registro?
+Médicos precisam de registro em um conselho, porque uma lei exige. Léo precisa disso para ser game designer?
+
+- [ ] Sim, toda profissão precisa de um conselho
+- [x] Não, nenhuma lei exige isso de game designers
+- [ ] Sim, porque jogos também são tecnologia
+- [ ] Só se ela trabalhar com médicos
+
+> Por quê: só profissões regulamentadas por lei têm essa exigência, e game design não é uma delas.
+
+---
+
+## ✅ Resposta do Enigma 3
++ **Enzo** cuida das cores
++ **Bia** apresenta: só ela fala inglês e está livre nesse horário
++ **Caio** não apresenta nem ajuda o novato, então revisa os **textos**
++ **Duda** ajuda o novato
+
+> O plano levou em conta o curso e a experiência de cada um, sem excluir ninguém.
+
+---
+
+## 💬 Caso 4: "Duda não fala nada"
+Um colega diz: "Duda não fala na reunião, então não se importa". Mas ela manda ideias por escrito e corrigiu o pior erro do jogo.
+
+- [x] Duda contribui, só que de outro jeito
+- [ ] Duda não se importa, porque fala pouco
+- [ ] Duda deve sair da equipe
+- [ ] Todos devem falar o mesmo tempo
+
+> Por quê: "fala pouco" é fato. "Não se importa" é achismo, e os fatos mostram o contrário.
+
+---
+
+## 💬 Caso 5: a briga
+Enzo quer um cenário cheio de detalhes. Bia acha que isso esconde os obstáculos. Os dois começam a se ofender.
+
+- [ ] Quem falar mais alto decide
+- [x] Testar as duas versões com jogadores
+- [ ] Separar os dois até o lançamento
+- [ ] Manter o cenário de Enzo
+
+> Por quê: o teste tira o foco da briga e mostra qual opção é melhor para o jogo.
+
+---
+
+## 💬 Caso 6: o erro no código
+Caio achou um erro no código de Duda, mas tem medo de parecer uma acusação. O que ele deve fazer?
+
+- [x] Mostrar o erro e pedir ajuda para resolver
+- [ ] Ficar quieto para não criar problema com Duda
+- [ ] Contar para todo mundo que Duda errou
+- [ ] Esperar outra pessoa encontrar o erro
+
+> Por quê: falar do problema, e não da pessoa, ajuda a consertar o jogo e mantém a confiança.
+
+---
+
+## 💬 Caso 7: a prova surpresa
+Na segunda, Enzo descobre uma prova na quinta, o dia da entrega. O que mostra compromisso com a equipe?
+
+- [ ] Não contar e tentar fazer tudo de última hora
+- [x] Avisar agora e combinar um novo plano
+- [ ] Esperar quinta para ver o que acontece
+- [ ] Largar a tarefa sem explicar nada
+
+> Por quê: quem avisa cedo dá tempo para a equipe se organizar. Isso também é compromisso.
+
+---
+
+## ✅ Resposta do Enigma 4
++ **Bia** fez a introdução: ela explica o problema
++ **Duda** fez o desenvolvimento: ela conta como foi feito
++ **Enzo** fez o apêndice: o extra foi criado por ele
++ **Caio** fica com as referências
 
 ---
 
@@ -512,24 +655,6 @@ O texto usa uma informação do livro de Souza, mas esse livro não aparece nas 
 - [ ] Apaga as referências do documento
 
 > Por quê: se usou uma obra e citou no texto, ela precisa aparecer nas referências.
-
----
-
-## 🕵️ Agora é com você (10 min)
-Pense em um jogo que gostaria de criar e escreva uma frase para cada parte:
-
-1. **Introdução:** por que esse jogo importa?
-2. **Desenvolvimento:** como você faria?
-3. **Conclusão:** como saberia que deu certo?
-
----
-
-## ✍️ Visto da Missão 3
-- 2 slides ✍️ copiados
-- Enigmas 4 e 5 e Casos 8 a 11 respondidos
-- As 3 frases do seu jogo
-
-[cronômetro 5]
 
 ---
 
