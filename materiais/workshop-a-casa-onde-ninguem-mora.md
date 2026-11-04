@@ -3,6 +3,8 @@ aula: 1
 data: 2026-11-06
 titulo: A casa onde ninguém mora
 turma: Workshop
+tipo: workshop
+tela: tv
 descricao: Prompts, agentes e Skills no celular, no plano grátis (17:30 às 19:30)
 instrutor: Jairon Douglas
 ---
@@ -15,7 +17,7 @@ Bem vago, de propósito.
 ## Você tem 30 segundos
 **Desenhe uma casa.** Aponte a câmera, desenhe com o dedo e não pense muito.
 
-[qrcode https://instrutorjd.github.io/axis/materiais/desenhe-uma-casa/ instrutorjd.github.io/axis/materiais/desenhe-uma-casa]
+[qrcode https://instrutorjd.github.io/axis/materiais/desenhe-uma-casa/ Abra no celular]
 
 ---
 
@@ -179,13 +181,13 @@ Fonte: [Anthropic, Project Vend, 2025](https://www.anthropic.com/research/projec
 ---
 
 ## Onde configurar, no plano Free
-| | ChatGPT | Claude |
+| Recurso | ChatGPT | Claude |
 |---|---|---|
-| Instruções gerais | Até 1.500 caracteres | Sim |
-| Projetos | Sem limite de projetos | Até 5 projetos |
-| Arquivos | 5 por projeto | Sim |
+| Instruções gerais | Até 1.500 caracteres | Disponível |
+| Projetos | Sem limite | Até 5 |
+| Arquivos no projeto | Até 5 | Disponível |
 
-Fontes: [OpenAI: instruções](https://help.openai.com/en/articles/8096356-chatgpt-custom-instructions), [OpenAI: projetos](https://help.openai.com/en/articles/10169521-using-projects-in-chatgpt), [Claude: projetos](https://support.claude.com/en/articles/9519177-how-can-i-create-and-manage-projects)
+Fontes: ajuda do [ChatGPT](https://help.openai.com/en/articles/10169521-using-projects-in-chatgpt) e do [Claude](https://support.claude.com/en/articles/9519177-how-can-i-create-and-manage-projects)
 
 ---
 
@@ -406,16 +408,15 @@ description: Transforma rascunho em mensagem de WhatsApp.
 
 ## Criar no Claude: peça a Skill
 ```text
-Crie uma skill chamada responder-cliente.
+Crie uma Skill chamada responder-cliente.
 Ela transforma meu rascunho em mensagem de WhatsApp
 para cliente: educada, direta, até 4 linhas, sem emoji,
 terminando com o próximo passo.
-Use o padrão SKILL.md, com name e description.
-Entregue um arquivo .zip com a pasta responder-cliente
-dentro.
+Siga o formato padrão das Skills e me entregue
+o arquivo compactado pronto para instalar.
 ```
 
-Troque a tarefa pela sua. Depois baixe o arquivo ZIP.
+Troque a tarefa pela sua e baixe o arquivo.
 
 ---
 
@@ -441,8 +442,8 @@ Fonte: [OpenAI, Skills in ChatGPT](https://help.openai.com/en/articles/20001066-
 
 ## No ChatGPT: a mesma receita, em um Projeto
 ```text
-Escreva um SKILL.md para esta tarefa: [sua tarefa].
-Use name, description e passos em Markdown.
+Escreva as instruções de uma Skill para: [sua tarefa].
+Diga quando usar e os passos, em Markdown.
 Até 1.500 caracteres, em um bloco para copiar.
 ```
 

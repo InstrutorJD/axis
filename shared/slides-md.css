@@ -248,3 +248,37 @@
 @media (prefers-reduced-motion: reduce){
   .sm-presenter *, .sm-presenter{ animation-duration:.01s !important; transition-duration:.01s !important; }
 }
+
+/* ---------- "tela: tv" no cabeçalho do .md: ocupa mais a tela de uma TV grande ---------- */
+.sm-tv .sm-slide{ padding:36px 60px; }
+.sm-tv .sm-slide-inner{ gap:26px; }
+.sm-tv .sm-slide h1{ font-size:116px; }
+.sm-tv .sm-title p{ font-size:46px; }
+.sm-tv .sm-slide h2{ font-size:68px; padding-bottom:18px; }
+.sm-tv .sm-slide p, .sm-tv .sm-slide ul, .sm-tv .sm-slide ol, .sm-tv .sm-slide blockquote{ font-size:42px; }
+.sm-tv .sm-slide ul, .sm-tv .sm-slide ol{ gap:20px; }
+.sm-tv .sm-slide li{ padding-left:62px; }
+.sm-tv .sm-slide ul > li::before{ left:12px; width:20px; height:20px; }
+.sm-tv .sm-slide ol > li::before{ width:46px; height:46px; font-size:26px; }
+.sm-tv .sm-midia p, .sm-tv .sm-midia ul, .sm-tv .sm-midia ol, .sm-tv .sm-midia blockquote{ font-size:32px; }
+.sm-tv .sm-slide table{ width:100%; font-size:36px; }
+.sm-tv .sm-slide th{ padding:18px 26px; }
+.sm-tv .sm-slide td{ padding:16px 26px; }
+.sm-tv .sm-code code{ font-size:32px; }
+.sm-tv .sm-code pre{ max-height:calc(var(--sm-h, 720px) - 200px); }
+.sm-tv .sm-opt{ font-size:38px; padding:24px 28px; }
+.sm-tv .sm-letter{ width:60px; height:60px; }
+.sm-tv .sm-grade{ font-size:58px; }
+.sm-tv .sm-qr-img{ width:400px; }
+.sm-tv .sm-qr figcaption{ font-size:26px; }
+.sm-tv .sm-qr-texto{ font-size:24px; }
+.sm-tv .sm-timer-ring{ width:320px; height:320px; }
+.sm-tv .sm-timer-display{ font-size:76px; }
+/* Cronômetro e QR Code ao lado do texto: aproveitam a largura e não estouram a altura. */
+.sm-tv .sm-slide-inner:has(> .sm-timer), .sm-tv .sm-slide-inner:has(> .sm-qr){ display:grid; grid-template-columns:minmax(0, 1fr) auto; column-gap:48px; row-gap:24px; align-content:center; align-items:center; }
+.sm-tv .sm-slide-inner:has(> .sm-timer) > *, .sm-tv .sm-slide-inner:has(> .sm-qr) > *{ grid-column:1; }
+.sm-tv .sm-slide-inner:has(> .sm-timer) > h2, .sm-tv .sm-slide-inner:has(> .sm-qr) > h2{ grid-column:1 / -1; }
+.sm-tv .sm-slide-inner > .sm-timer, .sm-tv .sm-slide-inner > .sm-qr{ grid-column:2; grid-row:2 / span 6; align-self:center; margin:0; }
+.sm-tv .sm-grade{ font-size:50px; line-height:1.1; padding:18px 30px; }
+.sm-tv .sm-slide-inner > .sm-qr{ max-width:440px; }
+.sm-tv .sm-midia .sm-slide-inner:has(> .sm-qr) > p{ font-size:44px; }

@@ -253,7 +253,8 @@ window.SlidesMD = (function () {
   // do título da aba.
   function rotuloMeta(meta) {
     const partes = [];
-    if (meta.aula !== undefined && meta.aula !== '') partes.push(`Aula ${typeof meta.aula === 'number' ? String(meta.aula).padStart(2, '0') : meta.aula}`);
+    // "tipo:" no cabeçalho (ex.: workshop): o encontro não é aula, nada diz "Aula".
+    if (!meta.tipo && meta.aula !== undefined && meta.aula !== '') partes.push(`Aula ${typeof meta.aula === 'number' ? String(meta.aula).padStart(2, '0') : meta.aula}`);
     if (meta.data) partes.push(formatarData(meta.data));
     if (meta.turma) partes.push(meta.turma);
     return partes.join(' · ');
@@ -539,18 +540,22 @@ window.SlidesMD = (function () {
     // onFinalizar — ver abrir): é o ÚNICO jeito de a aula virar
     // "Concluída" na lista; chegar no fim sem clicar não conta.
     let finalizar = null;
+    function textoConcluida() {
+      return deck.meta && deck.meta.tipo ? '✔ Concluído' : '✔ Aula concluída';
+    }
     function botaoFinalizar() {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'sm-finalizar' + (finalizar.feita ? ' sm-finalizada' : '');
-      btn.textContent = finalizar.feita ? '✔ Aula concluída' : '✅ Finalizar aula';
+      const textoFinalizar = deck.meta && deck.meta.tipo ? '✅ Finalizar' : '✅ Finalizar aula';
+      btn.textContent = finalizar.feita ? textoConcluida() : textoFinalizar;
       return btn;
     }
     function clicarFinalizar(btn) {
       if (!finalizar || finalizar.feita) return;
       finalizar.feita = true;
       btn.classList.add('sm-finalizada');
-      btn.textContent = '✔ Aula concluída';
+      btn.textContent = textoConcluida();
       confete(btn);
       finalizar.onFinalizar();
     }
@@ -811,6 +816,8 @@ window.SlidesMD = (function () {
     // chamado no clique; opcoes.finalizada: a aula já estava concluída.
     function abrir(novoDeck, inicio = 0, opcoes = {}) {
       deck = novoDeck;
+      // "tela: tv" no cabeçalho: letra e tabelas maiores, para ocupar uma TV grande.
+      root.classList.toggle('sm-tv', normChave(deck.meta && deck.meta.tela || '') === 'tv');
       finalizar = opcoes.onFinalizar ? { feita: !!opcoes.finalizada, onFinalizar: opcoes.onFinalizar } : null;
       stage.innerHTML = '';
       atual = null;

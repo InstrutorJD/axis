@@ -27,6 +27,8 @@ descricao: IP, máscara de rede e gateway na prática
 - `descricao`: opcional. Uma linha resumindo a aula (aparece no card da aula).
 - `instrutor`: opcional. Nome no rodapé do slide de abertura ("Inst.: …"). Sem ele, aparece "Inst.: Jairon".
 - `fonte`: opcional. Só use se o professor pedir letra maior: `fonte: grande` aumenta tudo em ~15%. Aí cada slide comporta menos: no máximo **5 itens de lista**, **8 linhas de código** (~55 caracteres) e **5 linhas de tabela**.
+- `tipo`: opcional. Use quando o encontro não for uma aula (ex.: `tipo: workshop`): a abertura deixa de mostrar "Aula 01" e o botão do último slide vira "Finalizar".
+- `tela`: opcional. Só use se o professor pedir para ocupar uma TV grande: `tela: tv` aumenta letra, tabela e código e põe cronômetro e QR Code ao lado do texto. Aí cada slide comporta menos: no máximo **4 itens de lista**, **9 linhas de código** e **4 linhas de tabela**.
 - Cada linha é `chave: valor`. Não use aspas, listas ou linhas em branco dentro do cabeçalho.
 
 ---
