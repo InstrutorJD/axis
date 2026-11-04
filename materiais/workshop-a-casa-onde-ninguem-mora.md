@@ -7,17 +7,15 @@ descricao: Prompts, agentes e Skills no celular, no plano grátis (17:30 às 19:
 instrutor: Jairon Douglas
 ---
 
-# Pegue papel e caneta
-Não é para anotar.
+# Só um pedido
+Bem vago, de propósito.
 
 ---
 
 ## Você tem 30 segundos
-**Desenhe uma casa.**
+**Desenhe uma casa.** Aponte a câmera, desenhe com o dedo e não pense muito.
 
-Sem pensar muito. Sem olhar para o lado.
-
-[cronômetro 0.5]
+[qrcode https://instrutorjd.github.io/axis/materiais/desenhe-uma-casa/ instrutorjd.github.io/axis/materiais/desenhe-uma-casa]
 
 ---
 
@@ -36,7 +34,7 @@ Sem pensar muito. Sem olhar para o lado.
 
 ---
 
-## Levante a folha
+## Levante o celular
 + Telhado em triângulo?
 + Uma porta e uma janela?
 + Alguém desenhou chaminé? Em Jataí?
@@ -57,8 +55,8 @@ Sem pensar muito. Sem olhar para o lado.
 
 ---
 
-# Pegue o celular
-Agora a bagunça é permitida
+# Agora, fale com a IA
+Celular na mão, e a bagunça é permitida
 
 ---
 
@@ -353,7 +351,21 @@ Onde essa tarefa fica melhor?
 
 ---
 
-## Usar: as prontas do Claude
+## Uma Skill em ação: antes e depois
+```text
+Arrume esta planilha de vendas:
+- junte os produtos escritos de jeitos diferentes
+- apague as linhas repetidas
+- coloque as datas no formato dd/mm/aaaa
+- transforme os valores em números e refaça o total
+Liste o que mudou e o que ficou em dúvida.
+```
+
+Vídeo gravado, com a espera cortada. Dados inventados.
+
+---
+
+## Sua vez: as Skills prontas do Claude
 1. Abra as configurações e entre em **Recursos**
 2. Ligue **Criar e editar arquivos**
 3. Agora é só pedir. Ela escolhe a Skill sozinha
@@ -445,6 +457,18 @@ Cole o resultado nas instruções de um **projeto novo**, só para essa tarefa.
 4. Teste com um pedido real
 
 [cronômetro 12]
+
+---
+
+## O grátis tem limite, mas não é fraco
+| O Free limita | O Free já faz |
+|---|---|
+| Arquivos, imagens e voz | Escrever, resumir e revisar textos |
+| Uso: às vezes é preciso esperar | Ensaiar conversas difíceis |
+| Até 5 projetos no Claude | Assistente para o seu trabalho |
+| Skill própria só no Claude | Receita repetida nas duas plataformas |
+
+> Limite não é fraqueza: para o dia a dia, o Free já resolve muito.
 
 ---
 

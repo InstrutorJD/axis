@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="robots" content="noindex">
+<title>Desenhe uma casa</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  body {
+    display: flex; flex-direction: column; height: 100dvh;
+    background: #fffdf7; color: #1d1d1b;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-user-select: none; user-select: none;
+  }
+  header {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: max(12px, env(safe-area-inset-top)) 16px 12px;
+    background: #1d1d1b; color: #fffdf7;
+  }
+  h1 { font-size: 1.25rem; }
+  #tempo { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  #tempo.fim { color: #ffc23d; }
+  #tela { flex: 1; min-height: 0; width: 100%; display: block; touch-action: none; cursor: crosshair; }
+  #aviso {
+    padding: 14px 16px; text-align: center; font-weight: 700;
+    background: #ffc23d; color: #1d1d1b;
+  }
+  footer { padding: 10px 16px max(10px, env(safe-area-inset-bottom)); border-top: 1px solid #ddd8c9; }
+  button {
+    width: 100%; min-height: 48px; font: inherit; font-weight: 700;
+    color: #1d1d1b; background: #efeadb; border: 0; border-radius: 10px; cursor: pointer;
+  }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Desenhe uma casa</h1>
+    <div id="tempo" role="timer" aria-label="Tempo restante">30</div>
+  </header>
+  <canvas id="tela" aria-label="Área de desenho: use o dedo para desenhar"></canvas>
+  <div id="aviso" role="status" hidden>Tempo! Agora olhe para o telão.</div>
+  <footer><button type="button" id="limpar">Apagar e recomeçar</button></footer>
+<script>
+  // Tela do gancho do workshop: o desenho fica só neste aparelho, nada é enviado.
+  // Os 30 segundos começam no primeiro traço e, ao terminar, o desenho trava.
+  const SEGUNDOS = 30;
+  const tela = document.getElementById('tela');
+  const ctx = tela.getContext('2d');
+  const elTempo = document.getElementById('tempo');
+  const elAviso = document.getElementById('aviso');
+  let traco = null, relogio = null, fimEm = 0, encerrado = false;
+
+  function ajustarPincel() {
+    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = ctx.fillStyle = '#1d1d1b';
+  }
+  // Girar o celular muda o tamanho do canvas, o que apagaria o desenho: copia antes.
+  function redimensionar() {
+    const caixa = tela.getBoundingClientRect();
+    const largura = Math.round(caixa.width * devicePixelRatio);
+    const altura = Math.round(caixa.height * devicePixelRatio);
+    if (tela.width === largura && tela.height === altura) return;
+    const copia = document.createElement('canvas');
+    copia.width = tela.width;
+    copia.height = tela.height;
+    if (tela.width && tela.height) copia.getContext('2d').drawImage(tela, 0, 0);
+    tela.width = largura;
+    tela.height = altura;
+    if (copia.width && copia.height) ctx.drawImage(copia, 0, 0);
+    ajustarPincel();
+  }
+  function ponto(ev) {
+    const caixa = tela.getBoundingClientRect();
+    return { x: ev.clientX - caixa.left, y: ev.clientY - caixa.top };
+  }
+  function atualizarTempo() {
+    const resta = Math.max(0, Math.ceil((fimEm - Date.now()) / 1000));
+    elTempo.textContent = resta;
+    if (resta > 0) return;
+    clearInterval(relogio);
+    relogio = null;
+    encerrado = true;
+    traco = null;
+    elTempo.classList.add('fim');
+    elAviso.hidden = false;
+    redimensionar();
+  }
+  function iniciarTempo() {
+    if (relogio || encerrado) return;
+    fimEm = Date.now() + SEGUNDOS * 1000;
+    relogio = setInterval(atualizarTempo, 200);
+  }
+
+  tela.addEventListener('pointerdown', ev => {
+    if (encerrado || traco) return;
+    ev.preventDefault();
+    tela.setPointerCapture(ev.pointerId);
+    iniciarTempo();
+    const p = ponto(ev);
+    traco = { id: ev.pointerId, ...p };
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, ctx.lineWidth / 2, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  tela.addEventListener('pointermove', ev => {
+    if (!traco || ev.pointerId !== traco.id) return;
+    const eventos = ev.getCoalescedEvents ? ev.getCoalescedEvents() : [];
+    (eventos.length ? eventos : [ev]).forEach(e => {
+      const p = ponto(e);
+      ctx.beginPath();
+      ctx.moveTo(traco.x, traco.y);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      traco.x = p.x;
+      traco.y = p.y;
+    });
+  });
+  ['pointerup', 'pointercancel'].forEach(tipo => tela.addEventListener(tipo, ev => {
+    if (traco && ev.pointerId === traco.id) traco = null;
+  }));
+
+  document.getElementById('limpar').addEventListener('click', () => {
+    clearInterval(relogio);
+    relogio = null;
+    encerrado = false;
+    traco = null;
+    ctx.clearRect(0, 0, tela.width, tela.height);
+    elTempo.textContent = SEGUNDOS;
+    elTempo.classList.remove('fim');
+    elAviso.hidden = true;
+    redimensionar();
+  });
+  addEventListener('resize', redimensionar);
+  redimensionar();
+</script>
+</body>
+</html>
