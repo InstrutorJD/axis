@@ -172,8 +172,6 @@ Sem elogios.
 
 > Mesmo truque do Yoda. Agora ele vale dinheiro.
 
-[cronômetro 4]
-
 ---
 
 ## Por que "sem elogios"?
@@ -323,8 +321,6 @@ com Papel, Contexto, Regras e Formato.
 Até 1.500 caracteres, em um bloco para copiar.
 ```
 
-[cronômetro 6]
-
 ---
 
 ## Cole no ChatGPT
@@ -354,8 +350,6 @@ Até 1.500 caracteres, em um bloco para copiar.
 
 Ele já chegou sabendo o serviço?
 
-[cronômetro 10]
-
 ---
 
 ## Celular ou computador?
@@ -370,8 +364,6 @@ Ele já chegou sabendo o serviço?
 
 ## Intervalo
 Café e conversa. Mostre o seu assistente para alguém que você não conhece.
-
-[cronômetro 10]
 
 ---
 
@@ -514,8 +506,6 @@ Cole o resultado nas instruções de um **projeto novo**, só para essa tarefa.
 3. **ChatGPT:** crie o projeto só dessa tarefa
 4. Teste com um pedido real
 
-[cronômetro 12]
-
 ---
 
 ## O grátis tem limite, mas não é fraco
@@ -611,8 +601,6 @@ Para qual destas tarefas você daria acesso a um agente?
 - Organizar a agenda
 - Fazer compras
 - Pagar contas
-
-[cronômetro 3]
 
 ---
 
