@@ -14,6 +14,13 @@ A arte de perguntar à IA e usar ferramentas
 
 ---
 
+## Nossos acordos
++ Celular no **silencioso**
++ De preferência, ligue o **Não Perturbar**
++ Vamos usar o celular, sim, mas **só para a IA**
+
+---
+
 # Só um pedido
 Bem vago, de propósito.
 
