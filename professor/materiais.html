@@ -251,7 +251,7 @@
         <summary>Atalhos da apresentação</summary>
         <p class="mat-atalhos">
           <kbd>→</kbd> <kbd>espaço</kbd> avança · <kbd>←</kbd> volta · <kbd>O</kbd> visão geral · <kbd>T</kbd> tema ·
-          <kbd>F</kbd> tela cheia · <kbd>R</kbd> revela a resposta · <kbd>Q</kbd> amplia o QR Code · <kbd>Esc</kbd> sai.
+          <kbd>F</kbd> tela cheia · <kbd>P</kbd> imprime ou salva em PDF · <kbd>R</kbd> revela a resposta · <kbd>Q</kbd> amplia o QR Code · <kbd>Esc</kbd> sai.
           No último slide, <b>Finalizar aula</b> marca a aula como concluída.
         </p>
       </details>
@@ -306,6 +306,7 @@
   const presenter = SM.createPresenter(presenterEl, {
     // Passador de slides no celular (botão 📱): abre professor/controle.html.
     remoto: { client: () => window.PortalSession.client(), url: new URL('controle.html', location.href).href },
+    impressao: true,
     onExit: () => {
       document.title = 'Axis — Criar Material';
       try { history.replaceState(null, '', location.pathname); } catch (e) {}

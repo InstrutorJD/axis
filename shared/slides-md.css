@@ -245,6 +245,31 @@
 .sm-remoto-card button{ margin-top:8px; font:inherit; font-weight:700; padding:8px 22px; border-radius:999px; cursor:pointer; border:1px solid var(--sm-line); background:var(--sm-card); color:var(--sm-ink); }
 .sm-remoto-card button:hover{ border-color:var(--sm-accent); color:var(--sm-accent); }
 
+/* ---------- Painel "Imprimir ou salvar em PDF" (🖨 ou P) ---------- */
+.sm-imprimir-opcao{ display:flex; align-items:center; justify-content:center; gap:8px; margin:14px 0 6px; font-size:14px; cursor:pointer; }
+.sm-imprimir-botoes{ display:flex; justify-content:center; gap:10px; margin-top:12px; }
+.sm-remoto-card .sm-imprimir-gerar{ background:var(--sm-accent); border-color:var(--sm-accent); color:var(--sm-bg); }
+.sm-remoto-card .sm-imprimir-gerar:hover{ color:var(--sm-bg); filter:brightness(1.1); }
+
+/* ---------- Folhas do PDF (montadas por gerarPdf em slides-md.js) ----------
+   Fora da tela, mas com layout de verdade: ajustarCodigo precisa medir. */
+.sm-presenter.sm-impressao{ position:fixed; inset:auto; left:-10000px; top:0; width:1280px; overflow:visible; visibility:hidden; background:none; z-index:auto; }
+.sm-pagina{ position:relative; width:1280px; height:720px; overflow:hidden; background:var(--sm-bg); break-after:page; break-inside:avoid; }
+.sm-pagina:last-child{ break-after:auto; }
+.sm-pagina-palco{ position:absolute; left:0; top:0; transform-origin:0 0; }
+.sm-impressao, .sm-impressao *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+.sm-impressao *, .sm-impressao *::before, .sm-impressao *::after{ animation:none !important; transition:none !important; box-shadow:none !important; text-shadow:none !important; }
+/* Sombra, brilho e título em degradê saem com manchas e fios no PDF: na folha, fundo liso e cor sólida. */
+.sm-impressao .sm-slide h1{ background:none; color:var(--sm-accent); }
+.sm-impressao .sm-copy, .sm-impressao .sm-timer-btns{ display:none; }
+.sm-impressao .sm-code pre{ overflow:hidden; }
+@media print{
+  html:has(> body > .sm-impressao), body:has(> .sm-impressao){ width:auto !important; height:auto !important; min-height:0 !important; margin:0 !important; padding:0 !important; overflow:visible !important; background:none !important; }
+  body:has(> .sm-impressao)::before, body:has(> .sm-impressao)::after{ display:none !important; }
+  body:has(> .sm-impressao) > :not(.sm-impressao){ display:none !important; }
+  .sm-presenter.sm-impressao{ position:static; visibility:visible; }
+}
+
 @media (prefers-reduced-motion: reduce){
   .sm-presenter *, .sm-presenter{ animation-duration:.01s !important; transition-duration:.01s !important; }
 }

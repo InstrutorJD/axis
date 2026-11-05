@@ -152,11 +152,11 @@ turma: 2º DS
 ## Atalhos na apresentação
 | Tecla | Faz |
 |-------|-----|
-| → / espaço / Enter | Avança |
-| ← | Volta |
+| → ou espaço / ← | Avança / volta |
 | O | Visão geral dos slides |
 | T | Tema claro/escuro |
 | F | Tela cheia |
+| P | Imprime ou salva em PDF |
 | R | Revela a resposta |
 | Q | Amplia o QR Code |
 | Esc | Sai |
