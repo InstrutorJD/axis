@@ -487,8 +487,8 @@ oi o pedido atrasa 2 dia
 ---
 
 ## Instalar: só no computador
-1. Abra claude.ai > **Personalizar** > **Skills**
-2. Clique em **+** > **Criar skill** e envie o ZIP
+1. Abra claude.ai > **Personalização** > **Skills**
+2. Clique em **Adicionar** e envie o ZIP
 3. Confira se a Skill está ligada
 
 > No app do celular, o menu de Skills não aparece. Baixe o ZIP hoje e instale em casa.
