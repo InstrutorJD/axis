@@ -84,13 +84,13 @@ Peguem o celular de vocês.
 
 ---
 
-## Abra uma das duas
-- **ChatGPT:** app ou chatgpt.com
-- **Claude:** app ou claude.ai
-- Entre com a sua conta. Sem conta? Crie agora
+## Hoje, tudo no Claude, pelo celular
+- Abra o app **Claude** e entre com a sua conta
+- Sem conta? Crie agora, é grátis
 - Travou? Faça dupla com quem está do lado
+- Usa ChatGPT? Os pedidos funcionam nele também
 
-> Vale qualquer uma. Quem tiver as duas compara as respostas.
+> No celular, quase tudo se resolve no chat: é só pedir. O computador tem mais menus.
 
 ---
 
@@ -199,7 +199,7 @@ Um funcionário que já chega sabendo o serviço
 + **No plano grátis:** você monta um assistente com instruções fixas
 + É o primeiro passo, e é o que dá para fazer hoje
 
-> Aqui, "agente" é um projeto com instruções. Sem mágica.
+> Aqui, "agente" é uma conversa com regras fixas. Sem mágica.
 
 ---
 
@@ -248,7 +248,7 @@ Fontes: ajuda do [ChatGPT](https://help.openai.com/en/articles/10169521-using-pr
 + Conta pessoal não cria mais GPT novo, nem paga
 + A OpenAI vai aposentar os GPTs personalizados
 + Data prevista: **11 de dezembro de 2026**
-+ Por isso hoje vamos de **Projeto**
++ Por isso hoje vamos de **regras na conversa**
 
 Fonte: [OpenAI, Creating and editing GPTs](https://help.openai.com/en/articles/8554397-creating-a-gpt)
 
@@ -340,20 +340,23 @@ Ele já chegou sabendo o serviço?
 
 ---
 
-## Para não perder: guarde em casa
-+ A conversa fica salva no histórico. Volte nela quando quiser
-+ **ChatGPT, no celular:** Configurações > **Personalizar o ChatGPT**
-+ Ali cabe uma regra curta, que vale para toda conversa
-+ **Projeto**, com as regras completas: faça no computador
+## Para não perder
++ A conversa fica no histórico do app. Volte nela quando quiser
++ As regras continuam valendo naquela conversa
++ No computador, um **Projeto** guarda as regras para sempre
++ claude.ai > **Projetos** > **Novo projeto** > **Definir instruções do projeto**
+
+Fonte: [Claude, Projetos](https://support.claude.com/en/articles/9519177-how-can-i-create-and-manage-projects)
 
 ---
 
-## Em casa: guarde num Projeto
-1. **ChatGPT:** chatgpt.com > **Novo projeto** > **•••** > **Configurações do projeto**
-2. **Claude:** claude.ai > **Projetos** > **Novo projeto** > **Definir instruções do projeto**
-3. Copie as regras da conversa, cole e salve
+## E no ChatGPT?
++ **Dá, no celular:** as mesmas regras, digitadas na conversa
++ **Dá, no celular:** uma regra curta em **Personalizar o ChatGPT**
++ **Free:** até 1.500 caracteres, valendo para todas as conversas
++ **Projetos:** a ajuda não diz se dá para criar pelo app
 
-> No app do celular, esses menus podem não aparecer. No computador, aparecem.
+Fontes: [OpenAI, Instruções personalizadas](https://help.openai.com/en/articles/8096356) e [Projetos](https://help.openai.com/en/articles/10169521-projects-in-chatgpt)
 
 ---
 
@@ -362,8 +365,8 @@ Ele já chegou sabendo o serviço?
 |---|---|---|
 | Testar prompts | Ótimo | Ótimo |
 | Assistente na conversa | Ótimo | Ótimo |
-| Guardar num Projeto | Nem sempre dá | Melhor |
-| Instalar uma Skill | Nem sempre dá | Melhor |
+| Guardar num Projeto | Varia por app | Funciona |
+| Instalar uma Skill | Não aparece no app | Funciona |
 
 ---
 
@@ -431,6 +434,8 @@ de uma festa para 50 pessoas, com total.
 
 > Não criou o arquivo? Toque no seu nome > Configurações > Capacidades e ligue **Criar e editar arquivos**.
 
+Fonte: [Claude, Criar e editar arquivos](https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude)
+
 ---
 
 ## Usar: e no ChatGPT Free?
@@ -467,47 +472,46 @@ deixa meu rascunho educado, em até 4 linhas.
 Me entregue o arquivo ZIP para instalar.
 ```
 
-Troque a tarefa pela sua e baixe o arquivo.
+Troque a tarefa pela sua. Ela entrega o arquivo ali mesmo.
 
 ---
 
-## Criar no Claude: instale em casa
-1. No computador, abra claude.ai > **Personalizar** > **Skills**
+## Teste a Skill na mesma conversa
+```text
+Use essa Skill neste rascunho:
+oi o pedido atrasa 2 dia
+```
+
+> Funciona agora, no chat. Para ela valer em toda conversa, falta instalar.
+
+---
+
+## Instalar: só no computador
+1. Abra claude.ai > **Personalizar** > **Skills**
 2. Clique em **+** > **Criar skill** e envie o ZIP
 3. Confira se a Skill está ligada
-4. Numa conversa nova, mande um rascunho bagunçado
 
-> No app do celular, esse menu pode não aparecer. Por isso, a instalação fica para casa.
+> No app do celular, o menu de Skills não aparece. Baixe o ZIP hoje e instale em casa.
+
+Fonte: [Claude, Usar Skills](https://support.claude.com/en/articles/12512180-use-skills-in-claude)
 
 ---
 
 ## Criar no ChatGPT Free: o caminho possível
 + A OpenAI diz que Skills pessoais são para planos empresariais
 + Criar plugins também não aparece no plano Free
-+ Solução: o mesmo texto vira as **instruções de um Projeto**
++ **Dá, no celular:** pedir a receita e usar na mesma conversa
 + Não é Skill oficial, mas faz o trabalho
 
 Fonte: [OpenAI, Skills in ChatGPT](https://help.openai.com/en/articles/20001066-skills-in-chatgpt)
 
 ---
 
-## No ChatGPT: a mesma receita, na conversa
-```text
-Escreva a receita para [sua tarefa]:
-quando usar e os passos, em Markdown.
-```
-
-Depois digite: **Use essa receita quando eu pedir.** Em casa, guarde num **projeto novo**.
-
----
-
 ## Mão na massa: sua Skill
 1. Escolha uma tarefa que você repete toda semana
-2. **Claude:** peça a Skill e baixe o ZIP
-3. **ChatGPT:** peça a receita e use na mesma conversa
-4. Teste com um pedido real
-
-> Instalar o ZIP e criar o projeto ficam para casa, no computador.
+2. Peça ao Claude a Skill dessa tarefa
+3. Na mesma conversa, teste com um pedido real
+4. Baixe o ZIP. Em casa, instale no computador
 
 ---
 
@@ -616,7 +620,7 @@ Para qual destas tarefas você daria acesso a um agente?
 
 ## O que você leva para casa
 + **Prompt:** personagem, tarefa e limite
-+ **Assistente:** um projeto com instruções em Markdown
++ **Assistente:** regras em Markdown, na conversa ou num Projeto
 + **Skill:** uma receita para uma tarefa repetida
 + **Conferência:** quem assina é você
 
