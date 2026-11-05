@@ -120,7 +120,7 @@ Compare com a resposta da pessoa do seu lado.
 ```text
 Você é um cantor sertanejo de Goiás, bem dramático.
 Me explique por que a segunda-feira existe.
-Até 4 linhas. Invente tudo, sem usar letra de música real.
+Até 4 linhas, sem letra de música real.
 ```
 
 ---
@@ -163,11 +163,9 @@ Fonte: [Anthropic, Golden Gate Claude, 2024](https://www.anthropic.com/news/gold
 
 ## Agora a brincadeira vira trabalho
 ```text
-Você é o cliente mais difícil que eu já tive:
-desconfiado, sem tempo, acha tudo caro.
-Vou vender [o que você vende ou faz].
-Me diga 3 motivos para você NÃO comprar.
-Sem elogios.
+Você é um cliente difícil, que acha tudo caro.
+Vou vender [o que você faz].
+Me dê 3 motivos para NÃO comprar. Sem elogios.
 ```
 
 > Mesmo truque do Yoda. Agora ele vale dinheiro.
@@ -186,7 +184,7 @@ Fonte: [OpenAI, Sycophancy in GPT-4o, 2025](https://openai.com/index/sycophancy-
 
 ## O problema de tudo isso
 + Abriu uma conversa nova? Ela esqueceu quem era
-+ Você teria de colar o personagem toda vez
++ Você teria de digitar o personagem toda vez
 + E se ela já começasse sabendo?
 
 ---
@@ -316,39 +314,46 @@ Resposta: Tem até as 11h. Quantas separo?
 ```text
 Quero um assistente para [seu trabalho].
 Me entreviste: uma pergunta por vez, no máximo 5.
-Depois escreva as instruções dele em Markdown,
-com Papel, Contexto, Regras e Formato.
-Até 1.500 caracteres, em um bloco para copiar.
+Depois escreva as regras dele em Markdown.
 ```
 
 ---
 
-## Cole no ChatGPT
-1. Abra o menu lateral e toque em **Novo projeto**
-2. Dê um nome ao projeto
-3. Toque em **•••** e depois em **Configurações do projeto**
-4. Cole o texto em **Instruções** e salve
+## Agora, ligue o assistente
+Quando ela mostrar as regras, digite na **mesma conversa**:
 
-> Atalho no celular: Configurações > Personalizar o ChatGPT. Vale para todas as conversas.
+```text
+A partir de agora, siga essas regras.
+```
 
----
-
-## Cole no Claude
-1. Abra **Projetos** e crie um **Novo projeto**
-2. Dê um nome ao projeto
-3. Toque em **Definir instruções do projeto**
-4. Cole o texto e salve
-
-> Não achou no app? Abra claude.ai no navegador do celular ou no computador.
+> Funciona em qualquer celular, sem procurar menu.
 
 ---
 
 ## Mão na massa: seu assistente
-1. Crie o projeto na plataforma que você escolheu
-2. Cole as instruções da entrevista
-3. Abra uma conversa **dentro do projeto** e faça um pedido real
+1. Digite o pedido da entrevista
+2. Responda às perguntas dela
+3. Digite: **A partir de agora, siga essas regras.**
+4. Faça um pedido real do seu trabalho
 
 Ele já chegou sabendo o serviço?
+
+---
+
+## Para não perder: guarde em casa
++ A conversa fica salva no histórico. Volte nela quando quiser
++ **ChatGPT, no celular:** Configurações > **Personalizar o ChatGPT**
++ Ali cabe uma regra curta, que vale para toda conversa
++ **Projeto**, com as regras completas: faça no computador
+
+---
+
+## Em casa: guarde num Projeto
+1. **ChatGPT:** chatgpt.com > **Novo projeto** > **•••** > **Configurações do projeto**
+2. **Claude:** claude.ai > **Projetos** > **Novo projeto** > **Definir instruções do projeto**
+3. Copie as regras da conversa, cole e salve
+
+> No app do celular, esses menus podem não aparecer. No computador, aparecem.
 
 ---
 
@@ -356,9 +361,9 @@ Ele já chegou sabendo o serviço?
 | Tarefa | Celular | Computador |
 |---|---|---|
 | Testar prompts | Ótimo | Ótimo |
-| Usar o assistente | Ótimo | Ótimo |
-| Escrever instruções longas | Dá, mas cansa | Melhor |
-| Enviar o ZIP de uma Skill | Depende do app | Melhor |
+| Assistente na conversa | Ótimo | Ótimo |
+| Guardar num Projeto | Nem sempre dá | Melhor |
+| Instalar uma Skill | Nem sempre dá | Melhor |
 
 ---
 
@@ -395,7 +400,7 @@ Fonte: [Anthropic, Skills](https://claude.com/blog/skills)
 ## Você precisa responder clientes toda semana
 Onde essa tarefa fica melhor?
 
-- [ ] Em um prompt colado toda vez
+- [ ] Em um prompt digitado toda vez
 - [ ] Em um GPT novo, criado na conta grátis
 - [x] Em uma Skill, usada só quando precisar
 - [ ] Em uma conversa que nunca é fechada
@@ -417,14 +422,14 @@ Vídeo gravado, com a espera cortada. Dados inventados.
 ---
 
 ## Sua vez: as Skills prontas do Claude
-1. Abra as configurações e entre em **Recursos**
-2. Ligue **Criar e editar arquivos**
-3. Agora é só pedir. Ela escolhe a Skill sozinha
+No Free, já vem ligado. É só digitar:
 
 ```text
-Crie uma planilha Excel de orçamento para uma festa
-de 50 pessoas, com total automático.
+Crie uma planilha Excel de orçamento
+de uma festa para 50 pessoas, com total.
 ```
+
+> Não criou o arquivo? Toque no seu nome > Configurações > Capacidades e ligue **Criar e editar arquivos**.
 
 ---
 
@@ -457,25 +462,22 @@ description: Transforma rascunho em mensagem de WhatsApp.
 
 ## Criar no Claude: peça a Skill
 ```text
-Crie uma Skill chamada responder-cliente.
-Ela transforma meu rascunho em mensagem de WhatsApp
-para cliente: educada, direta, até 4 linhas, sem emoji,
-terminando com o próximo passo.
-Siga o formato padrão das Skills e me entregue
-o arquivo compactado pronto para instalar.
+Crie uma Skill chamada responder-cliente:
+deixa meu rascunho educado, em até 4 linhas.
+Me entregue o arquivo ZIP para instalar.
 ```
 
 Troque a tarefa pela sua e baixe o arquivo.
 
 ---
 
-## Criar no Claude: instale e teste
-1. Abra **Personalização** e depois **Skills**
-2. Toque em **Adicionar** e envie o ZIP
+## Criar no Claude: instale em casa
+1. No computador, abra claude.ai > **Personalizar** > **Skills**
+2. Clique em **+** > **Criar skill** e envie o ZIP
 3. Confira se a Skill está ligada
 4. Numa conversa nova, mande um rascunho bagunçado
 
-> Pelo computador é mais fácil. Em casa, repita com calma.
+> No app do celular, esse menu pode não aparecer. Por isso, a instalação fica para casa.
 
 ---
 
@@ -489,22 +491,23 @@ Fonte: [OpenAI, Skills in ChatGPT](https://help.openai.com/en/articles/20001066-
 
 ---
 
-## No ChatGPT: a mesma receita, em um Projeto
+## No ChatGPT: a mesma receita, na conversa
 ```text
-Escreva as instruções de uma Skill para: [sua tarefa].
-Diga quando usar e os passos, em Markdown.
-Até 1.500 caracteres, em um bloco para copiar.
+Escreva a receita para [sua tarefa]:
+quando usar e os passos, em Markdown.
 ```
 
-Cole o resultado nas instruções de um **projeto novo**, só para essa tarefa.
+Depois digite: **Use essa receita quando eu pedir.** Em casa, guarde num **projeto novo**.
 
 ---
 
 ## Mão na massa: sua Skill
 1. Escolha uma tarefa que você repete toda semana
-2. **Claude:** peça a Skill e guarde o ZIP
-3. **ChatGPT:** crie o projeto só dessa tarefa
+2. **Claude:** peça a Skill e baixe o ZIP
+3. **ChatGPT:** peça a receita e use na mesma conversa
 4. Teste com um pedido real
+
+> Instalar o ZIP e criar o projeto ficam para casa, no computador.
 
 ---
 
