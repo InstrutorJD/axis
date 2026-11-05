@@ -26,7 +26,7 @@ Bem vago, de propósito.
 
 ---
 
-## Você tem 30 segundos
+## Você tem 10 segundos
 **Desenhe uma casa.** Aponte a câmera, desenhe com o dedo e não pense muito.
 
 [qrcode https://instrutorjd.github.io/axis/materiais/desenhe-uma-casa/ Abra no celular]

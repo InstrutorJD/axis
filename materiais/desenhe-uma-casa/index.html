@@ -38,15 +38,15 @@
 <body>
   <header>
     <h1>Desenhe uma casa</h1>
-    <div id="tempo" role="timer" aria-label="Tempo restante">30</div>
+    <div id="tempo" role="timer" aria-label="Tempo restante">10</div>
   </header>
   <canvas id="tela" aria-label="Área de desenho: use o dedo para desenhar"></canvas>
   <div id="aviso" role="status" hidden>Tempo! Agora olhe para o telão.</div>
   <footer><button type="button" id="limpar">Apagar e recomeçar</button></footer>
 <script>
   // Tela do gancho do workshop: o desenho fica só neste aparelho, nada é enviado.
-  // Os 30 segundos começam no primeiro traço e, ao terminar, o desenho trava.
-  const SEGUNDOS = 30;
+  // Os 10 segundos começam no primeiro traço e, ao terminar, o desenho trava.
+  const SEGUNDOS = 10;
   const tela = document.getElementById('tela');
   const ctx = tela.getContext('2d');
   const elTempo = document.getElementById('tempo');
