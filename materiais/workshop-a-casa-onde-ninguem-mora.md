@@ -1,12 +1,17 @@
 ---
 aula: 1
 data: 2026-11-06
-titulo: A casa onde ninguém mora
+titulo: Engenharia de Prompts na vida profissional: A arte de Perguntar à IA e usar ferramentas
 turma: Workshop
 tipo: workshop
 tela: tv
 descricao: Prompts, agentes e Skills no celular, no plano grátis (17:30 às 19:30)
 instrutor: Jairon Douglas
+---
+
+# Engenharia de Prompts na vida profissional
+A arte de perguntar à IA e usar ferramentas
+
 ---
 
 # Só um pedido
@@ -480,6 +485,79 @@ Cole o resultado nas instruções de um **projeto novo**, só para essa tarefa.
 + Ela erra com calma: confira nome, valor e data
 
 > A assinatura no final é sua, não da IA.
+
+---
+
+# A próxima fase da IA
+Você pede menos. Ela faz mais sozinha.
+
+---
+
+## O que está mudando
++ **Até hoje:** você pede, ela responde e para
++ **Agora:** ela segue trabalhando depois que você sai
++ Usa os seus apps, acompanha o que muda e avisa você
++ Três gigantes lançaram isso em menos de dois meses
+
+---
+
+## Os três nomes do momento
+| Agente | Empresa | Lançamento | Foco |
+|---|---|---|---|
+| Muse | Meta | 08/09/2026 | Vida pessoal |
+| dots | OpenAI | 29/09/2026 | Trabalho e dia a dia |
+| Duet | Anthropic | 21/10/2026 | Trabalho e pequenos negócios |
+
+Fontes: [Muse](https://techcrunch.com/2026/09/08/meta-debuts-its-muse-ai-agent-will-consumers-trust-it/), [dots](https://techcrunch.com/2026/09/29/openai-launches-dots-its-bubbly-agentic-avatar/) e [Duet](https://claude.com/resources/articles/claude-duet)
+
+---
+
+## O que cada um promete
+- **Muse:** reserva viagem, preenche formulário e faz compras
+- **dots:** persegue um objetivo em segundo plano, sem parar
+- **Duet:** acompanha seus apps, aponta o que é urgente e adianta o trabalho
+
+> É o que as empresas anunciam. Só o uso vai dizer o quanto funciona.
+
+---
+
+## Dá para usar aqui, hoje?
+| Agente | Plano | No Brasil |
+|---|---|---|
+| Muse | Tem grátis, com cartão | Sem lançamento oficial |
+| dots | Pro ou Business Premium | Confira na sua conta |
+| Duet | Pro, Max ou Ultra | Ainda não: só EUA, com fila |
+
+> Situação em novembro de 2026. O que fizemos hoje segue no Free.
+
+---
+
+## Quem fica com a chave da casa?
++ Para agir, ele pede e-mail, agenda e pagamentos
++ O Duet pede aprovação antes de enviar, pagar ou apagar
++ A própria Anthropic avisa: ele pode errar o que é urgente
++ A Meta promete isolamento, mas falta verificação independente
+
+> Lembra da lojinha? Agora imagine com o seu cartão.
+
+---
+
+## Vamos conversar
+Para qual destas tarefas você daria acesso a um agente?
+
+- Responder clientes
+- Organizar a agenda
+- Fazer compras
+- Pagar contas
+
+[cronômetro 3]
+
+---
+
+## O que você fez hoje já serve para isso
++ Agente também precisa de instruções claras
++ A Skill ensina uma tarefa que ele pode repetir
++ E continua valendo: quem confere é você
 
 ---
 
