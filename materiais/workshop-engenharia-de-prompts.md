@@ -33,7 +33,7 @@ Bem vago, de propósito.
 
 ---
 
-## Eu sei o que você desenhou
+## Ficou parecido com isso?
 
 ```grade
 0 0 0 0 0 1 0 0 0 0 0
@@ -57,23 +57,23 @@ Bem vago, de propósito.
 ---
 
 # A casa onde ninguém mora
-É assim que a IA responde quando ninguém diz quem você é
+É assim que a IA responde quando não tem todas as informações
 
 ---
 
-## O que você leva daqui, de graça
-+ Uma IA que fala do jeito que **você** mandar
-+ Um assistente configurado para o **seu** trabalho
-+ Uma **Skill**: uma tarefa que ela aprende e repete
-+ Tudo no plano **Free**. Sem pagar nada
+## Objetivos do dia
++ Fazer pedidos que dão respostas melhores
++ Montar um agente para o **seu** trabalho
++ Criar uma **Skill** para uma tarefa repetida
++ Tudo no celular, no plano **Free**
 
 ---
 
 ## A secretária que pediu privacidade
 + 1966, MIT: Joseph Weizenbaum cria o ELIZA, um dos primeiros chatbots
 + Ele só devolvia suas frases em forma de pergunta
-+ A secretária sabia que era um programa
-+ Mesmo assim, pediu que ele **saísse da sala** para conversar a sós
++ A secretária de Weizenbaum sabia que era um programa
++ Mesmo assim, pediu a **Weizenbaum** que saísse da sala para conversar a sós com o ELIZA
 
 Fonte: [Wikipedia, ELIZA](https://en.wikipedia.org/wiki/ELIZA)
 
@@ -84,13 +84,10 @@ Peguem o celular de vocês.
 
 ---
 
-## Hoje, tudo no Claude, pelo celular
-- Abra o app **Claude** e entre com a sua conta
-- Sem conta? Crie agora, é grátis
-- Travou? Faça dupla com quem está do lado
-- Usa ChatGPT? Os pedidos funcionam nele também
+## Baixe o Claude
+Aponte a câmera, instale o app oficial e entre com a sua conta. É grátis.
 
-> No celular, quase tudo se resolve no chat: é só pedir. O computador tem mais menus.
+[qrcode https://claude.com/download Página oficial do Claude]
 
 ---
 
@@ -129,7 +126,6 @@ Até 4 linhas, sem letra de música real.
 1. Escolha um personagem de cinema ou um cantor
 2. Pergunte algo do seu dia a dia
 3. Peça até 4 linhas
-
 
 ---
 
@@ -182,6 +178,14 @@ Fonte: [OpenAI, Sycophancy in GPT-4o, 2025](https://openai.com/index/sycophancy-
 
 ---
 
+## Revisão rápida: o que fizemos até aqui
+- Pergunta sem graça, resposta sem graça
+- **Personagem:** ela muda o jeito de responder
+- **Limite:** "até 4 linhas" deixa a resposta no ponto
+- **Pedido claro:** "passo a passo" e "sem elogios"
+
+---
+
 ## O problema de tudo isso
 + Abriu uma conversa nova? Ela esqueceu quem era
 + Você teria de digitar o personagem toda vez
@@ -199,7 +203,7 @@ Um funcionário que já chega sabendo o serviço
 + **No plano grátis:** você monta um assistente com instruções fixas
 + É o primeiro passo, e é o que dá para fazer hoje
 
-> Aqui, "agente" é uma conversa com regras fixas. Sem mágica.
+> Aqui, "agente" é um Projeto com instruções. Sem mágica.
 
 ---
 
@@ -223,24 +227,37 @@ Fonte: [GM Authority, 2023](https://gmauthority.com/blog/2023/12/gm-dealer-chat-
 
 ---
 
-## Até onde cada coisa vale
-| Recurso | Vale para | Exemplo |
+## Chat comum ou agente?
+| | Chat comum | Agente |
 |---|---|---|
-| Prompt | Uma conversa | Yoda |
-| Instruções gerais | Todas as conversas | "Responda curto" |
-| Projeto | Um assunto | Assistente da loja |
-| Skill | Uma tarefa, quando precisa | Responder cliente |
+| Quem ela é | Você diz toda vez | Ela já sabe |
+| Suas regras | Somem na conversa nova | Ficam guardadas |
+| Exemplo | "Corrija este e-mail" | Revisor dos seus e-mails |
 
 ---
 
-## Onde configurar, no plano Free
-| Recurso | ChatGPT | Claude |
+## Montar um agente no celular
+1. No app do Claude, abra o menu e toque em **Projetos**
+2. Crie um projeto novo e dê um nome a ele
+3. Escreva as instruções do agente no projeto
+4. Converse **dentro do projeto**: ele já chega sabendo
+
+> No Free, o Claude permite até 5 projetos.
+
+Fonte: [Claude, Projetos](https://support.claude.com/en/articles/9519177-how-can-i-create-and-manage-projects)
+
+---
+
+## No computador, tem mais
+| Recurso no Free | ChatGPT | Claude |
 |---|---|---|
 | Instruções gerais | Até 1.500 caracteres | Disponível |
 | Projetos | Sem limite | Até 5 |
 | Arquivos no projeto | Até 5 | Disponível |
 
-Fontes: ajuda do [ChatGPT](https://help.openai.com/en/articles/10169521-using-projects-in-chatgpt) e do [Claude](https://support.claude.com/en/articles/9519177-how-can-i-create-and-manage-projects)
+No celular, quase tudo funciona pelo chat: é só pedir. No computador, aparecem mais menus.
+
+Fontes: ajuda do [ChatGPT](https://help.openai.com/en/articles/10169521-projects-in-chatgpt) e do [Claude](https://support.claude.com/en/articles/9519177-how-can-i-create-and-manage-projects)
 
 ---
 
@@ -248,29 +265,27 @@ Fontes: ajuda do [ChatGPT](https://help.openai.com/en/articles/10169521-using-pr
 + Conta pessoal não cria mais GPT novo, nem paga
 + A OpenAI vai aposentar os GPTs personalizados
 + Data prevista: **11 de dezembro de 2026**
-+ Por isso hoje vamos de **regras na conversa**
++ Por isso hoje vamos de **Projeto**
 
 Fonte: [OpenAI, Creating and editing GPTs](https://help.openai.com/en/articles/8554397-creating-a-gpt)
 
 ---
 
-## Qual linguagem a IA entende melhor?
-Para escrever as instruções do seu assistente:
+## Três jeitos de escrever instruções
+- **Texto puro:** escreva como fala. "Responda curto."
+- **Markdown:** texto com marcas simples, como `#` para título e `-` para item
+- **XML:** etiquetas que abrem e fecham, como `<regras>` e `</regras>`
 
-- [ ] HTML, porque é linguagem da internet
-- [ ] JSON, porque é linguagem de programação
-- [x] Markdown: títulos e listas em texto simples
-- [ ] Só funciona em inglês
+> A IA entende os três. Muda só a organização.
 
 ---
 
-## O veredito
-| Formato | Quando usar |
+## Qual usar?
+| Jeito | Quando usar |
 |---|---|
-| Texto comum | Pedido curto, do dia a dia |
-| **Markdown** | Instruções do assistente: comece por aqui |
-| XML | Separar blocos: regras, exemplos, documentos |
-| HTML | Não precisa, a não ser para criar página |
+| Texto puro | Pedido curto, do dia a dia |
+| **Markdown** | Instruções do agente: comece por aqui |
+| XML | Separar partes: regras, exemplos, textos |
 
 Fontes: [OpenAI](https://developers.openai.com/api/docs/guides/prompt-engineering) e [Anthropic](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags)
 
@@ -279,31 +294,27 @@ Fontes: [OpenAI](https://developers.openai.com/api/docs/guides/prompt-engineerin
 ## Markdown: `#` é título, `-` é item
 ```markdown
 # Papel
-Você é assistente da Pamonharia da Zefa.
-
-# Contexto
-Ralamos o milho às 5h e acaba antes das 11h.
-Atendemos pelo WhatsApp.
+Você revisa os meus e-mails de trabalho.
 
 # Regras
-- Responda em até 4 linhas
-- Se não souber o preço, diga que vai confirmar
-- Nunca invente horário
+- Corrija o português
+- Deixe o texto claro e educado
+- Mantenha o meu jeito de escrever
+- Mostre só a versão final
 ```
 
 ---
 
 ## XML: etiquetas que abrem e fecham
 ```xml
-<regras>
-Responda em até 4 linhas.
-Nunca invente horário.
-</regras>
+<papel>
+Você me ajuda a estudar para uma prova.
+</papel>
 
-<exemplo>
-Cliente: Tem pamonha agora?
-Resposta: Tem até as 11h. Quantas separo?
-</exemplo>
+<regras>
+Explique com palavras simples.
+No fim, faça 3 perguntas para eu treinar.
+</regras>
 ```
 
 > O nome da etiqueta é você quem escolhe. Só use sempre o mesmo.
@@ -311,72 +322,64 @@ Resposta: Tem até as 11h. Quantas separo?
 ---
 
 ## Não sabe escrever? Ela escreve
+Digite numa conversa nova:
+
 ```text
-Quero um assistente para [seu trabalho].
+Quero um agente para [seu trabalho].
 Me entreviste: uma pergunta por vez, no máximo 5.
-Depois escreva as regras dele em Markdown.
+Depois escreva as instruções dele em Markdown.
 ```
 
 ---
 
-## Agora, ligue o assistente
-Quando ela mostrar as regras, digite na **mesma conversa**:
+## Leve as instruções para o projeto
+1. Quando ela terminar, toque em **Copiar**, embaixo da resposta
+2. Abra **Projetos** e crie um projeto novo
+3. Cole o texto nas instruções do projeto e salve
 
-```text
-A partir de agora, siga essas regras.
-```
-
-> Funciona em qualquer celular, sem procurar menu.
+> Não achou Projetos? Na mesma conversa, digite: **Siga essas instruções daqui em diante.**
 
 ---
 
-## Mão na massa: seu assistente
-1. Digite o pedido da entrevista
-2. Responda às perguntas dela
-3. Digite: **A partir de agora, siga essas regras.**
+## Mão na massa: seu agente
+1. Peça a entrevista e responda às perguntas
+2. Guarde as instruções num projeto novo
+3. Abra uma conversa **dentro do projeto**
 4. Faça um pedido real do seu trabalho
 
 Ele já chegou sabendo o serviço?
 
 ---
 
-## Para não perder
-+ A conversa fica no histórico do app. Volte nela quando quiser
-+ As regras continuam valendo naquela conversa
-+ No computador, um **Projeto** guarda as regras para sempre
-+ claude.ai > **Projetos** > **Novo projeto** > **Definir instruções do projeto**
-
-Fonte: [Claude, Projetos](https://support.claude.com/en/articles/9519177-how-can-i-create-and-manage-projects)
-
----
-
 ## E no ChatGPT?
-+ **Dá, no celular:** as mesmas regras, digitadas na conversa
-+ **Dá, no celular:** uma regra curta em **Personalizar o ChatGPT**
-+ **Free:** até 1.500 caracteres, valendo para todas as conversas
-+ **Projetos:** a ajuda não diz se dá para criar pelo app
+1. Abra o menu lateral e toque no **+** ao lado de **Projetos**
+2. Dê um nome ao projeto
+3. Toque em **•••** > **Configurações do projeto**
+4. Escreva as instruções e salve
 
-Fontes: [OpenAI, Instruções personalizadas](https://help.openai.com/en/articles/8096356) e [Projetos](https://help.openai.com/en/articles/10169521-projects-in-chatgpt)
-
----
-
-## Celular ou computador?
-| Tarefa | Celular | Computador |
-|---|---|---|
-| Testar prompts | Ótimo | Ótimo |
-| Assistente na conversa | Ótimo | Ótimo |
-| Guardar num Projeto | Varia por app | Funciona |
-| Instalar uma Skill | Não aparece no app | Funciona |
+Fontes: [OpenAI, Projetos](https://help.openai.com/en/articles/10169521-projects-in-chatgpt) e [guia Fone.tips, 2026](https://fone.tips/how-to-use-chatgpt-projects/)
 
 ---
 
-## Intervalo
-Café e conversa. Mostre o seu assistente para alguém que você não conhece.
+## Do agente à Skill
++ O agente sabe **quem ser**: papel e regras
++ Mas cada tarefa repetida você explica de novo
++ E se ela guardasse o **passo a passo** da tarefa?
++ Isso tem nome: **Skill**
 
 ---
 
 # Skills
 Ensine uma vez. Ela repete sempre.
+
+---
+
+## Skill, em uma frase
+**Uma receita guardada, que a IA abre sozinha quando a tarefa aparece.**
+
+- Você ensina a tarefa uma vez
+- Ela lê primeiro só o nome e a descrição
+- Abre a receita inteira **só quando precisa**
 
 ---
 
@@ -390,23 +393,14 @@ Fonte: [Anthropic, Skills](https://claude.com/blog/skills)
 
 ---
 
-## O que é uma Skill
-+ Uma pasta com um arquivo principal: `SKILL.md`
-+ Dentro dele, uma receita em Markdown
-+ A IA lê primeiro só o nome e a descrição
-+ Abre o resto **só quando a tarefa pede**
+## Agente ou Skill?
+| Agente é melhor se... | Skill é melhor se... |
+|---|---|
+| O assunto não muda | A tarefa se repete |
+| Quer um jeito fixo de falar | Quer um passo a passo fixo |
+| Ex.: ajudante de estudos | Ex.: revisar e-mails |
 
-> Projeto é a sala de trabalho. Skill é a receita guardada na gaveta.
-
----
-
-## Você precisa responder clientes toda semana
-Onde essa tarefa fica melhor?
-
-- [ ] Em um prompt digitado toda vez
-- [ ] Em um GPT novo, criado na conta grátis
-- [x] Em uma Skill, usada só quando precisar
-- [ ] Em uma conversa que nunca é fechada
+> A decisão é sua.
 
 ---
 
@@ -420,8 +414,6 @@ Arrume esta planilha de vendas:
 Liste o que mudou e o que ficou em dúvida.
 ```
 
-Vídeo gravado, com a espera cortada. Dados inventados.
-
 ---
 
 ## Sua vez: as Skills prontas do Claude
@@ -432,27 +424,27 @@ Crie uma planilha Excel de orçamento
 de uma festa para 50 pessoas, com total.
 ```
 
-> Não criou o arquivo? Toque no seu nome > Configurações > Capacidades e ligue **Criar e editar arquivos**.
+> Não criou o arquivo? No app, toque no seu nome > Configurações > Capacidades e ligue **Criar e editar arquivos**.
 
 Fonte: [Claude, Criar e editar arquivos](https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude)
 
 ---
 
-## Usar: e no ChatGPT Free?
-+ Os planos listam **Skills** e **descobrir e usar plugins** no Free
-+ Procure **Plugins** no menu lateral
-+ Um plugin pode trazer Skills dentro dele
-+ O que aparece varia por conta e por região
+## E no ChatGPT, tem Skills?
+- Tem, mas elas chegam dentro de **plugins**
+- No Free, dá para **usar** plugins prontos
+- Procure **Plugins** no menu
+- O que aparece muda de conta para conta e de país para país
 
 Fonte: [OpenAI, Plugins](https://help.openai.com/en/articles/20001256-plugins-in-chatgpt-and-codex) e [Preços](https://chatgpt.com/pricing)
 
 ---
 
-## Por dentro de um SKILL.md
+## Por dentro de uma Skill
 ```markdown
 ---
 name: responder-cliente
-description: Transforma rascunho em mensagem de WhatsApp.
+description: Deixa meu rascunho educado para o cliente.
 ---
 
 # Responder cliente
@@ -461,7 +453,7 @@ description: Transforma rascunho em mensagem de WhatsApp.
 - Termine com o próximo passo
 ```
 
-> A **descrição** decide quando a Skill entra em ação. Capriche nela.
+> Só o topo fica em inglês: `name` é o nome e `description` é a descrição. O resto pode ser em português.
 
 ---
 
@@ -469,10 +461,11 @@ description: Transforma rascunho em mensagem de WhatsApp.
 ```text
 Crie uma Skill chamada responder-cliente:
 deixa meu rascunho educado, em até 4 linhas.
-Me entregue o arquivo ZIP para instalar.
 ```
 
-Troque a tarefa pela sua. Ela entrega o arquivo ali mesmo.
+Quando o arquivo aparecer, toque em **Salvar skill**. Troque a tarefa pela sua.
+
+Fonte: [Claude Academy, Working with skills](https://academy.claude.com/courses/claude-101/working-with-skills)
 
 ---
 
@@ -482,26 +475,15 @@ Use essa Skill neste rascunho:
 oi o pedido atrasa 2 dia
 ```
 
-> Funciona agora, no chat. Para ela valer em toda conversa, falta instalar.
-
----
-
-## Instalar: só no computador
-1. Abra claude.ai > **Personalização** > **Skills**
-2. Clique em **Adicionar** e envie o ZIP
-3. Confira se a Skill está ligada
-
-> No app do celular, o menu de Skills não aparece. Baixe o ZIP hoje e instale em casa.
-
-Fonte: [Claude, Usar Skills](https://support.claude.com/en/articles/12512180-use-skills-in-claude)
+> Salvou a Skill? Ela passa a valer nas outras conversas também.
 
 ---
 
 ## Criar no ChatGPT Free: o caminho possível
-+ A OpenAI diz que Skills pessoais são para planos empresariais
-+ Criar plugins também não aparece no plano Free
-+ **Dá, no celular:** pedir a receita e usar na mesma conversa
-+ Não é Skill oficial, mas faz o trabalho
+- A OpenAI diz que Skills pessoais são para planos empresariais
+- Criar plugins também não aparece no plano Free
+- **Dá, no celular:** pedir a receita e usar na mesma conversa
+- Não é Skill oficial, mas faz o trabalho
 
 Fonte: [OpenAI, Skills in ChatGPT](https://help.openai.com/en/articles/20001066-skills-in-chatgpt)
 
@@ -511,29 +493,27 @@ Fonte: [OpenAI, Skills in ChatGPT](https://help.openai.com/en/articles/20001066-
 1. Escolha uma tarefa que você repete toda semana
 2. Peça ao Claude a Skill dessa tarefa
 3. Na mesma conversa, teste com um pedido real
-4. Baixe o ZIP. Em casa, instale no computador
+4. **Opcional:** toque em **Salvar skill** para usar em outras conversas
 
 ---
 
 ## O grátis tem limite, mas não é fraco
 | O Free limita | O Free já faz |
 |---|---|
-| Arquivos, imagens e voz | Escrever, resumir e revisar textos |
+| Arquivos, imagens e voz | Escrever e revisar textos |
 | Uso: às vezes é preciso esperar | Ensaiar conversas difíceis |
-| Até 5 projetos no Claude | Assistente para o seu trabalho |
-| Skill própria só no Claude | Receita repetida nas duas plataformas |
-
-> Limite não é fraqueza: para o dia a dia, o Free já resolve muito.
+| Até 5 projetos no Claude | Agente para o seu trabalho |
+| Skill própria só no Claude | Receita nas duas plataformas |
 
 ---
 
-## Antes de sair instalando
-+ Skill pode trazer instruções e até código
-+ Só instale de quem você confia. Leia antes
-+ Nunca coloque senha, CPF ou dados de clientes
-+ Ela erra com calma: confira nome, valor e data
+## Skills prontas: cuidado antes de usar
+- Há Skills prontas em sites, como o repositório da Anthropic
+- Elas podem trazer instruções escondidas e até código
+- Só use de quem você confia, e leia antes
+- Nunca coloque senha, CPF ou dados de clientes
 
-> A assinatura no final é sua, não da IA.
+Fontes: [Claude, Usar Skills](https://support.claude.com/en/articles/12512180-use-skills-in-claude) e [Anthropic Skills](https://github.com/anthropics/skills)
 
 ---
 
@@ -547,6 +527,39 @@ Fonte: [Mata v. Avianca, 2023](https://en.wikipedia.org/wiki/Mata_v._Avianca,_In
 
 ---
 
+## Isso tem nome: alucinação
++ É quando a IA inventa uma informação
++ Ela inventa com a mesma confiança com que acerta
++ Acontece mais quando falta informação no pedido
++ Lembra da casa? Sem dados, ela preenche sozinha
+
+Fonte: [Anthropic, Reduce hallucinations](https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations)
+
+---
+
+## Como diminuir a alucinação
+- Escreva: **"Se não souber, diga que não sabe"**
+- Peça a fonte de cada informação
+- Dê o texto e peça: **"use só o que está aqui"**
+- Pergunte de novo e compare as respostas
+
+> Nada zera o erro. Confira o que for importante.
+
+Fonte: [Anthropic, Reduce hallucinations](https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations)
+
+---
+
+## Faça o plano grátis durar mais
+- Cada mensagem gasta **tokens**: pedaços de texto que a IA lê e escreve
+- Junte as perguntas parecidas numa mensagem só
+- Explique o contexto logo na primeira mensagem
+- Releia antes de enviar: evita correções depois
+- Conversa longa gasta mais. Assunto novo, conversa nova
+
+Fonte: [Claude, Usage limit best practices](https://support.claude.com/en/articles/9797557-usage-limit-best-practices)
+
+---
+
 # A próxima fase da IA
 Você pede menos. Ela faz mais sozinha.
 
@@ -554,9 +567,9 @@ Você pede menos. Ela faz mais sozinha.
 
 ## O que está mudando
 + **Até hoje:** você pede, ela responde e para
-+ **Agora:** ela segue trabalhando depois que você sai
++ **Agora, lá fora:** ela segue trabalhando depois que você sai
 + Usa os seus apps, acompanha o que muda e avisa você
-+ Três gigantes lançaram isso em menos de dois meses
++ No Brasil, quase nada disso foi liberado ainda
 
 ---
 
@@ -591,13 +604,13 @@ Fontes: [Muse](https://techcrunch.com/2026/09/08/meta-debuts-its-muse-ai-agent-w
 
 ---
 
-## Quem fica com a chave da casa?
-+ Para agir, ele pede e-mail, agenda e pagamentos
-+ O Duet pede aprovação antes de enviar, pagar ou apagar
-+ A própria Anthropic avisa: ele pode errar o que é urgente
-+ A Meta promete isolamento, mas falta verificação independente
+## Aconteceu nas últimas semanas
++ **Muse:** a Amazon bloqueou o agente: acesso sem autorização
++ **Muse:** desde 05/11, conversa por voz e vídeo, nos EUA
++ **Duet:** convites aos poucos, primeiro no plano Max
++ **dots:** chega aos poucos, só em planos pagos
 
-> Lembra da lojinha? Agora imagine com o seu cartão.
+Fontes: [Dataconomy](https://dataconomy.com/2026/11/06/amazon-blocks-metas-muse-as-ai-shopping-agents-challenge), [TechCrunch](https://techcrunch.com/2026/11/05/meta-says-us-users-can-now-video-chat-with-their-muse-ai-avatar), [Nerdschalk](https://nerdschalk.com/claude-duet-waitlist-us-max-pro-invites/) e [TechCrunch](https://techcrunch.com/2026/09/29/openai-launches-dots-its-bubbly-agentic-avatar/)
 
 ---
 
@@ -620,11 +633,15 @@ Para qual destas tarefas você daria acesso a um agente?
 
 ## O que você leva para casa
 + **Prompt:** personagem, tarefa e limite
-+ **Assistente:** regras em Markdown, na conversa ou num Projeto
++ **Agente:** um projeto com instruções em Markdown
 + **Skill:** uma receita para uma tarefa repetida
 + **Conferência:** quem assina é você
 
 ---
 
 # Agora a casa tem dono
+"A tecnologia não é boa nem má; e também não é neutra."
+
+Melvin Kranzberg, historiador da tecnologia
+
 Obrigado pela presença!
