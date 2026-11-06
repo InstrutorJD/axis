@@ -232,7 +232,7 @@
     if (chave === proximoDesenhado) return; // o "ola" de 4 em 4s não pisca a miniatura
     proximoDesenhado = chave;
     $('ctProxFrame').srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-<link rel="stylesheet" href="${CSS_SLIDES}"><link rel="stylesheet" href="${CSS_CODIGO(tema)}">
+<link rel='stylesheet' href='${CSS_SLIDES}'><link rel='stylesheet' href='${CSS_CODIGO(tema)}'>
 <style>html,body{margin:0;overflow:hidden}.sm-presenter{position:absolute;width:1280px;height:720px}
 .sm-stage{left:0;top:0;width:1280px;height:720px;--sm-h:720px}</style></head>
 <body><div class="sm-presenter${estado.tv ? ' sm-tv' : ''}" data-theme="${tema}"><div class="sm-bg"><span></span><span></span><span></span></div>
