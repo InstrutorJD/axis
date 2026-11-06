@@ -455,7 +455,8 @@ window.SlidesMD = (function () {
     // celular. Os dois se falam por um canal de broadcast do Supabase
     // Realtime (sem tabela, nada fica gravado): o celular manda 'cmd'
     // (next/prev/revelar/ola, timer-play/timer-reset) e a apresentação
-    // responde com 'estado' (slide atual + cronômetro do slide, se houver). O nome do canal leva um código aleatório de 8
+    // responde com 'estado' (slide atual, cronômetro do slide, se houver, e
+    // a miniatura do próximo slide — ver htmlProximo). O nome do canal leva um código aleatório de 8
     // caracteres (sem 0/O/1/I, pra dar pra digitar no celular se a câmera
     // não ler o QR). O código fica no sessionStorage, então recarregar a
     // página mantém o celular pareado; o canal continua aberto ao sair da
@@ -514,12 +515,31 @@ window.SlidesMD = (function () {
         const rest = tbox._rest === undefined ? seg : Math.max(0, tbox._rest);
         timer = { seg, rest, rodando: !!tbox._t, fim: tbox.classList.contains('sm-fim') };
       }
+      // Miniatura do próximo slide (proximo: HTML pronto, com as etapas
+      // abertas; null no último) e quantas etapas ainda faltam neste slide
+      // antes de o "Próximo" trocar de slide de fato.
+      const faltam = aberta && atual
+        ? atual.querySelectorAll('.sm-step:not(.sm-on)').length + (atual.querySelector('.sm-quiz:not(.sm-revealed)') ? 1 : 0)
+        : 0;
       canal.send({
         type: 'broadcast', event: 'estado',
         payload: aberta
-          ? { aberta, i: idx, total: deck.slides.length, titulo: h ? h.textContent.trim() : '', aula: deck.titulo || '', timer }
+          ? { aberta, i: idx, total: deck.slides.length, titulo: h ? h.textContent.trim() : '', aula: deck.titulo || '', timer,
+              proximo: htmlProximo(), faltam, tema: root.dataset.theme === 'light' ? 'light' : 'dark', tv: root.classList.contains('sm-tv') }
           : { aberta },
       }).catch(() => {});
+    }
+    // O HTML do próximo slide é montado uma vez por slide (o estado é
+    // reenviado a cada 4s pelo "ola" do celular).
+    let proximoCache = { deck: null, i: -1, html: null };
+    function htmlProximo() {
+      if (idx + 1 >= deck.slides.length) return null;
+      if (proximoCache.deck === deck && proximoCache.i === idx) return proximoCache.html;
+      const el = montarSlide(idx + 1);
+      el.classList.add('sm-estatico');
+      el.querySelectorAll('.sm-step').forEach(p => p.classList.add('sm-on'));
+      proximoCache = { deck, i: idx, html: el.outerHTML };
+      return proximoCache.html;
     }
     function celularConectou() {
       if (painelRemoto.hidden) return;
@@ -584,14 +604,14 @@ window.SlidesMD = (function () {
     // "próximo") conduz a aula inteira.
     function next() {
       const passo = atual && atual.querySelector('.sm-step:not(.sm-on)');
-      if (passo) { passo.classList.add('sm-on'); return; }
+      if (passo) { passo.classList.add('sm-on'); enviarEstado(); return; }
       const quiz = atual && atual.querySelector('.sm-quiz:not(.sm-revealed)');
-      if (quiz) { revelarQuiz(quiz); return; }
+      if (quiz) { revelarQuiz(quiz); enviarEstado(); return; }
       ir(idx + 1, 1);
     }
     function prev() {
       const passos = atual ? atual.querySelectorAll('.sm-step.sm-on') : [];
-      if (passos.length) { passos[passos.length - 1].classList.remove('sm-on'); return; }
+      if (passos.length) { passos[passos.length - 1].classList.remove('sm-on'); enviarEstado(); return; }
       ir(idx - 1, -1);
     }
 
@@ -788,6 +808,7 @@ window.SlidesMD = (function () {
       root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light';
       try { localStorage.setItem('sm_tema', root.dataset.theme); } catch (e) {}
       document.dispatchEvent(new CustomEvent('sm-tema', { detail: root.dataset.theme }));
+      enviarEstado(); // a miniatura do celular troca de tema junto
     }
 
     function telaCheia() {

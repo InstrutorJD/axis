@@ -13,7 +13,8 @@
      da URL (ou é digitado aqui, se a câmera não ler o QR); os dois lados se falam por um canal de broadcast do Supabase
      Realtime ('slides_remoto_<sala>'), sem tabela: daqui sai 'cmd'
      (next/prev/revelar/ola, e timer-play/timer-reset pro cronômetro do
-     slide), de lá vem 'estado' (slide atual e o cronômetro, se houver). -->
+     slide), de lá vem 'estado' (slide atual, o cronômetro, se houver, e a
+     miniatura do próximo slide — ver mostrarProximo). -->
 <style>
   :root{
     --bg:#0b0f17; --bg2:#121a28; --ink:#eef2f8; --dim:#9aa6ba; --line:rgba(255,255,255,0.12);
@@ -40,6 +41,13 @@
   .ct-num{ font-family:'JetBrains Mono', Consolas, monospace; font-size:15px; font-weight:700; color:var(--accent); }
   .ct-barra{ height:5px; border-radius:3px; background:var(--line); margin-top:10px; overflow:hidden; }
   .ct-barra div{ height:100%; width:0; background:linear-gradient(90deg, var(--accent), var(--accent2)); transition:width .3s; }
+
+  /* Miniatura do próximo slide (só nas apresentações; as atividades não mandam). */
+  .ct-prox-rotulo{ display:flex; justify-content:space-between; gap:8px; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--dim); margin-bottom:6px; }
+  .ct-prox-rotulo #ctFaltam{ color:var(--accent2); text-transform:none; letter-spacing:0; }
+  .ct-prox-tela{ position:relative; width:100%; aspect-ratio:16 / 9; border-radius:14px; overflow:hidden; border:1px solid var(--line); background:var(--bg2); }
+  .ct-prox-tela iframe{ position:absolute; left:0; top:0; width:1280px; height:720px; border:0; transform-origin:0 0; pointer-events:none; }
+  .ct-prox-fim{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:var(--dim); }
 
   .ct-botoes{ flex:1; display:flex; flex-direction:column; gap:12px; min-height:0; }
   .ct-botoes button{
@@ -98,6 +106,14 @@
     <div class="ct-titulo" id="ctTitulo"></div>
     <div class="ct-num" id="ctNum"></div>
     <div class="ct-barra"><div id="ctBarra"></div></div>
+  </div>
+  <div class="ct-prox" id="ctProx" hidden>
+    <div class="ct-prox-rotulo"><span>Próximo slide</span><span id="ctFaltam"></span></div>
+    <div class="ct-prox-tela" id="ctProxTela">
+      <!-- sandbox sem allow-scripts: o HTML vem pelo canal, e quem sabe o código da sala também consegue mandar mensagens nele. -->
+      <iframe id="ctProxFrame" sandbox title="Miniatura do próximo slide" tabindex="-1" aria-hidden="true"></iframe>
+      <div class="ct-prox-fim" id="ctProxFim" hidden>Este é o último slide</div>
+    </div>
   </div>
   <div class="ct-timer" id="ctTimer" hidden>
     <span class="ct-timer-tempo" id="ctTimerTempo">00:00</span>
@@ -174,6 +190,7 @@
       $('ctBarra').style.width = '0';
       botoes.forEach(b => { b.disabled = true; });
       mostrarTimer(null);
+      mostrarProximo(undefined);
       return;
     }
     // Atividades do portal (shared/passador-remoto.js) mandam tipo
@@ -186,7 +203,43 @@
     $('ctBarra').style.width = `${((estado.i + 1) / estado.total) * 100}%`;
     botoes.forEach(b => { b.disabled = false; });
     mostrarTimer(estado.timer);
+    mostrarProximo(estado);
   }
+
+  // Miniatura do próximo slide: a apresentação manda o HTML pronto
+  // (estado.proximo; null no último slide, ausente nas atividades). Vai
+  // num iframe com sandbox (sem scripts), com o CSS dos slides, no
+  // tamanho do palco (1280×720), encolhido para a largura da caixa.
+  const CSS_SLIDES = new URL('../shared/slides-md.css', location.href).href;
+  const CSS_CODIGO = tema => `https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.9.0/styles/${tema === 'light' ? 'github' : 'github-dark'}.min.css`;
+  let proximoDesenhado = null;
+  function encaixarProximo() {
+    const largura = $('ctProxTela').clientWidth;
+    if (largura) $('ctProxFrame').style.transform = `scale(${largura / 1280})`;
+  }
+  function mostrarProximo(estado) {
+    const caixa = $('ctProx');
+    if (!estado || estado.proximo === undefined) { caixa.hidden = true; return; }
+    caixa.hidden = false;
+    const n = Math.max(0, parseInt(estado.faltam, 10) || 0);
+    $('ctFaltam').textContent = n ? `antes, mais ${n} ${n === 1 ? 'etapa' : 'etapas'} aqui` : '';
+    const fim = estado.proximo === null;
+    $('ctProxFim').hidden = !fim;
+    $('ctProxFrame').hidden = fim;
+    if (fim) return;
+    const tema = estado.tema === 'light' ? 'light' : 'dark';
+    const chave = `${tema}|${estado.tv ? 1 : 0}|${estado.proximo}`;
+    if (chave === proximoDesenhado) return; // o "ola" de 4 em 4s não pisca a miniatura
+    proximoDesenhado = chave;
+    $('ctProxFrame').srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="${CSS_SLIDES}"><link rel="stylesheet" href="${CSS_CODIGO(tema)}">
+<style>html,body{margin:0;overflow:hidden}.sm-presenter{position:absolute;width:1280px;height:720px}
+.sm-stage{left:0;top:0;width:1280px;height:720px;--sm-h:720px}</style></head>
+<body><div class="sm-presenter${estado.tv ? ' sm-tv' : ''}" data-theme="${tema}"><div class="sm-bg"><span></span><span></span><span></span></div>
+<div class="sm-stage-wrap"><div class="sm-stage">${String(estado.proximo)}</div></div></div></body></html>`;
+    encaixarProximo();
+  }
+  addEventListener('resize', encaixarProximo);
 
   // Cronômetro do slide: a apresentação manda o estado a cada play/pausa/
   // zerar/fim (e a cada "ola", de 4 em 4s); entre um e outro o celular
