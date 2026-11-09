@@ -160,6 +160,13 @@ test.describe('turmas/sistemas/plataforma.html — trilha SQL desbloqueia jogos'
       localStorage.setItem(`mundo_inovacao_pratica_progress_${user}`, JSON.stringify([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
       localStorage.setItem(`mundo_equipe_teoria_progress_${user}`, JSON.stringify({ completed: true }));
       localStorage.setItem(`mundo_equipe_pratica_progress_${user}`, JSON.stringify([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+      // Aulão do DS (mundo-aulao-ds): ids das etapas de cada bloco (progressTotal 7, 6, 5, 5, 5, 5).
+      localStorage.setItem(`aulao_ds_bloco1_progress_${user}`, JSON.stringify(['copiar', 'grade-equipe', 'caso-cracha', 'caso-vaga', 'copiar-2', 'caso-se-funcionou', 'caso-se-falhou']));
+      localStorage.setItem(`aulao_ds_bloco2_progress_${user}`, JSON.stringify(['copiar', 'grade-contratos', 'caso-estagio', 'copiar-2', 'caso-conselho', 'caso-engenheiro']));
+      localStorage.setItem(`aulao_ds_bloco3_progress_${user}`, JSON.stringify(['copiar', 'grade-tarefas', 'copiar-2', 'caso-dados', 'caso-prazo']));
+      localStorage.setItem(`aulao_ds_bloco4_progress_${user}`, JSON.stringify(['copiar', 'caso-davi', 'copiar-2', 'caso-revisao', 'caso-menu']));
+      localStorage.setItem(`aulao_ds_bloco5_progress_${user}`, JSON.stringify(['copiar', 'grade-trechos', 'caso-introducao', 'copiar-2', 'caso-dado-novo']));
+      localStorage.setItem(`aulao_ds_bloco6_progress_${user}`, JSON.stringify(['copiar', 'grade-materiais', 'copiar-2', 'caso-citacao', 'caso-ordem']));
       localStorage.setItem(`prog_depuracao_teoria_progress_${user}`, JSON.stringify({ completed: true }));
       localStorage.setItem(`prog_depuracao_pratica_progress_${user}`, JSON.stringify([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]));
       localStorage.setItem(`prog_projetos_pixelcode_progress_${user}`, JSON.stringify([1, 2, 3, 4]));
