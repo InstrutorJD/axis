@@ -994,11 +994,13 @@ window.TURMA_CONFIG_SISTEMAS = {
           // pedido do professor. Sem teoria em slides, de propósito: cada
           // bloco tem dois textos curtos para copiar no caderno (etapa
           // 'copiar' de shared/enigma-logica.js) e segue com atividades
-          // corrigidas no portal: um texto no começo e outro no meio. Estimativa:
-          // ~15 min por bloco (12 textos × ~3 min de cópia), ~1h30 no total.
+          // corrigidas no portal: um texto no começo e outro no meio. Cada
+          // atividade também é copiada no caderno, com a resposta
+          // (copiarAtividades: true na página). Estimativa:
+          // ~25 min por bloco (12 textos e 17 atividades copiados), ~2h30 no total.
           key: 'mundo-aulao-ds',
           label: 'Aulão: Trabalho, Equipe e Projeto',
-          desc: 'Seis blocos curtos: em cada um, copie dois textos no caderno e resolva as atividades sobre profissões da TI, contratação, equipe, conflitos e o documento do projeto.',
+          desc: 'Seis blocos curtos: em cada um, copie no caderno dois textos e cada atividade, com a sua resposta, sobre profissões da TI, contratação, equipe, conflitos e o documento do projeto.',
           capacidade: 'Identificar as características das profissões / Reconhecer as características do trabalho em equipe de forma colaborativa, considerando o respeito às diferenças individuais / Reconhecer os padrões de estrutura estabelecidos para a elaboração de projetos',
           modules: [
             {

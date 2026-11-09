@@ -11,6 +11,10 @@
 //    feito quando ele clica em "Já copiei" (usado no Aulão do DS).
 //  - tipo 'visto': só abre com as outras etapas prontas e pede o token do professor.
 //
+// Opção `copiarAtividades: true` (em DADOS): cada 'grade' e 'caso' mostra o
+// quadro "✍️ No caderno" e só deixa conferir/enviar depois que o aluno marca
+// "Já copiei no caderno" (fica lembrado no navegador). Usado no Aulão do DS.
+//
 // Progresso: lista de ids das etapas resolvidas (progressTotal no config.js).
 (function () {
   function iniciar(DADOS) {
@@ -75,6 +79,31 @@
       window.AulaBase.decorar(stepWrap, {});
       window.AulaBase.transicao(stepWrap.querySelector('.ab-cartao'), direcao);
     }
+    // ---- Copiar a atividade no caderno (opção copiarAtividades) ----
+    function chaveCaderno(id) { return `${LOC}_caderno_${user}_${id}`; }
+    function quadroCaderno(etapa, texto, resolvido) {
+      if (!DADOS.copiarAtividades || resolvido) return '';
+      const marcado = lerJson(chaveCaderno(etapa.id), false) === true;
+      return `
+        <div class="en-caderno">
+          <div><b>✍️ No caderno:</b> ${texto}</div>
+          <label class="en-caderno-check"><input type="checkbox" id="chkCaderno" ${marcado ? 'checked' : ''}> Já copiei no caderno</label>
+        </div>`;
+    }
+    function ligarCaderno(etapa) {
+      const chk = document.getElementById('chkCaderno');
+      if (chk) chk.addEventListener('change', () => gravar(chaveCaderno(etapa.id), chk.checked));
+    }
+    // true = pode seguir; false = mostrou o aviso em `msg`.
+    function cadernoOk(msg) {
+      const chk = document.getElementById('chkCaderno');
+      if (!chk || chk.checked) return true;
+      msg.style.display = 'block';
+      msg.className = 'ab-msg erro';
+      msg.textContent = 'Primeiro copie a atividade no caderno, com a sua resposta, e marque "Já copiei no caderno".';
+      return false;
+    }
+
     function placar() {
       const feitos = lerResolvidos();
       return `<div class="en-placar">${ETAPAS.map((e, i) => {
@@ -146,6 +175,7 @@
           <div class="ab-cartao-etapa">Etapa ${atual + 1} de ${TOTAL} · Enigma</div>
           <h2>${etapa.titulo}</h2>
           <div class="ab-conteudo">${etapa.intro}</div>
+          ${quadroCaderno(etapa, 'copie as pistas, desenhe a tabela e resolva. Depois marque a sua resposta aqui.', resolvido)}
           <div class="en-enigma">
             <div class="en-pistas">
               <div class="en-grupo">Pistas</div>
@@ -174,6 +204,7 @@
         ${nav(true, true)}`;
       ligarNav();
       if (resolvido) return;
+      ligarCaderno(etapa);
 
       const msg = document.getElementById('enMsg');
       stepWrap.querySelectorAll('.en-celula').forEach(btn => {
@@ -195,6 +226,7 @@
         renderGrade(etapa);
       });
       document.getElementById('btnConferir').addEventListener('click', () => {
+        if (!cadernoOk(msg)) return;
         msg.style.display = 'block';
         const porLinha = estado.map(linha => linha.filter(v => v === 2).length);
         const porColuna = etapa.colunas.map((_, ci) => estado.filter(linha => linha[ci] === 2).length);
@@ -230,6 +262,9 @@
           <div class="ab-cartao-etapa">Etapa ${atual + 1} de ${TOTAL} · Caso</div>
           <h2>${caso.titulo}</h2>
           <div class="ab-conteudo"><div class="en-caso"><div class="en-avatar">${caso.icone || ''}</div><div>${caso.cenario}</div></div></div>
+          ${quadroCaderno(caso, caso.motivos
+            ? 'copie a situação, as duas perguntas e as alternativas. Escreva a sua resposta e o porquê.'
+            : 'copie a situação, a pergunta e as alternativas. Escreva a sua resposta.', resolvido)}
           <div class="en-grupo">${caso.motivos ? '1. ' : ''}${caso.pergunta1}</div>
           <div class="en-opcoes">
             ${caso.opcoes.map((o, i) => `<label class="en-op"><input type="radio" name="g1" value="${i}" ${resolvido && o.ok ? 'checked' : ''}>${o.t}</label>`).join('')}
@@ -247,9 +282,11 @@
         ${nav(true, true)}`;
       ligarNav();
       if (resolvido) return;
+      ligarCaderno(caso);
       const btn = document.getElementById('btnVerificar');
       const msg = document.getElementById('enMsg');
       btn.addEventListener('click', () => {
+        if (!cadernoOk(msg)) return;
         const r1 = (stepWrap.querySelector('input[name="g1"]:checked') || {}).value;
         const r2 = (stepWrap.querySelector('input[name="g2"]:checked') || {}).value;
         msg.style.display = 'block';

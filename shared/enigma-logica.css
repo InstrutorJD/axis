@@ -32,3 +32,6 @@
 .en-copiar h3{ margin:0 0 8px; font-size:15px; letter-spacing:.5px; text-transform:uppercase; color:var(--ab-acento); }
 .en-copiar ul, .en-copiar ol{ margin:0; padding-left:22px; }
 .en-copiar p{ margin:8px 0 0; }
+.en-caderno{ display:flex; flex-direction:column; gap:10px; margin-top:16px; padding:12px 16px; border:2px dashed var(--yellow); border-radius:12px; background:color-mix(in srgb, var(--yellow) 8%, transparent); line-height:1.5; }
+.en-caderno-check{ display:flex; align-items:center; gap:10px; font-weight:700; cursor:pointer; }
+.en-caderno-check input{ width:20px; height:20px; accent-color:var(--yellow); margin:0; }
