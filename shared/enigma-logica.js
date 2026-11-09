@@ -7,6 +7,8 @@
 //    desrespeitada é apontada, sem revelar a resposta.
 //  - tipo 'caso': uma resposta e, se houver `motivos`, também o motivo.
 //  - tipo 'escrita': o aluno preenche os campos, e o texto fica salvo no navegador.
+//  - tipo 'copiar': um texto curto para o aluno copiar no caderno; conta como
+//    feito quando ele clica em "Já copiei" (usado no Aulão do DS).
 //  - tipo 'visto': só abre com as outras etapas prontas e pede o token do professor.
 //
 // Progresso: lista de ids das etapas resolvidas (progressTotal no config.js).
@@ -91,6 +93,7 @@
       if (etapa.tipo === 'grade') renderGrade(etapa);
       else if (etapa.tipo === 'escrita') renderEscrita(etapa);
       else if (etapa.tipo === 'visto') renderVisto(etapa);
+      else if (etapa.tipo === 'copiar') renderCopiar(etapa);
       else renderCaso(etapa);
     }
 
@@ -274,6 +277,33 @@
       });
     }
 
+    // ---- Texto para copiar no caderno ----
+    function renderCopiar(etapa) {
+      const feito = lerResolvidos().includes(etapa.id);
+      reportar(`${DADOS.nome} — ${etapa.titulo}`);
+      stepWrap.innerHTML = `
+        <article class="ab-cartao">
+          <div class="ab-cartao-etapa">Etapa ${atual + 1} de ${TOTAL} · Copie no caderno</div>
+          <h2>${etapa.titulo}</h2>
+          <div class="ab-conteudo"><p>📝 Copie o texto abaixo no seu caderno. Ele é a base das atividades seguintes.</p></div>
+          <div class="ab-conteudo en-copiar">${etapa.texto}</div>
+          <div class="en-acoes">
+            <button class="btn" id="btnCopiei" ${feito ? 'disabled' : ''}>${feito ? '✔ Copiado' : 'Já copiei no caderno'}</button>
+          </div>
+          ${placar()}
+        </article>
+        ${nav(true, true)}`;
+      ligarNav();
+      if (feito) return;
+      const btn = document.getElementById('btnCopiei');
+      btn.addEventListener('click', () => {
+        marcarResolvido(etapa.id);
+        reportar(`${DADOS.nome} — ${etapa.titulo} (copiado)`);
+        btn.disabled = true;
+        btn.textContent = '✔ Copiado';
+      });
+    }
+
     // ---- Escrita livre: o professor confere o texto na tela, na hora do visto ----
     function renderEscrita(etapa) {
       const chave = `${LOC}_escrita_${user}_${etapa.id}`;
@@ -362,7 +392,7 @@
       return window.PortalGabarito.generate({
         title: DADOS.nome,
         subtitle: DADOS.subtitulo,
-        items: ETAPAS.filter(e => e.tipo !== 'visto').map((e, i) => (e.tipo === 'escrita'
+        items: ETAPAS.filter(e => e.tipo !== 'visto' && e.tipo !== 'copiar').map((e, i) => (e.tipo === 'escrita'
           ? { number: i + 1, title: e.titulo, prompt: limpar(e.intro), answer: e.gabarito }
           : e.tipo === 'grade'
           ? {

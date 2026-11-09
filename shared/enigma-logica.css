@@ -28,3 +28,7 @@
 .en-placar{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
 .en-placar span{ font-family:var(--ab-mono); font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--ink-dim); }
 .en-placar span.ok{ border-color:var(--ok); color:var(--ok); }
+.en-copiar{ margin-top:10px; padding:16px 20px; border:2px dashed var(--green-dim); border-radius:14px; background:var(--panel2); font-size:16px; line-height:1.6; }
+.en-copiar h3{ margin:0 0 8px; font-size:15px; letter-spacing:.5px; text-transform:uppercase; color:var(--ab-acento); }
+.en-copiar ul, .en-copiar ol{ margin:0; padding-left:22px; }
+.en-copiar p{ margin:8px 0 0; }

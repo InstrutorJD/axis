@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aulão DS — Bloco 2: Como cada um é contratado</title>
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<link rel="stylesheet" href="../../../shared/enigma-logica.css">
+<script>
+  window.ACTIVITY_LOCATION = 'aulao_ds_bloco2';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="../../../shared/vendor/supabase.js"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+<script src="../../../shared/enigma-logica.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Aulão DS — Bloco 2: Como cada um é contratado</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">8</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  const APR = 'Aprendiz', EST = 'Estágio', CLT = 'CLT', PJ = 'PJ';
+
+  EnigmaLogica.iniciar({
+    activityLocation: 'aulao_ds_bloco2',
+    nome: 'Bloco 2: Como cada um é contratado',
+    subtitulo: 'Aulão DS · Mundo do Trabalho · Turma Sistemas',
+    abertura: {
+      titulo: 'Contratos misturados',
+      html: `
+        <p>O RH da Pequi Sistemas perdeu a planilha dos contratos. Cada pessoa da equipe foi contratada de um jeito diferente.</p>
+        <table><tr><th>Pessoa</th><th>Trabalho</th></tr>
+          <tr><td>Ana</td><td>Back-end</td></tr>
+          <tr><td>Bruno</td><td>Testes (QA)</td></tr>
+          <tr><td>Carla</td><td>Requisitos</td></tr>
+          <tr><td>Davi</td><td>Front-end</td></tr></table>
+        <blockquote>Você vai copiar dois textos no caderno: um no começo e outro no meio do bloco. Entre eles, resolva as atividades.</blockquote>`,
+    },
+    fechamento: {
+      titulo: '✅ Bloco 2 concluído!',
+      html: `
+        <p>A planilha do RH está de volta. Você reconheceu cada contratação pelas suas características.</p>
+        <p>No <b>Bloco 3</b>, a equipe precisa se organizar para a entrega.</p>`,
+    },
+    etapas: [
+      {
+        id: 'copiar', tipo: 'copiar', icone: '📝',
+        titulo: 'Formas de contratação',
+        texto: `
+          <h3>Formas de contratação</h3>
+          <ul>
+            <li><b>Aprendiz:</b> carteira assinada e curso de aprendizagem ao mesmo tempo.</li>
+            <li><b>Estágio:</b> a pessoa estuda e tem um supervisor na empresa. Não tem carteira assinada.</li>
+            <li><b>CLT:</b> carteira assinada, férias e 13º salário.</li>
+            <li><b>PJ:</b> a pessoa tem empresa própria e emite nota fiscal.</li>
+          </ul>`,
+      },
+      {
+        id: 'grade-contratos', tipo: 'grade', icone: '📄',
+        titulo: 'Enigma: qual é o contrato de cada um?',
+        intro: '<p>Cada pessoa tem <b>uma</b> forma de contratação diferente.</p>',
+        rotuloLinha: 'Pessoa',
+        linhas: ['Ana', 'Bruno', 'Carla', 'Davi'],
+        colunas: [APR, EST, CLT, PJ],
+        pistas: [
+          { t: 'Carla tem empresa própria e manda nota fiscal para a Pequi todo mês.', ok: s => s.Carla === PJ },
+          { t: 'Bruno tem carteira assinada, mas dois dias da semana dele são do curso de aprendizagem.', ok: s => s.Bruno === APR },
+          { t: 'Davi não tem carteira assinada e não tem empresa.', ok: s => s.Davi !== CLT && s.Davi !== APR && s.Davi !== PJ },
+          { t: 'Ana não estuda mais e não tem empresa.', ok: s => s.Ana !== EST && s.Ana !== PJ },
+        ],
+        solucao: { Ana: CLT, Bruno: APR, Carla: PJ, Davi: EST },
+        resultado: '<p><b>Planilha do RH:</b> Ana é CLT, Bruno é aprendiz, Carla é PJ e Davi é estagiário.</p><p>Repare: o aprendiz também tem carteira assinada. O que o diferencia é o curso de aprendizagem.</p>',
+      },
+      {
+        id: 'caso-estagio', tipo: 'caso', icone: '🎓',
+        titulo: 'Caso 1: a vaga de 6 horas',
+        cenario: '<p>Uma vaga diz: <b>"Desenvolvedor(a) front-end. 6 horas por dia. Precisa estar matriculado(a) num curso. Terá um supervisor."</b></p>',
+        pergunta1: 'Qual é a forma de contratação?',
+        opcoes: [
+          { t: 'Estágio', ok: true },
+          { t: 'CLT' },
+          { t: 'PJ' },
+          { t: 'Aprendiz' },
+        ],
+        pergunta2: 'Qual detalhe da vaga mostra isso?',
+        motivos: [
+          { t: 'Ser uma vaga na área de front-end' },
+          { t: 'Trabalhar só 6 horas por dia na empresa' },
+          { t: 'Estar estudando e ter um supervisor', ok: true },
+        ],
+        dica: 'Releia o texto que você copiou. Qual contratação junta estudo e supervisor?',
+        explica: 'Estudar e ter um supervisor na empresa são as características do estágio. A área e as horas não definem o contrato.',
+      },
+      {
+        id: 'copiar-2', tipo: 'copiar', icone: '📝',
+        titulo: 'Profissão regulamentada',
+        texto: `
+          <h3>Profissão regulamentada</h3>
+          <ul>
+            <li>Algumas profissões têm <b>lei própria</b> e exigem registro em um <b>conselho</b>.</li>
+            <li>Exemplos: medicina (CRM) e engenharia (CREA).</li>
+            <li>Programação, testes e design <b>não</b> exigem registro em conselho.</li>
+          </ul>
+          <p>Sem o registro, quem é de profissão regulamentada não pode trabalhar nela.</p>`,
+      },
+      {
+        id: 'caso-conselho', tipo: 'caso', icone: '🏛️',
+        titulo: 'Caso 2: precisa de registro?',
+        cenario: '<p>Davi termina o estágio e quer trabalhar como programador. Um amigo diz que ele precisa se registrar num conselho profissional antes.</p>',
+        pergunta1: 'O que é verdade?',
+        opcoes: [
+          { t: 'Programar não exige registro em conselho', ok: true },
+          { t: 'Todo trabalho com carteira exige conselho' },
+          { t: 'Só o estagiário precisa de registro' },
+          { t: 'O registro é exigido só para PJ' },
+        ],
+        dica: 'O conselho só é obrigatório quando a lei exige. Isso vale para programação?',
+        explica: 'Profissões como a medicina exigem registro por lei. Programação não exige registro em conselho.',
+      },
+      {
+        id: 'caso-engenheiro', tipo: 'caso', icone: '🏗️',
+        titulo: 'Caso 3: a reforma da cozinha',
+        cenario: '<p>Para o MerendaApp funcionar, a escola vai reformar a cozinha e quer contratar um engenheiro para assinar o projeto da obra.</p>',
+        pergunta1: 'O engenheiro precisa de registro em conselho?',
+        opcoes: [
+          { t: 'Sim, no conselho de engenharia', ok: true },
+          { t: 'Não, nenhuma profissão exige isso' },
+          { t: 'Só se ele for contratado como PJ' },
+          { t: 'Só se ele trabalhar como estagiário' },
+        ],
+        dica: 'Releia o segundo texto que você copiou. A engenharia está na lista?',
+        explica: 'A engenharia é regulamentada por lei: para assinar o projeto, o engenheiro precisa de registro no CREA. A forma de contratação não muda isso.',
+      },
+    ],
+  });
+</script>
+
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

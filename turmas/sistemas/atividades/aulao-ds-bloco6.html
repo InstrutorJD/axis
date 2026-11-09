@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aulão DS — Bloco 6: Depois da conclusão</title>
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<link rel="stylesheet" href="../../../shared/enigma-logica.css">
+<script>
+  window.ACTIVITY_LOCATION = 'aulao_ds_bloco6';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="../../../shared/vendor/supabase.js"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+<script src="../../../shared/enigma-logica.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Aulão DS — Bloco 6: Depois da conclusão</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">7</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  const REF = 'Referências', GLOS = 'Glossário', APE = 'Apêndice', ANE = 'Anexo';
+
+  EnigmaLogica.iniciar({
+    activityLocation: 'aulao_ds_bloco6',
+    nome: 'Bloco 6: Depois da conclusão',
+    subtitulo: 'Aulão DS · Introdução ao Desenvolvimento de Projetos · Turma Sistemas',
+    abertura: {
+      titulo: 'Os papéis soltos',
+      html: `
+        <p>Sobraram alguns materiais sem lugar no documento do MerendaApp. Todos ficam <b>depois da conclusão</b>.</p>
+        <blockquote>Você vai copiar dois textos no caderno: um no começo e outro no meio do bloco. Entre eles, resolva as atividades.</blockquote>`,
+    },
+    fechamento: {
+      titulo: '✅ Aulão concluído!',
+      html: `
+        <p>O documento do MerendaApp está completo e organizado.</p>
+        <p>Neste aulão, você viu quem faz o quê na TI, como cada pessoa é contratada, o que faz uma equipe funcionar e como se organiza o documento de um projeto.</p>`,
+    },
+    etapas: [
+      {
+        id: 'copiar', tipo: 'copiar', icone: '📝',
+        titulo: 'Os complementos do documento',
+        texto: `
+          <h3>Os complementos do documento</h3>
+          <ul>
+            <li><b>Referências:</b> mostram de onde vieram as informações.</li>
+            <li><b>Glossário:</b> explica palavras difíceis.</li>
+            <li><b>Apêndice:</b> material extra criado <b>pela equipe</b>.</li>
+            <li><b>Anexo:</b> material extra criado <b>por outra pessoa</b>.</li>
+            <li><b>Índice:</b> mostra em que página está cada assunto.</li>
+          </ul>
+          <p>Apêndice ou anexo? Pergunte: <b>quem criou esse material?</b></p>`,
+      },
+      {
+        id: 'grade-materiais', tipo: 'grade', icone: '🗂️',
+        titulo: 'Onde fica cada material?',
+        intro: '<p>Cada material vai para <b>um</b> complemento diferente.</p>',
+        rotuloLinha: 'Material',
+        linhas: ['Material 1', 'Material 2', 'Material 3', 'Material 4'],
+        colunas: [REF, GLOS, APE, ANE],
+        pistas: [
+          { t: 'Material 1: o diagrama do banco de dados, desenhado pela própria equipe.', ok: s => s['Material 1'] === APE },
+          { t: 'Material 2: uma lista que explica o que são "API" e "deploy".', ok: s => s['Material 2'] === GLOS },
+          { t: 'Material 3: o cardápio oficial, enviado pela nutricionista da escola.', ok: s => s['Material 3'] === ANE },
+          { t: 'Material 4: a lista dos livros e sites que a equipe consultou.', ok: s => s['Material 4'] === REF },
+        ],
+        solucao: { 'Material 1': APE, 'Material 2': GLOS, 'Material 3': ANE, 'Material 4': REF },
+        resultado: '<p><b>Organizado:</b> livros e sites nas referências, "API" e "deploy" no glossário, o diagrama no apêndice e o cardápio no anexo.</p><p>Para separar apêndice de anexo, pergunte: <b>quem criou esse material?</b></p>',
+      },
+      {
+        id: 'copiar-2', tipo: 'copiar', icone: '📝',
+        titulo: 'A ordem e a regra das referências',
+        texto: `
+          <h3>Depois da conclusão, nesta ordem</h3>
+          <ol>
+            <li>Referências</li>
+            <li>Glossário</li>
+            <li>Apêndice</li>
+            <li>Anexo</li>
+            <li>Índice</li>
+          </ol>
+          <p>Só as <b>referências</b> são obrigatórias. Os outros entram quando forem necessários.</p>
+          <p>Citou uma obra no texto? Ela tem que aparecer nas referências (norma ABNT NBR 6023).</p>`,
+      },
+      {
+        id: 'caso-citacao', tipo: 'caso', icone: '📚',
+        titulo: 'Caso 1: a citação perdida',
+        cenario: '<p>O desenvolvimento diz: <b>"Segundo SOUZA (2024), apps escolares precisam ser simples."</b> Mas Souza não aparece nas referências.</p>',
+        pergunta1: 'O que está certo?',
+        opcoes: [
+          { t: 'Citar no texto já é suficiente' },
+          { t: 'Há um erro que precisa ser corrigido', ok: true },
+          { t: 'A obra de Souza deve ir para o anexo' },
+          { t: 'A citação deve ir para o glossário' },
+        ],
+        pergunta2: 'Qual regra foi quebrada?',
+        motivos: [
+          { t: 'Toda obra citada precisa estar nas referências', ok: true },
+          { t: 'Todo documento precisa ter um glossário no final' },
+          { t: 'O anexo deve vir antes das referências' },
+        ],
+        dica: 'Releia a última frase do segundo texto que você copiou.',
+        explica: 'Quem citou uma obra precisa colocá-la nas referências. A equipe deve incluir Souza ou tirar a citação.',
+      },
+      {
+        id: 'caso-ordem', tipo: 'caso', icone: '🔢',
+        titulo: 'Caso 2: a ordem',
+        cenario: '<p>O documento do MerendaApp tem referências, anexo e glossário depois da conclusão.</p>',
+        pergunta1: 'Qual ordem está certa?',
+        opcoes: [
+          { t: 'Glossário, referências e anexo' },
+          { t: 'Referências, glossário e anexo', ok: true },
+          { t: 'Anexo, glossário e referências' },
+          { t: 'Referências, anexo e glossário' },
+        ],
+        dica: 'Quem vem primeiro na lista que você copiou? E o glossário vem antes ou depois do anexo?',
+        explica: 'As referências vêm primeiro, e o glossário vem antes do anexo.',
+      },
+    ],
+  });
+</script>
+
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

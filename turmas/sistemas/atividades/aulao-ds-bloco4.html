@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aulão DS — Bloco 4: Fato, achismo e conflito</title>
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<link rel="stylesheet" href="../../../shared/enigma-logica.css">
+<script>
+  window.ACTIVITY_LOCATION = 'aulao_ds_bloco4';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="../../../shared/vendor/supabase.js"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+<script src="../../../shared/enigma-logica.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Aulão DS — Bloco 4: Fato, achismo e conflito</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">7</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  EnigmaLogica.iniciar({
+    activityLocation: 'aulao_ds_bloco4',
+    nome: 'Bloco 4: Fato, achismo e conflito',
+    subtitulo: 'Aulão DS · Projeto de Vida · Turma Sistemas',
+    abertura: {
+      titulo: 'A equipe está brigando',
+      html: `
+        <p>Com o prazo apertado, a equipe da Pequi Sistemas começou a discutir. Você vai ajudar a resolver usando fatos.</p>
+        <blockquote>Você vai copiar dois textos no caderno: um no começo e outro no meio do bloco. Entre eles, resolva as atividades.</blockquote>`,
+    },
+    fechamento: {
+      titulo: '✅ Bloco 4 concluído!',
+      html: `
+        <p>Você trocou achismos por fatos e resolveu os conflitos falando do problema, e não da pessoa.</p>
+        <p>No <b>Bloco 5</b>, a equipe vai escrever o documento do projeto.</p>`,
+    },
+    etapas: [
+      {
+        id: 'copiar', tipo: 'copiar', icone: '📝',
+        titulo: 'Fato ou achismo?',
+        texto: `
+          <h3>Fato ou achismo?</h3>
+          <ul>
+            <li><b>Fato:</b> dá para comprovar.</li>
+            <li><b>Achismo:</b> é só o que parece.</li>
+          </ul>
+          <table><tr><th>Fato</th><th>Achismo</th></tr>
+            <tr><td>O código chegou às 23h</td><td>Ele não liga para o projeto</td></tr>
+            <tr><td>A tela tem 3 erros</td><td>Quem fez a tela é desleixado</td></tr></table>
+          <p>Antes de julgar alguém, pergunte: <b>como eu sei disso?</b></p>`,
+      },
+      {
+        id: 'caso-davi', tipo: 'caso', icone: '🤫',
+        titulo: 'Caso 1: "Davi não liga"',
+        cenario: '<p>Na reunião, alguém diz: <b>"O Davi não liga para o projeto, ele nem fala nada."</b> Mas Davi enviou 12 alterações de código nesta semana e escreveu o manual do app.</p>',
+        pergunta1: 'O que os fatos mostram?',
+        opcoes: [
+          { t: 'Davi contribui, só que de outro jeito', ok: true },
+          { t: 'Davi não liga para o projeto, porque fala pouco' },
+          { t: 'Davi precisa sair da equipe' },
+          { t: 'Todos devem falar o mesmo tempo' },
+        ],
+        pergunta2: 'Por quê?',
+        motivos: [
+          { t: '"Fala pouco" é fato, mas "não liga" é achismo', ok: true },
+          { t: 'Quem fala pouco sempre trabalha mais que os outros' },
+          { t: 'A opinião da maioria da equipe vale como fato' },
+        ],
+        dica: 'O que dá para comprovar no caso? E o que é só a opinião de quem falou?',
+        explica: 'As 12 alterações e o manual são fatos. "Não liga" é achismo, e os fatos mostram o contrário.',
+      },
+      {
+        id: 'copiar-2', tipo: 'copiar', icone: '📝',
+        titulo: 'Para resolver um conflito',
+        texto: `
+          <h3>Para resolver um conflito</h3>
+          <ol>
+            <li>Lembre o <b>objetivo comum</b>.</li>
+            <li>Separe <b>fatos</b> de opiniões.</li>
+            <li>Fale do <b>problema</b>, não da pessoa.</li>
+            <li><b>Teste</b> ou combine um critério.</li>
+          </ol>`,
+      },
+      {
+        id: 'caso-revisao', tipo: 'caso', icone: '🐞',
+        titulo: 'Caso 2: o erro no código',
+        cenario: '<p>Bruno, que testa o app, achou um erro: o login aceita senha vazia. O código é de Ana, e Bruno tem medo de parecer uma acusação.</p>',
+        pergunta1: 'Qual mensagem Bruno deve mandar?',
+        opcoes: [
+          { t: '"Ana, você estragou o login de novo, como sempre."' },
+          { t: '"O login aceita senha vazia. Vemos juntos?"', ok: true },
+          { t: '"Achei um erro, mas não vou dizer onde."' },
+          { t: 'Nenhuma: é melhor ficar quieto e esperar.' },
+        ],
+        dica: 'O objetivo é consertar o app. Qual mensagem mostra o problema sem atacar a pessoa?',
+        explica: 'A mensagem descreve o problema e convida para resolver, sem culpar Ana.',
+      },
+      {
+        id: 'caso-menu', tipo: 'caso', icone: '📱',
+        titulo: 'Caso 3: o menu',
+        cenario: '<p>Davi quer o menu do app no topo da tela. Carla quer o menu embaixo. A conversa vira ofensa: "Você não entende nada de tela!"</p>',
+        pergunta1: 'O que resolve melhor?',
+        opcoes: [
+          { t: 'Quem falar mais alto decide' },
+          { t: 'Carla decide, porque é quem fala com o cliente' },
+          { t: 'Testar as duas versões com alunos', ok: true },
+          { t: 'Separar os dois até a entrega' },
+        ],
+        pergunta2: 'Por que essa é a melhor saída?',
+        motivos: [
+          { t: 'Porque assim ninguém mais precisa conversar sobre isso' },
+          { t: 'Porque o teste traz um fato e tira o foco da pessoa', ok: true },
+          { t: 'Porque a ideia mais antiga da equipe sempre vence' },
+        ],
+        dica: 'Olhe o passo 4 do texto que você copiou.',
+        explica: 'Testar com quem vai usar o app traz uma evidência. A decisão passa a ser sobre o app, e não sobre quem tem razão.',
+      },
+    ],
+  });
+</script>
+
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

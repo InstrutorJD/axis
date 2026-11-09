@@ -987,6 +987,63 @@ window.TURMA_CONFIG_SISTEMAS = {
               requires: 'teoria', hasGabarito: true
             }
           ]
+        },
+        {
+          // Aulão do DS: versão direta das 3 Missões do aulão de Jogos
+          // (profissões, equipe e documento do projeto), numa trilha só, a
+          // pedido do professor. Sem teoria em slides, de propósito: cada
+          // bloco tem dois textos curtos para copiar no caderno (etapa
+          // 'copiar' de shared/enigma-logica.js) e segue com atividades
+          // corrigidas no portal: um texto no começo e outro no meio. Estimativa:
+          // ~15 min por bloco (12 textos × ~3 min de cópia), ~1h30 no total.
+          key: 'mundo-aulao-ds',
+          label: 'Aulão: Trabalho, Equipe e Projeto',
+          desc: 'Seis blocos curtos: em cada um, copie dois textos no caderno e resolva as atividades sobre profissões da TI, contratação, equipe, conflitos e o documento do projeto.',
+          capacidade: 'Identificar as características das profissões / Reconhecer as características do trabalho em equipe de forma colaborativa, considerando o respeito às diferenças individuais / Reconhecer os padrões de estrutura estabelecidos para a elaboração de projetos',
+          modules: [
+            {
+              key: 'bloco1', title: 'Bloco 1 — Quem faz o quê na TI',
+              desc: 'Copie as profissões da TI e a regra do "se... então"; resolva um enigma e quatro casos.',
+              icon: '🧩', src: 'atividades/aulao-ds-bloco1.html', telaCheia: true,
+              progressKey: 'aulao_ds_bloco1_progress_', progressTotal: 7,
+              hasGabarito: true
+            },
+            {
+              key: 'bloco2', title: 'Bloco 2 — Como cada um é contratado',
+              desc: 'Copie as formas de contratação e o que é profissão regulamentada; resolva um enigma e três casos.',
+              icon: '📄', src: 'atividades/aulao-ds-bloco2.html', telaCheia: true,
+              progressKey: 'aulao_ds_bloco2_progress_', progressTotal: 6,
+              requires: 'bloco1', hasGabarito: true
+            },
+            {
+              key: 'bloco3', title: 'Bloco 3 — A equipe que funciona',
+              desc: 'Copie o que é uma equipe e o que a faz funcionar; resolva um enigma e dois casos.',
+              icon: '🗓️', src: 'atividades/aulao-ds-bloco3.html', telaCheia: true,
+              progressKey: 'aulao_ds_bloco3_progress_', progressTotal: 5,
+              requires: 'bloco2', hasGabarito: true
+            },
+            {
+              key: 'bloco4', title: 'Bloco 4 — Fato, achismo e conflito',
+              desc: 'Copie fato × achismo e os passos para resolver um conflito; resolva três casos.',
+              icon: '🤝', src: 'atividades/aulao-ds-bloco4.html', telaCheia: true,
+              progressKey: 'aulao_ds_bloco4_progress_', progressTotal: 5,
+              requires: 'bloco3', hasGabarito: true
+            },
+            {
+              key: 'bloco5', title: 'Bloco 5 — As partes do documento',
+              desc: 'Copie as partes principais do documento e a regra da conclusão; ligue trechos e resolva dois casos.',
+              icon: '🧾', src: 'atividades/aulao-ds-bloco5.html', telaCheia: true,
+              progressKey: 'aulao_ds_bloco5_progress_', progressTotal: 5,
+              requires: 'bloco4', hasGabarito: true
+            },
+            {
+              key: 'bloco6', title: 'Bloco 6 — Depois da conclusão',
+              desc: 'Copie os complementos, a ordem deles e a regra das referências; organize materiais e resolva dois casos.',
+              icon: '🗂️', src: 'atividades/aulao-ds-bloco6.html', telaCheia: true,
+              progressKey: 'aulao_ds_bloco6_progress_', progressTotal: 5,
+              requires: 'bloco5', hasGabarito: true
+            }
+          ]
         }
       ]
     },

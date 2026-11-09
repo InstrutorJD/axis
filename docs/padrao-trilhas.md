@@ -27,6 +27,12 @@
 > precisa ter **uma única solução**, conferida por força bruta sobre
 > `EnigmaLogica.dados` (seção 11).
 >
+> **Aulão do DS (Sistemas → Mundo do Trabalho):** `mundo-aulao-ds`, versão
+> direta das três Missões acima numa trilha só, **sem teoria em slides, a
+> pedido do professor**: seis blocos (`aulao-ds-bloco1..6.html`), cada um com
+> duas etapas `copiar` (textos curtos para o caderno, uma no começo e outra no meio) e atividades `grade`/`caso`
+> do `enigma-logica.js`.
+>
 > **Práticas visuais (só para adaptação individual):** `caixas-engel` usa o
 > motor `shared/caixas-visuais.js` (+ `.css`), com etapas `ver`, `montar`,
 > `escolher`, `digitar` e `livre`. Não tem teoria em `.md` por decisão do

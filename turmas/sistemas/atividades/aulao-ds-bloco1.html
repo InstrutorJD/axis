@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aulão DS — Bloco 1: Quem faz o quê na TI</title>
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<link rel="stylesheet" href="../../../shared/enigma-logica.css">
+<script>
+  window.ACTIVITY_LOCATION = 'aulao_ds_bloco1';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="../../../shared/vendor/supabase.js"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+<script src="../../../shared/enigma-logica.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Aulão DS — Bloco 1: Quem faz o quê na TI</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">9</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  const FRONT = 'Front-end', BACK = 'Back-end', QA = 'Testes (QA)', REQ = 'Requisitos';
+
+  EnigmaLogica.iniciar({
+    activityLocation: 'aulao_ds_bloco1',
+    nome: 'Bloco 1: Quem faz o quê na TI',
+    subtitulo: 'Aulão DS · Mundo do Trabalho · Turma Sistemas',
+    abertura: {
+      titulo: 'Bem-vindo à Pequi Sistemas',
+      html: `
+        <p>A Pequi Sistemas está criando o <b>MerendaApp</b>, um aplicativo para os alunos verem o cardápio da escola.</p>
+        <p>A equipe tem quatro pessoas: <b>Ana, Bruno, Carla e Davi</b>. Você vai descobrir o trabalho de cada uma.</p>
+        <blockquote>Você vai copiar dois textos no caderno: um no começo e outro no meio do bloco. Entre eles, resolva as atividades. Se errar, você recebe uma dica e tenta de novo.</blockquote>`,
+    },
+    fechamento: {
+      titulo: '✅ Bloco 1 concluído!',
+      html: `
+        <p>Você descobriu o trabalho de cada pessoa pelo que ela <b>faz</b>, e não pelo nome do cargo.</p>
+        <p>No <b>Bloco 2</b>, você vai ver como cada uma foi contratada.</p>`,
+    },
+    etapas: [
+      {
+        id: 'copiar', tipo: 'copiar', icone: '📝',
+        titulo: 'Profissões no desenvolvimento de sistemas',
+        texto: `
+          <h3>Profissões no desenvolvimento de sistemas</h3>
+          <ul>
+            <li><b>Front-end:</b> programa as telas que o usuário vê e toca.</li>
+            <li><b>Back-end:</b> programa o servidor, as regras e o banco de dados.</li>
+            <li><b>Testes (QA):</b> usa o sistema várias vezes e registra os erros.</li>
+            <li><b>Requisitos:</b> conversa com o cliente e anota o que o sistema deve fazer.</li>
+          </ul>
+          <p>O nome do cargo pode enganar. O que vale é o que a pessoa faz no dia a dia.</p>`,
+      },
+      {
+        id: 'grade-equipe', tipo: 'grade', icone: '🧩',
+        titulo: 'Enigma: quem faz cada trabalho?',
+        intro: '<p>Cada pessoa tem <b>um</b> trabalho diferente. Use as pistas e marque ✖ no que não pode ser.</p>',
+        rotuloLinha: 'Pessoa',
+        linhas: ['Ana', 'Bruno', 'Carla', 'Davi'],
+        colunas: [FRONT, BACK, QA, REQ],
+        pistas: [
+          { t: 'Carla passa o dia com o diretor da escola, anotando o que o app precisa fazer.', ok: s => s.Carla === REQ },
+          { t: 'Bruno não programa as telas do app.', ok: s => s.Bruno !== FRONT },
+          { t: 'Bruno também não mexe no servidor nem no banco de dados.', ok: s => s.Bruno !== BACK },
+          { t: 'Davi nunca abriu o banco de dados do projeto.', ok: s => s.Davi !== BACK },
+        ],
+        solucao: { Ana: BACK, Bruno: QA, Carla: REQ, Davi: FRONT },
+        resultado: '<p><b>Equipe:</b> Ana é back-end, Bruno é de testes (QA), Carla cuida dos requisitos e Davi é front-end.</p>',
+      },
+      {
+        id: 'caso-cracha', tipo: 'caso', icone: '🪪',
+        titulo: 'Caso 1: o crachá estranho',
+        cenario: '<p>O crachá de um colega diz <b>"Mago do Front"</b>. Mas o dia todo ele abre o app, tenta quebrar cada tela e anota cada erro numa planilha.</p>',
+        pergunta1: 'Qual é o trabalho dele de verdade?',
+        opcoes: [
+          { t: 'Front-end (telas)' },
+          { t: 'Back-end (servidor)' },
+          { t: 'Testes (QA)', ok: true },
+          { t: 'Requisitos (cliente)' },
+        ],
+        pergunta2: 'Por quê?',
+        motivos: [
+          { t: 'Porque o crachá dele diz que ele trabalha no front' },
+          { t: 'Porque procurar e registrar erros é o que ele faz', ok: true },
+          { t: 'Porque toda pessoa da TI faz um pouco de cada coisa' },
+        ],
+        dica: 'Ignore o crachá. O que essa pessoa faz o dia inteiro?',
+        explica: 'O nome do cargo pode enganar. Quem procura e registra erros trabalha com testes (QA).',
+      },
+      {
+        id: 'caso-vaga', tipo: 'caso', icone: '📢',
+        titulo: 'Caso 2: a vaga nova',
+        cenario: '<p>A Pequi publicou uma vaga: <b>"Procuramos alguém para visitar clientes, entender o problema deles e escrever o que o sistema precisa fazer."</b></p>',
+        pergunta1: 'Que profissional a Pequi procura?',
+        opcoes: [
+          { t: 'Alguém de requisitos', ok: true },
+          { t: 'Alguém de front-end' },
+          { t: 'Alguém de back-end' },
+          { t: 'Alguém de testes (QA)' },
+        ],
+        dica: 'A vaga não fala em programar nem em testar. Fala em conversar com quem?',
+        explica: 'Entender o cliente e anotar o que o sistema deve fazer é o trabalho de requisitos.',
+      },
+      {
+        id: 'copiar-2', tipo: 'copiar', icone: '📝',
+        titulo: 'A regra do "se... então"',
+        texto: `
+          <h3>A regra do "se... então"</h3>
+          <p><b>Regra:</b> se o celular está sem bateria, então ele não liga.</p>
+          <ul>
+            <li><b>O celular ligou:</b> com certeza, ele tem bateria.</li>
+            <li><b>O celular não ligou:</b> não dá para ter certeza. Ele pode estar quebrado.</li>
+          </ul>
+          <p>Uma pista pode ajudar, mas nem sempre prova tudo.</p>`,
+      },
+      {
+        id: 'caso-se-funcionou', tipo: 'caso', icone: '✅',
+        titulo: 'Caso 3: o app funcionou',
+        cenario: '<p>Ana explica a regra do sistema: <b>"Se o servidor está fora do ar, então o app não mostra o cardápio."</b> Hoje, o app mostrou o cardápio normalmente.</p>',
+        pergunta1: 'O que é certo?',
+        opcoes: [
+          { t: 'O servidor estava no ar', ok: true },
+          { t: 'O servidor caiu por pouco tempo' },
+          { t: 'Alguém consertou o servidor hoje' },
+          { t: 'Nada se pode concluir sobre isso' },
+        ],
+        dica: 'Releia o caso do celular que ligou. O que dá para afirmar com certeza?',
+        explica: 'Se o servidor estivesse fora do ar, o app não mostraria o cardápio. Como mostrou, o servidor estava no ar.',
+      },
+      {
+        id: 'caso-se-falhou', tipo: 'caso', icone: '⚠️',
+        titulo: 'Caso 4: o app não funcionou',
+        cenario: '<p>Mesma regra: <b>"Se o servidor está fora do ar, então o app não mostra o cardápio."</b> Agora, o app não mostrou o cardápio no celular de um aluno.</p>',
+        pergunta1: 'O que é certo?',
+        opcoes: [
+          { t: 'O servidor está fora do ar, com certeza' },
+          { t: 'O servidor está no ar, com certeza' },
+          { t: 'Pode ser o servidor, ou outro motivo', ok: true },
+          { t: 'O aluno apagou o app do celular' },
+        ],
+        pergunta2: 'Por quê?',
+        motivos: [
+          { t: 'A internet do celular também pode ter caído', ok: true },
+          { t: 'Quando o app falha, a culpa é sempre do servidor' },
+          { t: 'A regra só vale nos dias em que o app funciona' },
+        ],
+        dica: 'É a armadilha do celular que não ligou. Existe outro jeito de o app falhar?',
+        explica: 'O servidor fora do ar é uma explicação possível, mas não a única: a internet do aluno, por exemplo, também pode ter caído.',
+      },
+    ],
+  });
+</script>
+
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

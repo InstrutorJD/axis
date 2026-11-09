@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aulão DS — Bloco 5: As partes do documento</title>
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<link rel="stylesheet" href="../../../shared/enigma-logica.css">
+<script>
+  window.ACTIVITY_LOCATION = 'aulao_ds_bloco5';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="../../../shared/vendor/supabase.js"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+<script src="../../../shared/enigma-logica.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Aulão DS — Bloco 5: As partes do documento</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">7</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  const INTRO = 'Introdução', DES = 'Desenvolvimento', CONC = 'Conclusão';
+
+  EnigmaLogica.iniciar({
+    activityLocation: 'aulao_ds_bloco5',
+    nome: 'Bloco 5: As partes do documento',
+    subtitulo: 'Aulão DS · Introdução ao Desenvolvimento de Projetos · Turma Sistemas',
+    abertura: {
+      titulo: 'O documento embaralhado',
+      html: `
+        <p>O MerendaApp foi entregue! Agora a equipe precisa escrever o documento do projeto, mas os trechos se misturaram.</p>
+        <blockquote>Você vai copiar dois textos no caderno: um no começo e outro no meio do bloco. Entre eles, resolva as atividades.</blockquote>`,
+    },
+    fechamento: {
+      titulo: '✅ Bloco 5 concluído!',
+      html: `
+        <p>A parte principal do documento está em ordem: introdução, desenvolvimento e conclusão.</p>
+        <p>No <b>Bloco 6</b>, você vai organizar o que vem depois da conclusão.</p>`,
+    },
+    etapas: [
+      {
+        id: 'copiar', tipo: 'copiar', icone: '📝',
+        titulo: 'As partes principais do documento',
+        texto: `
+          <h3>As partes principais do documento</h3>
+          <ol>
+            <li><b>Introdução:</b> o que é o projeto e por que ele importa.</li>
+            <li><b>Desenvolvimento:</b> como fizemos e o que aconteceu.</li>
+            <li><b>Conclusão:</b> deu certo? O que vem depois?</li>
+          </ol>`,
+      },
+      {
+        id: 'grade-trechos', tipo: 'grade', icone: '🧾',
+        titulo: 'Ligue cada trecho à sua parte',
+        intro: '<p>Cada trecho pertence a <b>uma</b> parte do documento, e cada parte recebe um trecho.</p>',
+        rotuloLinha: 'Trecho',
+        linhas: ['Trecho A', 'Trecho B', 'Trecho C'],
+        colunas: [INTRO, DES, CONC],
+        pistas: [
+          { t: 'Trecho A: "Fizemos o app em JavaScript, testamos com 40 alunos e corrigimos 9 erros."', ok: s => s['Trecho A'] === DES },
+          { t: 'Trecho B: "Muitos alunos não sabiam o cardápio do dia. Este projeto cria um app para resolver isso."', ok: s => s['Trecho B'] === INTRO },
+          { t: 'Trecho C: "O app atendeu à escola. O próximo passo é avisar quando o cardápio mudar."', ok: s => s['Trecho C'] === CONC },
+        ],
+        solucao: { 'Trecho A': DES, 'Trecho B': INTRO, 'Trecho C': CONC },
+        resultado: '<p><b>Ordem certa:</b> B (introdução), A (desenvolvimento) e C (conclusão).</p><p>O documento conta uma história: o problema, o que foi feito e o resultado.</p>',
+      },
+      {
+        id: 'caso-introducao', tipo: 'caso', icone: '❓',
+        titulo: 'Caso 1: a introdução',
+        cenario: '<p>Carla escreveu a introdução e quer conferir se ela cumpre o seu papel.</p>',
+        pergunta1: 'Qual pergunta a introdução precisa responder?',
+        opcoes: [
+          { t: 'Que erros a equipe corrigiu nos testes?' },
+          { t: 'O que é o projeto e por que ele importa?', ok: true },
+          { t: 'O que a equipe vai fazer na próxima versão?' },
+          { t: 'Que linguagem foi usada para programar?' },
+        ],
+        dica: 'Erros, linguagem e testes contam como foi feito. Próxima versão é o que vem depois. E a introdução?',
+        explica: 'A introdução apresenta o projeto e o motivo dele existir. Como foi feito fica no desenvolvimento; o que vem depois, na conclusão.',
+      },
+      {
+        id: 'copiar-2', tipo: 'copiar', icone: '📝',
+        titulo: 'A conclusão não traz novidade',
+        texto: `
+          <h3>A conclusão não traz novidade</h3>
+          <ul>
+            <li>A conclusão só comenta o que <b>já foi mostrado</b>.</li>
+            <li>Dado novo (teste, número, resultado) entra no <b>desenvolvimento</b>.</li>
+            <li>Só dá para concluir depois de contar o que foi feito.</li>
+          </ul>`,
+      },
+      {
+        id: 'caso-dado-novo', tipo: 'caso', icone: '🔎',
+        titulo: 'Caso 2: o teste que surgiu do nada',
+        cenario: '<p>A conclusão diz: <b>"No teste com professores, 8 de 10 aprovaram o app."</b> Mas esse teste não aparece em nenhuma outra parte do documento.</p>',
+        pergunta1: 'Como corrigir?',
+        opcoes: [
+          { t: 'Contar o teste no desenvolvimento', ok: true },
+          { t: 'Deixar o teste só na conclusão mesmo' },
+          { t: 'Mover o teste para a introdução' },
+          { t: 'Apagar a conclusão inteira' },
+        ],
+        pergunta2: 'Por quê?',
+        motivos: [
+          { t: 'Porque a introdução já deve mostrar todos os resultados' },
+          { t: 'Porque a conclusão só comenta o que já foi mostrado', ok: true },
+          { t: 'Porque teste não deve aparecer no documento' },
+        ],
+        dica: 'Releia o segundo texto que você copiou.',
+        explica: 'Dado novo entra no desenvolvimento. A conclusão comenta o que o leitor já viu.',
+      },
+    ],
+  });
+</script>
+
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>

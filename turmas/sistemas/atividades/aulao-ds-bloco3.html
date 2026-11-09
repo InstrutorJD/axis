@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aulão DS — Bloco 3: A equipe que funciona</title>
+<link rel="stylesheet" href="../../../shared/aula-base.css">
+<link rel="stylesheet" href="../../../shared/enigma-logica.css">
+<script>
+  window.ACTIVITY_LOCATION = 'aulao_ds_bloco3';
+</script>
+<script src="../../../shared/supabase-config.js"></script>
+<script src="../../../shared/session.js"></script>
+<script src="../../../shared/vendor/supabase.js"></script>
+<script src="../../../shared/clipboard-guard.js"></script>
+<script src="../../../shared/activity-tracker.js"></script>
+<script src="../../../shared/progress-sync.js"></script>
+<script src="../../../shared/gabarito-generator.js"></script>
+<script src="../../../shared/aula-base.js"></script>
+<script src="../../../shared/enigma-logica.js"></script>
+</head>
+<body>
+
+<div class="ab-app">
+  <header class="ab-topo">
+    <div class="ab-topo-titulo">Aulão DS — Bloco 3: A equipe que funciona</div>
+    <div class="ab-topo-etapa">Etapa <span id="lblStepNum">1</span> de <span id="lblStepTotal">7</span></div>
+  </header>
+  <div class="ab-progresso"><div class="ab-progresso-fill" id="progressFill"></div></div>
+  <main class="ab-palco" id="palco">
+    <div class="ab-coluna" id="stepWrap"></div>
+  </main>
+</div>
+
+<script>
+  const APRES = 'Apresentar ao cliente', NOVATO = 'Ajudar o novato', TEXTOS = 'Revisar os textos', BUG = 'Corrigir o login';
+
+  EnigmaLogica.iniciar({
+    activityLocation: 'aulao_ds_bloco3',
+    nome: 'Bloco 3: A equipe que funciona',
+    subtitulo: 'Aulão DS · Projeto de Vida · Turma Sistemas',
+    abertura: {
+      titulo: 'A semana da entrega',
+      html: `
+        <p>Faltam cinco dias para entregar o MerendaApp à escola, e ainda sobraram quatro tarefas.</p>
+        <table><tr><th>Pessoa</th><th>Trabalho</th><th>Contratação</th></tr>
+          <tr><td>Ana</td><td>Back-end</td><td>CLT</td></tr>
+          <tr><td>Bruno</td><td>Testes (QA)</td><td>Aprendiz</td></tr>
+          <tr><td>Carla</td><td>Requisitos</td><td>PJ</td></tr>
+          <tr><td>Davi</td><td>Front-end</td><td>Estágio</td></tr></table>
+        <blockquote>Você vai copiar dois textos no caderno: um no começo e outro no meio do bloco. Entre eles, resolva as atividades.</blockquote>`,
+    },
+    fechamento: {
+      titulo: '✅ Bloco 3 concluído!',
+      html: `
+        <p>Você dividiu o trabalho levando em conta o horário, a experiência e o jeito de cada pessoa.</p>
+        <p>No <b>Bloco 4</b>, a equipe vai enfrentar um conflito.</p>`,
+    },
+    etapas: [
+      {
+        id: 'copiar', tipo: 'copiar', icone: '📝',
+        titulo: 'O que é uma equipe',
+        texto: `
+          <h3>O que é uma equipe</h3>
+          <p>Equipe não é só um grupo de pessoas no mesmo lugar.</p>
+          <ul>
+            <li>Todos têm o <b>mesmo objetivo</b>.</li>
+            <li>O trabalho de um <b>depende</b> do trabalho do outro.</li>
+            <li>As <b>diferenças</b> entre as pessoas são respeitadas: horário, experiência e jeito de contribuir.</li>
+          </ul>`,
+      },
+      {
+        id: 'grade-tarefas', tipo: 'grade', icone: '🗓️',
+        titulo: 'Enigma: quem faz cada tarefa?',
+        intro: '<p>Cada pessoa assume <b>uma</b> tarefa extra. A divisão precisa respeitar as diferenças da equipe.</p>',
+        rotuloLinha: 'Pessoa',
+        linhas: ['Ana', 'Bruno', 'Carla', 'Davi'],
+        colunas: [APRES, NOVATO, TEXTOS, BUG],
+        pistas: [
+          { t: 'O erro do login está no servidor, e quem cuida do servidor é Ana.', ok: s => s.Ana === BUG },
+          { t: 'A reunião com o cliente é às 8h, e Bruno tem curso nesse horário.', ok: s => s.Bruno !== APRES },
+          { t: 'Ajudar o novato pede experiência, e Bruno chegou há um mês.', ok: s => s.Bruno !== NOVATO },
+          { t: 'Davi prefere contribuir por escrito e pediu para não apresentar.', ok: s => s.Davi !== APRES },
+        ],
+        solucao: { Ana: BUG, Bruno: TEXTOS, Carla: APRES, Davi: NOVATO },
+        resultado: '<p><b>Plano da semana:</b> Ana corrige o login, Bruno revisa os textos, Carla apresenta e Davi ajuda o novato.</p><p>Ninguém ficou de fora: o plano se adaptou ao curso de Bruno e ao jeito de Davi.</p>',
+      },
+      {
+        id: 'copiar-2', tipo: 'copiar', icone: '📝',
+        titulo: 'O que faz uma equipe funcionar',
+        texto: `
+          <h3>O que faz uma equipe funcionar</h3>
+          <ul>
+            <li><b>Objetivo comum:</b> todos sabem aonde querem chegar.</li>
+            <li><b>Papéis que se completam:</b> o trabalho de um depende do outro.</li>
+            <li><b>Comunicação:</b> avisar com clareza e no tempo certo.</li>
+            <li><b>Compromisso:</b> cumprir o combinado ou avisar antes.</li>
+            <li><b>Respeito às diferenças:</b> cada pessoa contribui do seu jeito.</li>
+          </ul>`,
+      },
+      {
+        id: 'caso-dados', tipo: 'caso', icone: '🔌',
+        titulo: 'Caso 1: as partes não encaixam',
+        cenario: '<p>Ana terminou o servidor e Davi terminou as telas. Mas o servidor manda o campo <b>nome_prato</b>, e a tela espera <b>nomePrato</b>. Nada aparece no app.</p>',
+        pergunta1: 'O que faltou na equipe?',
+        opcoes: [
+          { t: 'Combinar como as partes se juntam', ok: true },
+          { t: 'Cada um trabalhar mais rápido' },
+          { t: 'Trocar Davi de função na equipe' },
+          { t: 'Ter menos reuniões durante a semana' },
+        ],
+        pergunta2: 'Qual característica de equipe explica isso?',
+        motivos: [
+          { t: 'Comunicação entre papéis que se completam', ok: true },
+          { t: 'Respeito às diferenças de horário de cada um' },
+          { t: 'Compromisso com o prazo de entrega do app' },
+        ],
+        dica: 'Os dois fizeram a sua parte. O problema está no trabalho de cada um ou no encontro das partes?',
+        explica: 'A tela depende do servidor. Quando as partes se completam, a equipe precisa combinar os detalhes antes.',
+      },
+      {
+        id: 'caso-prazo', tipo: 'caso', icone: '⏰',
+        titulo: 'Caso 2: a prova surpresa',
+        cenario: '<p>Na segunda, Davi descobre que tem prova na quinta, o mesmo dia em que deveria terminar a tela do cardápio.</p>',
+        pergunta1: 'O que mostra compromisso com a equipe?',
+        opcoes: [
+          { t: 'Não contar e tentar fazer tudo na quarta' },
+          { t: 'Avisar hoje e combinar um novo plano', ok: true },
+          { t: 'Esperar quinta para ver o que acontece' },
+          { t: 'Largar a tarefa sem explicar o motivo' },
+        ],
+        dica: 'Qual escolha dá mais tempo para a equipe se organizar?',
+        explica: 'Compromisso é cumprir o combinado ou avisar antes. Quem avisa cedo dá tempo para a equipe se organizar.',
+      },
+    ],
+  });
+</script>
+
+<script src="../../../shared/vlibras-widget.js"></script>
+</body>
+</html>
