@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vila Pixel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<!-- Protótipo: mundo em 3 blocos (A, B e C) no estilo Stardew Valley.
+     Motor em vila-pixel/motor.js, arte em vila-pixel/arte.js e um arquivo
+     de dados por bloco em vila-pixel/blocos/ (baixado só ao entrar nele). -->
+<style>
+  :root { --e: 2; --borda: #2a1d1a; --papel: #fff3d6; --madeira: #a0703c; --madeira-esc: #6b4226; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #111; overflow: hidden; }
+  body { font-family: 'Press Start 2P', monospace; color: var(--borda); display: flex; align-items: center; justify-content: center; }
+
+  /* área do jogo: sempre 16:9, do maior tamanho que couber */
+  /* tamanho exato = 384x216 vezes um zoom inteiro (ajustado pelo script) */
+  #tela { position: relative; width: 384px; height: 216px; }
+  #jogo { position: absolute; inset: 0; }
+  canvas { image-rendering: pixelated; }
+
+  /* caixa de madeira "pixelada" reaproveitada no diálogo, no HUD e na abertura */
+  .caixa {
+    background: var(--papel);
+    border: calc(var(--e) * 2px) solid var(--borda);
+    box-shadow: inset 0 0 0 calc(var(--e) * 2px) var(--madeira), inset 0 0 0 calc(var(--e) * 3px) var(--madeira-esc), 0 calc(var(--e) * 2px) 0 rgba(0,0,0,.35);
+  }
+
+  #dialogo {
+    position: absolute; left: 3%; right: 3%; bottom: 4%; height: 30%;
+    display: flex; gap: calc(var(--e) * 6px); padding: calc(var(--e) * 8px); cursor: pointer;
+  }
+  #dialogo[hidden] { display: none; }
+  #dialogoRetrato {
+    width: calc(var(--e) * 44px); height: calc(var(--e) * 44px); flex: none; align-self: center;
+    background: #8fd3ff; border: calc(var(--e) * 2px) solid var(--borda); image-rendering: pixelated;
+  }
+  #dialogoCorpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: calc(var(--e) * 5px); }
+  #dialogoNome {
+    align-self: flex-start; background: var(--madeira); color: var(--papel);
+    font-size: calc(var(--e) * 7px); padding: calc(var(--e) * 3px) calc(var(--e) * 5px);
+    border: calc(var(--e) * 1px) solid var(--borda);
+  }
+  #dialogoTexto { font-size: calc(var(--e) * 7px); line-height: 1.6; margin: 0; }
+  #dialogoSeta { position: absolute; right: calc(var(--e) * 9px); bottom: calc(var(--e) * 6px); font-size: calc(var(--e) * 7px); animation: pisca .8s steps(2) infinite; }
+  #dialogoSeta[hidden] { display: none; }
+  @keyframes pisca { 50% { opacity: 0; } }
+
+  #hudBloco { position: absolute; left: 2%; top: 3%; font-size: calc(var(--e) * 6px); padding: calc(var(--e) * 5px) calc(var(--e) * 7px); }
+  #hudAjuda { position: absolute; right: 2%; top: 3%; font-size: calc(var(--e) * 5px); color: #fff; text-shadow: calc(var(--e) * 1px) calc(var(--e) * 1px) 0 var(--borda); text-align: right; line-height: 1.8; }
+
+  #faixaBloco {
+    position: absolute; left: 50%; top: 14%; transform: translate(-50%, -40px); opacity: 0;
+    text-align: center; padding: calc(var(--e) * 7px) calc(var(--e) * 14px); pointer-events: none;
+  }
+  #faixaBloco.ativa { animation: faixa 2.6s steps(12) forwards; }
+  #faixaNome { font-size: calc(var(--e) * 11px); }
+  #faixaSub { font-size: calc(var(--e) * 6px); margin-top: calc(var(--e) * 5px); color: var(--madeira-esc); }
+  @keyframes faixa {
+    0% { opacity: 0; transform: translate(-50%, -40px); }
+    15%, 80% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, 0); }
+  }
+
+  #carregando {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: calc(var(--e) * 12px); background: #1a1220; color: #fff;
+  }
+  #carregando[hidden], #carregandoDica[hidden] { display: none; }
+  #carregandoTitulo { font-size: calc(var(--e) * 8px); }
+  #carregandoDica { width: 78%; color: var(--borda); padding: calc(var(--e) * 10px) calc(var(--e) * 12px); }
+  #carregandoRotulo { font-size: calc(var(--e) * 6px); color: var(--madeira-esc); margin-bottom: calc(var(--e) * 6px); }
+  #carregandoFrase { margin: 0; font-size: calc(var(--e) * 7px); line-height: 1.7; }
+  #carregandoBarra { width: 40%; height: calc(var(--e) * 6px); border: calc(var(--e) * 1px) solid #fff; padding: calc(var(--e) * 1px); }
+  #carregandoBarra span { display: block; height: 100%; width: 0; background: #f6d34a; }
+  #carregando:not([hidden]) #carregandoBarra span { animation: barra 2.5s steps(10) forwards; }
+  @keyframes barra { to { width: 100%; } }
+
+  #abertura {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: #5fa83e repeating-conic-gradient(#5fa83e 0 25%, #57a038 0 50%) 0 0 / calc(var(--e) * 16px) calc(var(--e) * 16px);
+  }
+  #abertura[hidden] { display: none; }
+  #abertura .caixa { text-align: center; padding: calc(var(--e) * 16px) calc(var(--e) * 20px); max-width: 80%; }
+  #abertura h1 { margin: 0 0 calc(var(--e) * 6px); font-size: calc(var(--e) * 18px); color: var(--madeira-esc); text-shadow: calc(var(--e) * 2px) calc(var(--e) * 2px) 0 #f6d34a; }
+  #abertura p { margin: calc(var(--e) * 6px) 0; font-size: calc(var(--e) * 6px); line-height: 1.8; }
+  #btnJogar {
+    margin-top: calc(var(--e) * 8px); font: inherit; font-size: calc(var(--e) * 8px); cursor: pointer;
+    background: #f6d34a; color: var(--borda); border: calc(var(--e) * 2px) solid var(--borda);
+    padding: calc(var(--e) * 6px) calc(var(--e) * 12px); box-shadow: 0 calc(var(--e) * 3px) 0 var(--madeira-esc);
+  }
+  #btnJogar:active { transform: translateY(calc(var(--e) * 2px)); box-shadow: 0 calc(var(--e) * 1px) 0 var(--madeira-esc); }
+</style>
+</head>
+<body>
+<div id="tela">
+  <div id="jogo"></div>
+
+  <div id="hudBloco" class="caixa">Bloco A</div>
+  <div id="hudAjuda">WASD / setas: andar<br>SHIFT: correr<br>E: conversar</div>
+
+  <div id="faixaBloco" class="caixa"><div id="faixaNome"></div><div id="faixaSub"></div></div>
+
+  <div id="dialogo" class="caixa" hidden>
+    <canvas id="dialogoRetrato" width="64" height="64"></canvas>
+    <div id="dialogoCorpo">
+      <div id="dialogoNome"></div>
+      <p id="dialogoTexto"></p>
+    </div>
+    <div id="dialogoSeta">▼</div>
+  </div>
+
+  <div id="carregando" hidden>
+    <div id="carregandoTitulo"></div>
+    <div id="carregandoDica" class="caixa">
+      <div id="carregandoRotulo">★ Você sabia?</div>
+      <p id="carregandoFrase"></p>
+    </div>
+    <div id="carregandoBarra"><span></span></div>
+  </div>
+
+  <div id="abertura">
+    <div class="caixa">
+      <h1>Vila Pixel</h1>
+      <p>Protótipo · 3 blocos para explorar</p>
+      <p>Ande com WASD ou as setas.<br>Chegue perto de alguém e aperte E.</p>
+      <button id="btnJogar" type="button">▶ Jogar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js"></script>
+<script src="vila-pixel/curiosidades.js"></script>
+<script src="vila-pixel/arte.js"></script>
+<script src="vila-pixel/motor.js"></script>
+<script>
+  // A área do jogo é 384x216 vezes um zoom INTEIRO (o mesmo do Phaser), e as
+  // telas HTML (diálogo, placas) usam o mesmo zoom.
+  const tela = document.getElementById('tela');
+  function ajustarEscala() {
+    const z = VilaPixel.zoomInteiro();
+    tela.style.width = 384 * z + 'px';
+    tela.style.height = 216 * z + 'px';
+    tela.style.setProperty('--e', z);
+  }
+  addEventListener('resize', ajustarEscala);
+  ajustarEscala();
+
+  // O jogo só começa no clique: assim a página (que roda dentro de um
+  // iframe no portal) recebe o foco do teclado.
+  document.getElementById('btnJogar').addEventListener('click', () => {
+    document.getElementById('abertura').hidden = true;
+    window.focus();
+    window.jogo = VilaPixel.iniciar(document.getElementById('jogo'));
+  });
+</script>
+</body>
+</html>

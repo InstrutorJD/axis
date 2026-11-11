@@ -4614,6 +4614,16 @@
       icon: '🗼',
       src: '../../games/torre-do-codigo.html'
     },
+    // Só da turma de Jogos Digitais (2º JD): protótipo de jogo estilo
+    // Stardew Valley em Phaser, mundo em 3 blocos carregados sob demanda.
+    ...(cfg.id === 'jogos' ? {
+      vilapixel: {
+        title: 'Vila Pixel — Protótipo',
+        desc: 'Protótipo em pixel art feito em Phaser: explore os Blocos A, B e C (cada um é carregado quando você entra nele) e converse com os moradores apertando E.',
+        icon: '🏡',
+        src: '../../games/vila-pixel.html'
+      }
+    } : {}),
     // Só professor: o jogo exige login de professor (é ele quem projeta, os
     // alunos jogam pelo celular de controle, professor/joystick.html, sem
     // login). Abre em nova aba em vez do iframe — precisa de tela cheia,
