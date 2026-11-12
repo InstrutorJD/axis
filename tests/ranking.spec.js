@@ -14,7 +14,8 @@ const { stubSupabaseFake, jogosAlunoProfiles } = require('./helpers');
 // prática), o módulo "Prova Diagnóstica — Turma Jogos Digitais" e o módulo
 // "Prova Final — Turma Jogos Digitais" e os 4 módulos de grupo da trilha
 // Cibersegurança (card Projetos; simulações e material do professor são
-// semEntrega e não contam) — usados como base do % geral. As trilhas do
+// semEntrega e não contam) e os 6 módulos das 3 trilhas do
+// Aulão (Missões 1 a 3, dataAula com exigeLiberacao: false, sempre visíveis) — usados como base do % geral. As trilhas do
 // plano de ensino (dataAula no config.js: as de Projetos e de Projeto de
 // Vida compartilhadas com Sistemas) NÃO entram aqui: só contam depois que o
 // professor preenche o "Liberar em" (ver exigeLiberacao em

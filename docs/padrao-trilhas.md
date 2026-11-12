@@ -22,6 +22,8 @@
 > **Aulão de 04/11/2026 (Jogos):** `mundo-enigma-estudio`, `vida-enigma-equipe`
 > e `projetos-enigma-documento`, três trilhas ligadas pela mesma história, para
 > dia com internet (sem internet, a Aula 11 do Criar Material traz o mesmo caso).
+> Ficam **sempre visíveis** (`exigeLiberacao: false`, a pedido do professor),
+> sem esperar o "Liberar em" da Gestão.
 > As práticas usam o motor `shared/enigma-logica.js` (+ `.css`), com etapas
 > `grade` (tabela de eliminação), `caso`, `escrita` e `visto`. Todo enigma novo
 > precisa ter **uma única solução**, conferida por força bruta sobre
@@ -32,9 +34,6 @@
 > pedido do professor**: seis desafios (`aulao-ds-bloco1..6.html`), cada um com
 > duas etapas `copiar` (textos curtos para o caderno, uma no começo e outra no meio) e atividades `grade`/`caso`
 > do `enigma-logica.js`, com `copiarAtividades: true` (o aluno também copia cada atividade e a resposta no caderno).
-> A mesma trilha aparece também no **JD** (Jogos → Mundo do Trabalho), com o
-> conteúdo igual, a pedido do professor: o `config.js` de Jogos aponta para as
-> páginas de `turmas/sistemas/atividades/`.
 >
 > **Práticas visuais (só para adaptação individual):** `caixas-engel` usa o
 > motor `shared/caixas-visuais.js` (+ `.css`), com etapas `ver`, `montar`,

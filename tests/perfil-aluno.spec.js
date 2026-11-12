@@ -15,7 +15,8 @@ const PROFESSOR_URL = '/turmas/jogos/plataforma.html?user=admin&ip=192.168.1.254
 // do card Projetos; as simulações e o material do professor, semEntrega, não
 // contam; as trilhas do plano de ensino, com dataAula no config.js, só
 // contam depois do "Liberar em" — ver exigeLiberacao em
-// shared/platform-core.js). A matéria "Fundamentos de Programação"
+// shared/platform-core.js; as 3 Missões do Aulão, com exigeLiberacao: false,
+// contam sempre: +6). A matéria "Fundamentos de Programação"
 // sozinha tem 21: js/basico, js/intermediario, os 4 módulos da trilha
 // csharp (teoria, comparação, prática simples, desafios) e os 5 da trilha
 // gdscript (os mesmos 4 + 'cenarios', só dela), e mais 6 trilhas
