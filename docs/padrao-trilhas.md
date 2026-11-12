@@ -32,6 +32,9 @@
 > pedido do professor**: seis desafios (`aulao-ds-bloco1..6.html`), cada um com
 > duas etapas `copiar` (textos curtos para o caderno, uma no começo e outra no meio) e atividades `grade`/`caso`
 > do `enigma-logica.js`, com `copiarAtividades: true` (o aluno também copia cada atividade e a resposta no caderno).
+> A mesma trilha aparece também no **JD** (Jogos → Mundo do Trabalho), com o
+> conteúdo igual, a pedido do professor: o `config.js` de Jogos aponta para as
+> páginas de `turmas/sistemas/atividades/`.
 >
 > **Práticas visuais (só para adaptação individual):** `caixas-engel` usa o
 > motor `shared/caixas-visuais.js` (+ `.css`), com etapas `ver`, `montar`,
