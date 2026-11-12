@@ -120,6 +120,13 @@ test.describe('Trilha individual "JavaScript Básico (Engel)"', () => {
       localStorage.setItem(`vida_metas_carreira_pratica_progress_${user}`, JSON.stringify([1]));
       localStorage.setItem(`mundo_comprometimento_pratica_progress_${user}`, JSON.stringify([1]));
       localStorage.setItem(`prova_jogos_progress_${user}`, JSON.stringify({ completed: true, correctCount: 20, total: 20 }));
+      // Aulão do DS, mesma trilha também no JD (mundo-aulao-ds).
+      localStorage.setItem(`aulao_ds_bloco1_progress_${user}`, JSON.stringify(['copiar', 'grade-equipe', 'caso-cracha', 'caso-vaga', 'copiar-2', 'caso-se-funcionou', 'caso-se-falhou']));
+      localStorage.setItem(`aulao_ds_bloco2_progress_${user}`, JSON.stringify(['copiar', 'grade-contratos', 'caso-estagio', 'copiar-2', 'caso-conselho', 'caso-engenheiro']));
+      localStorage.setItem(`aulao_ds_bloco3_progress_${user}`, JSON.stringify(['copiar', 'grade-tarefas', 'copiar-2', 'caso-dados', 'caso-prazo']));
+      localStorage.setItem(`aulao_ds_bloco4_progress_${user}`, JSON.stringify(['copiar', 'caso-davi', 'copiar-2', 'caso-revisao', 'caso-menu']));
+      localStorage.setItem(`aulao_ds_bloco5_progress_${user}`, JSON.stringify(['copiar', 'grade-trechos', 'caso-introducao', 'copiar-2', 'caso-dado-novo']));
+      localStorage.setItem(`aulao_ds_bloco6_progress_${user}`, JSON.stringify(['copiar', 'grade-materiais', 'copiar-2', 'caso-citacao', 'caso-ordem']));
       localStorage.setItem(`prova_final_jogos_progress_${user}`, JSON.stringify({ completed: true, correctCount: 20, total: 25, nota: 80 }));
     }, 'breno.silva80');
 
