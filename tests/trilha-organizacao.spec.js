@@ -26,11 +26,12 @@ test.describe('Organização das trilhas (em aberto / concluídas)', () => {
 
     const select = page.locator('#trilhaSelect');
     await expect(select.locator('optgroup[label="✅ Concluídas"] option')).toHaveText(['Colaboração e Compromisso em Equipe']);
-    // grupo "aberta" continua com as outras 4 trilhas não concluídas. Não
-    // aparecem: as 2 do plano de ensino ainda sem "Liberar em"
+    // grupo "aberta" continua com as outras 5 trilhas não concluídas
+    // (incluindo a Aulão Missão 2, vida-enigma-equipe, sempre visível por
+    // exigeLiberacao: false). Não aparecem: as 2 do plano de ensino ainda sem "Liberar em"
     // (vida-foco-autocontrole e vida-cidadania-digital, ver exigeLiberacao) e
     // as 2 individuais/visibleFor do Engel.
-    await expect(select.locator('optgroup[label="🟢 Em aberto"] option')).toHaveCount(4);
+    await expect(select.locator('optgroup[label="🟢 Em aberto"] option')).toHaveCount(5);
 
     await select.selectOption('vida-equipe');
     await expect(page.locator('#moduleSelector_vida-equipe h2')).toContainText('Concluída');
@@ -39,11 +40,12 @@ test.describe('Organização das trilhas (em aberto / concluídas)', () => {
   test('matéria com TODAS as trilhas num bimestre ainda não iniciado ganha o selo "Em breve"', async ({ page }) => {
     await stubSupabaseFake(page, {
       bimestre_dates: [{ turma: 'jogos', bimestre: 1, inicio: '2999-01-01', fim: '2999-03-31' }],
-      // As 4 trilhas da matéria (as 2 próprias de Jogos + as 2 compartilhadas
-      // com Sistemas: projetos-estrutura-banco e projetos-pre-textuais).
+      // As 5 trilhas da matéria (as 2 próprias de Jogos, a Aulão Missão 3 e as
+      // 2 compartilhadas com Sistemas: projetos-estrutura-banco e projetos-pre-textuais).
       trilha_bimestre: [
         { turma: 'jogos', trilha_key: 'projetos-metodos', bimestre: 1 },
         { turma: 'jogos', trilha_key: 'projetos-fases', bimestre: 1 },
+        { turma: 'jogos', trilha_key: 'projetos-enigma-documento', bimestre: 1 },
         { turma: 'jogos', trilha_key: 'projetos-estrutura-banco', bimestre: 1 },
         { turma: 'jogos', trilha_key: 'projetos-pre-textuais', bimestre: 1 },
       ],
@@ -64,10 +66,12 @@ test.describe('Organização das trilhas (em aberto / concluídas)', () => {
   test('matéria com parte das trilhas num bimestre futuro continua acessível pela que sobrou', async ({ page }) => {
     await stubSupabaseFake(page, {
       bimestre_dates: [{ turma: 'jogos', bimestre: 1, inicio: '2999-01-01', fim: '2999-03-31' }],
-      // projetos-fases fica sem bimestre (sempre visível); as outras 3 trilhas
-      // da matéria (incluindo as 2 compartilhadas com Sistemas) vão pro futuro.
+      // projetos-fases fica sem bimestre (sempre visível); as outras 4 trilhas
+      // da matéria (incluindo a Aulão Missão 3 e as 2 compartilhadas com
+      // Sistemas) vão pro futuro.
       trilha_bimestre: [
         { turma: 'jogos', trilha_key: 'projetos-metodos', bimestre: 1 },
+        { turma: 'jogos', trilha_key: 'projetos-enigma-documento', bimestre: 1 },
         { turma: 'jogos', trilha_key: 'projetos-estrutura-banco', bimestre: 1 },
         { turma: 'jogos', trilha_key: 'projetos-pre-textuais', bimestre: 1 },
       ],
